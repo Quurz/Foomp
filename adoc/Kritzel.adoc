@@ -1,0 +1,101 @@
+= Kritzeleien, Skizzen, wirre Ideen und Notizen
+:toc:
+
+== Witness-Types
+
+Mal schauen, bei welchen Typen ich die Witness-Types in eine Vererbungshierarchie packen kann.
+
+== Komparator
+
+Prüfen, welche Methoden ich noch aus dem Comparator-Interface übernehnem kann.
+
+== Interval
+
+=== Zusätzliche Methoden
+
+Mal schauen, was man von diesen ChatGPT-Vorschlägen übernehmen kann.
+
+[source,java]
+----
+public A length() {
+    // Gibt die Länge des Intervalls zurück, wenn der Typ A diese unterstützt.
+}
+----
+
+[source,java]
+----
+public boolean isEmpty() {
+    // Gibt true zurück, wenn das Intervall leer ist (z. B. `[a, b]` mit a > b).
+}
+----
+
+[source,java]
+----
+public boolean isSinglePoint() {
+    // Gibt true zurück, wenn das Intervall einen einzigen Punkt enthält: [a, a].
+}
+----
+
+[source,java]
+----
+public boolean contains(final @NonNull Interval<A> other) {
+    // Prüft, ob dieses Intervall das andere vollständig enthält.
+}
+----
+
+[source,java]
+----
+public boolean isDisjoint(final @NonNull Interval<A> other) {
+    // Gibt true zurück, wenn die Intervalle keine gemeinsamen Elemente haben.
+}
+----
+
+[source,java]
+----
+public boolean isBefore(final @NonNull Interval<A> other);
+----
+
+[source,java]
+----
+public boolean isAfter(final @NonNull Interval<A> other);
+----
+
+[source,java]
+----
+public Interval<A> shift(A delta) {
+    // Verschiebt das Intervall um delta (z. B. [1, 3] → [2, 4]).
+}
+----
+
+[source,java]
+----
+public Interval<A> scale(A factor) {
+    // Skaliert das Intervall um den Faktor (z. B. [1, 3] * 2 → [2, 6]).
+}
+----
+
+[source,java]
+----
+public boolean overlaps(final @NonNull Interval<A> other) {
+    // Gibt true zurück, wenn die Intervalle sich überschneiden.
+}
+----
+
+[source,java]
+----
+public A randomPoint() {
+    // Wählt zufällig einen Punkt im Intervall, falls der Typ das unterstützt.
+}
+----
+
+== toString-Methoden
+
+Mal überlegen, wie ich Strings 'normiere'. +
+'[...]' für sequenz-ähnliche Typen? +
+'(...)' für tuple-ähnliche Strukturen? +
+'{...}' für alles andere? +
+Was mache ich mit Intervallen? +
+
+== Fun[2, 3, 4]
+
+Muss mal schauen, ob meine Funktionen auch wirklich auf allen Wegen null-sicher sind.

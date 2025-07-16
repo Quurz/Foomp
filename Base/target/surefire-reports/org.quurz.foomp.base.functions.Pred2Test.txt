@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: org.quurz.foomp.base.functions.Pred2Test
+-------------------------------------------------------------------------------
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.058 s -- in org.quurz.foomp.base.functions.Pred2Test

@@ -1,0 +1,15 @@
+org/quurz/foomp/plugins/localisation/PluginsMessages.class
+org/quurz/foomp/plugins/proxybuilder/ProxyBuilderException.class
+org/quurz/foomp/plugins/proxybuilder/Delegator.class
+org/quurz/foomp/plugins/proxybuilder/Argument.class
+org/quurz/foomp/plugins/proxybuilder/DummyReadWriteLock.class
+org/quurz/foomp/plugins/PluginType.class
+org/quurz/foomp/plugins/proxybuilder/LockingMode.class
+org/quurz/foomp/plugins/proxybuilder/MethodLockingInterceptor.class
+org/quurz/foomp/plugins/PluginRepository.class
+module-info.class
+org/quurz/foomp/plugins/proxybuilder/DummyLock$1.class
+org/quurz/foomp/plugins/proxybuilder/ProxyBuilder.class
+org/quurz/foomp/plugins/Plugin.class
+org/quurz/foomp/plugins/proxybuilder/DelegatingProxy.class
+org/quurz/foomp/plugins/proxybuilder/DummyLock.class

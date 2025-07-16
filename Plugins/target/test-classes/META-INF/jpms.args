@@ -1,0 +1,4 @@
+--patch-module
+foomp.plugins=_
+--add-reads
+foomp.plugins=ALL-UNNAMED

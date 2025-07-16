@@ -1,0 +1,14 @@
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/module-info.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/Plugin.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/PluginRepository.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/PluginType.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/localisation/PluginsMessages.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/Argument.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/DelegatingProxy.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/Delegator.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/DummyLock.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/DummyReadWriteLock.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/LockingMode.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/MethodLockingInterceptor.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/ProxyBuilder.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Plugins/src/main/java/org/quurz/foomp/plugins/proxybuilder/ProxyBuilderException.java
