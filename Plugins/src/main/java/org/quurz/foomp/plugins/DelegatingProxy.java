@@ -28,23 +28,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @author Alexander Schell
  */
 public class DelegatingProxy<A>
-        implements Delegator<A> {
-
-    /**
-     * Der Feldname für das Delegate-Objekt (zur Verwendung in Bytecode-Generierung).
-     */
-    public static final String DELEGATE_FIELD_NAME
-            = "$__delegate";
-
-    /**
-     * Der Feldname für das zugehörige {@link ReadWriteLock}.
-     */
-    public static final String DELEGATE_LOCK_FIELD_NAME
-            = "$__delegate_lock";
-
-
-    protected A $__delegate;
-    protected final ReadWriteLock $__delegate_lock;
+        extends AbstractDelegatingProxy<A> {
 
     /**
      * Erstellt eine neue Instanz von {@link DelegatingProxy} mit optionalem Locking.
@@ -55,13 +39,12 @@ public class DelegatingProxy<A>
      */
     public DelegatingProxy(final @NonNull A $__delegate,
                            final boolean lockDelegate) {
-        Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
-        this.$__delegate
-            = $__delegate;
-        this.$__delegate_lock
-            = lockDelegate
+        super(
+            $__delegate,
+            lockDelegate
                 ? new ReentrantReadWriteLock(true)
-                : new DummyReadWriteLock();
+                : new DummyReadWriteLock()
+        );
     }
 
     /**
@@ -69,12 +52,12 @@ public class DelegatingProxy<A>
      *
      * @return das aktuelle Delegate-Objekt
      */
-    public A $__get_delegate() {
-        this.$__delegate_lock.readLock().lock();
+    public @NonNull A $__get_delegate() {
+        super.$__delegate_lock.readLock().lock();
         try {
-            return this.$__delegate;
+            return super.$__delegate;
         } finally {
-            this.$__delegate_lock.readLock().unlock();
+            super.$__delegate_lock.readLock().unlock();
         }
     }
 
@@ -86,22 +69,13 @@ public class DelegatingProxy<A>
      */
     public void $__set_delegate(final @NonNull A $__delegate) {
         Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
-        this.$__delegate_lock.writeLock().lock();
+        super.$__delegate_lock.writeLock().lock();
         try {
-            this.$__delegate
+            super.$__delegate
                 = $__delegate;
         } finally {
-            this.$__delegate_lock.writeLock().unlock();
+            super.$__delegate_lock.writeLock().unlock();
         }
-    }
-
-    /**
-     * Gibt das aktuell verwendete {@link ReadWriteLock} zurück.
-     *
-     * @return das zugehörige Sperrobjekt
-     */
-    public ReadWriteLock $__get_delegate_lock() {
-        return this.$__delegate_lock;
     }
 
 }
