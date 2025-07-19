@@ -1,4 +1,4 @@
-package org.quurz.foomp.plugins.proxybuilder;
+package org.quurz.foomp.plugins;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;

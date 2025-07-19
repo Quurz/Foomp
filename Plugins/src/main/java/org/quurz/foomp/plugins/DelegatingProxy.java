@@ -1,4 +1,4 @@
-package org.quurz.foomp.plugins.proxybuilder;
+package org.quurz.foomp.plugins;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -55,9 +55,9 @@ public class DelegatingProxy<A>
      */
     public DelegatingProxy(final @NonNull A $__delegate,
                            final boolean lockDelegate) {
-        Objects.requireNonNull($__delegate, nullValue(DELEGATE_LOCK_FIELD_NAME));
+        Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
         this.$__delegate
-                = $__delegate;
+            = $__delegate;
         this.$__delegate_lock
             = lockDelegate
                 ? new ReentrantReadWriteLock(true)

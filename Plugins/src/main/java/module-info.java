@@ -1,6 +1,5 @@
 module foomp.plugins {
     exports org.quurz.foomp.plugins;
-    exports org.quurz.foomp.plugins.proxybuilder;
 
     requires foomp.base;
 

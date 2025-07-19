@@ -1,4 +1,4 @@
-package org.quurz.foomp.plugins.proxybuilder;
+package org.quurz.foomp.plugins;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 

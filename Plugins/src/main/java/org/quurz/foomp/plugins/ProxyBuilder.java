@@ -1,4 +1,4 @@
-package org.quurz.foomp.plugins.proxybuilder;
+package org.quurz.foomp.plugins;
 
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.TypeCache;
@@ -20,8 +20,8 @@ import static org.quurz.foomp.plugins.localisation.PluginsMessages.failedToCreat
 import static org.quurz.foomp.plugins.localisation.PluginsMessages.failedToCreateProxyInstance;
 import static org.quurz.foomp.plugins.localisation.PluginsMessages.notAConcreteClass;
 import static org.quurz.foomp.plugins.localisation.PluginsMessages.notAnInterface;
-import static org.quurz.foomp.plugins.proxybuilder.Argument.extractTypesAndValues;
-import static org.quurz.foomp.plugins.proxybuilder.DelegatingProxy.DELEGATE_FIELD_NAME;
+import static org.quurz.foomp.plugins.Argument.extractTypesAndValues;
+import static org.quurz.foomp.plugins.DelegatingProxy.DELEGATE_FIELD_NAME;
 
 /**
  * <div>

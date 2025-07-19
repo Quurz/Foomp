@@ -1,4 +1,4 @@
-package org.quurz.foomp.plugins.proxybuilder;
+package org.quurz.foomp.plugins;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -6,10 +6,11 @@ import org.quurz.foomp.base.util.Tuple2;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
-import static org.quurz.foomp.base.util.Util.requireNonNullElements;
+import static org.quurz.foomp.base.util.Util.requiresNonNullElements;
 
 /**
  * <div>
@@ -43,16 +44,16 @@ public class Argument<A> {
      *     </p>
      * </div>
      *
-     * @param value der Argumentwert, darf {@code null} sein
      * @param type  der explizite, nicht-nullbare Typ des Arguments
+     * @param value der Argumentwert, darf {@code null} sein
      * @param <A>   der generische Typ des Werts
      * @return eine neue {@link Argument}-Instanz mit Wert und Typ
      * @throws NullPointerException wenn {@code type} {@code null} ist
      *
      * @since 1.0.0
      */
-    public static <A> Argument<A> argument(final @Nullable A value,
-                                           final @NonNull Class<? super A> type) {
+    public static <A> Argument<A> argument(final @NonNull Class<? super A> type,
+                                           final @Nullable A value) {
         Objects.requireNonNull(type, nullValue("type"));
         return new Argument<>(value, type);
     }
@@ -80,7 +81,7 @@ public class Argument<A> {
      */
     public static Tuple2<Class<?>[], Object[]> extractTypesAndValues(final @NonNull Argument<?>[] arguments) {
         Objects.requireNonNull(arguments, nullValue("arguments"));
-        requireNonNullElements(arguments,"arguments", IllegalArgumentException::new);
+        requiresNonNullElements(arguments,"arguments", IllegalArgumentException::new);
 
         final var types
             = Arrays.stream(arguments)
@@ -97,8 +98,8 @@ public class Argument<A> {
     private final A value;
     private final Class<? super A> type;
 
-    private Argument(final @Nullable A value,
-                     final @NonNull Class<? super A> type) {
+    private Argument(final A value,
+                     final Class<? super A> type) {
         this.value
             = value;
         this.type
@@ -136,5 +137,71 @@ public class Argument<A> {
     public Class<? super A> getType() {
         return this.type;
     }
+
+    /**
+     * <div>
+     *     <p>
+     *         Vergleicht dieses {@code Argument} mit einem anderen Objekt auf Gleichheit.
+     *     </p>
+     *     <p>
+     *         Zwei {@code Argument}-Instanzen gelten als gleich, wenn sowohl ihr Typ als auch ihr Wert gleich sind.
+     *     </p>
+     * </div>
+     *
+     * @param o das zu vergleichende Objekt
+     * @return {@code true}, wenn das angegebene Objekt ein gleiches {@code Argument} ist; sonst {@code false}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof Argument<?> argument)) return false;
+
+        return Objects.equals(value, argument.value) && type.equals(argument.type);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Gibt einen Hashcode für dieses {@code Argument} zurück.
+     *     </p>
+     *     <p>
+     *         Der Hashcode basiert auf dem Typ und dem Wert des Arguments.
+     *     </p>
+     * </div>
+     *
+     * @return der berechnete Hashcode
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(value);
+        result = 31 * result + type.hashCode();
+        return result;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Gibt eine String-Repräsentation dieses {@code Argument} zurück.
+     *     </p>
+     *     <p>
+     *         Das Format ist {@code Argument[type=..., value=...]}.
+     *     </p>
+     * </div>
+     *
+     * @return eine lesbare Beschreibung dieses {@code Argument}-Objekts
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Argument.class.getSimpleName() + "[", "]")
+                .add("type=" + type)
+                .add("value=" + value)
+                .toString();
+    }
+
 
 }

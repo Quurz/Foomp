@@ -6,7 +6,7 @@ import testclasses.TestContract;
 import testclasses.TestImplementation1;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.quurz.foomp.plugins.proxybuilder.ProxyBuilder.proxyBuilder;
+import static org.quurz.foomp.plugins.ProxyBuilder.proxyBuilder;
 import static org.slf4j.LoggerFactory.getLogger;
 
 class ProxyBuilderTest {

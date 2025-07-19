@@ -2,6 +2,7 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun;
+import org.quurz.foomp.base.functions.Fun2;
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullElementIn;
@@ -202,9 +205,9 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends Exception> Collection<A> requireNonNullElements(final @NonNull Collection<A> collection,
-                                                                                final @NonNull String collectionName,
-                                                                                final @NonNull Fun<String, E> exceptionConstructor)
+    public static <A, E extends Exception> Collection<A> requiresNonNullElements(final @NonNull Collection<A> collection,
+                                                                                 final @NonNull String collectionName,
+                                                                                 final @NonNull Fun<String, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(collectionName, nullValue("collectionName"));
@@ -232,6 +235,64 @@ public final class Util {
     /**
      * <div>
      *     <p>
+     *         Dekoriert eine einstellige Funktion mit einer Null-Prüfung des Rückgabewerts.
+     *     </p>
+     *     <p>
+     *         Die zurückgegebene Funktion wirft eine {@link NullPointerException} mit einer
+     *         aussagekräftigen Fehlermeldung, falls die ursprüngliche Funktion {@code null}
+     *         zurückliefert.
+     *     </p>
+     * </div>
+     *
+     * @param function     Die zu dekorierende Funktion
+     * @param functionName Ein beschreibender Name für die Funktion (für Fehlermeldungen)
+     * @param <X>         Der Eingabetyp der Funktion
+     * @param <Y>         Der Rückgabetyp der Funktion
+     * @return Eine neue Funktion, die das Ergebnis auf {@code null} prüft
+     * @throws NullPointerException wenn {@code function} oder {@code functionName} {@code null} ist
+     *
+     * @since 1.0.0
+     */
+    public static <X, Y> Fun<X, Y> requiresNonNullResult1(final @NonNull Function<X, Y> function,
+                                                          final @NonNull String functionName) {
+        Objects.requireNonNull(function, nullValue("function"));
+        Objects.requireNonNull(functionName, nullValue("functionName"));
+        return x -> Objects.requireNonNull(function.apply(x), nullResultFrom(functionName));
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Dekoriert eine zweistellige Funktion mit einer Null-Prüfung des Rückgabewerts.
+     *     </p>
+     *     <p>
+     *         Die zurückgegebene Funktion wirft eine {@link NullPointerException} mit einer
+     *         aussagekräftigen Fehlermeldung, falls die ursprüngliche Funktion {@code null}
+     *         zurückliefert.
+     *     </p>
+     * </div>
+     *
+     * @param function     Die zu dekorierende Funktion
+     * @param functionName Ein beschreibender Name für die Funktion (für Fehlermeldungen)
+     * @param <X1>        Der Typ des ersten Arguments
+     * @param <X2>        Der Typ des zweiten Arguments
+     * @param <Y>         Der Rückgabetyp der Funktion
+     * @return Eine neue Funktion, die das Ergebnis auf {@code null} prüft
+     * @throws NullPointerException wenn {@code function} oder {@code functionName} {@code null} ist
+     *
+     * @since 1.0.0
+     */
+
+    public static <X1, X2, Y> Fun2<X1, X2, Y> requiresNonNullResult2(final BiFunction<X1, X2, Y> function,
+                                                                     final String functionName) {
+        Objects.requireNonNull(function, nullValue("function"));
+        Objects.requireNonNull(functionName, nullValue("functionName"));
+        return (x1, x2) -> Objects.requireNonNull(function.apply(x1, x2), nullResultFrom(functionName));
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Prüft, ob alle Elemente im übergebenen Array nicht {@code null} sind.
      *     </p>
      *     <p>
@@ -254,9 +315,9 @@ public final class Util {
      * @since 1.0.0
      */
     @SuppressWarnings("ConstantConditions")
-    public static <A, E extends Exception> A[] requireNonNullElements(final @NonNull A[] array,
-                                                                      final @NonNull String arrayName,
-                                                                      final @NonNull Fun<String, E> exceptionConstructor)
+    public static <A, E extends Exception> A[] requiresNonNullElements(final @NonNull A[] array,
+                                                                       final @NonNull String arrayName,
+                                                                       final @NonNull Fun<String, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(array, nullValue("array"));
         Objects.requireNonNull(arrayName, nullValue("arrayName"));

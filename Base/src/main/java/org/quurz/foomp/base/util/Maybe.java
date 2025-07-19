@@ -15,14 +15,18 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSupplied;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.util.Util.requiresNonNullResult2;
 
 /**
  * <div>
@@ -463,6 +467,52 @@ public sealed interface Maybe<A>
             case None<A> none -> none;
         };
     }
+
+    /**
+     * <div>
+     *     <p>
+     *         Filtert den Wert dieses <code>Maybe</code> anhand des übergebenen Prädikats.
+     *         Falls das Prädikat <code>false</code> zurückgibt oder dieses <code>Maybe</code> leer ist,
+     *         wird ein leeres <code>Maybe</code> zurückgegeben.
+     *     </p>
+     * </div>
+     *
+     * @param predicate Das Prädikat
+     * @return Ein neues <code>Maybe</code>
+     *
+     * @since 1.0.0
+     */
+    @NonNull
+    default Maybe<A> filter(final @NonNull Predicate<? super A> predicate) {
+        Objects.requireNonNull(predicate, nullValue("predicate"));
+        return this.bind(a -> predicate.test(a) ? some(a) : none());
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Kombiniert die Werte dieses und des übergebenen <code>Maybe</code>s
+     *         mithilfe der übergebenen Funktion. Falls eines der <code>Maybe</code>s
+     *         leer ist, ist auch das Ergebnis leer.
+     *     </p>
+     * </div>
+     *
+     * @param other Das andere <code>Maybe</code>
+     * @param zipper Die Kombinationsfunktion
+     * @param <B> Typ des Werts des anderen <code>Maybe</code>s
+     * @param <C> Ergebnistyp
+     * @return Ein neues <code>Maybe</code> mit dem kombinierten Wert
+     *
+     * @since 1.0.0
+     */
+    @NonNull
+    default <B, C> Maybe<C> zip(final @NonNull Maybe<B> other,
+                                final @NonNull BiFunction<A, B, C> zipper) {
+        Objects.requireNonNull(other, nullValue("other"));
+        Objects.requireNonNull(zipper, nullValue("zipper"));
+        return this.bind(a -> other.map(b -> requiresNonNullResult2(zipper, "zipper").apply(a, b)));
+    }
+
 
     /**
      * <div>
