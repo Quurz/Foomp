@@ -45,55 +45,53 @@ public abstract class AbstractDelegatingProxy<A>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Proxy-Instanz mit dem angegebenen Lock.
-     *     </p>
-     * </div>
-     *
-     * @param $__delegate_lock Das zu verwendende Lock für Thread-Safety
-     * @throws NullPointerException wenn {@code $__delegate_lock} {@code null} ist
-     *
-     * @since 1.0.0
-     */
-    protected AbstractDelegatingProxy(final @NonNull ReadWriteLock $__delegate_lock) {
-        Objects.requireNonNull($__delegate_lock, nullValue(DELEGATE_LOCK_FIELD_NAME));
-        this.$__delegate_lock
-            = $__delegate_lock;
-    }
-
-    /**
-     * <div>
-     *     <p>
      *         Erstellt eine neue Proxy-Instanz mit dem angegebenen Delegate und Lock.
      *     </p>
      * </div>
      *
      * @param $__delegate Das initiale Delegate-Objekt
-     * @param lockDele Das zu verwendende Lock für Thread-Safety
-     * @throws NullPointerException wenn {@code $__delegate} oder {@code lockDele} {@code null} ist
+     * @param $__delegate_lock Das zu verwendende Lock für Thread-Safety
+     * @throws NullPointerException wenn {@code $__delegate} oder {@code $__delegate_lock} {@code null} ist
      *
      * @since 1.0.0
      */
     protected AbstractDelegatingProxy(final @NonNull A $__delegate,
-                                      final @NonNull ReadWriteLock lockDele) {
+                                      final @NonNull ReadWriteLock $__delegate_lock) {
         Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
-        Objects.requireNonNull(lockDele, nullValue(DELEGATE_LOCK_FIELD_NAME));
+        Objects.requireNonNull($__delegate_lock, nullValue(DELEGATE_LOCK_FIELD_NAME));
         this.$__delegate
             = $__delegate;
         this.$__delegate_lock
-            = lockDele;
+            = $__delegate_lock;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public abstract @NonNull A $__get_delegate();
+    public @NonNull A $__get_delegate() {
+        this.$__delegate_lock.readLock().lock();
+        try {
+            return this.$__delegate;
+        } finally {
+            this.$__delegate_lock.readLock().unlock();
+        }
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public abstract void $__set_delegate(final @NonNull A $__delegate);
+    public void $__set_delegate(final @NonNull A $__delegate) {
+        Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
+        this.$__delegate_lock.writeLock().lock();
+        try {
+            this.$__delegate
+                = $__delegate;
+        } finally {
+            this.$__delegate_lock.writeLock().unlock();
+        }
+    }
 
     /**
      * <div>

@@ -1,7 +1,6 @@
-package org.quurz.foomp.plugins.proxybuilder;
+package org.quurz.foomp.plugins;
 
 import org.junit.jupiter.api.Test;
-import org.quurz.foomp.plugins.Argument;
 import org.slf4j.Logger;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
