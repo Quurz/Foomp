@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  *         in Szenarien, in denen bewusst auf Thread-Sicherheit verzichtet werden soll.
  *     </p>
  *     <p>
- *         Wird typischerweise über {@link com.oneandone.bs.billing.util.foomp.proxies.LockingMode#NO_LOCKING}
+ *         Wird typischerweise über {@link org.quurz.foomp.plugins.LockingMode#NO_LOCKING}
  *         oder als Fallback bei deaktivierter Sperrung verwendet.
  *     </p>
  * </div>

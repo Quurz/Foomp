@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.oneandone.bs.billing.util.foomp</groupId>
-        <artifactId>foomp</artifactId>
+        <groupId>org.quurz.foomp</groupId>
+        <artifactId>parent</artifactId>
         <version>1.0.0-u0-SNAPSHOT</version>
     </parent>
 
@@ -52,7 +52,7 @@
     <dependencies>
         <!-- Foomp-Higher  -->
         <dependency>
-            <groupId>com.oneandone.bs.billing.util.foomp</groupId>
+            <groupId>org.quurz.foomp</groupId>
             <artifactId>higher</artifactId>
         </dependency>
 

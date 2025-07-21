@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.oneandone.bs.billing.util.foomp</groupId>
-    <artifactId>foomp</artifactId>
+    <groupId>org.quurz.foomp</groupId>
+    <artifactId>parent</artifactId>
     <version>1.0.0-u0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -37,7 +37,7 @@
 
     <properties>
         <!-- Utilities -->
-        <byte-buddy.version>1.17.5</byte-buddy.version>
+        <byte-buddy.version>1.17.6</byte-buddy.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <lombok.version>1.18.34</lombok.version>
 
@@ -45,7 +45,7 @@
         <checkerframework.version>3.48.1</checkerframework.version>
 
         <!-- Test -->
-        <mockito.version>5.14.2</mockito.version>
+        <mockito.version>5.18.0</mockito.version>
         <assertj-core.version>3.26.3</assertj-core.version>
         <junit-jupiter.version>5.11.4</junit-jupiter.version>
 
@@ -149,27 +149,27 @@
         <dependencies>
             <!-- The Foomps -->
             <dependency>
-                <groupId>com.oneandone.bs.billing.util.foomp</groupId>
+                <groupId>org.quurz.foomp</groupId>
                 <artifactId>plugins</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.oneandone.bs.billing.util.foomp</groupId>
+                <groupId>org.quurz.foomp</groupId>
                 <artifactId>automata</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.oneandone.bs.billing.util.foomp</groupId>
+                <groupId>org.quurz.foomp</groupId>
                 <artifactId>base</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.oneandone.bs.billing.util.foomp</groupId>
+                <groupId>org.quurz.foomp</groupId>
                 <artifactId>higher</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.oneandone.bs.billing.util.foomp</groupId>
+                <groupId>org.quurz.foomp</groupId>
                 <artifactId>report-aggregator</artifactId>
                 <version>${project.version}</version>
             </dependency>

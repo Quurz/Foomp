@@ -9,7 +9,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.oneandone.bs.billing.util.foomp"
+    <logger name="org.quurz.foomp"
             level="ALL"
             additivity="false">
         <appender-ref ref="STDOUT" />
