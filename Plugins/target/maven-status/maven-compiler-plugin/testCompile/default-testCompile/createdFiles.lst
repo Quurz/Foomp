@@ -1,3 +1,6 @@
-org/quurz/foomp/plugins/ProxyBuilderTest.class
+org/quurz/foomp/plugins/AbstractDelegatingProxyTest$DummyDelegatingProxy.class
 testclasses/TestImplementation1.class
 testclasses/TestContract.class
+org/quurz/foomp/plugins/ProxyBuilderTest.class
+org/quurz/foomp/plugins/ArgumentTest.class
+org/quurz/foomp/plugins/AbstractDelegatingProxyTest.class

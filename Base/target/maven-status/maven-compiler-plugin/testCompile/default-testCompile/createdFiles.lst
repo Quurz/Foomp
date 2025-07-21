@@ -5,8 +5,8 @@ org/quurz/foomp/base/functions/FunTest.class
 org/quurz/foomp/base/types/EqTest.class
 org/quurz/foomp/base/util/UtilTest$TestAnnotation.class
 org/quurz/foomp/base/types/EchoTest$1.class
-org/quurz/foomp/base/functions/Pred3Test.class
 org/quurz/foomp/base/TestHelper$3.class
+org/quurz/foomp/base/functions/Pred3Test.class
 org/quurz/foomp/base/util/AsyncCombinableTest.class
 org/quurz/foomp/base/util/EitherTest.class
 org/quurz/foomp/base/util/TrampolineTest.class
@@ -29,8 +29,8 @@ org/quurz/foomp/base/util/UtilTest$TestAbstractClass.class
 org/quurz/foomp/base/util/TrampolineTest$Bounce.class
 org/quurz/foomp/base/util/Record3Test.class
 playground/games/Game.class
-org/quurz/foomp/base/types/SafeExecutableTest.class
 org/quurz/foomp/base/TestHelper$1.class
+org/quurz/foomp/base/types/SafeExecutableTest.class
 org/quurz/foomp/base/functions/ReceiverTest.class
 playground/Playground.class
 org/quurz/foomp/base/functions/PredTest.class
@@ -45,8 +45,8 @@ org/quurz/foomp/base/functions/Fun2Test.class
 org/quurz/foomp/base/functions/ApplicableTest.class
 org/quurz/foomp/base/types/SafeExecutableTest$1.class
 org/quurz/foomp/base/types/ExecutableTest$TestExecutable.class
-org/quurz/foomp/base/util/ContinuationTest.class
 org/quurz/foomp/base/TestHelper.class
+org/quurz/foomp/base/util/ContinuationTest.class
 org/quurz/foomp/base/util/Record4Test.class
 org/quurz/foomp/base/TestException.class
 org/quurz/foomp/base/types/Mappable2Test$TestMappable2.class
