@@ -1,6 +1,8 @@
 package org.quurz.foomp.plugins;
 
+import net.bytebuddy.agent.ByteBuddyAgent;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 

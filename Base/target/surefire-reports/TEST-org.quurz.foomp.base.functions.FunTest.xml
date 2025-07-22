@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="org.quurz.foomp.base.functions.FunTest" time="0.098" tests="17" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="org.quurz.foomp.base.functions.FunTest" time="0.082" tests="17" errors="0" skipped="0" failures="0">
   <properties>
-    <property name="java.specification.version" value="21"/>
+    <property name="java.specification.version" value="22"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
     <property name="java.class.path" value="/home/Alexander/Entwicklung/Projekte/Foomp/Base/target/test-classes:/home/Alexander/.m2/repository/org/mockito/mockito-junit-jupiter/5.18.0/mockito-junit-jupiter-5.18.0.jar:/home/Alexander/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.11.4/junit-jupiter-api-5.11.4.jar:/home/Alexander/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/Alexander/.m2/repository/org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.jar:/home/Alexander/.m2/repository/org/mockito/mockito-core/5.18.0/mockito-core-5.18.0.jar:/home/Alexander/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.5/byte-buddy-agent-1.17.5.jar:/home/Alexander/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/Alexander/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar:/home/Alexander/.m2/repository/org/assertj/assertj-core/3.26.3/assertj-core-3.26.3.jar:/home/Alexander/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.11.4/junit-jupiter-engine-5.11.4.jar:/home/Alexander/.m2/repository/org/junit/platform/junit-platform-engine/1.11.4/junit-platform-engine-1.11.4.jar:/home/Alexander/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/Alexander/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:/home/Alexander/.m2/repository/ch/qos/logback/logback-classic/1.5.11/logback-classic-1.5.11.jar:/home/Alexander/.m2/repository/ch/qos/logback/logback-core/1.5.11/logback-core-1.5.11.jar:/home/Alexander/.m2/repository/net/bytebuddy/byte-buddy/1.17.5/byte-buddy-1.17.5.jar:"/>
-    <property name="java.vm.vendor" value="Eclipse Adoptium"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="java.vendor.url" value="https://adoptium.net/"/>
+    <property name="java.vendor.url" value="https://java.oracle.com/"/>
     <property name="user.timezone" value="Europe/Berlin"/>
     <property name="os.name" value="Linux"/>
-    <property name="java.vm.specification.version" value="21"/>
+    <property name="java.vm.specification.version" value="22"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="DE"/>
-    <property name="sun.boot.library.path" value="/home/Alexander/Entwicklung/Sprachen/Java/jdk-21.0.5+11/lib"/>
-    <property name="sun.java.command" value="org.apache.maven.surefire.booter.ForkedBooter /home/Alexander/Entwicklung/Projekte/Foomp/Base/target/surefire 2025-07-21T23-30-56_078-jvmRun1 surefire-20250721233117414_1tmp surefire_0-20250721233117414_2tmp"/>
+    <property name="sun.boot.library.path" value="/home/Alexander/Entwicklung/Sprachen/Java/jdk-22/lib"/>
+    <property name="sun.java.command" value="org.apache.maven.surefire.booter.ForkedBooter /home/Alexander/Entwicklung/Projekte/Foomp/Base/target/surefire 2025-07-22T19-35-55_471-jvmRun1 surefire-20250722193613321_1tmp surefire_0-20250722193613321_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/Alexander/Entwicklung/Projekte/Foomp/Base/target/test-classes:/home/Alexander/.m2/repository/org/mockito/mockito-junit-jupiter/5.18.0/mockito-junit-jupiter-5.18.0.jar:/home/Alexander/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.11.4/junit-jupiter-api-5.11.4.jar:/home/Alexander/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/Alexander/.m2/repository/org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.jar:/home/Alexander/.m2/repository/org/mockito/mockito-core/5.18.0/mockito-core-5.18.0.jar:/home/Alexander/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.5/byte-buddy-agent-1.17.5.jar:/home/Alexander/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/Alexander/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar:/home/Alexander/.m2/repository/org/assertj/assertj-core/3.26.3/assertj-core-3.26.3.jar:/home/Alexander/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.11.4/junit-jupiter-engine-5.11.4.jar:/home/Alexander/.m2/repository/org/junit/platform/junit-platform-engine/1.11.4/junit-platform-engine-1.11.4.jar:/home/Alexander/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/Alexander/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:/home/Alexander/.m2/repository/ch/qos/logback/logback-classic/1.5.11/logback-classic-1.5.11.jar:/home/Alexander/.m2/repository/ch/qos/logback/logback-core/1.5.11/logback-core-1.5.11.jar:/home/Alexander/.m2/repository/net/bytebuddy/byte-buddy/1.17.5/byte-buddy-1.17.5.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -21,8 +21,8 @@
     <property name="user.language" value="de"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="jdk.module.path" value="/home/Alexander/Entwicklung/Projekte/Foomp/Base/target/classes:/home/Alexander/Entwicklung/Projekte/Foomp/Higher/target/higher-1.0.0-u0-SNAPSHOT.jar:/home/Alexander/.m2/repository/org/checkerframework/checker-qual/3.48.1/checker-qual-3.48.1.jar:/home/Alexander/.m2/repository/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar"/>
-    <property name="java.version.date" value="2024-10-15"/>
-    <property name="java.home" value="/home/Alexander/Entwicklung/Sprachen/Java/jdk-21.0.5+11"/>
+    <property name="java.version.date" value="2024-03-19"/>
+    <property name="java.home" value="/home/Alexander/Entwicklung/Sprachen/Java/jdk-22"/>
     <property name="file.separator" value="/"/>
     <property name="basedir" value="/home/Alexander/Entwicklung/Projekte/Foomp/Base"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
@@ -31,7 +31,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="surefire.real.class.path" value="/home/Alexander/.m2/repository/org/apache/maven/surefire/surefire-booter/3.5.1/surefire-booter-3.5.1.jar:/home/Alexander/.m2/repository/org/apache/maven/surefire/surefire-api/3.5.1/surefire-api-3.5.1.jar:/home/Alexander/.m2/repository/org/apache/maven/surefire/surefire-extensions-spi/3.5.1/surefire-extensions-spi-3.5.1.jar:/home/Alexander/.m2/repository/org/apache/maven/surefire/surefire-shared-utils/3.5.1/surefire-shared-utils-3.5.1.jar:/home/Alexander/.m2/repository/org/apache/maven/surefire/surefire-logger-api/3.5.1/surefire-logger-api-3.5.1.jar:/home/Alexander/Entwicklung/Projekte/Foomp/Base/target/test-classes:/home/Alexander/.m2/repository/org/mockito/mockito-junit-jupiter/5.18.0/mockito-junit-jupiter-5.18.0.jar:/home/Alexander/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.11.4/junit-jupiter-api-5.11.4.jar:/home/Alexander/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/Alexander/.m2/repository/org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.jar:/home/Alexander/.m2/repository/org/mockito/mockito-core/5.18.0/mockito-core-5.18.0.jar:/home/Alexander/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.5/byte-buddy-agent-1.17.5.jar:/home/Alexander/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/home/Alexander/.m2/repository/org/apache/commons/commons-lang3/3.17.0/commons-lang3-3.17.0.jar:/home/Alexander/.m2/repository/org/assertj/assertj-core/3.26.3/assertj-core-3.26.3.jar:/home/Alexander/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.11.4/junit-jupiter-engine-5.11.4.jar:/home/Alexander/.m2/repository/org/junit/platform/junit-platform-engine/1.11.4/junit-platform-engine-1.11.4.jar:/home/Alexander/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/Alexander/.m2/repository/org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.jar:/home/Alexander/.m2/repository/ch/qos/logback/logback-classic/1.5.11/logback-classic-1.5.11.jar:/home/Alexander/.m2/repository/ch/qos/logback/logback-core/1.5.11/logback-core-1.5.11.jar:/home/Alexander/.m2/repository/net/bytebuddy/byte-buddy/1.17.5/byte-buddy-1.17.5.jar:/home/Alexander/.m2/repository/org/apache/maven/surefire/surefire-junit-platform/3.5.1/surefire-junit-platform-3.5.1.jar:/home/Alexander/.m2/repository/org/apache/maven/surefire/common-java5/3.5.1/common-java5-3.5.1.jar:/home/Alexander/.m2/repository/org/junit/platform/junit-platform-launcher/1.11.4/junit-platform-launcher-1.11.4.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="java.runtime.version" value="21.0.5+11-LTS"/>
+    <property name="java.runtime.version" value="22+36-2370"/>
     <property name="user.name" value="Alexander"/>
     <property name="stdout.encoding" value="UTF-8"/>
     <property name="path.separator" value=":"/>
@@ -39,11 +39,11 @@
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
-    <property name="java.vendor.version" value="Temurin-21.0.5+11"/>
     <property name="localRepository" value="/home/Alexander/.m2/repository"/>
-    <property name="java.vendor.url.bug" value="https://github.com/adoptium/adoptium-support/issues"/>
+    <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
     <property name="java.io.tmpdir" value="/tmp"/>
-    <property name="java.version" value="21.0.5"/>
+    <property name="idea.version" value="2025.1.3"/>
+    <property name="java.version" value="22"/>
     <property name="user.dir" value="/home/Alexander/Entwicklung/Projekte/Foomp/Base"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
@@ -51,74 +51,74 @@
     <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib"/>
     <property name="java.vm.info" value="mixed mode"/>
     <property name="stderr.encoding" value="UTF-8"/>
-    <property name="java.vendor" value="Eclipse Adoptium"/>
-    <property name="java.vm.version" value="21.0.5+11-LTS"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="java.vm.version" value="22+36-2370"/>
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
-    <property name="java.class.version" value="65.0"/>
+    <property name="java.class.version" value="66.0"/>
   </properties>
   <testcase name="testIdentityWithNullArgument" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
-    <system-out><![CDATA[23:31:23.153 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.identity with null-argument
+    <system-out><![CDATA[19:36:16.923 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.identity with null-argument
 ]]></system-out>
   </testcase>
-  <testcase name="testNullSafe" classname="org.quurz.foomp.base.functions.FunTest" time="0.005">
-    <system-out><![CDATA[23:31:23.159 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.nullChecked
+  <testcase name="testNullSafe" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
+    <system-out><![CDATA[19:36:16.928 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.nullChecked
 ]]></system-out>
   </testcase>
   <testcase name="testApplicable" classname="org.quurz.foomp.base.functions.FunTest" time="0.005">
-    <system-out><![CDATA[23:31:23.164 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.applicable
+    <system-out><![CDATA[19:36:16.933 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.applicable
 ]]></system-out>
   </testcase>
-  <testcase name="testComposeWithValidBefore" classname="org.quurz.foomp.base.functions.FunTest" time="0.005">
-    <system-out><![CDATA[23:31:23.171 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with valid funs
+  <testcase name="testComposeWithValidBefore" classname="org.quurz.foomp.base.functions.FunTest" time="0.003">
+    <system-out><![CDATA[19:36:16.938 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with valid funs
 ]]></system-out>
   </testcase>
-  <testcase name="testAndThenWithNullAfter" classname="org.quurz.foomp.base.functions.FunTest" time="0.005">
-    <system-out><![CDATA[23:31:23.178 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.andThen with null-fun
+  <testcase name="testAndThenWithNullAfter" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
+    <system-out><![CDATA[19:36:16.943 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.andThen with null-fun
 ]]></system-out>
   </testcase>
-  <testcase name="testFunWithNullReturningFunction" classname="org.quurz.foomp.base.functions.FunTest" time="0.003">
-    <system-out><![CDATA[23:31:23.186 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.fun with null returning function
+  <testcase name="testFunWithNullReturningFunction" classname="org.quurz.foomp.base.functions.FunTest" time="0.005">
+    <system-out><![CDATA[19:36:16.949 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.fun with null returning function
 ]]></system-out>
   </testcase>
   <testcase name="testFunWithValidFunction" classname="org.quurz.foomp.base.functions.FunTest" time="0.003">
-    <system-out><![CDATA[23:31:23.190 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.fun with valid function
+    <system-out><![CDATA[19:36:16.953 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.fun with valid function
 ]]></system-out>
   </testcase>
-  <testcase name="testComposeWithNullFunction" classname="org.quurz.foomp.base.functions.FunTest" time="0.008">
-    <system-out><![CDATA[23:31:23.194 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with null-function
+  <testcase name="testComposeWithNullFunction" classname="org.quurz.foomp.base.functions.FunTest" time="0.005">
+    <system-out><![CDATA[19:36:16.956 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with null-function
 ]]></system-out>
   </testcase>
-  <testcase name="testMemoise" classname="org.quurz.foomp.base.functions.FunTest" time="0.008">
-    <system-out><![CDATA[23:31:23.203 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.memoising
+  <testcase name="testMemoise" classname="org.quurz.foomp.base.functions.FunTest" time="0.006">
+    <system-out><![CDATA[19:36:16.962 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.memoising
 ]]></system-out>
   </testcase>
   <testcase name="testFunWithNullFunction" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
-    <system-out><![CDATA[23:31:23.212 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.fun with null function
+    <system-out><![CDATA[19:36:16.969 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.fun with null function
 ]]></system-out>
   </testcase>
-  <testcase name="testDeferWithNullSupplier" classname="org.quurz.foomp.base.functions.FunTest" time="0.003"/>
+  <testcase name="testDeferWithNullSupplier" classname="org.quurz.foomp.base.functions.FunTest" time="0.002"/>
   <testcase name="testComposeWithNullReturningBefore" classname="org.quurz.foomp.base.functions.FunTest" time="0.003">
-    <system-out><![CDATA[23:31:23.221 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with null-returning before
+    <system-out><![CDATA[19:36:16.977 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with null-returning before
 ]]></system-out>
   </testcase>
   <testcase name="testAndThenWithNullReturningAfter" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
-    <system-out><![CDATA[23:31:23.225 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.andThen with null-returning after
+    <system-out><![CDATA[19:36:16.980 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.andThen with null-returning after
 ]]></system-out>
   </testcase>
   <testcase name="testIdentityWithValidArgument" classname="org.quurz.foomp.base.functions.FunTest" time="0.003">
-    <system-out><![CDATA[23:31:23.230 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.identity with valid argument
+    <system-out><![CDATA[19:36:16.985 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test Fun.identity with valid argument
 ]]></system-out>
   </testcase>
   <testcase name="testComposeWithNullReturningAfter" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
-    <system-out><![CDATA[23:31:23.235 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with null-returning after
+    <system-out><![CDATA[19:36:16.989 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.compose with null-returning after
 ]]></system-out>
   </testcase>
-  <testcase name="testDeferWithNullReturningSupplier" classname="org.quurz.foomp.base.functions.FunTest" time="0.003">
-    <system-out><![CDATA[23:31:23.240 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.defer with null-returning supplier
+  <testcase name="testDeferWithNullReturningSupplier" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
+    <system-out><![CDATA[19:36:16.994 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.defer with null-returning supplier
 ]]></system-out>
   </testcase>
-  <testcase name="testDeferWithValidSupplier" classname="org.quurz.foomp.base.functions.FunTest" time="0.004">
-    <system-out><![CDATA[23:31:23.245 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.defer with valid supplier
+  <testcase name="testDeferWithValidSupplier" classname="org.quurz.foomp.base.functions.FunTest" time="0.003">
+    <system-out><![CDATA[19:36:16.999 [main] INFO  o.quurz.foomp.base.functions.FunTest - Test fun.defer with valid supplier
 ]]></system-out>
   </testcase>
 </testsuite>

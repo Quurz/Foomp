@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.quurz.foomp.base.functions.Fun4Test
 -------------------------------------------------------------------------------
-Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.141 s -- in org.quurz.foomp.base.functions.Fun4Test
+Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.127 s -- in org.quurz.foomp.base.functions.Fun4Test

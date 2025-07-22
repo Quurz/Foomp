@@ -30,52 +30,25 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 public class DelegatingProxy<A>
         extends AbstractDelegatingProxy<A> {
 
-    /**
-     * Erstellt eine neue Instanz von {@link DelegatingProxy} mit optionalem Locking.
-     *
-     * @param $__delegate   das Delegate-Objekt, darf nicht {@code null} sein
-     * @param lockDelegate  gibt an, ob Zugriffe auf das Delegate synchronisiert werden sollen
-     * @throws NullPointerException wenn {@code $__delegate} {@code null} ist
-     */
-    public DelegatingProxy(final @NonNull A $__delegate,
-                           final boolean lockDelegate) {
+    public static <A> DelegatingProxy<A> delegatingProxy(final @NonNull A $__delegate) {
+        Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
+        return delegatingProxy($__delegate, true);
+    }
+
+    public static <A> DelegatingProxy<A> delegatingProxy(final @NonNull A $__delegate,
+                                                         final boolean lockDelegate) {
+        Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
+        return new DelegatingProxy<>($__delegate, lockDelegate);
+    }
+
+    private DelegatingProxy(final A $__delegate,
+                            final boolean lockDelegate) {
         super(
             $__delegate,
             lockDelegate
                 ? new ReentrantReadWriteLock(true)
                 : new DummyReadWriteLock()
         );
-    }
-
-    /**
-     * Gibt das Delegate-Objekt zurück. Der Zugriff wird ggf. lesend gesperrt.
-     *
-     * @return das aktuelle Delegate-Objekt
-     */
-    public @NonNull A $__get_delegate() {
-        super.$__delegate_lock.readLock().lock();
-        try {
-            return super.$__delegate;
-        } finally {
-            super.$__delegate_lock.readLock().unlock();
-        }
-    }
-
-    /**
-     * Setzt ein neues Delegate-Objekt. Der Zugriff wird schreibend gesperrt.
-     *
-     * @param $__delegate das neue Delegate-Objekt, darf nicht {@code null} sein
-     * @throws NullPointerException wenn {@code $__delegate} {@code null} ist
-     */
-    public void $__set_delegate(final @NonNull A $__delegate) {
-        Objects.requireNonNull($__delegate, nullValue(DELEGATE_FIELD_NAME));
-        super.$__delegate_lock.writeLock().lock();
-        try {
-            super.$__delegate
-                = $__delegate;
-        } finally {
-            super.$__delegate_lock.writeLock().unlock();
-        }
     }
 
 }
