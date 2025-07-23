@@ -27,6 +27,8 @@ class DelegatingProxyTest {
             .hasMessageContaining(DELEGATE_FIELD_NAME);
 
         assertThatNoException()
+            .isThrownBy(() -> delegatingProxy(String.class));
+        assertThatNoException()
             .isThrownBy(() -> delegatingProxy(String.class, false));
     }
 

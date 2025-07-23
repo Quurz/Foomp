@@ -1,8 +1,6 @@
 package org.quurz.foomp.plugins;
 
-import net.bytebuddy.agent.ByteBuddyAgent;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -20,12 +18,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.quurz.foomp.plugins.AbstractDelegatingProxy.DELEGATE_FIELD_NAME;
 import static org.quurz.foomp.plugins.AbstractDelegatingProxy.DELEGATE_LOCK_FIELD_NAME;
+import static org.quurz.foomp.plugins.DummyReadWriteLock.dummyReadWriteLock;
 import static org.slf4j.LoggerFactory.getLogger;
 
 class AbstractDelegatingProxyTest {
 
     private static final Logger LOGGER
-            = getLogger(AbstractDelegatingProxyTest.class);
+        = getLogger(AbstractDelegatingProxyTest.class);
 
     private static final class DummyDelegatingProxy
             extends AbstractDelegatingProxy<Object> {
@@ -87,7 +86,7 @@ class AbstractDelegatingProxyTest {
         LOGGER.info("Test abstractDelegatingProxy.$__get_delegate_lock()");
 
         final var abstractDelegatingProxy
-            = new DummyDelegatingProxy("<TEST>", new DummyReadWriteLock());
+            = new DummyDelegatingProxy("<TEST>", dummyReadWriteLock());
 
         assertThat(abstractDelegatingProxy.$__get_delegate_lock())
             .isInstanceOf(DummyReadWriteLock.class);
@@ -143,18 +142,18 @@ class AbstractDelegatingProxyTest {
     void testLogkingBehaviour() {
         LOGGER.info("Test logging behaviour");
 
-        final var reentrantRreadWriteLock
+        final var reentrantReadWriteLock
             = new ReentrantReadWriteLock(true);
-        final var reentrantRreadWriteLockMock
-            = spy(reentrantRreadWriteLock);
+        final var reentrantReadWriteLockMock
+            = spy(reentrantReadWriteLock);
         final var abstractDelegatingProxy
-            = new DummyDelegatingProxy("initial", reentrantRreadWriteLockMock);
+            = new DummyDelegatingProxy("initial", reentrantReadWriteLockMock);
 
         abstractDelegatingProxy.$__set_delegate("new");
         abstractDelegatingProxy.$__get_delegate();
 
-        verify(reentrantRreadWriteLockMock, times(2)).readLock();
-        verify(reentrantRreadWriteLockMock, times(2)).writeLock();
+        verify(reentrantReadWriteLockMock, times(2)).readLock();
+        verify(reentrantReadWriteLockMock, times(2)).writeLock();
     }
 
 }

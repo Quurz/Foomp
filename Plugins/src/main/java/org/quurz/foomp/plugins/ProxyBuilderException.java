@@ -2,6 +2,10 @@ package org.quurz.foomp.plugins;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.util.Objects;
+
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+
 /**
  * <div>
  *     <p>
@@ -28,7 +32,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @author Alexander Schell
  */
 public class ProxyBuilderException
-        extends RuntimeException {
+        extends PluginsBaseException {
 
     /**
      * <div>
@@ -42,7 +46,7 @@ public class ProxyBuilderException
      * @since 1.0.0
      */
     public ProxyBuilderException(final @NonNull String message) {
-        super(message);
+        super(Objects.requireNonNull(message, nullValue("message")));
     }
 
     /**
@@ -60,7 +64,10 @@ public class ProxyBuilderException
      */
     public ProxyBuilderException(final @NonNull String message,
                                  final @NonNull Throwable cause) {
-        super(message, cause);
+        super(
+            Objects.requireNonNull(message, nullValue("message")),
+            Objects.requireNonNull(cause, nullValue("cause"))
+        );
     }
 
     /**
@@ -76,7 +83,7 @@ public class ProxyBuilderException
      * @since 1.0.0
      */
     public ProxyBuilderException(final @NonNull Throwable cause) {
-        super(cause);
+        super(Objects.requireNonNull(cause, nullValue("cause")));
     }
 
 }

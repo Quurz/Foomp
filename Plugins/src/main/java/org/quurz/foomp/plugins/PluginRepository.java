@@ -10,21 +10,21 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 public class PluginRepository {
 
-    public static PluginRepository pluginRepository(final @NonNull Path pluginDirectory) {
-        Objects.requireNonNull(pluginDirectory, nullValue("pluginDirectory"));
-        if (!Files.exists(pluginDirectory)) {
-            throw new IllegalArgumentException("The provided path does not exist: " + pluginDirectory);    // TODO: Localise
+    public static PluginRepository pluginRepository(final @NonNull Path path) {
+        Objects.requireNonNull(path, nullValue("path"));
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException("The provided path does not exist: " + path);    // TODO: Localise
         }
-        if(!Files.isDirectory(pluginDirectory)) {
-            throw new IllegalArgumentException("The provided path is not a directory: " + pluginDirectory);    // TODO: Localise
+        if(!Files.isDirectory(path)) {
+            throw new IllegalArgumentException("The provided path is not a directory: " + path);    // TODO: Localise
         }
-        if(!Files.isReadable(pluginDirectory)) {
-            throw new IllegalArgumentException("The provided directory is not readable: " + pluginDirectory);    // TODO: Localise
+        if(!Files.isReadable(path)) {
+            throw new IllegalArgumentException("The provided directory is not readable: " + path);    // TODO: Localise
         }
-        if(!Files.isWritable(pluginDirectory)) {
-            throw new IllegalArgumentException("The provided directory is not writable: " + pluginDirectory);    // TODO: Localise
+        if(!Files.isWritable(path)) {
+            throw new IllegalArgumentException("The provided directory is not writable: " + path);    // TODO: Localise
         }
-        return new PluginRepository(pluginDirectory);
+        return new PluginRepository(path);
     }
 
     private final Path pluginDirectory;

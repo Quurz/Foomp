@@ -27,8 +27,6 @@ import java.util.concurrent.locks.Lock;
 public class DummyLock
         implements Lock {
 
-    private final Condition condition;
-
     /**
      * <div>
      *
@@ -39,7 +37,13 @@ public class DummyLock
      *
      * @since 1.0.0
      */
-    public DummyLock() {
+    public static Lock dummyLock() {
+        return new DummyLock();
+    }
+
+    private final Condition condition;
+
+    private DummyLock() {
         this.condition
             = new Condition() {
                 @Override

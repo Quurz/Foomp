@@ -5,6 +5,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import static org.quurz.foomp.plugins.DummyLock.dummyLock;
+
 /**
  * <div>
  *     <p>
@@ -28,8 +30,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 public class DummyReadWriteLock
         implements ReadWriteLock {
 
-    private final Lock dummyLock;
-
     /**
      * <div>
      *     <p>
@@ -40,9 +40,15 @@ public class DummyReadWriteLock
      *
      * @since 1.0.0
      */
-    public DummyReadWriteLock() {
+    public static ReadWriteLock dummyReadWriteLock() {
+        return new DummyReadWriteLock();
+    }
+
+    private final Lock dummyLock;
+
+    private DummyReadWriteLock() {
         this.dummyLock
-            = new DummyLock();
+            = dummyLock();
     }
 
     /**

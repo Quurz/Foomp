@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.plugins.DummyReadWriteLock.dummyReadWriteLock;
 
 /**
  * Eine generische Basisklasse für Proxies, die Aufrufe an ein internes Delegate-Objekt weiterleiten.
@@ -47,7 +48,7 @@ public class DelegatingProxy<A>
             $__delegate,
             lockDelegate
                 ? new ReentrantReadWriteLock(true)
-                : new DummyReadWriteLock()
+                : dummyReadWriteLock()
         );
     }
 
