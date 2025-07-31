@@ -3,6 +3,7 @@ package org.quurz.foomp.base.util;
 import org.junit.jupiter.api.Test;
 import org.quurz.foomp.base.TestHelper;
 import org.quurz.foomp.base.functions.Fun;
+import org.quurz.foomp.base.util.async.AsyncExecutionException;
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.quurz.foomp.base.util.AsyncCombinable.asyncCombinable;
+import static org.quurz.foomp.base.util.async.AsyncCombinable.asyncCombinable;
 import static org.slf4j.LoggerFactory.getLogger;
 
 class AsyncCombinableTest

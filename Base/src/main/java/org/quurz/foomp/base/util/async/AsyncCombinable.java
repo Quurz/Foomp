@@ -1,4 +1,4 @@
-package org.quurz.foomp.base.util;
+package org.quurz.foomp.base.util.async;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun2;
