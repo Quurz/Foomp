@@ -23,18 +23,18 @@ import static org.quurz.foomp.base.util.Result.success;
 
 /**
  * <div>
- *   <p>
- *     Eine Implementierung einer Fehler-Monade, die verzögerte Auswertung von Berechnungen
- *     und die sichere Handhabung von Ausnahmen ermöglicht.
- *   </p>
- *   <p>
- *     Die Klasse {@code Attempt<A>} speichert entweder einen erfolgreichen Wert des Typs {@code A}
- *     oder eine Ausnahme, die während der Berechnung aufgetreten ist. Sie bietet Methoden zur
- *     Transformation, Fehlerbehandlung und sicheren Verarbeitung der enthaltenen Werte.
- *   </p>
+ *     <p>
+ *         An implementation of an error monad that enables lazy evaluation of computations
+ *         and safe handling of exceptions.
+ *     </p>
+ *     <p>
+ *         The class {@code Attempt<A>} stores either a successful value of type {@code A}
+ *         or an exception that occurred during computation. It provides methods for
+ *         transformation, error handling and safe processing of the contained values.
+ *     </p>
  * </div>
  *
- * @param <A> der Typ des enthaltenen Werts
+ * @param <A> the type of the contained value
  * @since 1.0.0
  */
 @SuppressWarnings("NonAsciiCharacters")
@@ -46,34 +46,42 @@ public final class Attempt<A>
                    Higher1<Attempt.µ, A> {
 
     /**
-     * Ein Marker-Typ (Witness), der {@code Attempt} innerhalb der Typ-Hierarchie repräsentiert.
-     * Dieser Typ wird verwendet, um Higher-Kinded Types in Java zu simulieren.
+     * <div>
+     *     <p>
+     *         A marker type (witness) that represents {@code Attempt} within the type hierarchy.
+     *         This type is used to simulate Higher-Kinded Types in Java.
+     *     </p>
+     * </div>
      *
      * @since 1.0.0
      */
     public static final class µ implements WitnessType { private µ() {} }
 
     /**
-     * Wandelt eine Instanz von {@link Higher1} in eine konkrete {@code Attempt}-Instanz um.
+     * Converts an instance of {@link Higher1} into a concrete {@code Attempt} instance.
      *
-     * @param wide das Objekt, das in {@code Attempt} umgewandelt werden soll
-     * @param <A> der Typ des enthaltenen Werts
-     * @return eine {@code Attempt}-Instanz
-     * @throws NullPointerException falls {@code wide} null ist
+     * @param wide the object to be converted into {@code Attempt}
+     * @param <A> the type of the contained value
+     * @return an {@code Attempt} instance
+     * @throws NullPointerException if {@code wide} is null
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
-    static <A> Attempt<A> narrow(final @NonNull  Higher1<? extends Attempt.µ, A> wide) {
+    public static <A> Attempt<A> narrow(final @NonNull  Higher1<? extends Attempt.µ, A> wide) {
         return (Attempt<A>) Objects.requireNonNull(wide, nullValue("wide"));
     }
 
     /**
-     * Erzeugt eine erfolgreiche {@code Attempt}-Instanz mit dem gegebenen Wert.
+     * <div>
+     *     <p>
+     *         Creates a successful {@code Attempt} instance with the given value.
+     *     </p>
+     * </div>
      *
-     * @param value der Wert, der gespeichert werden soll
-     * @param <A> der Typ des enthaltenen Werts
-     * @return eine erfolgreiche {@code Attempt}-Instanz
-     * @throws NullPointerException falls {@code value} null ist
+     * @param value the value to be stored
+     * @param <A> the type of the contained value
+     * @return a successful {@code Attempt} instance
+     * @throws NullPointerException if {@code value} is null
      * @since 1.0.0
      */
     public static <A> Attempt<A> attempt(final @NonNull A value) {
@@ -91,16 +99,15 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Führt die gekapselte Berechnung aus und liefert das Ergebnis.
+     *         Executes the encapsulated computation and returns the result.
      *     </p>
      *     <p>
-     *         Diese Methode "entrollt" die lazy gespeicherte Berechnung und gibt das
-     *         Ergebnis in Form eines {@link Result} zurück. Sie kann mehrfach aufgerufen
-     *         werden.
+     *         This method "unwinds" the lazily stored computation and returns the
+     *         result as a {@link Result}. It can be called multiple times.
      *     </p>
      * </div>
      *
-     * @return das Ergebnis der Berechnung als {@link Result}
+     * @return the result of the computation as {@link Result}
      *
      * @since 1.0.0
      */
@@ -111,12 +118,17 @@ public final class Attempt<A>
     }
 
     /**
-     * Führt eine Wiederherstellungsaktion aus, falls die Berechnung fehlschlägt, und gibt
-     * ein neues {@code Attempt} mit dem Wiederherstellungswert zurück.
+     * <div>
+     *     <p>
+     *         Executes a recovery action if the computation fails, and returns
+     *         a new {@code Attempt} with the recovery value.
+     *     </p>
+     * </div>
      *
-     * @param recover ein Supplier, der den Wiederherstellungswert bereitstellt
-     * @return ein neues {@code Attempt} mit dem ursprünglichen oder dem Wiederherstellungswert
-     * @throws NullPointerException falls {@code recover} null ist
+     * @param recover a supplier that provides the recovery value
+     * @return a new {@code Attempt} with either the original or the recovery value
+     * @throws NullPointerException if {@code recover} is null
+     *
      * @since 1.0.0
      */
     @SuppressWarnings("unused")
@@ -144,13 +156,18 @@ public final class Attempt<A>
     }
 
     /**
-     * Führt eine Wiederherstellung durch, falls eine Ausnahme gespeichert ist.
-     * Die Wiederherstellung erfolgt mithilfe einer Funktion, die die Ausnahme verarbeitet
-     * und einen neuen Wert liefert.
+     * <div>
+     *     <p>
+     *         Performs recovery if an exception is stored.
+     *         Recovery is done using a function that processes the exception
+     *         and provides a new value.
+     *     </p>
+     * </div>
      *
-     * @param recover eine Funktion, die die Ausnahme verarbeitet und einen Wiederherstellungswert liefert
-     * @return eine neue {@code Attempt}-Instanz mit dem ursprünglichen oder wiederhergestellten Wert
-     * @throws NullPointerException falls die Funktion {@code null} ist oder {@code null} liefert
+     * @param recover a function that processes the exception and provides a recovery value
+     * @return a new {@code Attempt} instance with either the original or recovered value
+     * @throws NullPointerException if the function is {@code null} or returns {@code null}
+     *
      * @since 1.0.0
      */
     public Attempt<A> onFailureRecover(final @NonNull Function<? super Exception, ? extends A> recover) {
@@ -178,13 +195,13 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Versucht, den gespeicherten Wert zu extrahieren. Falls die Berechnung jedoch fehlgeschlagen ist,
-     *         wird die gespeicherte Ausnahme geworfen.
+     *         Attempts to extract the stored value. However, if the computation failed,
+     *         the stored exception is thrown.
      *     </p>
      * </div>
      *
-     * @return diese {@code Attempt}-Instanz, falls sie erfolgreich ist
-     * @throws Exception die gespeicherte Ausnahme, falls die Berechnung fehlgeschlagen ist
+     * @return this {@code Attempt} instance if successful
+     * @throws Exception the stored exception if the computation failed
      *
      * @since 1.0.0
      */
@@ -201,23 +218,24 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Registriert eine Aktion, die ausgeführt wird, falls dieses {@code Attempt} fehlschlägt.
+     *         Registers an action to be executed if this {@code Attempt} fails.
      *     </p>
      *     <p>
-     *         Diese Methode ist <em>lazy</em>: Der übergebene {@link Consumer} wird erst beim
-     *         ersten Zugriff auf das Ergebnis (z.&nbsp;B. durch {@code isSuccess()}, {@code get()}
-     *         oder {@code toString()}) aufgerufen – und nur, wenn das Ergebnis tatsächlich
-     *         oder {@code toString()}) aufgerufen – und nur, wenn das Ergebnis tatsächlich
+     *         This method is <em>lazy</em>: The provided {@link Consumer} is only called upon
+     *         first access to the result (e.g., through {@code isSuccess()}, {@code get()}
+     *         or {@code toString()}) - and only if the result actually fails.
      *     </p>
      *     <p>
-     *         Die Methode verändert das Ergebnis nicht, sondern gibt ein neues {@code Attempt}
-     *         zurück, das bei Auswertung die gegebene Aktion im Fehlerfall "mitliest".
+     *         The method doesn't modify the result but returns a new {@code Attempt}
+     *         that will execute the given action in case of failure during evaluation.
      *     </p>
      * </div>
      *
-     * @param failureConsumer eine Aktion, die im Fehlerfall den {@link Exception}-Wert entgegennimmt
-     * @return ein {@code Attempt}, das im Fehlerfall die Aktion beim Auswerten ausführt
-     * @throws NullPointerException falls {@code failureConsumer} {@code null} ist
+     * @param failureConsumer an action that accepts the {@link Exception} value in case of failure
+     * @return an {@code Attempt} that executes the action during evaluation in case of failure
+     * @throws NullPointerException if {@code failureConsumer} is {@code null}
+     *
+     * @since 1.0.0
      */
     public Attempt<A> peekFailureLazy(final @NonNull Consumer<? super Exception> failureConsumer) {
         Objects.requireNonNull(failureConsumer, nullValue("peek"));
@@ -235,21 +253,21 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Führt eine Aktion sofort aus, falls das gespeicherte Ergebnis eine Ausnahme enthält.
+     *         Immediately executes an action if the stored result contains an exception.
      *     </p>
      *     <p>
-     *         Diese Methode ist <em>eager</em>: Der übergebene {@link Consumer} wird sofort
-     *         bei Aufruf dieser Methode ausgeführt – aber nur, wenn ein Fehler vorliegt.</p>
+     *         This method is <em>eager</em>: The provided {@link Consumer} is executed
+     *         immediately when this method is called - but only if an error exists.</p>
      *     </p>
      *     <p>
-     *         Die Methode gibt dieselbe {@code Attempt}-Instanz zurück, verändert deren
-     *         Zustand jedoch nicht.
+     *         The method returns the same {@code Attempt} instance without modifying
+     *         its state.
      *     </p>
      * </div>
      *
-     * @param failureConsumer eine Aktion, die mit der gespeicherten {@link Exception} aufgerufen wird
-     * @return dieselbe {@code Attempt}-Instanz
-     * @throws NullPointerException falls {@code failureConsumer} {@code null} ist
+     * @param failureConsumer an action that is called with the stored {@link Exception}
+     * @return the same {@code Attempt} instance
+     * @throws NullPointerException if {@code failureConsumer} is {@code null}
      *
      * @since 1.0.0
      */
@@ -267,16 +285,16 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Wendet eine Funktion auf den gespeicherten Wert an und gibt ein neues {@code Attempt} mit
-     *         dem Ergebnis der Funktion zurück. Tritt während der Anwendung der Funktion eine Ausnahme auf,
-     *         wird diese in der neuen Instanz gespeichert.
+     *         Applies a function to the stored value and returns a new {@code Attempt} with
+     *         the result of the function. If an exception occurs during the application of the function,
+     *         it is stored in the new instance.
      *     </p>
      * </div>
      *
-     * @param transformation eine Funktion zur Transformation des Werts
-     * @param <B> der Typ des Ergebnisses der Funktion
-     * @return ein neues {@code Attempt} mit dem transformierten Wert oder einer gespeicherten Ausnahme
-     * @throws NullPointerException falls die Funktion {@code null} ist oder {@code null} liefert
+     * @param transformation a function for transforming the value
+     * @param <B> the type of the function's result
+     * @return a new {@code Attempt} with the transformed value or a stored exception
+     * @throws NullPointerException if the function is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -302,20 +320,20 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Führt eine Transformation auf dem gespeicherten Wert durch, wobei eine {@link Applicable}-Instanz
-     *         verwendet wird. Falls während der Anwendung eine Ausnahme geworfen wird, wird diese als Fehlschlag
-     *         im neuen {@code Attempt} gespeichert.
+     *         Performs a transformation on the stored value using an {@link Applicable} instance.
+     *         If an exception is thrown during application, it is stored as a failure
+     *         in the new {@code Attempt}.
      *     </p>
      *     <p>
-     *         Diese Variante der {@code map}-Operation unterstützt nicht-checked Ausnahmen in der Transformation
-     *         und ist damit für unsichere Umgebungen gedacht.
+     *         This variant of the {@code map} operation supports unchecked exceptions in the transformation
+     *         and is therefore intended for unsafe environments.
      *     </p>
      * </div>
      *
-     * @param transformation eine {@link Applicable}-Instanz zur Transformation des Werts
-     * @param <B> der Typ des neuen Werts
-     * @return ein neues {@code Attempt} mit transformiertem Wert oder einem Fehler
-     * @throws NullPointerException falls die Transformation {@code null} ist oder {@code null} liefert
+     * @param transformation an {@link Applicable} instance for transforming the value
+     * @param <B> the type of the new value
+     * @return a new {@code Attempt} with transformed value or an error
+     * @throws NullPointerException if the transformation is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -338,13 +356,18 @@ public final class Attempt<A>
     }
 
     /**
-     * Hebt die Anwendung einer Funktion innerhalb eines {@link Higher1} auf die gespeicherten
-     * Werte in diesem {@code Attempt} an.
+     * <div>
+     *     <p>
+     *         Lifts the application of a function within a {@link Higher1} to the stored
+     *         values in this {@code Attempt}.
+     *     </p>
+     * </div>
      *
-     * @param transformation ein {@link Higher1}, das eine Funktion enthält, die auf die Werte angewendet wird
-     * @param <B> der Typ des Ergebnisses der Funktion
-     * @return ein neues {@code Attempt} mit dem Ergebnis der angehobenen Funktion
-     * @throws NullPointerException falls das gegebene {@link Higher1} {@code null} ist
+     * @param transformation a {@link Higher1} containing a function to be applied to the values
+     * @param <B> the type of the function's result
+     * @return a new {@code Attempt} with the result of the lifted function
+     * @throws NullPointerException if the given {@link Higher1} is {@code null}
+     *
      * @since 1.0.0
      */
     @Override
@@ -364,20 +387,20 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Hebt eine {@link Applicable}-Transformation innerhalb eines {@link Higher1}-Kontexts auf den
-     *         gespeicherten Wert an. Diese Methode erlaubt die Anwendung einer in einem {@code Attempt}
-     *         gespeicherten Funktion auf den gespeicherten Wert dieser Instanz.
+     *         Lifts an {@link Applicable} transformation within a {@link Higher1} context to the
+     *         stored value. This method allows applying a function stored in an {@code Attempt}
+     *         to the stored value of this instance.
      *     </p>
      *     <p>
-     *         Anders als {@link #lift(Higher1)} erlaubt diese Variante auch Transformationen,
-     *         die checked oder unchecked Exceptions werfen können.
+     *         Unlike {@link #lift(Higher1)}, this variant also allows transformations
+     *         that can throw checked or unchecked exceptions.
      *     </p>
      * </div>
      *
-     * @param transformation ein {@link Higher1}, das eine {@link Applicable}-Transformation enthält
-     * @param <B> der Zieltyp nach Anwendung der Funktion
-     * @return ein neues {@code Attempt} mit dem Ergebnis der angehobenen Transformation oder einem Fehler
-     * @throws NullPointerException falls {@code transformation} {@code null} ist
+     * @param transformation a {@link Higher1} containing an {@link Applicable} transformation
+     * @param <B> the target type after applying the function
+     * @return a new {@code Attempt} with the result of the lifted transformation or an error
+     * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
      */
@@ -396,15 +419,18 @@ public final class Attempt<A>
     }
 
     /**
-     * Führt die Bind-Operation durch, indem die gegebene Funktion auf den gespeicherten Wert angewendet wird,
-     * und gibt ein neues {@code Attempt} zurück, das das Ergebnis enthält.
+     * <div>
+     *     <p>
+     *         Performs the bind operation by applying the given function to the stored value,
+     *         and returns a new {@code Attempt} containing the result.
+     *     </p>
+     * </div>
      *
-     * @param transformation eine Funktion, die den gespeicherten Wert transformiert und ein neues {@link Higher1} erzeugt
-     * @param <B> der Typ des Ergebnisses der Funktion
+     * @param transformation a function that transforms the stored value and creates a new {@link Higher1}
+     * @param <B> the type of the function's result
+     * @return a new {@code Attempt} with the transformed value or a stored exception
      *
-     * @return ein neues {@code Attempt} mit dem transformierten Wert oder einer gespeicherten Ausnahme
-     *
-     * @throws NullPointerException falls die Funktion {@code null} ist
+     * @throws NullPointerException if the function is {@code null}
      *
      * @since 1.0.0
      */
@@ -424,20 +450,19 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Führt eine Bind-Operation (monadisches FlatMap) mit einer unsicheren {@link Applicable}-Funktion durch.
-     *         Die Funktion liefert ein neues {@link Higher1}, das entpackt und weiterverarbeitet wird.
+     *         Performs a bind operation (monadic FlatMap) with an unsafe {@link Applicable} function.
+     *         The function returns a new {@link Higher1} that is unwrapped and processed further.
      *     </p>
      *     <p>
-     *         Im Fehlerfall (z. B. durch eine Exception beim Anwenden der Funktion) wird das neue {@code Attempt}
-     *         den Fehler enthalten.
+     *         In case of error (e.g. through an exception when applying the function) the new {@code Attempt}
+     *         will contain the error.
      *     </p>
      * </div>
      *
-     * @param transformation eine {@link Applicable}-Funktion, die ein neues {@link Higher1} zurückgibt
-     * @param <B> der Typ des transformierten Werts
-     * @return ein neues {@code Attempt} mit dem Ergebnis der Transformation oder einem Fehler
-     * @throws NullPointerException falls {@code transformation} {@code null} ist
-     * @throws Exception falls die Transformation selbst eine Exception wirft
+     * @param transformation an {@link Applicable} function that returns a new {@link Higher1}
+     * @param <B>            the type of the transformed value
+     * @return a new {@code Attempt} with the result of the transformation or an error
+     * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
      */
@@ -456,11 +481,11 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Spult alle Operationen auf diesem <code>Attempt</code> ab und liefert ein neues <code>Attempt</code>-Objekt
+     *         Unwinds all operations on this <code>Attempt</code> and returns a new <code>Attempt</code> object
      *     </p>
      * </div>
      *
-     * @return Das neue <code>Maybe</code>
+     * @return The new <code>{@link Attempt}</code>
      *
      * @since 1.0.0
      */

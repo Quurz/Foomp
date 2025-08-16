@@ -24,6 +24,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
 
+/**
+ * TODO: Nach JUnit Jupiter Best Practices refaktorisieren.
+ * - Parametrisierte Tests einsetzen (@ParameterizedTest + @ValueSource/@NullSource/@CsvSource/@MethodSource)
+ * - Lesbarkeit: @DisplayName / @DisplayNameGeneration(ReplaceUnderscores)
+ * - Wiederverwendbare AssertJ-Assertions für Value/XorValue (z. B. ValueAssert, XorValueAssert)
+ * - Zeitprüfungen via Assertions.assertTimeout statt waitingFun(...)
+ * - @TempDir für temporäre Dateien/Verzeichnisse
+ * - invocationCounting-* ggf. in kleine Test-Utils auslagern
+ */
 public class TestHelper {
 
     /*

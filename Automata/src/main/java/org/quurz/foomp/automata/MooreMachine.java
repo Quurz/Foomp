@@ -10,10 +10,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
-import static org.quurz.foomp.base.util.Result.failure;
-import static org.quurz.foomp.base.util.Result.success;
 
 /**
  * <div>
@@ -157,19 +154,9 @@ public class MooreMachine<S, IA, OA>
     @Override
     public @NonNull Result<OA> read(final @NonNull IA input) {
         Objects.requireNonNull(input, nullValue("input"));
-        final Result<OA> result;
-        final var newStateResult
+        final var newState
             = super.processInput(input);
-        final var output
-            = Objects.requireNonNull(this.outputFunction.apply(newStateResult), nullResult());
-        if (super.outputAlphabet.contains(output)) {
-            result
-                = success(output);
-        } else {
-            result
-                = failure(new IllegalStateException("Unknown output token (output: %s)".formatted(output)));    // TODO: Messages
-        }
-        return result;
+        return null;    // TODO
     }
 
 }

@@ -8,8 +8,39 @@ import java.util.StringJoiner;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
-public sealed interface MachineEvent<S, IA, OA> {
+/**
+ * <div>
+ *     <p>
+ *         Interface representing events that can occur in a state machine, including state transitions and errors.
+ *     </p>
+ * </div>
+ *
+ * @param <S>  The type of states in the machine
+ * @param <IA> The type of input tokens/actions
+ * @param <OA> The type of output tokens/actions
+ * @author Alexander Schell
+ * @since 1.0.0
+ */
+public sealed interface MachineEvent<S, IA, OA>
+        permits MachineEvent.MachineStateTransitionEvent,
+                MachineEvent.MachineErrorEvent {
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates a new state transition event indicating a successful state change in the machine.
+     *     </p>
+     * </div>
+     *
+     * @param lastState   The previous state before the transition
+     * @param inputToken  The input token that triggered the transition
+     * @param outputToken The output token produced by the transition
+     * @param newState    The resulting state after the transition
+     * @param <S>         The type of states
+     * @param <IA>        The type of input tokens
+     * @param <OA>        The type of output tokens
+     * @return A new MachineStateTransitionEvent instance
+     */
     static <S, IA, OA> MachineStateTransitionEvent<S, IA, OA> machineStateTransitionEvent(final @NonNull S lastState,
                                                                                           final @NonNull IA inputToken,
                                                                                           final @NonNull OA outputToken,
@@ -21,6 +52,20 @@ public sealed interface MachineEvent<S, IA, OA> {
         return new MachineStateTransitionEvent<S, IA, OA>(lastState, inputToken, outputToken, newState);
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates a new error event indicating that an error occurred in the machine.
+     *     </p>
+     * </div>
+     *
+     * @param currentState The state in which the error occurred
+     * @param error        The exception that was thrown
+     * @param <S>          The type of states
+     * @param <IA>         The type of input tokens
+     * @param <OA>         The type of output tokens
+     * @return A new MachineErrorEvent instance
+     */
     static <S, IA, OA> MachineErrorEvent<S, IA, OA> machineErrorEvent(final @NonNull S currentState,
                                                                       final @NonNull Exception error) {
         Objects.requireNonNull(currentState, nullValue("currentState"));
@@ -28,6 +73,17 @@ public sealed interface MachineEvent<S, IA, OA> {
         return new MachineErrorEvent<S, IA, OA>(currentState, error);
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Represents a successful state transition in a state machine.
+     *     </p>
+     * </div>
+     *
+     * @param <S>  The type of states
+     * @param <IA> The type of input tokens
+     * @param <OA> The type of output tokens
+     */
     @Getter
     final class MachineStateTransitionEvent<S, IA, OA> implements MachineEvent<S, IA, OA> {
 
@@ -41,13 +97,13 @@ public sealed interface MachineEvent<S, IA, OA> {
                                             final OA outputToken,
                                             final S newState) {
             this.lastState
-                = lastState;
+                    = lastState;
             this.inputToken
-                = inputToken;
+                    = inputToken;
             this.outputToken
-                = outputToken;
+                    = outputToken;
             this.newState
-                = newState;
+                    = newState;
         }
 
         @Override
@@ -78,8 +134,20 @@ public sealed interface MachineEvent<S, IA, OA> {
 
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Represents an error in a state machine.
+     *     </p>
+     * </div>
+     *
+     * @param <S>  The type of states
+     * @param <IA> The type of input tokens
+     * @param <OA> The type of output tokens
+     */
     @Getter
-    final class MachineErrorEvent<S, IA, OA> implements MachineEvent<S, IA, OA> {
+    final class MachineErrorEvent<S, IA, OA>
+            implements MachineEvent<S, IA, OA> {
 
         private final S currentState;
         private final Exception error;
@@ -87,9 +155,9 @@ public sealed interface MachineEvent<S, IA, OA> {
         private MachineErrorEvent(final S currentState,
                                   final Exception error) {
             this.currentState
-                = currentState;
+                    = currentState;
             this.error
-                = error;
+                    = error;
         }
 
         @Override

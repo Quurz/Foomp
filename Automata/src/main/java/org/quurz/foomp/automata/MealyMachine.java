@@ -111,13 +111,13 @@ public class MealyMachine<S, IA, OA>
         Objects.requireNonNull(endStates, nullValue("endStates"));
 
         return new MealyMachine<>(
-                states,
-                startState,
-                inputAlphabet,
-                outputAlphabet,
-                transitionFunction,
-                outputFunction,
-                endStates
+            states,
+            startState,
+            inputAlphabet,
+            outputAlphabet,
+            transitionFunction,
+            outputFunction,
+            endStates
         );
     }
 
@@ -156,15 +156,9 @@ public class MealyMachine<S, IA, OA>
     @Override
     public @NonNull Result<OA> read(final @NonNull IA input) {
         Objects.requireNonNull(input, nullValue("input"));
-        final var output
-            = Objects.requireNonNull(this.outputFunction.apply(super.currentState, input), nullResult());
-        if (super.outputAlphabet.contains(output)) {
-            super.currentState
-                = super.processInput(input);
-            return null;    // TODO
-        } else {
-            throw new IllegalStateException("Unknown output token (output: %s)".formatted(output));    // TODO: Messages
-        }
+        final var newState
+            = super.processInput(input);
+        return null;    // TODO
     }
 
 }

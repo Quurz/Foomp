@@ -7,6 +7,10 @@
     <file url="file://$PROJECT_DIR$/Base/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Higher/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Higher/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Plugins/Plugins-Runtime/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Plugins/Plugins-Runtime/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Plugins/Plugins-Test/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Plugins/Plugins-Test/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Plugins/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Plugins/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Proxies/src/main/java" charset="UTF-8" />

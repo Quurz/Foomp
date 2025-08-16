@@ -1,4 +1,0 @@
---patch-module
-foomp.automata=_
---add-reads
-foomp.automata=ALL-UNNAMED

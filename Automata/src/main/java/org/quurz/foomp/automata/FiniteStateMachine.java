@@ -3,30 +3,38 @@ package org.quurz.foomp.automata;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.util.Result;
 
+
+
 /**
  * <div>
  *     <p>
- *         Repräsentiert einen generischen endlichen Automaten mit Zuständen, Eingaben und Ausgaben.
+ *         Represents a generic finite state machine with states, inputs and outputs.
  *     </p>
  * </div>
  *
- * @param <S>  der Typ der Zustände
- * @param <IA> der Typ der Eingaben (Input Alphabet)
- * @param <OA> der Typ der Ausgaben (Output Alphabet)
+ * @param <S>  the type of states
+ * @param <IA> the type of inputs (Input Alphabet)
+ * @param <OA> the type of outputs (Output Alphabet)
+ *
+ * @since 1.0.0
+ *
+ * @author Alexander Schell
  */
 public interface FiniteStateMachine<S, IA, OA> {
 
     /**
      * <div>
      *     <p>
-     *         Führt eine Transition für das gegebene Eingabesymbol aus und liefert die zugehörige Ausgabe.
+     *         Performs a transition for the given input symbol and returns the associated output.
      *     </p>
      * </div>
      *
-     * @param input das Eingabesymbol
-     * @return die Ausgabe, die mit der Eingabe verbunden ist
-     * @throws NullPointerException     falls {@code input} null ist
-     * @throws IllegalArgumentException falls das Eingabesymbol unbekannt ist
+     * @param input the input symbol
+     * @return the output associated with the input
+     * @throws NullPointerException     if {@code input} is null
+     * @throws IllegalArgumentException if the input symbol is unknown
+     *
+     * @since 1.0.0
      */
     @NonNull
     Result<OA> read(final @NonNull IA input);
@@ -34,35 +42,41 @@ public interface FiniteStateMachine<S, IA, OA> {
     /**
      * <div>
      *     <p>
-     *         Gibt den aktuellen Zustand des Automaten zurück.
+     *         Returns the current state of the automaton.
      *     </p>
      * </div>
      *
-     * @return der aktuelle Zustand
+     * @return the current state
+     *
+     * @since 1.0.0
      */
     S getCurrentState();
 
     /**
      * <div>
      *     <p>
-     *         Setzt den aktuellen Zustand des Automaten.
+     *         Sets the current state of the automaton.
      *     </p>
      * </div>
      *
-     * @param newCurrentState der neue Zustand
-     * @throws NullPointerException     falls {@code newCurrentState} null ist
-     * @throws IllegalArgumentException falls der Zustand nicht im Zustandsraum enthalten ist
+     * @param newCurrentState the new state
+     * @throws NullPointerException     if {@code newCurrentState} is null
+     * @throws IllegalArgumentException if the state is not contained in the state space
+     *
+     * @since 1.0.0
      */
     void setCurrentState(final @NonNull S newCurrentState);
 
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob sich der Automat aktuell in einem Endzustand befindet.
+     *         Indicates whether the automaton is currently in a final state.
      *     </p>
      * </div>
      *
-     * @return {@code true}, wenn der aktuelle Zustand ein Endzustand ist
+     * @return {@code true} if the current state is a final state
+     *
+     * @since 1.0.0
      */
     boolean isInFinalState();
 
