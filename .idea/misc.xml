@@ -10,6 +10,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/Proxies/pom.xml" />
+        <option value="$PROJECT_DIR$/report-aggregator/pom.xml" />
       </set>
     </option>
   </component>

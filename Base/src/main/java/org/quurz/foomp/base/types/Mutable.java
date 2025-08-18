@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * <div>
  *     <p>
- *         Marker-Annotation für Strukturen mit &auml;nderbarem Zustand
+ *         Marker annotation for structures with mutable state
  *     </p>
  * </div>
  *

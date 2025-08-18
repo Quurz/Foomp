@@ -209,6 +209,7 @@ public final class Util {
                                                                                  final @NonNull String collectionName,
                                                                                  final @NonNull Fun<String, E> exceptionConstructor)
             throws E {
+        // TODO: Hier müssen die Generics angepasst werden
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(collectionName, nullValue("collectionName"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));

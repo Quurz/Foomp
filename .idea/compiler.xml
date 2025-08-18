@@ -20,6 +20,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Proxies" target="21" />
+      <module name="report-aggregator" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

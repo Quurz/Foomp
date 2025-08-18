@@ -13,6 +13,7 @@ org/quurz/foomp/base/util/Record4.class
 org/quurz/foomp/base/util/Record4$µ.class
 org/quurz/foomp/base/util/Tuple3.class
 org/quurz/foomp/base/types/H2Bindable.class
+org/quurz/foomp/base/localisation/package-info.class
 org/quurz/foomp/base/types/Assoc.class
 org/quurz/foomp/base/types/Deferrable4.class
 org/quurz/foomp/base/functions/Fun.class
@@ -25,7 +26,9 @@ org/quurz/foomp/base/functions/MemoisingFun.class
 org/quurz/foomp/base/util/Result.class
 org/quurz/foomp/base/types/Eq.class
 org/quurz/foomp/base/util/async/Validator.class
+org/quurz/foomp/base/types/MutatingOperation.class
 org/quurz/foomp/base/util/Trampoline.class
+org/quurz/foomp/base/util/Struct2.class
 org/quurz/foomp/base/types/ThreadSafe.class
 org/quurz/foomp/base/util/Either.class
 org/quurz/foomp/base/types/Swappable.class
@@ -57,6 +60,7 @@ org/quurz/foomp/base/util/Eval$Later.class
 org/quurz/foomp/base/types/FoldableLeft.class
 org/quurz/foomp/base/util/Maybe$Some.class
 org/quurz/foomp/base/types/Copyable.class
+org/quurz/foomp/base/util/Validator$Check.class
 org/quurz/foomp/base/functions/Provider$4.class
 org/quurz/foomp/base/types/Liftable2.class
 org/quurz/foomp/base/util/async/AsyncCombinable.class
@@ -72,9 +76,11 @@ org/quurz/foomp/base/types/Value.class
 org/quurz/foomp/base/types/Combiner.class
 org/quurz/foomp/base/types/Foldable.class
 org/quurz/foomp/base/util/Continuation.class
+org/quurz/foomp/base/util/Validator$1.class
 org/quurz/foomp/base/types/Visitable.class
 org/quurz/foomp/base/types/Echo.class
 org/quurz/foomp/base/types/XorValue.class
+org/quurz/foomp/base/functions/ThrowingSupplier.class
 org/quurz/foomp/base/types/package-info.class
 org/quurz/foomp/base/util/Result$Failure.class
 org/quurz/foomp/base/types/Deferrable3.class
@@ -87,7 +93,6 @@ org/quurz/foomp/base/util/Record2.class
 org/quurz/foomp/base/types/Transmogrifyable.class
 org/quurz/foomp/base/util/Tuple2.class
 org/quurz/foomp/base/functions/Operator3.class
-org/quurz/foomp/base/util/ThrowingSupplier.class
 org/quurz/foomp/base/util/Either$Right.class
 org/quurz/foomp/base/util/Tuple3$µ.class
 org/quurz/foomp/base/util/Attempt.class
@@ -95,6 +100,7 @@ org/quurz/foomp/base/functions/Receiver.class
 org/quurz/foomp/base/functions/Fun4.class
 org/quurz/foomp/base/types/Seq.class
 org/quurz/foomp/base/util/Either$Left.class
+org/quurz/foomp/base/util/Validator.class
 org/quurz/foomp/base/functions/MemoisingFun$1.class
 org/quurz/foomp/base/types/Mutable.class
 org/quurz/foomp/base/functions/Provider$µ.class
@@ -114,6 +120,7 @@ org/quurz/foomp/base/functions/Pred2.class
 org/quurz/foomp/base/types/Deferrable.class
 org/quurz/foomp/base/types/SafeExecutable$1.class
 org/quurz/foomp/base/types/Mappable4.class
+org/quurz/foomp/base/util/Constraint.class
 org/quurz/foomp/base/functions/Komparator$Komparison.class
 org/quurz/foomp/base/functions/Provider$1.class
 org/quurz/foomp/base/types/Value3.class

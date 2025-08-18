@@ -42,7 +42,6 @@
         <module>Automata</module>
         <module>Base</module>
         <module>Plugins</module>
-        <module>report-aggregator</module>
     </modules>
 
     <properties>

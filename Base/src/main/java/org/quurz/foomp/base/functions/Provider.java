@@ -110,13 +110,7 @@ public interface Provider<A>
      */
     static <A> Provider<A> provider(final @NonNull A value) {
         Objects.requireNonNull(value, nullValue("value"));
-        return new Provider<>() {
-            @Override
-            public @NonNull A get() {
-                return value;
-            }
-
-        };
+        return () -> value;
     }
 
     /**
@@ -135,12 +129,7 @@ public interface Provider<A>
      */
     static <A> Provider<A> providerFrom(final @NonNull Supplier<A> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
-        return new Provider<>() {
-            @Override
-            public @NonNull A get() {
-                return Objects.requireNonNull(supplier.get(), nullSupplied());
-            }
-        };
+        return () -> Objects.requireNonNull(supplier.get(), nullSupplied());
     }
 
     /**
@@ -280,12 +269,7 @@ public interface Provider<A>
     default Provider<A> copy() {
         final var self
             = this;
-        return new Provider<>() {
-            @Override
-            public @NonNull A get() {
-                return self.get();
-            }
-        };
+        return self::get;    // TODO
     }
 
     /**
@@ -326,12 +310,7 @@ public interface Provider<A>
     default Provider<A> unwind() {
         final var value
             = this.get();
-        return new Provider<>() {
-            @Override
-            public @NonNull A get() {
-                return value;
-            }
-        };
+        return () -> value;
     }
 
 }

@@ -1,4 +1,8 @@
 /**
- * Hier haben wir ein paar Dinge, die ich entweder n&uuml;tzlich oder lustig finde
+ * <div>
+ *     <p>
+ *         Here we have some things that I find either useful or funny
+ *     </p>
+ * </div>
  */
 package org.quurz.foomp.base.util;

@@ -1,7 +1,8 @@
 /**
  * <div>
  *     <p>
- *         Eine handvoll, hoffentlich n&uuml;tzlicher, Funktionen
+ *         A handful of hopefully useful functions.<br />
+ *         For a fistful of functions. &#128516;
  *     </p>
  * </div>
  */
