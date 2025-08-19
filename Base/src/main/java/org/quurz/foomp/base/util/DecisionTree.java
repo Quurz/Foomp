@@ -6,153 +6,224 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>
- *     <p>
- *         Ein Entscheidungsbaum, der bin&auml;re Entscheidungen trifft und dabei durch eine Reihe von Bedingungen
- *         verschiedene Zweige verfolgt. Jeder Knoten im Baum enth&auml;lt eine Bedingung und zwei Unterb&auml;ume.
- *         Erreicht der Baum ein Blatt, wird das finale Ergebnis basierend auf einer Berechnungsfunktion
- *         geliefert.
- *     </p>
+ *   <p>
+ *     Creates a decision node that routes evaluation based on the given predicate:
+ *     if the predicate evaluates to {@code true} for the provided fact, the {@code yesTree} is used,
+ *     otherwise the {@code noTree}.
+ *   </p>
+ *   <p>
+ *     Variance:
+ *     <ul>
+ *       <li>{@code Predicate<? super F>} allows predicates defined for supertypes of {@code F}.</li>
+ *       <li>{@code DecisionTree<F, ? extends R>} allows subtrees that produce subtypes of {@code R}.</li>
+ *     </ul>
+ *   </p>
+ *   <p>
+ *     Error handling: any exception thrown by the predicate or by evaluating a subtree is propagated.
+ *   </p>
  * </div>
+
  *
- * @param <F> Typ des zu pr&uuml;fenden Faktums
- * @param <R> Typ des Ergebnisses
+ * @param <F> the type of facts that this decision tree processes
+ * @param <R> the type of results that this decision tree produces
  *
  * @since 1.0.0
  *
  * @author Alexander Schell
  */
 public sealed interface DecisionTree<F, R>
-        permits DecisionTree.DecisionTreeNode,
-                DecisionTree.DecisionTreeLeaf{
+        permits DecisionTree.Node,
+                DecisionTree.Leaf {
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt einen Entscheidungsknoten, der basierend auf der angegebenen Bedingung entscheidet,
-     *         welchen Zweig er weiterverfolgt.
-     *     </p>
+     *   <p>
+     *     Creates a decision node that routes evaluation based on the given predicate:
+     *     if the predicate evaluates to {@code true} for the provided fact, the {@code yesTree} is evaluated;
+     *     otherwise the {@code noTree}.
+     *   </p>
+     *   <p>
+     *     Variance:
+     *     <ul>
+     *       <li>{@code Predicate<? super F>} allows predicates defined for supertypes of {@code F}.</li>
+     *       <li>{@code DecisionTree<F, ? extends R>} allows subtrees that produce subtypes of {@code R}.</li>
+     *     </ul>
+     *   </p>
+     *   <p>
+     *     Error handling:
+     *     <ul>
+     *       <li>Throws {@link NullPointerException} if any argument is {@code null}.</li>
+     *       <li>Any exception thrown by {@code predicate} or during evaluation of a subtree is propagated.</li>
+     *     </ul>
+     *   </p>
+     *   <p>
+     *     Usage example:
+     *   </p>
+     *   <pre>{@code
+     *   DecisionTree<Integer, String> tree =
+     *       DecisionTree.decisionTree(
+     *           i -> i < 0,
+     *           DecisionTree.decisionTree(_$ -> "NEG"),
+     *           DecisionTree.decisionTree(_$ -> "NON-NEG")
+     *       );
+     *   }</pre>
      * </div>
+
      *
-     * @param predicate Die Bedingung zur Pr&uml;fung des Faktums
-     * @param yesTree Der Zweig, der betreten wird, wenn die Bedingung <code>true</code> ergibt
-     * @param noTree Der Zweig, der betreten wird, wenn die Bedingung <code>false</code> ergibt
-     * @return Ein neuer <code>DecisionTree</code>-Knoten
-     * @param <F> Typ des zu pr&uuml;fenden Faktums
-     * @param <R> Typ des Ergebnisses
+     * @param predicate the condition to evaluate for branching
+     * @param yesTree   the subtree to use when the predicate evaluates to true
+     * @param noTree    the subtree to use when the predicate evaluates to false
+     * @param <F>       the type of facts that this decision tree processes
+     * @param <R>       the type of results that this decision tree produces
+     * @return a new decision tree node with the specified predicate and subtrees
+     * @throws NullPointerException if any parameter is null
      *
      * @since 1.0.0
      */
-    static <F, R> DecisionTree<F, R> decisionTree(final @NonNull Predicate<F> predicate,
-                                                  final @NonNull DecisionTree<F, R> yesTree,
-                                                  final @NonNull DecisionTree<F, R> noTree) {
+    static <F, R> DecisionTree<F, R> decisionTree(final @NonNull Predicate<? super F> predicate,
+                                                  final @NonNull DecisionTree<F, ? extends R> yesTree,
+                                                  final @NonNull DecisionTree<F, ? extends R> noTree) {
         Objects.requireNonNull(predicate, nullValue("predicate"));
         Objects.requireNonNull(yesTree, nullValue("yesTree"));
         Objects.requireNonNull(noTree, nullValue("noTree"));
-        return new DecisionTreeNode<>(predicate, yesTree, noTree);
+        return new Node<>(predicate, yesTree, noTree);
     }
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein Blatt des Entscheidungsbaums, das eine Funktion enth&auml;lt, um ein finales Ergebnis zu berechnen.
-     *     </p>
-     * </div>
+     *   <p>
+     *     Creates a leaf node that computes the final result using the given transformer function.
+     *     The transformer is applied to the fact when this leaf is reached during evaluation.
+     *   </p>
+     *   <p>
+     *     Variance:
+     *     <ul>
+     *       <li>{@code Function<? super F, ? extends R>} allows consuming supertypes of {@code F}
+     *           and producing subtypes of {@code R}.</li>
+     *     </ul>
+     *   </p>
+     *   <p>
+     *     Error handling:
+     *     <ul>
+     *       <li>Throws {@link NullPointerException} if {@code transformer} is {@code null}.</li>
+     *       <li>Any exception thrown by {@code transformer} is propagated as-is.</li>
+     *       <li>If {@code transformer} returns {@code null}, {@link #examine(Object)} will throw
+     *           a {@link NullPointerException}.</li>
+     *     </ul>
+     *   </p>
+     *   <p>
+     *     Usage example:
+     *   </p>
+     *   <pre>{@code
+     *   DecisionTree<String, Integer> leaf =
+     *       DecisionTree.decisionTree(String::length); // returns the length of the input
      *
-     * @param transformer Funktion, die das Ergebnis der Pr&uuml;fung berechnet
-     * @return Ein neues Blatt im <code>DecisionTree</code>
-     * @param <F> Typ des zu prüfenden Faktums
-     * @param <R> Typ des Ergebnisses
+     *   int len = leaf.examine("abc"); // 3
+     *   }</pre>
+     * </div>
+
+     *
+     * @param transformer the function that transforms facts into results
+     * @param <F>         the type of facts that this decision tree processes
+     * @param <R>         the type of results that this decision tree produces
+     * @return a new decision tree leaf with the specified transformer
+     * @throws NullPointerException if the transformer is null
      *
      * @since 1.0.0
      */
-    static <F, R> DecisionTree<F, R> decisionTree(final @NonNull Function<F, R> transformer) {
+    static <F, R> DecisionTree<F, R> decisionTree(final @NonNull Function<? super F, ? extends R> transformer) {
         Objects.requireNonNull(transformer, nullValue("transformer"));
-        return new DecisionTreeLeaf<>(transformer);
+        return new Leaf<>(transformer);
     }
 
     /**
      * <div>
-     *     <p>
-     *         Startet die Pr&uuml;fung, indem der Entscheidungsbaum durchlaufen wird. Die Entscheidung wird
-     *         basierend auf dem gegebenen Faktum und den Bedingungen in den Knoten getroffen.
-     *     </p>
-     * </div>
+     *   <p>
+     *     Evaluates this decision tree with the provided fact. For decision nodes,
+     *     the {@code predicate} determines the branch to follow; for leaves, the {@code transformer}
+     *     computes the final result.
+     *   </p>
+     *   <p>
+     *     Error handling:
+     *     <ul>
+     *       <li>Throws {@link NullPointerException} if {@code fact} is {@code null}.</li>
+     *       <li>Exceptions raised by predicate/transformer or subtrees are propagated.</li>
+     *       <li>If a leaf transformer returns {@code null}, a {@link NullPointerException} is thrown.</li>
+     *     </ul>
+     *   </p>
+     *   <p>
+     *     Example:
+     *   </p>
+     *   <pre>{@code
+     *   DecisionTree<Integer, String> tree =
+     *       DecisionTree.decisionTree(
+     *           i -> i < 0,
+     *           DecisionTree.decisionTree(_$ -> "NEG"),
+     *           DecisionTree.decisionTree(
+     *               i -> i > 0,
+     *               DecisionTree.decisionTree(_$ -> "POS"),
+     *               DecisionTree.decisionTree(_$ -> "ZERO")
+     *           )
+     *       );
      *
-     * @param fact Das zu pr&uuml;fende Faktum
-     * @return Das Ergebnis der Pr&uuml;fung
+     *   tree.examine(-1); // "NEG"
+     *   tree.examine( 1); // "POS"
+     *   tree.examine( 0); // "ZERO"
+     *   }</pre>
+     * </div>
+
+     *
+     * @param fact the input fact to examine
+     * @return the result produced by examining the fact
+     * @throws NullPointerException if the fact is null or if a transformer returns null
      *
      * @since 1.0.0
      */
     default R examine(final @NonNull F fact) {
         Objects.requireNonNull(fact, nullValue("fact"));
         return switch (this) {
-            case DecisionTreeNode<F, R> node -> node.predicate.test(fact)
+            case DecisionTree.Node<F, R> node -> node.predicate.test(fact)
                                                     ? node.yesTree.examine(fact)
                                                     : node.noTree.examine(fact);
-            case DecisionTreeLeaf<F, R> leaf -> Objects.requireNonNull(leaf.mapper.apply(fact), nullResult());
+            case DecisionTree.Leaf<F, R> leaf -> Objects.requireNonNull(leaf.transformer.apply(fact), nullResultFrom("transformer"));
         };
     }
 
     /**
      * <div>
      *     <p>
-     *         Ein Knoten des <code>DecisionTree</code>s, der eine Bedingung und zwei Unterbäume enth&auml;lt:
-     *         einen, wenn die Bedingung zu <code>true</code> auswertet, und einen, wenn sie zu <code>false</code> auswertet.
+     *         A decision node in the tree that contains a predicate and two subtrees.
      *     </p>
      * </div>
      *
-     * @param <F> Typ des Faktums
-     * @param <R> Typ des Ergebnisses
-     *
-     * @since 1.0.0
+     * @param predicate the condition to evaluate for branching
+     * @param yesTree   the subtree to use when the predicate evaluates to true
+     * @param noTree    the subtree to use when the predicate evaluates to false
+     * @param <F>       the type of facts that this node processes
+     * @param <R>       the type of results that this node produces
      */
-    final class DecisionTreeNode<F, R>
-            implements DecisionTree<F, R> {
-
-        private final Predicate<F> predicate;
-        private final DecisionTree<F, R> yesTree;
-        private final DecisionTree<F, R> noTree;
-
-        private DecisionTreeNode(final Predicate<F> predicate,
-                                 final DecisionTree<F, R> yesTree,
-                                 final DecisionTree<F, R> noTree) {
-            this.predicate
-                = predicate;
-            this.yesTree
-                = yesTree;
-            this.noTree
-                = noTree;
-        }
-
+    record Node<F, R>(Predicate<? super F> predicate,
+                      DecisionTree<F, ? extends R> yesTree,
+                      DecisionTree<F, ? extends R> noTree) implements DecisionTree<F, R> {
     }
 
     /**
      * <div>
      *     <p>
-     *         Ein Blatt des <code>DecisionTree</code>s, das nur eine Mapping-Funktion von Faktum zu Ergebnis enth&auml;lt.
+     *         A leaf node in the tree that contains a transformer function.
      *     </p>
      * </div>
      *
-     * @param <F> Typ des Faktums
-     * @param <R> Typ des Ergebnisses
-     *
-     * @since 1.0.0
+     * @param transformer the function that transforms facts into results
+     * @param <F>         the type of facts that this leaf processes
+     * @param <R>         the type of results that this leaf produces
      */
-    final class DecisionTreeLeaf<F, R>
-            implements DecisionTree<F, R> {
-
-        private final Function<F, R> mapper;
-
-        private DecisionTreeLeaf(final Function<F, R> mapper) {
-            this.mapper
-                = mapper;
-        }
-
-    }
+    record Leaf<F, R>(Function<? super F, ? extends R> transformer)
+            implements DecisionTree<F, R> { }
 
 }
