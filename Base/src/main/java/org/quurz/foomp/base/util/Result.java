@@ -18,17 +18,17 @@ import static org.quurz.foomp.base.util.Maybe.some;
 /**
  * <div>
  *     <p>
- *         Ein {@code Result<A>} repräsentiert das Ergebnis einer Berechnung, die entweder erfolgreich war
- *         und einen Wert vom Typ {@code A} zurückliefert, oder fehlgeschlagen ist und eine {@link Exception} liefert.
+ *         A {@code Result<A>} represents the outcome of a computation that either succeeded
+ *         and returns a value of type {@code A}, or failed and provides an {@link Exception}.
  *     </p>
  *     <p>
- *         Diese Schnittstelle ist ein typischer Ersatz für Ausnahmen in funktionalem Stil und entspricht
- *         einem {@code XorValue<Exception, A>}, wobei {@code Left} einem Fehler und {@code Right} einem
- *         erfolgreichen Wert entspricht.
+ *         This interface is a typical replacement for exceptions in functional style and corresponds to
+ *         a {@code XorValue<Exception, A>}, where {@code Left} represents an error and {@code Right}
+ *         represents a successful value.
  *     </p>
  * </div>
  *
- * @param <A> Der Typ des Erfolgswertes
+ * @param <A> The type of the success value
  *
  * @since 1.0.0
  *
@@ -43,14 +43,14 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Erzeugt ein {@code Result} mit einem erfolgreichen Ergebnis.
+     *         Creates a {@code Result} with a successful outcome.
      *     </p>
      * </div>
      *
-     * @param value der erfolgreiche Rückgabewert
-     * @param <A>   der Typ des Werts
-     * @return ein {@code Result}, das den gegebenen Wert enthält
-     * @throws NullPointerException wenn der Wert {@code null} ist
+     * @param value the successful return value
+     * @param <A>   the type of the value
+     * @return a {@code Result} containing the given value
+     * @throws NullPointerException if the value is {@code null}
      *
      * @since 1.0.0
      */
@@ -62,14 +62,14 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Erzeugt ein {@code Result} mit einem Fehler.
+     *         Creates a {@code Result} with an error.
      *     </p>
      * </div>
      *
-     * @param exception die aufgetretene Ausnahme
-     * @param <A>       der erwartete Typ des Erfolgswertes (wird durch das Interface benötigt)
-     * @return ein {@code Result}, das den Fehler enthält
-     * @throws NullPointerException wenn {@code exception} {@code null} ist
+     * @param exception the occurred exception
+     * @param <A>       the expected type of the success value (required by the interface)
+     * @return a {@code Result} containing the error
+     * @throws NullPointerException if {@code exception} is {@code null}
      *
      * @since 1.0.0
      */
@@ -81,11 +81,11 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Gibt {@code true} zurück, wenn dieses {@code Result} ein erfolgreicher Wert ist.
+     *         Returns {@code true} if this {@code Result} is a successful value.
      *     </p>
      * </div>
      *
-     * @return {@code true}, wenn ein erfolgreicher Wert vorliegt
+     * @return {@code true} if a successful value is present
      *
      * @since 1.0.0
      */
@@ -97,11 +97,11 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Alias für {@link #isRight()}.
+     *         Alias for {@link #isRight()}.
      *     </p>
      * </div>
      *
-     * @return {@code true}, wenn das Ergebnis erfolgreich ist
+     * @return {@code true} if the result is successful
      *
      * @since 1.0.0
      */
@@ -112,11 +112,11 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Gibt {@code true} zurück, wenn dieses {@code Result} einen Fehler enthält.
+     *         Returns {@code true} if this {@code Result} contains an error.
      *     </p>
      * </div>
      *
-     * @return {@code true}, wenn ein Fehler vorliegt
+     * @return {@code true} if an error is present
      *
      * @since 1.0.0
      */
@@ -127,12 +127,12 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Gibt den Erfolgswert zurück.
+     *         Returns the success value.
      *     </p>
      * </div>
      *
-     * @return der Erfolgswert
-     * @throws NoSuchElementException wenn dieses {@code Result} ein Fehler ist
+     * @return the success value
+     * @throws NoSuchElementException if this {@code Result} is an error
      *
      * @since 1.0.0
      */
@@ -150,16 +150,16 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Alias für {@link #getRight()}.
+     *         Alias for {@link #getRight()}.
      *     </p>
      *     <p>
-     *         Gibt den Erfolgswert dieses {@code Result} zurück oder wirft eine {@link NoSuchElementException},
-     *         falls ein Fehler vorliegt.
+     *         Returns the success value of this {@code Result} or throws a {@link NoSuchElementException}
+     *         if an error is present.
      *     </p>
      * </div>
      *
-     * @return der Erfolgswert vom Typ {@code A}
-     * @throws NoSuchElementException wenn dieses {@code Result} einen Fehler repräsentiert
+     * @return the success value of type {@code A}
+     * @throws NoSuchElementException if this {@code Result} represents an error
      *
      * @since 1.0.0
      */
@@ -171,12 +171,12 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Gibt die Ausnahme zurück, falls ein Fehler vorliegt.
+     *         Returns the exception if an error is present.
      *     </p>
      * </div>
      *
-     * @return die enthaltene {@link Exception}
-     * @throws NoSuchElementException wenn dieses {@code Result} erfolgreich war
+     * @return the contained {@link Exception}
+     * @throws NoSuchElementException if this {@code Result} was successful
      *
      * @since 1.0.0
      */
@@ -194,16 +194,16 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Alias für {@link #getLeft()}.
+     *         Alias for {@link #getLeft()}.
      *     </p>
      *     <p>
-     *         Gibt die enthaltene Ausnahme zurück, falls dieses {@code Result} ein Fehler ist,
-     *         andernfalls wird eine {@link NoSuchElementException} geworfen.
+     *         Returns the contained exception if this {@code Result} is an error,
+     *         otherwise throws a {@link NoSuchElementException}.
      *     </p>
      * </div>
      *
-     * @return die enthaltene {@link Exception}
-     * @throws NoSuchElementException wenn dieses {@code Result} ein Erfolgswert ist
+     * @return the contained {@link Exception}
+     * @throws NoSuchElementException if this {@code Result} is a success value
      *
      * @since 1.0.0
      */
@@ -215,18 +215,18 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Wandelt dieses {@code Result} in ein {@link Either} um.
+     *         Converts this {@code Result} to an {@link Either}.
      *     </p>
      *     <p>
-     *         Im Erfolgsfall wird ein {@link Either.Right} mit dem enthaltenen Wert zurückgegeben,
-     *         im Fehlerfall ein {@link Either.Left} mit der enthaltenen Ausnahme.
+     *         In case of success, returns an {@link Either.Right} with the contained value,
+     *         in case of failure, returns an {@link Either.Left} with the contained exception.
      *     </p>
      *     <p>
-     *         Die Werte werden lazy geliefert, d.&nbsp;h. erst bei Bedarf ausgewertet.
+     *         The values are delivered lazily, i.e., evaluated only when needed.
      *     </p>
      * </div>
      *
-     * @return ein {@link Either}, das entweder den Erfolgswert oder die Ausnahme enthält
+     * @return an {@link Either} containing either the success value or the exception
      *
      * @since 1.0.0
      */
@@ -237,7 +237,21 @@ public sealed interface Result<A>
         };
     }
 
-    // TODO: Test & JavaDoc
+    /**
+     * <div>
+     *     <p>
+     *         Converts this {@code Result} to a {@code Maybe}.
+     *     </p>
+     *     <p>
+     *         Returns a {@code Some} containing the success value if this is a successful result,
+     *         or {@code None} if this result contains an error.
+     *     </p>
+     * </div>
+     *
+     * @return a {@code Maybe} containing the success value if present
+     *
+     * @since 1.0.0
+     */
     default Maybe<A> toMaybe() {
         return switch (this) {
             case Result.Success<A> success -> some(success.value);
@@ -245,7 +259,20 @@ public sealed interface Result<A>
         };
     }
 
-    // TODO: Test & JavaDoc
+    /**
+     * <div>
+     *     <p>
+     *         Transforms this {@code Result} into another type using the provided transformation function.
+     *     </p>
+     * </div>
+     *
+     * @param transmogrifier the transformation function to apply
+     * @param <T>            the target type of the transformation
+     * @return the transformed value
+     * @throws NullPointerException if {@code transmogrifier} is null or returns null
+     *
+     * @since 1.0.0
+     */
     @Override
     default <T> @NonNull T transmogrify(final @NonNull Function<? super Result<A>, ? extends T> transmogrifier) {
         Objects.requireNonNull(transmogrifier, nullValue("transmogrifier"));
@@ -255,11 +282,11 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Erfolgs-Repräsentation eines {@code Result}.
+     *         Success representation of a {@code Result}.
      *     </p>
      * </div>
      *
-     * @param <R> der Typ des Erfolgswertes
+     * @param <R> the type of the success value
      *
      * @since 1.0.0
      */
@@ -276,12 +303,12 @@ public sealed interface Result<A>
         /**
          * <div>
          *     <p>
-         *         Vergleicht dieses {@code Success}-Objekt mit einem anderen auf Gleichheit.
+         *         Compares this {@code Success} object with another for equality.
          *     </p>
          * </div>
          *
-         * @param o das zu vergleichende Objekt
-         * @return {@code true}, wenn das andere Objekt ebenfalls ein {@code Success} mit gleichem Wert ist
+         * @param o the object to compare with
+         * @return {@code true} if the other object is also a {@code Success} with the same value
          *
          * @since 1.0.0
          */
@@ -295,11 +322,11 @@ public sealed interface Result<A>
         /**
          * <div>
          *     <p>
-         *         Gibt den Hashcode des enthaltenen Wertes zurück.
+         *         Returns the hash code of the contained value.
          *     </p>
          * </div>
          *
-         * @return der Hashcode
+         * @return the hash code
          *
          * @since 1.0.0
          */
@@ -311,11 +338,11 @@ public sealed interface Result<A>
         /**
          * <div>
          *     <p>
-         *         Gibt eine String-Repräsentation des {@code Success}-Objekts zurück.
+         *         Returns a string representation of the {@code Success} object.
          *     </p>
          * </div>
          *
-         * @return eine String-Repräsentation mit dem enthaltenen Wert
+         * @return a string representation containing the value
          *
          * @since 1.0.0
          */
@@ -331,11 +358,11 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Fehler-Repräsentation eines {@code Result}.
+     *         Error representation of a {@code Result}.
      *     </p>
      * </div>
      *
-     * @param <R> der erwartete Typ des Erfolgswertes
+     * @param <R> the expected type of the success value
      *
      * @since 1.0.0
      */
@@ -352,12 +379,12 @@ public sealed interface Result<A>
         /**
          * <div>
          *     <p>
-         *         Vergleicht dieses {@code Failure}-Objekt mit einem anderen auf Gleichheit.
+         *         Compares this {@code Failure} object with another for equality.
          *     </p>
          * </div>
          *
-         * @param o das zu vergleichende Objekt
-         * @return {@code true}, wenn das andere Objekt ebenfalls ein {@code Failure} mit gleicher Exception ist
+         * @param o the object to compare with
+         * @return {@code true} if the other object is also a {@code Failure} with the same exception
          *
          * @since 1.0.0
          */
@@ -371,11 +398,11 @@ public sealed interface Result<A>
         /**
          * <div>
          *     <p>
-         *         Gibt den Hashcode der enthaltenen {@link Exception} zurück.
+         *         Returns the hash code of the contained {@link Exception}.
          *     </p>
          * </div>
          *
-         * @return der Hashcode
+         * @return the hash code
          *
          * @since 1.0.0
          */
@@ -387,11 +414,11 @@ public sealed interface Result<A>
         /**
          * <div>
          *     <p>
-         *         Gibt eine String-Repräsentation des {@code Failure}-Objekts zurück.
+         *         Returns a string representation of the {@code Failure} object.
          *     </p>
          * </div>
          *
-         * @return eine String-Repräsentation mit der enthaltenen Exception
+         * @return a string representation containing the exception
          *
          * @since 1.0.0
          */

@@ -1,12 +1,16 @@
 package org.quurz.foomp.base.util;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.quurz.foomp.base.types.Mutable;
 import org.quurz.foomp.base.types.MutatingOperation;
+import org.quurz.foomp.base.types.Value2;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.StringJoiner;
+
+import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
+import static org.quurz.foomp.base.util.Tuple2.tuple2;
 
 /**
  * <div>
@@ -26,14 +30,14 @@ import java.util.StringJoiner;
  *
  * @author Alexander Schell
  */
-// TODO: Mal schauen, ob man Value2 nicht mit @Nullable spicken kann. Dann könnte ich das Struct2 sauber Value2 implementieren lassen
 @Mutable
-public final class Struct2<A1, A2> {
+public final class MutablePair<A1, A2>
+        implements Value2<A1, A2> {
 
     /**
      * <div>
      *     <p>
-     *         Creates a new Struct2 instance with the given values.
+     *         Creates a new MutablePair instance with the given values.
      *     </p>
      * </div>
      *
@@ -41,20 +45,20 @@ public final class Struct2<A1, A2> {
      * @param value2 The second value
      * @param <A1>   Type of the first value
      * @param <A2>   Type of the second value
-     * @return A new Struct2 instance
+     * @return A new MutablePair instance
      *
      * @since 1.0.0
      */
-    public static <A1, A2> Struct2<A1, A2> struct2(final @Nullable A1 value1,
-                                                   final @Nullable A2 value2) {
-        return new Struct2<>(value1, value2);
+    public static <A1, A2> MutablePair<A1, A2> mutablePair(final @Nullable A1 value1,
+                                                           final @Nullable A2 value2) {
+        return new MutablePair<>(value1, value2);
     }
 
     private A1 value1;
     private A2 value2;
 
-    private Struct2(final A1 value1,
-                    final A2 value2) {
+    private MutablePair(final A1 value1,
+                        final A2 value2) {
         this.value1
             = value1;
         this.value2
@@ -68,10 +72,11 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @return true if the first value is non-null, false otherwise
+     * @return true if the first value is not null, false otherwise
      *
      * @since 1.0.0
      */
+    @Override
     public boolean isPresent() {
         return this.is1();
     }
@@ -83,10 +88,11 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @return true if the first value is non-null, false otherwise
+     * @return true if the first value is not null, false otherwise
      *
      * @since 1.0.0
      */
+    @Override
     public boolean is1() {
         return this.value1 != null;
     }
@@ -98,10 +104,11 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @return true if the second value is non-null, false otherwise
+     * @return true if the second value is not null, false otherwise
      *
      * @since 1.0.0
      */
+    @Override
     public boolean is2() {
         return this.value2 != null;
     }
@@ -113,10 +120,11 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @return The first value, which may be null
+     * @return the first value, may be null
      *
      * @since 1.0.0
      */
+    @Override
     public @Nullable A1 get(){
         return this.get1();
     }
@@ -128,10 +136,13 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @return The first value, which may be null
+     * @return the first value, may be null
+     *
+     * @since 1.0.0
      */
+    @Override
     public @Nullable A1 get1() {
-        return null;
+        return this.value1;
     }
 
     /**
@@ -141,7 +152,9 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @param value The new value to set
+     * @param value the new value to set
+     *
+     * @since 1.0.0
      */
     @MutatingOperation
     public void set1(final @Nullable A1 value) {
@@ -149,21 +162,20 @@ public final class Struct2<A1, A2> {
             = value;
     }
 
-
     /**
      * <div>
      *     <p>
-     *         Returns a new Struct2 instance with the given first value and the current second value.
+     *         Creates a new MutablePair with the given first value and the current second value.
      *     </p>
      * </div>
      *
-     * @param value The new first value
-     * @return A new Struct2 instance with the updated first value
+     * @param value the new first value
+     * @return a new MutablePair instance
      *
      * @since 1.0.0
      */
-    public Struct2<A1, A2> with1(final @Nullable A1 value) {
-        return struct2(value, this.value2);
+    public MutablePair<A1, A2> with1(final @Nullable A1 value) {
+        return mutablePair(value, this.value2);
     }
 
     /**
@@ -173,12 +185,12 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @return The second value, which may be null
+     * @return the second value, may be null
      *
      * @since 1.0.0
      */
     public @Nullable A2 get2() {
-        return null;
+        return this.value2;
     }
 
     /**
@@ -188,7 +200,7 @@ public final class Struct2<A1, A2> {
      *     </p>
      * </div>
      *
-     * @param value The new value to set
+     * @param value the new value to set
      *
      * @since 1.0.0
      */
@@ -198,40 +210,55 @@ public final class Struct2<A1, A2> {
             = value;
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates a new MutablePair with the current first value and the given second value.
+     *     </p>
+     * </div>
+     *
+     * @param value the new second value
+     * @return a new MutablePair instance
+     *
+     * @since 1.0.0
+     */
+    public MutablePair<A1, A2> with2(final @Nullable A2 value) {
+        return mutablePair(this.value1, value);
+    }
 
     /**
      * <div>
      *     <p>
-     *         Returns a new Struct2 instance with the given second value and the current first value.
+     *         Converts this MutablePair to a Tuple2 of Maybe values.
      *     </p>
      * </div>
      *
-     * @param value The new second value
-     * @return A new Struct2 instance with the updated second value
+     * @return a new Tuple2 containing Maybe wrapped values
      *
      * @since 1.0.0
      */
-    public Struct2<A1, A2> with2(final @Nullable A2 value) {
-        return struct2(this.value1, value);
+    public @NonNull Tuple2<Maybe<A1>, Maybe<A2>> toTuple() {
+        return tuple2(maybeOfNullable(this.value1), maybeOfNullable(this.value2));
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Struct2<?, ?> struct2)) return false;
+        if (!(o instanceof MutablePair<?, ?> mutablePair)) return false;
 
-        return Objects.equals(value1, struct2.value1) && Objects.equals(value2, struct2.value2);
+        return Objects.equals(value1, mutablePair.value1) && Objects.equals(value2, mutablePair.value2);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(value1);
+        int result
+            = Objects.hashCode(value1);
         result = 31 * result + Objects.hashCode(value2);
         return result;
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Struct2.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", MutablePair.class.getSimpleName() + "[", "]")
                 .add("value1=" + value1)
                 .add("value2=" + value2)
                 .toString();

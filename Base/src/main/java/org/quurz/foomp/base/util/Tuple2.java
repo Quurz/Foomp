@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.util.MutablePair.mutablePair;
 
 /**
  * <div>
@@ -519,6 +520,12 @@ public final class Tuple2<A1, A2>
     @UnwindingOperation
     public Record2<A1, A2> toRecord() {
         return Record2.record2(this.get1(), this.get2());
+    }
+
+    // TODO: Test & JavaDoc
+    @UnwindingOperation
+    public MutablePair<A1, A2> toPair() {
+        return mutablePair(this.get1(), this.get2());
     }
 
     /**

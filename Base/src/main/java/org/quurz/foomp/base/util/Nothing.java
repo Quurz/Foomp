@@ -11,11 +11,11 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>
- *     <p>
- *         Leider kennt Java das leere Tupel nicht. Deswegen gibt's das <code>Nothing</code>.<br />
- *         Die <code>null</code>-Referenz ist ein echtes Problem. Das sollte mit dem <code>Nothing</code>-Singleton vermeidbar sein.
- *         Siehe auch {@link Maybe.None} falls man eine typisierte L&ouml;sung braucht.
- *     </p>
+ *   <p>
+ *     Java has no built-in unit type (an "empty tuple"). This class provides one: <code>Nothing</code>.<br/>
+ *     The <code>null</code> reference is error-prone; prefer using the <code>Nothing</code> singleton instead.
+ *     See also {@link Maybe.None} if you need a typed absence.
+ *   </p>
  * </div>
  *
  * @since 1.0.0
@@ -28,19 +28,19 @@ public final class Nothing
     /**
      * <div>
      *     <p>
-     *         Das <code>Nothing</code>-Singleton
+     *         The <code>Nothing</code> singleton.
      *     </p>
      * </div>
      *
      * @since 1.0.0
      */
     public static final Nothing nothing
-            = new Nothing();
+        = new Nothing();
 
     /**
      * <div>
      *     <p>
-     *         Privater Konstruktor, um die Instanziierung zu verhindern.
+     *         Private constructor to prevent instantiation.
      *     </p>
      * </div>
      */
@@ -48,18 +48,23 @@ public final class Nothing
 
     /**
      * <div>
-     *     <p>
-     *         Transmogrifiziert das <code>Nothing</code>-Objekt mit der angegebenen Funktion.
-     *     </p>
-     *     <p>
-     *         Eine fast religiöse Sache: Schöpfung aus dem Nichts.   &#128512;
-     *     </p>
+     *   <p>
+     *     Applies the given function to this <code>Nothing</code> instance and returns its result.
+     *   </p>
+     *   <p>
+     *     Note: Models a functional-style pattern of producing a value starting from <em>nothing</em>.
+     *   </p>
+     *   <p>
+     *     Aside: A lighthearted, almost metaphysical nod to “ex nihilo”. &#128512;
+     *   </p>
      * </div>
      *
-     * @param transmogrifier Die Funktion, die auf das <code>Nothing</code>-Objekt angewendet wird.
-     * @param <T> Der Rückgabetyp der Funktion.
-     * @return Das Ergebnis der Anwendung der Funktion auf das <code>Nothing</code>-Objekt.
-     * @throws NullPointerException Wenn der <code>transmogrifier</code> oder das Ergebnis der Anwendung <code>null</code> ist.
+     * @param transmogrifier the function to apply to this <code>Nothing</code> instance
+     * @param <T> the result type
+     * @return the result of applying the function
+     * @throws NullPointerException if <code>transmogrifier</code> is <code>null</code> or returns <code>null</code>
+     *
+     * @since 1.0.0
      */
     @Override
     public <T> @NonNull T transmogrify(@NonNull Function<? super Nothing, ? extends T> transmogrifier) {
@@ -69,13 +74,16 @@ public final class Nothing
 
     /**
      * <div>
-     *     <p>
-     *         &Uuml;berpr&uuml;ft, ob das angegebene Objekt gleich dem aktuellen {@code Nothing}-Objekt ist.
-     *     </p>
+     *   <p>
+     *     Returns <code>true</code> if the specified object is an instance of <code>Nothing</code>.
+     *     Since <code>Nothing</code> is a singleton, all instances are equal by definition.
+     *   </p>
      * </div>
      *
-     * @param obj Das zu vergleichende Objekt.
-     * @return <code>true</code>, wenn das angegebene Objekt ein <code>Nothing</code>-Objekt ist, andernfalls <code>false</code>.
+     * @param obj the object to compare
+     * @return <code>true</code> if the specified object is <code>Nothing</code>, <code>false</code> otherwise
+     *
+     * @since 1.0.0
      */
     @Override
     public boolean equals(final Object obj) {
@@ -84,12 +92,14 @@ public final class Nothing
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den Hashcode des {@code Nothing}-Objekts zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns a constant hash code for <code>Nothing</code>. This is consistent with {@link #equals(Object)}.
+     *   </p>
      * </div>
      *
-     * @return Der Hashcode des <code>Nothing</code>-Objekts.
+     * @return the constant hash code of the <code>Nothing</code> object
+     *
+     * @since 1.0.0
      */
     @Override
     public int hashCode() {
@@ -99,11 +109,13 @@ public final class Nothing
     /**
      * <div>
      *     <p>
-     *         Gibt eine String-Repr&auml;sentation des {@code Nothing}-Objekts zur&uuml;ck.
+     *         Returns a string representation of the {@code Nothing} object.
      *     </p>
      * </div>
      *
-     * @return Eine String-Repräsentation des <code>Nothing</code>-Objekts.
+     * @return a string representation of the <code>Nothing</code> object
+     *
+     * @since 1.0.0
      */
     @Override
     public String toString() {

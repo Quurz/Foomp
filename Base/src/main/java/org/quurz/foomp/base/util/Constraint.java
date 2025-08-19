@@ -31,7 +31,8 @@ import static org.quurz.foomp.base.util.Maybe.some;
  *
  * @author Alexander Schell
  */
-public final class Constraint<A, FAILURE> {
+public final class Constraint<A, FAILURE>
+        implements Function<A, Maybe<FAILURE>>{
 
     /**
      * <div>
@@ -50,12 +51,12 @@ public final class Constraint<A, FAILURE> {
      *
      * @since 1.0.0
      */
-    public static <A, FAILURE> Function<A, Maybe<FAILURE>> buildConstraintCheck(final @NonNull Predicate<? super A> check,
-                                                                                final @NonNull FAILURE failure) {
+    public static <A, FAILURE> Function<A, Maybe<FAILURE>> constraintFunction(final @NonNull Predicate<? super A> check,
+                                                                              final @NonNull FAILURE failure) {
         Objects.requireNonNull(check, nullValue("check"));
         Objects.requireNonNull(failure, nullValue("failure"));
 
-        return buildConstraintCheck(check, _$ -> failure);
+        return constraintFunction(check, _$ -> failure);
     }
 
     /**
@@ -75,8 +76,8 @@ public final class Constraint<A, FAILURE> {
      *
      * @since 1.0.0
      */
-    public static <A, FAILURE> Function<A, Maybe<FAILURE>> buildConstraintCheck(final @NonNull Predicate<? super A> check,
-                                                                                final @NonNull Function<? super A, ? extends FAILURE> failureFunction) {
+    public static <A, FAILURE> Function<A, Maybe<FAILURE>> constraintFunction(final @NonNull Predicate<? super A> check,
+                                                                                      final @NonNull Function<? super A, ? extends FAILURE> failureFunction) {
         Objects.requireNonNull(check, nullValue("check"));
         Objects.requireNonNull(failureFunction, nullValue("failureFunction"));
 
@@ -192,6 +193,24 @@ public final class Constraint<A, FAILURE> {
         return this.check.test(value)
                 ? none()
                 : some(Objects.requireNonNull(this.failureFunction.apply(value), nullResultFrom("failureFunction")));
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Applies the constraint check to the given value and returns a possible failure result
+     *         if the value violates the constraint.
+     *     </p>
+     * </div>
+     *
+     * @param value the value to validate; may be null
+     * @return a {@code Maybe.none()} if the value is valid, or {@code Maybe.some(failure)} if invalid
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull Maybe<FAILURE> apply(final @Nullable A value) {
+        return this.checkViolation(value);
     }
 
 }

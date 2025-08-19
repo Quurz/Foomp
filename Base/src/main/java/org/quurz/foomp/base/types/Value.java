@@ -55,7 +55,7 @@ public interface Value<A>
      *
      * @since 1.0.0
      */
-    @NonNull A get()
-            throws NoSuchElementException;
+    A get()
+        throws NoSuchElementException;
 
 }

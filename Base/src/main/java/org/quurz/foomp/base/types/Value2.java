@@ -1,7 +1,5 @@
 package org.quurz.foomp.base.types;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.NoSuchElementException;
 
 /**
@@ -60,7 +58,7 @@ public interface Value2<A1, A2>
      *
      * @since 1.0.0
      */
-    @NonNull A1 get1()
+    A1 get1()
             throws NoSuchElementException;
 
     /**
@@ -76,7 +74,7 @@ public interface Value2<A1, A2>
      *
      * @since 1.0.0
      */
-    @NonNull A2 get2()
+    A2 get2()
             throws NoSuchElementException;
 
 }
