@@ -7,19 +7,19 @@ import java.util.NoSuchElementException;
 /**
  * <div>
  *     <p>
- *         Repr&auml;sentiert eine Struktur mit genau drei enthaltenen Werten.
- *         Jeder der drei Werte kann abgefragt werden, und es ist garantiert, dass
- *         immer genau drei Werte existieren.
+ *         Value carrier exposing exactly three components. Implementations provide presence
+ *         information and accessors for each component.
  *     </p>
  *     <p>
- *         Falls ein Element <code>null</code> ist, wird beim Zugriff darauf
- *         eine <code>NoSuchElementException</code> geworfen.
+ *         Nullability/absence semantics are implementation‑specific and must be documented
+ *         by the concrete type. Accessors may throw {@link NoSuchElementException} if a
+ *         component is not present according to the type’s contract.
  *     </p>
  * </div>
  *
- * @param <A1> Der Typ des ersten Elements
- * @param <A2> Der Typ des zweiten Elements
- * @param <A3> Der Typ des dritten Elements
+ * @param <A1> the type of the first component
+ * @param <A2> the type of the second component
+ * @param <A3> the type of the third component
  *
  * @since 1.0.0
  *

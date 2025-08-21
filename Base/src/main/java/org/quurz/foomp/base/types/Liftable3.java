@@ -9,21 +9,19 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Repr&auml;sentiert eine Struktur, die eine "Anhebungsoperation" auf drei parametrisierte Werte erm&ouml;glicht.
- *         Diese Struktur erm&ouml;glicht das Anwenden von Funktionen auf jeden einzelnen der drei Werte
- *         in einer kontextsensitiven Umgebung und folgt einem applicative-funktor-&auml;hnlichen Prinzip.
+ *         Rank‑3 applicative‑like interface: lifts functions inside the context and applies them
+ *         to three carried type parameters, producing a value of the same constructor shape.
  *     </p>
  *     <p>
- *         Durch diese Struktur können Funktionen, die sich in einer "Umgebung" befinden, auf Werte angewandt werden,
- *         die sich ebenfalls in derselben Umgebung befinden. Das Interface ist nützlich in funktionalen Kontexten,
- *         in denen eine Kombination von drei Werten unter Beibehaltung des Kontexts benötigt wird.
+ *         Contract: the provided higher‑kinded value must not be {@code null}, must not contain {@code null}
+ *         functions, and the result must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <WT> der Zeuge-Typ (Typklasse), der angibt, zu welcher Art von Funktor die Struktur geh&ouml;rt.
- * @param <A1> der Typ des ersten Werts.
- * @param <A2> der Typ des zweiten Werts.
- * @param <A3> der Typ des dritten Werts.
+ * @param <WT>  the witness type representing the constructor
+ * @param <A1>  the first carried type
+ * @param <A2>  the second carried type
+ * @param <A3>  the third carried type
  *
  * @since 1.0.0
  *
@@ -34,28 +32,25 @@ public interface Liftable3<WT extends WitnessType, A1, A2, A3> {
     /**
      * <div>
      *     <p>
-     *         Hebt eine Kombination von Funktionen an und wendet sie auf die entsprechenden Werte an.
-     *         Diese Methode erm&ouml;glicht das Anwenden dreier Funktionen auf drei Werte, die in einem
-     *         Kontext enthalten sind, und gibt das Ergebnis im selben Kontext zur&uuml;ck.
+     *         Lifts and applies the given functions to the three carried values in this context.
      *     </p>
      * </div>
      *
-     * @param transformation ein {@code Higher3}-Typ, der die Funktionen für die Werte enth&auml;lt.
-     * @param <B1> der Typ des ersten Ergebniswerts nach Anwendung der Funktion.
-     * @param <B2> der Typ des zweiten Ergebniswerts nach Anwendung der Funktion.
-     * @param <B3> der Typ des dritten Ergebniswerts nach Anwendung der Funktion.
-     * @return ein neuer {@code Higher3}-Typ, der die Ergebniswerte in derselben Umgebung
-     *         wie die Ursprungswerte enthält.
-     * @throws NullPointerException wenn {@code transformation} null ist.
+     * @param transformation a {@code Higher3} carrying the functions {@code A1 -> B1}, {@code A2 -> B2}, {@code A3 -> B3}; must not be {@code null}
+     * @param <B1>           the new first type after applying the function to {@code A1}
+     * @param <B2>           the new second type after applying the function to {@code A2}
+     * @param <B3>           the new third type after applying the function to {@code A3}
+     * @return a {@code Higher3<WT, B1, B2, B3>} value; never {@code null}
+     * @throws NullPointerException if {@code transformation} is {@code null} or contains {@code null} functions
      *
      * @since 1.0.0
      */
     <B1, B2, B3> @NonNull Higher3<WT, B1, B2, B3> lift(
             @NonNull final Higher3<
-                WT,
-                ? extends Function<? super A1, ? extends B1>,
-                ? extends Function<? super A2, ? extends B2>,
-                ? extends Function<? super A3, ? extends B3>
+                    WT,
+                    ? extends Function<? super A1, ? extends B1>,
+                    ? extends Function<? super A2, ? extends B2>,
+                    ? extends Function<? super A3, ? extends B3>
             > transformation
     );
 

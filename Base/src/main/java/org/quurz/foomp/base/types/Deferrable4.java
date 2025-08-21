@@ -8,15 +8,16 @@ import java.util.function.Supplier;
 /**
  * <div>
  *     <p>
- *         Ein funktionales Interface, das eine Berechnung mit vier Eingabewerten verz&ouml;gert ausführt.
+ *         Functional interface describing a computation with four inputs that can be deferred.
+ *         Inputs are provided as {@link Supplier}s and are obtained on demand.
  *     </p>
  * </div>
  *
- * @param <A1> der Typ des ersten Eingabewerts
- * @param <A2> der Typ des zweiten Eingabewerts
- * @param <A3> der Typ des dritten Eingabewerts
- * @param <A4> der Typ des vierten Eingabewerts
- * @param <B> der Typ des Ergebnisses der Berechnung
+ * @param <A1> the type of the first input
+ * @param <A2> the type of the second input
+ * @param <A3> the type of the third input
+ * @param <A4> the type of the fourth input
+ * @param <B>  the result type of the computation
  *
  * @since 1.0.0
  *
@@ -28,18 +29,24 @@ public interface Deferrable4<A1, A2, A3, A4, B> {
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt die Berechnung verz&ouml;gert aus, indem die vier Eingabewerte bei Bedarf bereitgestellt werden.
+     *         Returns an executable handle that, when called, obtains the four inputs from the
+     *         given suppliers and performs the computation to produce the result.
+     *     </p>
+     *     <p>
+     *         Contract: all suppliers must not be {@code null} and must not supply {@code null} values.
+     *         The returned handle must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param a1 ein {@link Supplier}, der den ersten Eingabewert liefert
-     * @param a2 ein {@link Supplier}, der den zweiten Eingabewert liefert
-     * @param a3 ein {@link Supplier}, der den dritten Eingabewert liefert
-     * @param a4 ein {@link Supplier}, der den vierten Eingabewert liefert
+     * @param a1 a {@link Supplier} providing the first input; must not be {@code null}
+     * @param a2 a {@link Supplier} providing the second input; must not be {@code null}
+     * @param a3 a {@link Supplier} providing the third input; must not be {@code null}
+     * @param a4 a {@link Supplier} providing the fourth input; must not be {@code null}
+     * @return a {@link Callable} performing the deferred computation
      *
-     * @return das Ergebnis der Berechnung
+     * @throws NullPointerException if any supplier is {@code null} or supplies {@code null}
      *
-     * @throws NullPointerException wenn einer der bereitgestellten {@link Supplier} {@code null} ist
+     * @since 1.0.0
      */
     @NonNull
     Callable<B> defer(final @NonNull Supplier<A1> a1,

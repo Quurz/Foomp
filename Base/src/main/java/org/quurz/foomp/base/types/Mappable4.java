@@ -12,17 +12,21 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein Interface, das Transformationen (Mapping) von bis zu vier unabh&auml;ngigen Werten eines Objekts erm&ouml;glicht.
- *         Jede der `map`-Methoden wendet eine Funktion auf einen der vier Werte an und gibt eine neue Instanz
- *         mit dem transformierten Wert zur&uuml;ck.
+ *         Functor‑like interface enabling independent mapping over up to four values of a structure.
+ *         Each {@code mapN} method applies a function to the respective value and returns a new instance
+ *         with that value transformed.
+ *     </p>
+ *     <p>
+ *         Contract: mapping functions must not be {@code null} and should not return {@code null};
+ *         implementations should return non‑null results.
  *     </p>
  * </div>
  *
- * @param <WT> Der Typ des zugrunde liegenden Kontextes oder des Witness-Types.
- * @param <A1> Typ des ersten Werts.
- * @param <A2> Typ des zweiten Werts.
- * @param <A3> Typ des dritten Werts.
- * @param <A4> Typ des vierten Werts.
+ * @param <WT> the witness type (context) of the structure
+ * @param <A1> type of the first value
+ * @param <A2> type of the second value
+ * @param <A3> type of the third value
+ * @param <A4> type of the fourth value
  *
  * @since 1.0.0
  *
@@ -32,15 +36,11 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 public interface Mappable4<WT extends WitnessType, A1, A2, A3, A4> {
 
     /**
-     * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den ersten Wert an und gibt eine neue Instanz mit dem transformierten ersten Wert zur&uuml;ck.
-     *     </p>
-     * </div>
+     * Applies a function to the first value and returns a new instance with the transformed first value.
      *
-     * @param transformation Die Funktion zur Transformation des ersten Werts.
-     * @param <B1> Der Typ des neuen ersten Werts nach der Transformation.
-     * @return Eine neue `Mappable4`-Instanz mit transformiertem ersten Wert.
+     * @param transformation the function for the first value; must not be {@code null}
+     * @param <B1>           the new first value type
+     * @return a new {@code Mappable4} with the transformed first value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -50,15 +50,11 @@ public interface Mappable4<WT extends WitnessType, A1, A2, A3, A4> {
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den zweiten Wert an und gibt eine neue Instanz mit dem transformierten zweiten Wert zur&uuml;ck.
-     *     </p>
-     * </div>
+     * Applies a function to the second value and returns a new instance with the transformed second value.
      *
-     * @param transformation Die Funktion zur Transformation des zweiten Werts.
-     * @param <B2> Der Typ des neuen zweiten Werts nach der Transformation.
-     * @return Eine neue `Mappable4`-Instanz mit transformiertem zweiten Wert.
+     * @param transformation the function for the second value; must not be {@code null}
+     * @param <B2>           the new second value type
+     * @return a new {@code Mappable4} with the transformed second value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -68,15 +64,11 @@ public interface Mappable4<WT extends WitnessType, A1, A2, A3, A4> {
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den dritten Wert an und gibt eine neue Instanz mit dem transformierten dritten Wert zur&uuml;ck.
-     *     </p>
-     * </div>
+     * Applies a function to the third value and returns a new instance with the transformed third value.
      *
-     * @param transformation Die Funktion zur Transformation des dritten Werts.
-     * @param <B3> Der Typ des neuen dritten Werts nach der Transformation.
-     * @return Eine neue `Mappable4`-Instanz mit transformiertem dritten Wert.
+     * @param transformation the function for the third value; must not be {@code null}
+     * @param <B3>           the new third value type
+     * @return a new {@code Mappable4} with the transformed third value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -86,15 +78,11 @@ public interface Mappable4<WT extends WitnessType, A1, A2, A3, A4> {
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den vierten Wert an und gibt eine neue Instanz mit dem transformierten vierten Wert zur&uuml;ck.
-     *     </p>
-     * </div>
+     * Applies a function to the fourth value and returns a new instance with the transformed fourth value.
      *
-     * @param transformation Die Funktion zur Transformation des vierten Werts.
-     * @param <B4> Der Typ des neuen vierten Werts nach der Transformation.
-     * @return Eine neue `Mappable4`-Instanz mit transformiertem vierten Wert.
+     * @param transformation the function for the fourth value; must not be {@code null}
+     * @param <B4>           the new fourth value type
+     * @return a new {@code Mappable4} with the transformed fourth value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -104,22 +92,18 @@ public interface Mappable4<WT extends WitnessType, A1, A2, A3, A4> {
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Wendet vier separate Funktionen auf die vier Werte des Objekts an und gibt eine neue Instanz
-     *         mit allen vier transformierten Werten zur&uuml;ck.
-     *     </p>
-     * </div>
+     * Applies four mapping functions to the four values of this structure and returns a new instance
+     * with all four values transformed.
      *
-     * @param transformation1 Die Funktion zur Transformation des ersten Werts.
-     * @param transformation2 Die Funktion zur Transformation des zweiten Werts.
-     * @param transformation3 Die Funktion zur Transformation des dritten Werts.
-     * @param transformation4 Die Funktion zur Transformation des vierten Werts.
-     * @param <B1> Der Typ des neuen ersten Werts nach der Transformation.
-     * @param <B2> Der Typ des neuen zweiten Werts nach der Transformation.
-     * @param <B3> Der Typ des neuen dritten Werts nach der Transformation.
-     * @param <B4> Der Typ des neuen vierten Werts nach der Transformation.
-     * @return Eine neue `Mappable4`-Instanz mit allen vier transformierten Werten.
+     * @param transformation1 function for the first value; must not be {@code null}
+     * @param transformation2 function for the second value; must not be {@code null}
+     * @param transformation3 function for the third value; must not be {@code null}
+     * @param transformation4 function for the fourth value; must not be {@code null}
+     * @param <B1>            new first value type
+     * @param <B2>            new second value type
+     * @param <B3>            new third value type
+     * @param <B4>            new fourth value type
+     * @return a new {@code Mappable4} with all four values transformed; never {@code null}
      *
      * @since 1.0.0
      */

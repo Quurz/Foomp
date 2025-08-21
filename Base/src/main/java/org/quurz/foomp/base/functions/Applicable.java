@@ -18,13 +18,17 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Eine funktionale Schnittstelle, die eine Operation auf einem Eingabewert ausf&uuml;hrt und ein Ergebnis zur&uuml;ckgibt.
- *         Diese Schnittstelle stellt sicher, dass die ausgef&uuml;hrte Funktion Fehler sicher behandeln kann.
- *     </P>
+ *         Functional interface for executing an operation on an input value {@code X} to produce
+ *         a result {@code Y}. Extends {@link Deferrable} to support deferred execution.
+ *     </p>
+ *     <p>
+ *         Provides both a direct, exception‑throwing execution model ({@link #apply(Object)})
+ *         and a safe adaptor ({@link #safe()}) that captures failures as values using {@link XorValue}.
+ *     </p>
  * </div>
  *
- * @param <X> der Eingabetyp
- * @param <Y> der R&uuml;ckgabetyp
+ * @param <X> the input type
+ * @param <Y> the result type
  *
  * @since 1.0.0
  *
@@ -37,16 +41,19 @@ public interface Applicable<X, Y>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine {@code Applicable}-Instanz aus einer gegebenen {@link Function}.
-     *         Die resultierende Funktion ist in der Lage, die Eingabe zu verarbeiten und das Ergebnis zur&uuml;ckzugeben.
+     *         Creates an {@code Applicable} from a given {@link Function}. The resulting operation
+     *         applies the function to its input and returns the non‑null result.
+     *     </p>
+     *     <p>
+     *         Contract: {@code function} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param <X> der Eingabetyp der Funktion
-     * @param <Y> der R&uuml;ckgabetyp der Funktion
-     * @param function die Funktion, die die Eingabe verarbeitet; darf nicht {@code null} sein
-     * @return eine {@code Applicable}-Instanz, die die gegebene Funktion kapselt
-     * @throws NullPointerException falls {@code function} {@code null} ist
+     * @param <X> the input type of the function
+     * @param <Y> the result type of the function
+     * @param function the function to wrap; must not be {@code null}
+     * @return an {@code Applicable} that applies the given function
+     * @throws NullPointerException if {@code function} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -58,13 +65,13 @@ public interface Applicable<X, Y>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt die Operation aus und gibt das Ergebnis zur&uuml;ck.
+     *         Executes the operation and returns the result.
      *     </p>
      * </div>
      *
-     * @param x der Eingabewert
-     * @return das Ergebnis der Berechnung
-     * @throws Exception falls ein Fehler w&auml;hrend der Berechnung auftritt
+     * @param x the input value
+     * @return the computed result
+     * @throws Exception if an error occurs during execution
      *
      * @since 1.0.0
      */
@@ -74,32 +81,32 @@ public interface Applicable<X, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine neue Funktion zur&uuml;ck, die die gleiche Berechnung wie {@link #apply(Object)} ausf&uuml;hrt,
-     *         aber das Ergebnis in einem {@link XorValue} verpackt. Das Ergebnis kann entweder ein Fehler oder der berechnete Wert sein.
+     *         Returns a function that performs the same computation as {@link #apply(Object)} but
+     *         captures failures as {@link XorValue} instead of throwing. On success, {@code Right(Y)};
+     *         on failure, {@code Left(Exception)}.
+     *     </p>
+     *     <p>
+     *         Contract: the returned function must never return {@code null}.
      *     </p>
      * </div>
      *
-     * @return eine Funktion, die das Ergebnis als {@code XorValue<Exception, Y>} zur&uuml;ckgibt
+     * @return a function yielding {@code XorValue<Exception, Y>} instead of throwing
      *
      * @since 1.0.0
      */
     default Fun<X, ? extends XorValue<Exception, Y>> safe() {
         return x -> {
             try {
-                final var result
-                    = this.apply(x);
+                final var result = this.apply(x);
                 return new XorValue<>() {
                     @Override
                     public boolean isRight() {
                         return true;
                     }
-
                     @Override
-                    public @NonNull Exception getLeft()
-                            throws NoSuchElementException {
+                    public @NonNull Exception getLeft() throws NoSuchElementException {
                         throw new NoSuchElementException(noValuePresent());
                     }
-
                     @Override
                     public @NonNull Y getRight() {
                         return result;
@@ -111,15 +118,12 @@ public interface Applicable<X, Y>
                     public boolean isRight() {
                         return false;
                     }
-
                     @Override
                     public @NonNull Exception getLeft() {
                         return exception;
                     }
-
                     @Override
-                    public @NonNull Y getRight()
-                            throws NoSuchElementException {
+                    public @NonNull Y getRight() throws NoSuchElementException {
                         throw new NoSuchElementException(noValuePresent());
                     }
                 };
@@ -130,16 +134,19 @@ public interface Applicable<X, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine {@code Callable}-Instanz zur&uuml;ck, die die aktuelle Operation ausf&uuml;hrt,
-     *         wenn der Eingabewert von einem {@link Supplier} bereitgestellt wird.
+     *         Returns a {@link Callable} that defers execution of this operation until invoked,
+     *         obtaining the input from the given {@link Supplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code supplier} must not be {@code null} and must not supply {@code null}.
+     *         The returned callable must not return {@code null}.
      *     </p>
      * </div>
      *
-     * wenn der Eingabewert von einem {@link Supplier} bereitgestellt wird.
-     *
-     * @param supplier der {@link Supplier}, der den Eingabewert liefert; darf nicht {@code null} sein
-     * @return eine {@code Callable}-Instanz, die den berechneten Wert liefert
-     * @throws NullPointerException falls {@code supplier} {@code null} ist
+     * @param supplier the input supplier; must not be {@code null}
+     * @return a callable that, when called, executes this operation
+     * @throws NullPointerException if {@code supplier} is {@code null}, supplies {@code null},
+     *                              or if the result of {@link #apply(Object)} is {@code null}
      *
      * @since 1.0.0
      */
@@ -147,8 +154,7 @@ public interface Applicable<X, Y>
     default Callable<Y> defer(final @NonNull Supplier<X> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
         return () -> {
-            final var x
-                = Objects.requireNonNull(supplier.get(), nullSupplied());
+            final var x = Objects.requireNonNull(supplier.get(), nullSupplied());
             return Objects.requireNonNull(apply(x), nullResult());
         };
     }
@@ -156,13 +162,12 @@ public interface Applicable<X, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine Identit&auml;tsfunktion zur&uuml;ck, die den Eingabewert unver&auml;ndert zur&uuml;ckgibt.
-     *         Dies ist n&uuml;tzlich, wenn keine Transformation ben&ouml;tigt wird.
+     *         Returns an identity operation that yields its input unchanged.
      *     </p>
      * </div>
      *
-     * @param <X> der Typ des Eingabewerts
-     * @return eine Funktion, die den Eingabewert unver&auml;ndert zur&uuml;ckgibt
+     * @param <X> the input type
+     * @return an identity {@code Applicable}
      *
      * @since 1.0.0
      */

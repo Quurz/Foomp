@@ -9,13 +9,22 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Interface für 'BiApplicative'-&auml;hnliche Typen
+ *         Rank‑2 applicative‑like interface: lifts functions inside the context and applies them
+ *         to the two carried type parameters, producing a value of the same constructor shape.
+ *     </p>
+ *     <p>
+ *         Conceptually, this “applies” {@code (A1 -> B1)} to {@code A1} and {@code (A2 -> B2)} to {@code A2}
+ *         within the same {@code Higher2&lt;WT, *, *&gt;} context.
+ *     </p>
+ *     <p>
+ *         Contract: the provided higher‑kinded value must not be {@code null}, must not contain {@code null}
+ *         functions, and the result must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ des implementierenden Higher-Kinded-Typs
- * @param <A1> Der erste 'innere' Typ des Higher-Kinded-Typs
- * @param <A2> Der zweite 'innere' Typ des Higher-Kinded-Typs
+ * @param <WT> the witness type of the implementing higher‑kinded type
+ * @param <A1> the first carried type
+ * @param <A2> the second carried type
  *
  * @since 1.0.0
  *
@@ -26,21 +35,21 @@ public interface Liftable2<WT extends WitnessType, A1, A2> {
     /**
      * <div>
      *     <p>
-     *         Entpackt die im &uuml;bergebenen <code>transformation</code>-Argument - Ein anderes <code>BiLiftable</code> -
-     *         enthaltenen Funktionen, wendet sie auf die Inhalte dieses <code>BiLiftable</code>-Objekts
-     *         an und verpackt die Ergebnisse in ein neues <code>BiLiftable</code>-Objekt gleichen Typs.
+     *         Lifts and applies the given functions to the two carried values in this context.
      *     </p>
      * </div>
      *
-     * @param transformation Das die anzuwendende Funktion enthaltende <code>BiLiftable</code>-Objekt
-     * @param <B1> Der erste 'innere' Typ des neuen <code>BiLiftable</code>-Objekts
-     * @param <B2> Der zweite 'innere' Typ des neuen <code>BiLiftable</code>-Objekts
-     * @return Ein neues <code>BiLiftable</code>-Objekt
+     * @param transformation a {@code Higher2} carrying the functions {@code A1 -> B1} and {@code A2 -> B2}; must not be {@code null}
+     * @param <B1>           the new first type after applying the function to {@code A1}
+     * @param <B2>           the new second type after applying the function to {@code A2}
+     * @return a {@code Higher2<WT, B1, B2>} value; never {@code null}
      *
      * @since 1.0.0
      */
     <B1, B2> @NonNull Higher2<WT, B1, B2> lift(
-            @NonNull final Higher2<WT, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>> transformation
+            @NonNull final Higher2<WT,
+                    ? extends Function<? super A1, ? extends B1>,
+                    ? extends Function<? super A2, ? extends B2>> transformation
     );
 
 }

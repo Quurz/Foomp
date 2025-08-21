@@ -7,12 +7,17 @@ import java.util.stream.Stream;
 /**
  * <div>
  *     <p>
- *         Ein Interface f&uuml;r Objekte, die als {@link Stream} dargestellt werden k&ouml;nnen.
- *         Dies erm&ouml;glicht eine funktionale Verarbeitung der enthaltenen Elemente.
+ *         Functional interface for objects that can be represented as a {@link Stream}.
+ *         This enables functional processing of the contained elements.
+ *     </p>
+ *     <p>
+ *         Unless stated otherwise by an implementation, the returned stream should be created lazily,
+ *         reflect the encounter order of the underlying structure, and must not be {@code null}.
+ *         Callers are responsible for closing the stream if the implementation returns a closeable stream.
  *     </p>
  * </div>
  *
- * @param <A> Der Typ der Elemente im Stream
+ * @param <A> the element type of the stream
  *
  * @since 1.0.0
  *
@@ -24,12 +29,12 @@ public interface Streamable<A> {
     /**
      * <div>
      *     <p>
-     *         Gibt einen {@link Stream} zur&uuml;ck, der die Elemente dieser Struktur repr&auml;sentiert.
-     *         Der Stream sollte nach M&ouml;glichkeit lazy generiert werden.
+     *         Returns a {@link Stream} that represents the elements of this structure.
+     *         Implementations should create the stream lazily where possible.
      *     </p>
      * </div>
      *
-     * @return Ein {@link Stream}, der die Elemente dieser Struktur liefert
+     * @return a non-null {@link Stream} over the elements of this structure
      *
      * @since 1.0.0
      */

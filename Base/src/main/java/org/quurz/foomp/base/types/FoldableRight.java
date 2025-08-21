@@ -7,14 +7,19 @@ import java.util.function.BiFunction;
 /**
  * <div>
  *     <p>
- *         Definiert eine rechtsassoziative Faltung &uuml;ber eine Datenstruktur.
+ *         Defines a right‑associative fold over a data structure.
  *     </p>
  *     <p>
- *         Die Faltung beginnt am rechten Ende der Struktur und wendet eine Funktion schrittweise von rechts nach links an.
+ *         The fold starts at the right end of the structure and applies the given function
+ *         from right to left across the elements.
+ *     </p>
+ *     <p>
+ *         Contract: the accumulator, elements, and the folding function must not be {@code null},
+ *         and the folding function must not return {@code null}.
  *     </p>
  * </div>
  *
- * @param <A> Typ der Elemente, die gefaltet werden
+ * @param <A> the element type being folded
  *
  * @since 1.0.0
  *
@@ -25,17 +30,18 @@ public interface FoldableRight<A> {
     /**
      * <div>
      *     <p>
-     *         Faltet die Elemente von rechts nach links unter Verwendung eines initialen Werts und einer bin&auml;ren Funktion.
+     *         Folds the elements from right to left using an initial value and a binary function.
      *     </p>
      *     <p>
-     *         Die Faltung beginnt mit {@code init} und wendet die Funktion iterativ auf jedes Element an, beginnend am rechten Ende.
+     *         The fold begins with {@code init} and applies {@code function} iteratively,
+     *         starting at the right end of the structure.
      *     </p>
      * </div>
      *
-     * @param init     Der initiale Wert der Faltung
-     * @param function Die Faltungsfunktion, die das aktuelle Element und das vorherige Zwischenergebnis verarbeitet
-     * @return Das akkumulierte Ergebnis der Faltung
-     * @param <B>      Typ des akkumulierten Ergebnisses
+     * @param init     the initial accumulator value; must not be {@code null}
+     * @param function the folding function combining the current element and the previous accumulator; must not return {@code null}
+     * @param <B>      the accumulator/result type
+     * @return the accumulated result of the fold (never {@code null})
      *
      * @since 1.0.0
      */

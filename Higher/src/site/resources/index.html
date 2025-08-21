@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Foomp – Higher-Kinded Types (HKTs) in Java</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Lightweight HKT encoding for Java using witness types and HigherN interfaces"/>
+  </head>
+  <body>
+    <header>
+      <h1>Foomp – Higher‑Kinded Types (HKTs) in Java</h1>
+      <p>
+        This module provides a lightweight encoding of higher‑kinded types (HKTs) in Java,
+        based on a <em>witness type</em> marker and rank‑specific interfaces
+        (<code>Higher1</code>–<code>Higher4</code>).
+      </p>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>
+        Java does not natively support HKTs. Foomp approximates this capability via:
+      </p>
+      <ul>
+        <li><code>WitnessType</code> – a marker that encodes the shape of the type constructor,</li>
+        <li><code>HigherN&lt;WT, …&gt;</code> – interfaces representing HKT ranks (arity 1..4).</li>
+      </ul>
+      <p>
+        A concrete abstraction provides a dedicated <em>witness type</em> and a static helper
+        (e.g., <code>fix</code> / <code>narrow</code>) to convert from a <code>HigherN</code>
+        shape to the concrete implementation where needed.
+      </p>
+    </section>
+
+    <section id="getting-started">
+      <h2>Getting started</h2>
+
+      <h3>1) Define a witness type</h3>
+      <p>
+        Create one distinct witness type per encoded type constructor. Witness types are usually
+        empty markers.
+      </p>
+      <pre><code class="language-java">public final class BoxW implements WitnessType { private BoxW() {} }</code></pre>
+
+      <h3>2) Shape public APIs with HigherN</h3>
+      <p>
+        Express APIs in terms of <code>HigherN&lt;WT, …&gt;</code> so they are independent of a concrete implementation.
+      </p>
+      <pre><code class="language-java">public &lt;WT extends WitnessType, A, B&gt;
+Higher2&lt;WT, B, A&gt; swap(Higher2&lt;WT, A, B&gt; value) {
+    // implementation depends on the concrete type; this is the HKT-shaped signature
+    return value; // placeholder
+}</code></pre>
+
+      <h3>3) Provide a fix/narrow helper on concrete types</h3>
+      <p>
+        Concrete implementations typically offer a static <code>fix</code> (or <code>narrow</code>) method to reify
+        a <code>HigherN</code> value into the concrete type.
+      </p>
+      <pre><code class="language-java">public final class Box&lt;A&gt; implements Higher1&lt;BoxW, A&gt; {
+    private final A value;
+    private Box(A value) { this.value = value; }
+
+    public static &lt;A&gt; Box&lt;A&gt; of(A value) { return new Box&lt;&gt;(value); }
+
+    @SuppressWarnings("unchecked")
+    public static &lt;A&gt; Box&lt;A&gt; fix(Higher1&lt;? extends BoxW, A&gt; hkt) {
+        return (Box&lt;A&gt;) hkt;
+    }
+}</code></pre>
+    </section>
+
+    <section id="rank-arity">
+      <h2>Rank / Arity</h2>
+      <p>
+        The <em>rank</em> (or <em>arity</em>) indicates how many type parameters the encoded constructor carries:
+      </p>
+      <ul>
+        <li><code>Higher1&lt;WT, A&gt;</code> → arity 1</li>
+        <li><code>Higher2&lt;WT, A, B&gt;</code> → arity 2</li>
+        <li><code>Higher3&lt;WT, A, B, C&gt;</code> → arity 3</li>
+        <li><code>Higher4&lt;WT, A, B, C, D&gt;</code> → arity 4</li>
+      </ul>
+      <p>
+        Each <code>HigherN</code> interface overrides <code>arity()</code> accordingly (e.g., rank‑2 returns <code>2</code>).
+      </p>
+    </section>
+
+    <section id="guidelines">
+      <h2>Guidelines</h2>
+      <ul>
+        <li>Define one witness type per encoded type constructor.</li>
+        <li>Keep witness types minimal (empty marker types).</li>
+        <li>Use <code>HigherN&lt;WT, …&gt;</code> in public APIs; provide <code>fix</code>/<code>narrow</code> on concrete types.</li>
+        <li>Document the arity and conversion points (where fixing back is expected).</li>
+      </ul>
+    </section>
+
+    <section id="glossary">
+      <h2>Glossary</h2>
+      <dl>
+        <dt>Higher‑kinded type (HKT)</dt>
+        <dd>A type that abstracts over type constructors (e.g., <code>F&lt;_&gt;</code>), not just values.</dd>
+
+        <dt>Witness type (WT)</dt>
+        <dd>Marker that encodes the type constructor’s shape at the type level.</dd>
+
+        <dt>Rank / Arity</dt>
+        <dd>Number of type parameters carried by the HKT (rank‑1, rank‑2, …).</dd>
+
+        <dt>Type constructor</dt>
+        <dd>A generic “shape” that becomes a concrete type once type parameters are supplied (e.g., <code>List&lt;_&gt;</code>).</dd>
+
+        <dt>Fix / Narrow</dt>
+        <dd>Static helper on a concrete type to turn a <code>HigherN&lt;WT, …&gt;</code> back into the concrete implementation.</dd>
+      </dl>
+    </section>
+
+    <section id="links">
+      <h2>API References</h2>
+      <ul>
+        <li><code>WitnessType</code></li>
+        <li><code>Higher1&lt;WT, A&gt;</code></li>
+        <li><code>Higher2&lt;WT, A, B&gt;</code></li>
+        <li><code>Higher3&lt;WT, A, B, C&gt;</code></li>
+        <li><code>Higher4&lt;WT, A, B, C, D&gt;</code></li>
+      </ul>
+      <p>
+        (Tip: Link these entries to your generated Javadoc pages in the final Maven Site.)
+      </p>
+    </section>
+
+    <footer>
+      <p>© Foomp – Functional Operations and Objects for Messy Programming</p>
+    </footer>
+  </body>
+</html>

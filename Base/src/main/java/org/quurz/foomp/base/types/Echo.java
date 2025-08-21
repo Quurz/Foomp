@@ -11,7 +11,12 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Funktionales Interface, das es einem Objekt erm&ouml;glicht, eine formatierte String-Repr&auml;sentation zu erzeugen.
+ *         Functional interface for producing a formatted string representation of an object.
+ *         This offers an explicit, type-level alternative to {@link Object#toString()} where
+ *         formatting can be controlled independently of the default Java representation.
+ *     </p>
+ *     <p>
+ *         Implementations must be null-safe and return a non-null string.
  *     </p>
  * </div>
  *
@@ -25,11 +30,12 @@ public interface Echo {
     /**
      * <div>
      *     <p>
-     *         Gibt eine formatierte String-Repr&auml;sentation des Objekts zur&uuml;ck, wobei die Standardmethode {@link Object#toString()} verwendet wird.
+     *         Returns a formatted string representation of this object using the implementation's
+     *         default formatting policy. This method must never return {@code null}.
      *     </p>
      * </div>
      *
-     * @return Eine formatierte String-Repr&auml;sentation des Objekts.
+     * @return a non-null formatted string representation of this object
      *
      * @since 1.0.0
      */
@@ -39,13 +45,16 @@ public interface Echo {
     /**
      * <div>
      *     <p>
-     *         Gibt eine formatierte String-Repr&auml;sentation des Objekts zur&uuml;ck, wobei eine benutzerdefinierte Funktion verwendet wird, um die Transformation des Objekts in einen String durchzuf&uuml;hren.
+     *         Returns a formatted string representation produced by applying the given transformer
+     *         function to this instance. This allows callers to supply custom formatting logic.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformer} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformer Eine Funktion, die das Objekt in eine String-Repr&auml;sentation umwandelt.
-     *
-     * @return Eine formatierte String-Repr&auml;sentation des Objekts.
+     * @param transformer a function mapping this {@code Echo} to its string representation; must not be {@code null}
+     * @return a non-null formatted string
      *
      * @since 1.0.0
      */

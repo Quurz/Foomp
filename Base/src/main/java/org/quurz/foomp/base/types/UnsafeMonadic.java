@@ -8,45 +8,40 @@ import org.quurz.foomp.higher.WitnessType;
 /**
  * <div>
  *     <p>
- *         Ein Interface, das eine Monade beschreibt, bei der Transformationen
- *         checked Exceptions werfen dürfen. Diese Variante ist nützlich, wenn
- *         Ausdrücke in der Monade potenziell fehlschlagen oder explizit
- *         Ausnahmen behandeln müssen.
+ *         Monad‑like interface whose transformations are allowed to throw checked exceptions.
+ *         This “unsafe” variant is useful when computations inside the monad may fail and you
+ *         want to express those failures at the type level via checked exceptions rather than
+ *         by encoding them as values.
  *     </p>
  *     <p>
- *         Dieses Interface ist eine unsichere Ergänzung zum typischen
- *         {@code Functor}– oder {@code Monad}-Verhalten, das Ausnahmen nicht
- *         berücksichtigt. Es bietet eine flexible Möglichkeit, Monadenoperationen
- *         mit potenziell fehlerhaften Transformationen auszudrücken.
+ *         It complements the typical functor/applicative/monad contracts by providing
+ *         exception‑throwing counterparts. Implementations should document their evaluation
+ *         model (lazy/eager) and whether repeated invocations are idempotent.
  *     </p>
  * </div>
  *
- * @param <WT> Der "Zeuge" der Monade (Typklasse), z. B. {@code Attempt}, {@code Option}, {@code Either} usw.
- * @param <A>  Der enthaltene Werttyp.
+ * @param <WT> the witness type of the monad (e.g., {@code Attempt}, {@code Option}, {@code Either}, …)
+ * @param <A>  the contained value type
  *
  * @see Monadic
  * @see org.quurz.foomp.base.util.Attempt
  *
  * @since 1.0.0
- *
- * @author Alexander Schell
  */
 public interface UnsafeMonadic<WT extends WitnessType, A> {
 
     /**
      * <div>
      *     <p>
-     *         Führt eine Transformation des enthaltenen Werts durch, wobei die gegebene Funktion
-     *         eine checked Exception werfen darf. Dies entspricht der typischen {@code map}-Operation
-     *         für Funktoren, jedoch unsicher.
+     *         Maps the contained value using a transformation that may throw a checked exception.
+     *         This is the exception‑throwing analogue of the usual {@code map} operation.
      *     </p>
      * </div>
      *
-     * @param <B> Der Typ des neuen Werts nach der Transformation.
-     * @param transformation Die Funktion zur Transformation des enthaltenen Werts;
-     *                       darf keine {@code null} sein.
-     * @return Eine neue Monade mit dem transformierten Wert.
-     * @throws Exception Falls die Transformation fehlschlägt.
+     * @param transformation the transformation; must not be {@code null}
+     * @param <B>            the resulting value type
+     * @return a new monadic value with the transformed result (never {@code null})
+     * @throws Exception if the transformation fails
      *
      * @since 1.0.0
      */
@@ -56,17 +51,16 @@ public interface UnsafeMonadic<WT extends WitnessType, A> {
     /**
      * <div>
      *     <p>
-     *         Wendet eine in der Monade eingebettete Funktion auf den enthaltenen Wert an.
-     *         Diese Funktion darf eine Exception werfen. Dies entspricht der "ap"-Operation
-     *         (applicative functor).
+     *         Applies a function contained in the monad to the current value; the function itself
+     *         may throw a checked exception. This is the exception‑throwing analogue of the
+     *         applicative {@code ap}/lift operation.
      *     </p>
      * </div>
      *
-     * @param <B> Der Typ des neuen Werts nach der Anwendung.
-     * @param transformation Eine Monade, die eine Funktion enthält,
-     *                       welche auf den aktuellen Wert angewendet werden soll.
-     * @return Eine neue Monade mit dem Ergebnis der Anwendung.
-     * @throws Exception Falls die Transformation fehlschlägt.
+     * @param transformation a monadic value carrying a function to apply; must not be {@code null}
+     * @param <B>            the resulting value type after applying the function
+     * @return a new monadic value with the application result (never {@code null})
+     * @throws Exception if applying the function fails
      *
      * @since 1.0.0
      */
@@ -76,16 +70,15 @@ public interface UnsafeMonadic<WT extends WitnessType, A> {
     /**
      * <div>
      *     <p>
-     *         Führt eine Sequenz von Berechnungen aus, bei der das Ergebnis einer Transformation
-     *         erneut eine Monade ist. Diese Transformation darf ebenfalls eine Exception werfen.
-     *         Entspricht dem klassischen {@code flatMap} oder {@code bind} in Monadensystemen.
+     *         Sequences computations by binding with a transformation that returns another monadic value
+     *         and may throw a checked exception. This is the exception‑throwing analogue of {@code flatMap}/{@code bind}.
      *     </p>
      * </div>
      *
-     * @param <B> Der Typ des neuen Werts nach der Bindung.
-     * @param transformation Eine Funktion, die einen Wert entgegennimmt und eine neue Monade zurückgibt.
-     * @return Die resultierende Monade nach Anwendung der Transformation.
-     * @throws Exception Falls die Transformation fehlschlägt.
+     * @param transformation a function producing a new monadic value; must not be {@code null}
+     * @param <B>            the resulting value type after binding
+     * @return the resulting monadic value (never {@code null})
+     * @throws Exception if the transformation fails
      *
      * @since 1.0.0
      */

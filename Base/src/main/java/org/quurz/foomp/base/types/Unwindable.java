@@ -5,13 +5,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 /**
  * <div>
  *     <p>
- *         Da die meisten Container lazy sein sollten, ist es eventuell nicht doof, eine M&ouml;glichkeit zu haben, all die aufgespulten
- *         Operationen auch bewusst abspulen zu können.<br />
- *         Daf&uuml;r sollten die Container-Klassen <code>Unwindable</code> implementieren.
+ *         Contract for types that can <em>unwind</em> deferred or lazy computations and return
+ *         a materialized (stable) representation of themselves.
+ *     </p>
+ *     <p>
+ *         Implementations should document their evaluation semantics (lazy vs. eager parts),
+ *         whether unwinding is idempotent, and any performance implications.
  *     </p>
  * </div>
  *
- * @param <SELF> Typ der implementierenden Unwindable-Klasse
+ * @param <SELF> the implementing unwindable type (self type)
  *
  * @since 1.0.0
  *
@@ -23,11 +26,16 @@ public interface Unwindable<SELF extends Unwindable<?>> {
     /**
      * <div>
      *     <p>
-     *         Spult alle Operationen ab und liefert ein <code>Unwindable</code> zur&uuml;ck
+     *         Unwinds (materializes) deferred or lazy computations and returns an
+     *         evaluated representation of this value.
+     *     </p>
+     *     <p>
+     *         Contract: this method must return a non‑null value. Implementations should strive
+     *         for idempotency (calling {@code unwind()} multiple times yields equivalent results).
      *     </p>
      * </div>
      *
-     * @return Das 'abgespulte' <code>Unwindable</code>
+     * @return the materialized (unwound) value; never {@code null}
      *
      * @since 1.0.0
      */

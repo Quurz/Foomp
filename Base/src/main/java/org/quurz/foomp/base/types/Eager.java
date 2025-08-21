@@ -9,22 +9,23 @@ import java.lang.annotation.Target;
 /**
  * <div>
  *     <p>
- *         Eine Marker-Annotation, die kennzeichnet, dass eine Methode
- *         ihre Berechnung eager, also sofort und nicht verzögert (lazy), ausf&uuml;hrt.
+ *         Deprecated: Prefer {@link UnwindingOperation} to mark methods that trigger evaluation or materialization.
+ *         {@code Eager} was intended as a documentation‑only marker for immediate (non‑lazy) execution,
+ *         but its semantics overlap with {@code UnwindingOperation}.
  *     </p>
  *     <p>
- *         Diese Annotation dient ausschließlich der Dokumentation und hat
- *         keinen Einfluss auf das Laufzeitverhalten der Methode.
+ *         This annotation remains for backward compatibility and has no effect on runtime behaviour.
+ *     </p>
+ *     <p>
+ *         <b>Note:</b> This annotation may be repurposed in the future if a distinct “eager‑by‑design” marker is required.
  *     </p>
  * </div>
  *
+ * @deprecated Use {@link UnwindingOperation} instead.
  * @since 1.0.0
- *
- * @author Alexander Schell
  */
+@Deprecated
 @Retention(RetentionPolicy.SOURCE)
-@Target(value = {
-    ElementType.METHOD
-})
+@Target(ElementType.METHOD)
 @Documented
 public @interface Eager {}

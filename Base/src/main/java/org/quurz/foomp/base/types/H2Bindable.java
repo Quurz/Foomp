@@ -9,18 +9,21 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Repr&auml;sentiert einen Typ, der mit anderen Werten desselben Typs verkn&uuml;pft werden kann.
+ *         Rank‑2 monad‑like interface that sequences computations by binding over the first
+ *         type parameter while preserving the second parameter {@code R}.
  *     </p>
  *     <p>
- *         Dieses Interface erm&ouml;glicht die "Verkettung" von Operationen in einem bestimmten Kontext.
- *         Die `bind`-Methode erm&ouml;glicht es, eine Funktion anzuwenden, die einen neuen Wert
- *         desselben Typs erzeugt, und das Ergebnis dieser Anwendung im Kontext zu halten.
+ *         The {@code bind} operation applies a transformation that returns a new value of the same
+ *         constructor shape {@code Higher2&lt;WT, B, R&gt;} and keeps {@code R} unchanged.
+ *     </p>
+ *     <p>
+ *         Contract: the transformation must not be {@code null} and must not return {@code null}.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ, der den Kontext des h&ouml;heren Typs repr&auml;sentiert.
- * @param <A> Der Typ der Elemente im aktuellen Kontext.
- * @param <R> Der Typ des Resultats.
+ * @param <WT> the witness type representing the higher‑kinded constructor
+ * @param <A>  the current (first) type parameter
+ * @param <R>  the preserved (second) type parameter, e.g. a result/context type
  *
  * @since 1.0.0
  *
@@ -32,18 +35,14 @@ public interface H2Bindable<WT extends WitnessType, A, R> {
     /**
      * <div>
      *     <p>
-     *         Verkn&uuml;pft diesen Wert mit einer anderen Operation.
-     *     </p>
-     *     <p>
-     *         Wendet die gegebene Funktion `transformation` auf das aktuelle Element an.
-     *         Die Funktion `transformation` muss selbst einen Wert desselben Typs zur&uuml;ckgeben.
-     *         Das Ergebnis dieser Verkn&uuml;pfung wird ebenfalls im aktuellen Kontext gehalten.
+     *         Monadic bind over the first type parameter: applies the given transformation and
+     *         returns a value of the same constructor shape with {@code R} preserved.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion, die auf das aktuelle Element angewendet wird.
-     * @param <B> Der Typ der Elemente nach der Verkn&uuml;pfung.
-     * @return Das Ergebnis der Verkn&uuml;pfung.
+     * @param transformation a function {@code A -> Higher2<WT, B, R>}; must not be {@code null}
+     * @param <B>            the new first type parameter
+     * @return a {@code Higher2<WT, B, R>} value; never {@code null}
      *
      * @since 1.0.0
      */

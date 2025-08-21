@@ -5,19 +5,27 @@ import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
  * <div>
  *     <p>
- *         Eine Sequenz von Werten des Typs <code>A</code>. Diese kann Elemente enthalten, leer sein oder
- *         durch Verkettung erweitert werden.
+ *         A sequence of values of type {@code A}. A sequence may be empty, contain one or more
+ *         elements, and can be extended by adding elements or concatenating other sequences.
+ *     </p>
+ *     <p>
+ *         Unless stated otherwise by a concrete implementation, elements are treated in encounter
+ *         order, operations are expected to be null‑safe (no {@code null} elements), and methods
+ *         return non‑null results. Implementations should document strictness (eager vs. lazy),
+ *         mutability, and complexity characteristics.
  *     </p>
  * </div>
  *
- * @param <A> Typ der Elemente
+ * @param <A> the element type
  *
  * @since 1.0.0
  *
@@ -34,7 +42,7 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Markerklasse zur Typisierung von {@link WitnessType} f&uuml;r <code>Seq</code>.
+     *         Witness type used to encode {@link Seq} as a higher‑kinded type.
      *     </p>
      * </div>
      *
@@ -45,11 +53,11 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob diese Sequenz nicht leer ist.
+     *         Returns whether this sequence contains at least one element.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls diese Sequenz mindestens ein Element enth&auml;lt, <code>false</code> andernfalls
+     * @return {@code true} if this sequence has at least one element; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -58,11 +66,11 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob diese Sequenz leer ist.
+     *         Returns whether this sequence is empty.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls diese Sequenz keine Elemente enth&auml;lt, <code>false</code> andernfalls
+     * @return {@code true} if this sequence is empty; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -73,13 +81,12 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Gibt das erste Element der Sequenz zur&uuml;ck. Vergleichbar mit Lisps <code>car</code>.
+     *         Returns the first element (head) of this sequence. Comparable to Lisp’s {@code car}.
      *     </p>
      * </div>
      *
-     * @return Der Kopf der Sequenz
-     *
-     * @throws NoSuchElementException falls die Sequenz leer ist
+     * @return the head element
+     * @throws NoSuchElementException if this sequence is empty
      *
      * @since 1.0.0
      */
@@ -89,11 +96,11 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Gibt die restlichen Elemente der Sequenz zur&uuml;ck, ohne das erste Element.
+     *         Returns the remainder (tail) of this sequence without the first element.
      *     </p>
      * </div>
      *
-     * @return Die restliche Sequenz ohne das erste Element
+     * @return the tail sequence (never {@code null}); may be empty
      *
      * @since 1.0.0
      */
@@ -102,12 +109,12 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;gt ein Element am Ende der Sequenz hinzu.
+     *         Prepends an element to this sequence and returns the new sequence.
      *     </p>
      * </div>
      *
-     * @param element Das hinzuzuf&uuml;gende Element
-     * @return Eine neue Sequenz mit dem Element als Kopf
+     * @param element the element to prepend; must not be {@code null} (unless an implementation explicitly allows it)
+     * @return a new sequence with {@code element} as its head (never {@code null})
      *
      * @since 1.0.0
      */
@@ -116,12 +123,13 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;gt eine weitere Sequenz von Elementen am Ende dieser Sequenz an.
+     *         Prepends all elements of the given sequence to this sequence, preserving the given
+     *         sequence’s encounter order.
      *     </p>
      * </div>
      *
-     * @param other Die hinzuzuf&uuml;gende Sequenz
-     * @return Eine neue Sequenz mit den hinzugef&uuml;gten Elementen
+     * @param other the sequence whose elements are to be prepended; must not be {@code null}
+     * @return a new sequence with {@code other}’s elements followed by this sequence (never {@code null})
      *
      * @since 1.0.0
      */
@@ -130,13 +138,12 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Zerlegt die Sequenz in ihren Kopf und den Rest.
+     *         Deconstructs this sequence into its head and tail.
      *     </p>
      * </div>
      *
-     * @return Ein Tupel aus dem ersten Element und der restlichen Sequenz
-     *
-     * @throws NoSuchElementException falls die Sequenz leer ist
+     * @return a pair consisting of the first element and the remainder of the sequence
+     * @throws NoSuchElementException if this sequence is empty
      *
      * @since 1.0.0
      */
@@ -146,12 +153,12 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Teilt diese Sequenz in zwei Teile anhand eines Pr&auml;dikats.
+     *         Splits this sequence into two parts according to the given predicate.
      *     </p>
      * </div>
      *
-     * @param predicate Das Pr&auml;dikat zur Teilung der Sequenz
-     * @return Ein Tupel aus den passenden und nicht passenden Elementen
+     * @param predicate the predicate used to partition the sequence; must not be {@code null}
+     * @return a pair of sequences: elements matching the predicate, and elements not matching it
      *
      * @since 1.0.0
      */
@@ -160,13 +167,12 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Teilt die Sequenz nach einer internen Regel, falls m&ouml;glich.
+     *         Splits this sequence into two parts according to an implementation‑specific rule.
      *     </p>
      * </div>
      *
-     * @return Ein Tupel aus zwei Teilsequenzen
-     *
-     * @throws IllegalStateException falls eine Teilung nicht m&ouml;glich ist
+     * @return a pair of two sub‑sequences
+     * @throws IllegalStateException if the sequence cannot be split according to the rule
      *
      * @since 1.0.0
      */
@@ -176,12 +182,13 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Filtert die Sequenz basierend auf einem Pr&auml;dikat.
+     *         Filters this sequence by the given predicate, returning a sequence with only
+     *         the elements that satisfy the predicate.
      *     </p>
      * </div>
      *
-     * @param pred Das Filterpr&auml;dikat
-     * @return Eine neue Sequenz mit nur den passenden Elementen
+     * @param pred the filter predicate; must not be {@code null}
+     * @return a new sequence containing only matching elements (never {@code null})
      *
      * @since 1.0.0
      */
@@ -190,15 +197,50 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Wandelt die Sequenz in eine Collection um.
+     *         Materializes this sequence into a concrete {@link java.util.Collection} provided by the supplier.
+     *     </p>
+     *     <p>
+     *         Contract: {@code init} must not be {@code null} and must construct a fresh, mutable collection.
+     *         Implementations must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param init Ein Lieferant f&uuml;r die zu bef&uuml;llende Collection
-     * @return Eine Sammlung mit den Elementen dieser Sequenz
+     * @param init a supplier for the target collection instance; must not be {@code null}
+     * @param <C>  the concrete collection type
+     * @return a collection containing the elements of this sequence (never {@code null})
      *
      * @since 1.0.0
      */
-    @NonNull Collection<A> toCollection(final @NonNull Supplier<Collection<A>> init);
+    <C extends Collection<? super A>> @NonNull C toCollection(final @NonNull Supplier<C> init);
 
+    /**
+     * <div>
+     *     <p>
+     *         Convenience: materializes this sequence into a mutable {@link java.util.ArrayList}.
+     *     </p>
+     * </div>
+     *
+     * @return a new {@code ArrayList} with the elements of this sequence
+     *
+     * @since 1.0.0
+     */
+    default @NonNull List<A> toList() {
+        return this.toCollection(java.util.ArrayList::new);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Convenience: materializes this sequence into a mutable {@link java.util.LinkedHashSet}
+     *         (preserving encounter order).
+     *     </p>
+     * </div>
+     *
+     * @return a new {@code LinkedHashSet} with the elements of this sequence
+     *
+     * @since 1.0.0
+     */
+    default @NonNull Set<A> toSet() {
+        return this.toCollection(java.util.LinkedHashSet::new);
+    }
 }

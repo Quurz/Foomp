@@ -7,12 +7,20 @@ import java.util.NoSuchElementException;
 /**
  * <div>
  *     <p>
- *         Ein {@code Container} ist eine Erweiterung des {@code Value}-Interfaces und repr&auml;sentiert eine Sammlung von 0 bis n Elementen.
- *         Implementierungen dieses Interfaces erm&ouml;glichen das &Uuml;berpr&uuml;fen des Vorhandenseins eines Elements und das Suchen von Elementen.
+ *         A generic container of zero or more elements of type {@code A}.
+ *         Implementations provide membership checks and element lookup operations.
  *     </p>
+ *     <p>
+ *         Unless stated otherwise, implementations should clearly document:
+ *     </p>
+ *     <ul>
+ *         <li>the notion of element equality (e.g., {@code equals} vs. custom comparator),</li>
+ *         <li>null‑safety (whether {@code null} elements are allowed),</li>
+ *         <li>ordering semantics (if any), and mutability characteristics.</li>
+ *     </ul>
  * </div>
  *
- * @param <A> der Typ der Elemente, die im Container enthalten sind
+ * @param <A> the element type contained in this container
  *
  * @since 1.0.0
  *
@@ -23,31 +31,35 @@ public interface Container<A> {
     /**
      * <div>
      *     <p>
-     *         &Uuml;berpr&uuml;ft, ob ein bestimmtes Element im Container enthalten ist.
+     *         Checks whether the given element is contained in this container.
      *     </p>
      * </div>
      *
-     * @param element das Element, dessen Vorhandensein &uuml;berpr&uuml;ft werden soll
+     * @param element the element to test for membership; must not be {@code null}
+     * @return {@code true} if the element is contained, {@code false} otherwise
+     * @throws NullPointerException if {@code element} is {@code null}
      *
-     * @return {@code true}, wenn das Element im Container enthalten ist, andernfalls {@code false}
-     *
-     * @throws NullPointerException wenn {@code element} {@code null} ist
+     * @since 1.0.0
      */
     boolean contains(final @NonNull A element);
 
     /**
      * <div>
      *     <p>
-     *         Sucht ein bestimmtes Element im Container und gibt es zur&uuml;ck.
+     *         Searches this container for the given element and returns it if present.
+     *     </p>
+     *     <p>
+     *         The exact matching semantics (e.g., {@code equals}-based or comparator‑based)
+     *         are implementation specific and should be documented by the implementation.
      *     </p>
      * </div>
      *
-     * @param element das Element, das im Container gesucht wird
+     * @param element the element to search for; must not be {@code null}
+     * @return the found element (never {@code null})
+     * @throws NoSuchElementException if the element is not present in this container
+     * @throws NullPointerException if {@code element} is {@code null}
      *
-     * @return das gefundene Element
-     *
-     * @throws NoSuchElementException wenn das Element nicht im Container vorhanden ist
-     * @throws NullPointerException wenn {@code element} {@code null} ist
+     * @since 1.0.0
      */
     A search(final @NonNull A element)
             throws NoSuchElementException;

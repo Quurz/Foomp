@@ -7,20 +7,20 @@ import java.util.NoSuchElementException;
 /**
  * <div>
  *     <p>
- *         Repräsentiert eine Struktur mit genau vier enthaltenen Werten.
- *         Jeder der vier Werte kann abgefragt werden, und es ist garantiert, dass
- *         immer genau vier Werte existieren.
+ *         Value carrier exposing exactly four components. Implementations provide presence
+ *         information and accessors for each component.
  *     </p>
  *     <p>
- *         Falls ein Element <code>null</code> ist, wird beim Zugriff darauf
- *         eine <code>NoSuchElementException</code> geworfen.
+ *         Nullability/absence semantics are implementation‑specific and must be documented
+ *         by the concrete type. Accessors may throw {@link NoSuchElementException} if a
+ *         component is not present according to the type’s contract.
  *     </p>
  * </div>
  *
- * @param <A1> Der Typ des ersten Elements
- * @param <A2> Der Typ des zweiten Elements
- * @param <A3> Der Typ des dritten Elements
- * @param <A4> Der Typ des vierten Elements
+ * @param <A1> the type of the first component
+ * @param <A2> the type of the second component
+ * @param <A3> the type of the third component
+ * @param <A4> the type of the fourth component
  *
  * @since 1.0.0
  *
@@ -32,11 +32,11 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das erste Element vorhanden ist.
+     *         Returns whether the first component is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls das erste Element vorhanden ist, sonst <code>false</code>
+     * @return {@code true} if the first component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -45,11 +45,11 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das zweite Element vorhanden ist.
+     *         Returns whether the second component is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls das zweite Element vorhanden ist, sonst <code>false</code>
+     * @return {@code true} if the second component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -58,11 +58,11 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das dritte Element vorhanden ist.
+     *         Returns whether the third component is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls das dritte Element vorhanden ist, sonst <code>false</code>
+     * @return {@code true} if the third component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -71,11 +71,11 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das vierte Element vorhanden ist.
+     *         Returns whether the fourth component is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls das vierte Element vorhanden ist, sonst <code>false</code>
+     * @return {@code true} if the fourth component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -84,12 +84,12 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt das erste Element zur&uuml;ck, falls es vorhanden ist.
+     *         Returns the first component.
      *     </p>
      * </div>
      *
-     * @return Das erste Element
-     * @throws NoSuchElementException Falls das erste Element nicht vorhanden ist
+     * @return the first component
+     * @throws NoSuchElementException if the first component is not present
      *
      * @since 1.0.0
      */
@@ -99,12 +99,12 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt das zweite Element zur&uuml;ck, falls es vorhanden ist.
+     *         Returns the second component.
      *     </p>
      * </div>
      *
-     * @return Das zweite Element
-     * @throws NoSuchElementException Falls das zweite Element nicht vorhanden ist
+     * @return the second component
+     * @throws NoSuchElementException if the second component is not present
      *
      * @since 1.0.0
      */
@@ -114,12 +114,12 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt das dritte Element zur&uuml;ck, falls es vorhanden ist.
+     *         Returns the third component.
      *     </p>
      * </div>
      *
-     * @return Das dritte Element
-     * @throws NoSuchElementException Falls das dritte Element nicht vorhanden ist
+     * @return the third component
+     * @throws NoSuchElementException if the third component is not present
      *
      * @since 1.0.0
      */
@@ -129,12 +129,12 @@ public interface Value4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt das vierte Element zur&uuml;ck, falls es vorhanden ist.
+     *         Returns the fourth component.
      *     </p>
      * </div>
      *
-     * @return Das vierte Element
-     * @throws NoSuchElementException Falls das vierte Element nicht vorhanden ist
+     * @return the fourth component
+     * @throws NoSuchElementException if the fourth component is not present
      *
      * @since 1.0.0
      */

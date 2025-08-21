@@ -9,9 +9,13 @@ import java.lang.annotation.Target;
 /**
  * <div>
  *     <p>
- *         Marker annotation for operations that produce side effects after object construction,
- *         e.g. mutating the receiver's state, modifying collaborators, performing I/O, or changing
+ *         Documentation-only marker for operations that cause side effects after object construction,
+ *         e.g. mutating the receiver’s state, modifying collaborators, performing I/O, or changing
  *         global/thread-local state.
+ *     </p>
+ *     <p>
+ *         This annotation has no effect on runtime behaviour and does not enforce any concurrency
+ *         guarantees. It is intended to make side-effecting methods explicit in reviews and tooling.
  *     </p>
  *     <p>
  *         Note: Constructors are intentionally not targeted; object initialization itself is not

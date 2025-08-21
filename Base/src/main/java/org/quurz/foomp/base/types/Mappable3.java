@@ -12,16 +12,20 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein Interface, das Transformationen (Mapping) von bis zu drei unabh&auml;ngigen Werten eines Objekts erm&ouml;glicht.
- *         Jede der `map`-Methoden wendet eine Funktion auf einen der drei Werte an und gibt eine neue Instanz
- *         mit dem transformierten Wert zur&uuml;ck.
+ *         Functor‑like interface enabling independent mapping over up to three values of a structure.
+ *         Each {@code mapN} method applies a function to the respective value and returns a new instance
+ *         with that value transformed.
+ *     </p>
+ *     <p>
+ *         Contract: mapping functions must not be {@code null} and should not return {@code null};
+ *         implementations should return non‑null results.
  *     </p>
  * </div>
  *
- * @param <WT> Der Typ des zugrunde liegenden Kontextes oder des Witness-Type.
- * @param <A1> Typ des ersten Werts.
- * @param <A2> Typ des zweiten Werts.
- * @param <A3> Typ des dritten Werts.
+ * @param <WT> the witness type (context) of the structure
+ * @param <A1> type of the first value
+ * @param <A2> type of the second value
+ * @param <A3> type of the third value
  *
  * @since 1.0.0
  *
@@ -90,18 +94,15 @@ public interface Mappable3<WT extends WitnessType, A1, A2, A3> {
     /**
      * <div>
      *     <p>
-     *         Wendet drei separate Funktionen auf die drei Werte des Objekts an und gibt eine neue Instanz
-     *         mit allen drei transformierten Werten zur&uuml;ck.
-     *     </p>
-     * </div>
+     * with all three values transformed.
      *
-     * @param transformation1 Die Funktion zur Transformation des ersten Werts.
-     * @param transformation2 Die Funktion zur Transformation des zweiten Werts.
-     * @param transformation3 Die Funktion zur Transformation des dritten Werts.
-     * @param <B1> Der Typ des neuen ersten Werts nach der Transformation.
-     * @param <B2> Der Typ des neuen zweiten Werts nach der Transformation.
-     * @param <B3> Der Typ des neuen dritten Werts nach der Transformation.
-     * @return Eine neue `Mappable3`-Instanz mit allen drei transformierten Werten.
+     * @param transformation1 function for the first value; must not be {@code null}
+     * @param transformation2 function for the second value; must not be {@code null}
+     * @param transformation3 function for the third value; must not be {@code null}
+     * @param <B1>            new first value type
+     * @param <B2>            new second value type
+     * @param <B3>            new third value type
+     * @return a new {@code Mappable3} with all three values transformed; never {@code null}
      *
      * @since 1.0.0
      */

@@ -7,11 +7,23 @@ import java.util.concurrent.Callable;
 /**
  * <div>
  *     <p>
- *         Eine, ein Ergebnis liefernde, Aufgabe, deren Ausf&uuml;hrung eine checked Exception werfen kann
+ *         Functional interface for tasks that produce a result and may throw a checked exception.
+ *         This mirrors {@link Callable} but exposes an explicit {@code execute()} method. The
+ *         companion {@link #safe()} adapter returns a {@link SafeExecutable} that never throws
+ *         and instead wraps failures in an {@link XorValue}.
  *     </p>
+ *     <p>
+ *         Contract:
+ *     </p>
+ *     <ul>
+ *         <li>{@link #execute()} must not return {@code null}.</li>
+ *         <li>{@link #call()} delegates to {@link #execute()}.</li>
+ *         <li>{@link #safe()} returns a wrapper that never throws; failures are represented as Left,
+ *             successes as Right.</li>
+ *     </ul>
  * </div>
  *
- * @param <A> Typ des Ergebnisses
+ * @param <A> the result type
  *
  * @since 1.0.0
  *
@@ -24,12 +36,12 @@ public interface Executable<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt diese Aufgabe aus und liefert ihr Ergebnis
+     *         Performs this task and returns its result.
      *     </p>
      * </div>
      *
-     * @return Ergebnis der Ausf&uuml;hrung
-     * @throws Exception Falls w&auml;hrend der Ausf&uuml;rung ein Fehler aufgetreten sein sollte
+     * @return the non-null result of the execution
+     * @throws Exception if an error occurs during execution
      *
      * @since 1.0.0
      */
@@ -46,17 +58,13 @@ public interface Executable<A>
     /**
      * <div>
      *     <p>
-     *         Wandelt dieses {@code Executable} in ein {@link SafeExecutable} um,
-     *         das Fehler in einem {@link XorValue} kapselt, anstatt eine Exception zu werfen.
-     *     </p>
-     *     <p>
-     *         Die Methode sorgt daf&uuml;r, dass die Ausf&uuml;hrung von {@link #execute()} keine
-     *         ungefangenen Ausnahmen mehr wirft. Stattdessen werden m&ouml;gliche Fehler
-     *         als linke Werte in einem {@link XorValue} zur&uuml;ckgegeben.
+     *         Returns a {@link SafeExecutable} view of this task that never throws. Instead of
+     *         propagating exceptions, errors are returned as {@code Left} and successful results
+     *         as {@code Right} in an {@link XorValue}.
      *     </p>
      * </div>
      *
-     * @return Ein {@link SafeExecutable}, das Fehler in einem {@link XorValue} verpackt
+     * @return a {@code SafeExecutable} wrapper for this task
      *
      * @since 1.0.0
      */

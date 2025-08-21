@@ -5,23 +5,29 @@ import org.quurz.foomp.higher.WitnessType;
 /**
  * <div>
  *     <p>
- *         Repr&auml;sentiert einen Typ, der die Eigenschaften einer Monade erf&uuml;llt.
+ *         Rank‑2 monad‑like interface: combines the contracts of {@link H2Mappable},
+ *         {@link H2Liftable} and {@link H2Bindable}. Operations map/bind over the first
+ *         type parameter while preserving the second parameter {@code R} (e.g. result/context).
  *     </p>
  *     <p>
- *         Dieses Interface kombiniert die Eigenschaften von `H2Mappable`, `H2Liftable` und `H2Bindable`.
- *         Monaden sind ein fundamentales Konzept in der funktionalen Programmierung, das es erm&ouml;glicht,
- *         Berechnungen in einem bestimmten Kontext zu strukturieren und zu kontrollieren.
+ *         Typical use cases are structures like {@code State<S, A>} or {@code Cont<R, A>},
+ *         which behave monadically in {@code A} with a fixed {@code S}/{@code R}.
+ *     </p>
+ *     <p>
+ *         Contract: transformations must not be {@code null} and must not return {@code null};
+ *         implementations should return non‑null results and keep {@code R} unchanged.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ, der den Kontext des h&ouml;heren Typs repr&auml;sentiert.
- * @param <A> Der Typ der Elemente im aktuellen Kontext.
- * @param <R> Der Typ des Resultats.
+ * @param <WT> the witness type representing the higher‑kinded constructor
+ * @param <A>  the mapped/bound (first) type parameter
+ * @param <R>  the preserved (second) type parameter, e.g. a result/context type
  *
  * @since 1.0.0
  *
  * @author Alexander Schell
  */
+
 public interface H2Monadic<WT extends WitnessType, A, R>
         extends H2Mappable<WT, A, R>,
                 H2Liftable<WT, A, R>,

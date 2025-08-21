@@ -3,17 +3,18 @@ package org.quurz.foomp.higher;
 /**
  * <div>
  *     <p>
- *         Basis f&uuml;r Higher-Kinded-Typen vom Rang 1.
+ *         Base interface for rank‑1 higher‑kinded types (HKTs).
  *     </p>
  *     <p>
- *         Dies ist die Basis f&uuml;r Higher-Kinded-Typen, die genau einen inneren Typ besitzen. Typischerweise wird
- *         diese Schnittstelle verwendet, um Typen zu modellieren, die einen einzelnen inneren Typ als Parameter
- *         ben&ouml;tigen, wie etwa Funktoren oder Monaden der ersten Ordnung.
+ *         This interface represents higher‑kinded types that have exactly one type parameter.
+ *         It is typically used to model abstractions that are parameterized by a single type,
+ *         such as first‑order functors or monads. The {@code WT} parameter acts as the
+ *         witness type (see {@link WitnessType}) to encode the HKT at the type level.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ des Higher-Kinded-Typs (Siehe auch {@link WitnessType})
- * @param <A> Der 'innere' Typ, der von diesem Higher-Kinded-Typ gehandhabt wird
+ * @param <WT> The witness type of the HKT (see {@link WitnessType})
+ * @param <A>  The type parameter carried by this HKT
  *
  * @since 1.0.0
  *
@@ -26,14 +27,14 @@ public interface Higher1<WT extends WitnessType, A>
     /**
      * <div>
      *     <p>
-     *         Gibt den Rang des Higher-Kinded-Typs zur&uuml;ck.
+     *         Returns the rank of the higher‑kinded type.
      *     </p>
      *     <p>
-     *         Da dieser Higher-Kinded-Typ genau ein Typ-Argument besitzt, gibt diese Methode immer 1 zur&uuml;ck.
+     *         Since this HKT has exactly one type parameter, this method always returns 1.
      *     </p>
      * </div>
      *
-     * @return 1, da dieser Higher-Kinded-Typ genau einen inneren Typ besitzt
+     * @return 1, because this HKT has exactly one type parameter
      *
      * @since 1.0.0
      */

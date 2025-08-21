@@ -8,19 +8,19 @@ import java.util.function.Supplier;
 /**
  * <div>
  *     <p>
- *         Ein funktionales Interface, das eine Berechnung beschreibt, deren zwei Eingabeparameter
- *         aufgeschoben (deferred) werden k&ouml;nnen. Statt die Parameter direkt zu &uuml;bergeben,
- *         werden sie als {@link Supplier} bereitgestellt, um ihre Berechnung erst bei Bedarf auszuf&uuml;hren.
+ *         Functional interface describing a computation with two inputs that can be deferred.
+ *         Instead of passing the inputs directly, they are provided as {@link Supplier}s so that
+ *         evaluation can be performed on demand.
  *     </p>
  *     <p>
- *         Dieses Interface ist n&uuml;tzlich, wenn die Berechnung von Parametern teuer ist
- *         oder die Reihenfolge der Ausf&uuml;hrung kontrolliert werden soll.
+ *         This is useful when computing inputs is expensive or when execution order and timing
+ *         should be controlled explicitly.
  *     </p>
  * </div>
  *
- * @param <A1> der Typ des ersten Eingabeparameters
- * @param <A2> der Typ des zweiten Eingabeparameters
- * @param <B>  der Typ des Ergebnisses der Berechnung
+ * @param <A1> the type of the first input
+ * @param <A2> the type of the second input
+ * @param <B>  the result type of the computation
  *
  * @since 1.0.0
  *
@@ -32,18 +32,22 @@ public interface Deferrable2<A1, A2, B> {
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt die Berechnung mit den gegebenen Parametern aus, die durch {@link Supplier}
-     *         bereitgestellt werden. Die {@code Supplier} erlauben eine verz&ouml;gerte Bereitstellung
-     *         der Eingabeparameter.
+     *         Returns an executable handle that, when called, obtains the two inputs from the given
+     *         suppliers and performs the computation to produce the result.
+     *     </p>
+     *     <p>
+     *         Contract: the suppliers must not be {@code null} and must not supply {@code null} values.
+     *         The returned handle must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param a1 ein {@code Supplier}, der den ersten Eingabeparameter liefert
-     * @param a2 ein {@code Supplier}, der den zweiten Eingabeparameter liefert
+     * @param a1 a {@link Supplier} providing the first input; must not be {@code null}
+     * @param a2 a {@link Supplier} providing the second input; must not be {@code null}
+     * @return a {@link java.util.concurrent.Callable} performing the deferred computation
      *
-     * @return das Ergebnis der Berechnung vom Typ {@code B}
+     * @throws NullPointerException if any supplier is {@code null} or supplies {@code null}
      *
-     * @throws NullPointerException wenn einer der {@code Supplier} null ist
+     * @since 1.0.0
      */
     @NonNull
     Callable<B> defer(final @NonNull Supplier<A1> a1,

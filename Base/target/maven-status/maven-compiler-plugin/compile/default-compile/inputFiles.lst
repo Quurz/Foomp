@@ -76,13 +76,13 @@
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Either.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Eval.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Maybe.java
+/home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/MutablePair.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Nothing.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Record2.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Record3.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Record4.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Result.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Stateful.java
-/home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Struct2.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Trampoline.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Tuple2.java
 /home/Alexander/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/util/Tuple3.java

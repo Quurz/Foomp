@@ -9,30 +9,36 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Interface f&uuml;r 'Functor'-&auml;hnliche Typen
+ *         Rank‑1 functor‑like interface: maps a transformation over the carried value and
+ *         returns a value of the same constructor shape.
+ *     </p>
+ *     <p>
+ *         Contract: the transformation must not be {@code null} and should not return {@code null};
+ *         implementations should return a non‑null result.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ des implementierenden Higher-Kinded-Typs
- * @param <A> Der 'innere' Typ des Higher-Kinded-Typs
+ * @param <WT> the witness type of the implementing higher‑kinded type
+ * @param <A>  the carried value type
  *
  * @since 1.0.0
  *
  * @author Alexander Schell
  */
+@FunctionalInterface
 public interface Mappable<WT extends WitnessType, A> {
 
     /**
      * <div>
      *     <p>
-     *         Nimmt den inneren Wert dieses <code>Mappable</code>-Objekts, wendet die &uuml;bergebene Funktion auf ihn an und
-     *         verpackt das Ergebnis in ein neues <code>Mappable</code>-Objekt gleichen Typs.
+     *         Applies the given transformation to the carried value and returns a value of the same
+     *         constructor shape with the transformed type.
      *     </p>
      * </div>
      *
-     * @param transformation Die anzuwendende Funktion
-     * @param <B> Der Typ des inneren Werts des neuen <code>Mappable</code>-Objekts
-     * @return Das neue <code>Mappable</code>-Objekt
+     * @param transformation the function to apply to the carried value; must not be {@code null}
+     * @param <B>            the new carried type after applying the transformation
+     * @return a {@code Higher1} of the same constructor shape carrying the transformed value; never {@code null}
      *
      * @since 1.0.0
      */

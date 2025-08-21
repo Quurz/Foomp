@@ -9,7 +9,13 @@ import java.lang.annotation.Target;
 /**
  * <div>
  *     <p>
- *         Marker-Annotation für thread-sichere Typen
+ *         Documentation-only marker indicating that the annotated type is intended to be thread-safe.
+ *     </p>
+ *     <p>
+ *         This annotation has no effect on runtime behaviour and does not enforce any concurrency,
+ *         visibility, or atomicity guarantees. It communicates intent to readers and tools.
+ *         Implementations should document their thread-safety strategy (immutability, confinement,
+ *         synchronization, lock-free, etc.).
  *     </p>
  * </div>
  *

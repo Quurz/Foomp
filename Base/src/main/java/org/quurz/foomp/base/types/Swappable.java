@@ -5,15 +5,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 /**
  * <div>
  *     <p>
- *         Kann man's umdrehen?<br />
- *         Muss man's umdrehen können?<br />
- *         Ei, dann nehmen wir <code>Swappable</code>! &#128512;
+ *         Functional interface for structures whose two inner components can be swapped.
+ *         Implementations return a value of the same constructor shape with the type
+ *         parameters exchanged.
+ *     </p>
+ *     <p>
+ *         Typical use cases include pair/tuple-like structures where {@code (A, B)} can be
+ *         transformed into {@code (B, A)} while preserving the overall shape.
  *     </p>
  * </div>
  *
- * @param <SELF> Typ der implementierenden Swappable-Klasse
- * @param <A> Der erste 'innere' Typ des Swappable
- * @param <B> Der zweite 'innere' Typ des Swappable
+ * @param <SELF> the implementing swappable type (self type) after swapping, i.e. {@code Swappable<?, B, A>}
+ * @param <A>    the first inner type before swapping
+ * @param <B>    the second inner type before swapping
  *
  * @since 1.0.0
  *
@@ -25,11 +29,12 @@ public interface Swappable<SELF extends Swappable<?, B, A>, A, B> {
     /**
      * <div>
      *     <p>
-     *         Dreht das {@code Swappable<A, B>} um zu einem {@code Swappable<B, A>}
+     *         Returns this structure with its two inner components swapped:
+     *         {@code Swappable<A, B>} → {@code Swappable<B, A>}.
      *     </p>
      * </div>
      *
-     * @return Das {@code Swappable<B, A>}
+     * @return a non-null instance with {@code A} and {@code B} exchanged
      *
      * @since 1.0.0
      */

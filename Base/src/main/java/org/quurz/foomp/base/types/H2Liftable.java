@@ -9,18 +9,22 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Repr&auml;sentiert einen Typ, der eine Funktion in einen h&ouml;heren Kontext heben kann.
+ *         Rank‑2 applicative‑like interface that lifts a function into the context and applies it
+ *         to the first type parameter while preserving the second parameter {@code R}.
  *     </p>
  *     <p>
- *         Dieses Interface erweitert das Konzept von `Liftable` um einen zus&auml;tzlichen
- *         Typ-Parameter `R`, der den Result-Typ repr&auml;sentiert. Dies ist besonders n&uuml;tzlich
- *         f&uuml;r Monaden wie `Cont`, die einen expliziten Result-Typ ben&ouml;tigen.
+ *         This extends the usual rank‑1 {@code Liftable} idea to types of shape {@code Higher2&lt;WT, A, R&gt;}
+ *         where {@code R} (e.g., a result/context type) remains fixed during the operation.
+ *     </p>
+ *     <p>
+ *         Contract: the provided higher‑kinded function must not be {@code null} and must not contain
+ *         a {@code null} function; the result must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ, der den Kontext des h&ouml;heren Typs repr&auml;sentiert.
- * @param <A> Der Typ des Arguments der anzuhebenden Funktion.
- * @param <R> Der Typ des Ergebnisses der anzuhebenden Funktion.
+ * @param <WT> the witness type representing the higher‑kinded constructor
+ * @param <A>  the input type consumed by the lifted function
+ * @param <R>  the preserved (second) type parameter, e.g. a result/context type
  *
  * @since 1.0.0
  *
@@ -32,18 +36,14 @@ public interface H2Liftable<WT extends WitnessType, A, R> {
     /**
      * <div>
      *     <p>
-     *         Hebt eine Funktion in den h&ouml;heren Kontext.
-     *     </p>
-     *     <p>
-     *         Diese Methode nimmt eine Funktion vom Typ `A -> B` und hebt sie in den
-     *         Typ `A` in diesem Kontext angewendet werden kann und ein Ergebnis vom Typ
-     *         `B` im selben Kontext zur&uuml;ckgibt.
+     *         Lifts a function {@code A -> B} inside the context and applies it to the first type parameter,
+     *         preserving {@code R}.
      *     </p>
      * </div>
      *
-     * @param transformation Die zu hebenden Funktion.
-     * @param <B> Der Typ des Ergebnisses der anzuwendenden Funktion.
-     * @return Eine neue Funktion im h&ouml;heren Kontext.
+     * @param transformation a higher‑kinded value carrying the function {@code A -> B}; must not be {@code null}
+     * @param <B>            the new first type parameter after applying the function
+     * @return a value of shape {@code Higher2&lt;WT, B, R&gt;}
      *
      * @since 1.0.0
      */

@@ -3,22 +3,42 @@ package org.quurz.foomp.higher;
 /**
  * <div>
  *     <p>
- *         Die Basis aller Higher-Kinded-Typen.
+ *         Base interface for higher‑kinded types (HKTs) in Java.
  *     </p>
  *     <p>
- *         Diese Schnittstelle bildet die Grundlage f&uuml;r die Implementierung von Higher-Kinded-Typen (HKT) in Java, die
- *         es erm&ouml;glicht, Typen h&ouml;herer Ordnung zu simulieren. Jeder Higher-Kinded-Typ wird durch einen
- *         Witness-Typ <code>WT</code> spezifiziert, der im Allgemeinen den "Typ-Konstruktor" beschreibt, den der
- *         Higher-Kinded-Typ repr&auml;sentiert.
+ *         Java does not natively support higher‑kinded types. This interface, together with
+ *         {@link WitnessType} and the rank‑specific {@code HigherN} interfaces (e.g.
+ *         {@link org.quurz.foomp.higher.Higher1}, {@link org.quurz.foomp.higher.Higher2},
+ *         {@link org.quurz.foomp.higher.Higher3}, {@link org.quurz.foomp.higher.Higher4}),
+ *         provides a lightweight encoding that models type constructors at the type level.
  *     </p>
  *     <p>
- *         Beispiel: In Sprachen, die HKT direkt unterst&uuml;tzen, kann man komplexe Typen wie <code>Option&lt;A&gt;</code>
- *         abstrahieren und manipulieren. Diese Schnittstelle stellt eine M&ouml;glichkeit bereit, solche Typkonstrukte
- *         indirekt zu modellieren, indem der Witness-Typ als Marker dient.
+ *         A concrete HKT is identified by a witness type {@code WT} that encodes the
+ *         shape of the type constructor. For example, a rank‑2 constructor can be encoded as
+ *         {@code Higher2<WT, A, B>} and later “fixed” into a concrete implementation using a
+ *         type‑specific helper (commonly named {@code fix} or {@code narrow}).
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ des Higher-Kinded-Typs (siehe auch {@link WitnessType}).
+ * <h2>Usage (sketch)</h2>
+ * <pre>{@code
+ * // 1) Define a witness type for your constructor (usually an empty marker).
+ * public final class MyConstructor implements WitnessType { private MyConstructor() {} }
+ *
+ * // 2) Use a HigherN interface to express your API in terms of HKTs.
+ * <WT extends WitnessType, A, B> Higher2<WT, B, A> swap(Higher2<WT, A, B> value) { ... }
+ *
+ * // 3) Concrete types provide a fix/narrow helper to “reify” the HKT when needed:
+ * var concrete = MyConcreteType.fix(hktValue);
+ * }</pre>
+ *
+ * <h2>Rank (arity)</h2>
+ * <p>
+ *     The rank (also called arity) specifies how many type parameters the HKT carries.
+ *     Rank‑1 types always return {@code 1} from {@link #arity()}, rank‑2 return {@code 2}, etc.
+ * </p>
+ *
+ * @param <WT> The witness type that encodes the shape of the type constructor (see {@link WitnessType})
  *
  * @since 1.0.0
  *
@@ -29,24 +49,18 @@ public interface Hkt<WT extends WitnessType> {
     /**
      * <div>
      *     <p>
-     *         Liefert die Arit&auml;t des Higher-Kinded-Typs.
+     *         Returns the arity (rank) of this higher‑kinded type.
      *     </p>
      *     <p>
-     *         Die Arit&auml;t (oder auch Rang) des Higher-Kinded-Typs gibt an, wie viele "innere" Typ-Parameter der Typ
-     *         aufnimmt. Beispielsweise hat ein Typkonstruktor wie <code>Option&lt;A&gt;</code> die Arit&auml;t 1,
-     *         w&auml;hrend ein hypothetischer Typ <code>BiFunction&lt;A, B, C&gt;</code> eine Arit&auml;t von 2 h&auml;tte.
-     *     </p>
-     *     <p>
-     *         Obwohl die Methode eine informative Rolle spielt, ist sie optional und dient in den meisten F&auml;llen nur
-     *         dazu, generelle Informationen &uuml;ber die Struktur von Typen im HKT-Framework zu liefern.
+     *         The arity denotes how many type parameters the encoded constructor carries.
+     *         For example, a rank‑1 HKT has arity {@code 1}, while a rank‑2 HKT has arity {@code 2}, and so on.
      *     </p>
      * </div>
      *
-     * @return Die Arit&auml;t des implementierenden Higher-Kinded-Typs.
+     * @return the arity (rank) of this HKT
      *
      * @since 1.0.0
      */
-    // TODO: Entfernen. Ist momentan ünerflüssig und verwirrt nur.
     default int arity() {
         return 0;
     }

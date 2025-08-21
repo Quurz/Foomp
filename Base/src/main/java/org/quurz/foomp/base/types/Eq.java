@@ -12,22 +12,22 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Eine funktionale Schnittstelle zur Definition von Gleichheitsoperationen.
- *         Inspiriert von Haskells <code>Eq</code>-Typeclass erlaubt dieses Interface
- *         eine flexible Implementierung von Gleichheitskriterien.
+ *         A functional interface for defining equality operations.
+ *         Inspired by Haskell's <code>Eq</code> typeclass, this interface allows
+ *         for flexible implementation of equality criteria.
  *     </p>
  *     <p>
- *         Diese Schnittstelle unterst&uuml;tzt:
+ *         This interface supports:
  *         <ul>
- *             <li>Eine typensichere Gleichheit, definiert durch die Methode {@link #eq(Eq)}.</li>
- *             <li>Eine benutzerdefinierte Gleichheit mittels {@link BiPredicate}, definiert durch die Methode {@link #eq(BiPredicate, Eq)}.</li>
- *             <li>Eine Standard-Hash-Wert-Berechnung, bereitgestellt durch die Methode {@link #hash()}.</li>
- *             <li>Eine benutzerdefinierte Hash-Wert-Berechnung, definiert durch die Methode {@link #hash(Function)}.</li>
+ *             <li>Type-safe equality, defined by the method {@link #eq(Eq)}.</li>
+ *             <li>Custom equality using {@link BiPredicate}, defined by the method {@link #eq(BiPredicate, Eq)}.</li>
+ *             <li>Standard hash value calculation, provided by the method {@link #hash()}.</li>
+ *             <li>Custom hash value calculation, defined by the method {@link #hash(Function)}.</li>
  *         </ul>
  *     </p>
  * </div>
  *
- * @param <SELF> Der Typ, der diese Schnittstelle implementiert.
+ * @param <SELF> The type implementing this interface.
  *
  * @since 1.0.0
  *
@@ -39,14 +39,14 @@ public interface Eq<SELF extends Eq<?>> {
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das aktuelle Objekt gleich dem angegebenen Objekt ist.
+     *         Checks if the current object equals the given object.
      *     </p>
      * </div>
      *
-     * @param other Das Objekt, mit dem Gleichheit überprüft wird.
-     * @return <code>true</code>, wenn beide Objekte gleich sind, andernfalls <code>false</code>.
+     * @param other The object to check equality with.
+     * @return <code>true</code> if both objects are equal, <code>false</code> otherwise.
      *
-     * @throws NullPointerException Falls <code>other</code> <code>null</code> ist.
+     * @throws NullPointerException If <code>other</code> is <code>null</code>.
      *
      * @since 1.0.0
      */
@@ -55,17 +55,17 @@ public interface Eq<SELF extends Eq<?>> {
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine Gleichheitspr&uuml;fung mit einer benutzerdefinierten Vergleichslogik durch.
+     *         Performs an equality check using custom comparison logic.
      *     </p>
      * </div>
      *
-     * @param equals   Eine benutzerdefinierte Vergleichslogik, dargestellt durch ein {@link BiPredicate}.
-     * @param other  Das Objekt, mit dem die Gleichheit gepr&uuml;ft werden soll. Darf nicht <code>null</code> sein.
+     * @param equals   A custom comparison logic represented by a {@link BiPredicate}.
+     * @param other  The object to check equality with. Must not be <code>null</code>.
      *
-     * @return <code>true</code>, wenn die beiden Objekte gem&auml;&szlig; der bereitgestellten Vergleichslogik
-     *         als gleich betrachtet werden; andernfalls <code>false</code>.
+     * @return <code>true</code> if both objects are considered equal according to the provided
+     *         comparison logic; <code>false</code> otherwise.
      *
-     * @throws NullPointerException Falls <code>equals</code> oder <code>other</code> <code>null</code> ist.
+     * @throws NullPointerException If either <code>equals</code> or <code>other</code> is <code>null</code>.
      *
      * @since 1.0.0
      */
@@ -80,11 +80,11 @@ public interface Eq<SELF extends Eq<?>> {
     /**
      * <div>
      *     <p>
-     *         Berechnet den Hash-Wert f&uml;r dieses Objekt unter Verwendung der Standard-Hash-Implementierung.
+     *         Calculates the hash value for this object using the standard hash implementation.
      *     </p>
      * </div>
      *
-     * @return Ein Hash-Wert, der auf der Standard-Hash-Implementierung von {@link Objects#hash(Object...)} basiert.
+     * @return A hash value based on the standard hash implementation of {@link Objects#hash(Object...)}.
      *
      * @since 1.0.0
      */
@@ -95,15 +95,15 @@ public interface Eq<SELF extends Eq<?>> {
     /**
      * <div>
      *     <p>
-     *         Berechnet den Hash-Wert dieses Objekts mithilfe einer benutzerdefinierten Hash-Funktion.
+     *         Calculates the hash value of this object using a custom hash function.
      *     </p>
      * </div>
      *
-     * @param hashFunction Eine benutzerdefinierte Funktion, die den Hash-Wert berechnet. Darf nicht <code>null</code> sein.
+     * @param hashFunction A custom function that calculates the hash value. Must not be <code>null</code>.
      *
-     * @return Der von der <code>hashFunction</code> berechnete Hash-Wert.
+     * @return The hash value calculated by the <code>hashFunction</code>.
      *
-     * @throws NullPointerException Falls <code>hashFunction</code> oder ihr Rückgabewert <code>null</code> ist.
+     * @throws NullPointerException If <code>hashFunction</code> or its return value is <code>null</code>.
      *
      * @since 1.0.0
      */

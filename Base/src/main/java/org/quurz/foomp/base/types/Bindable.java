@@ -9,15 +9,19 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Ein Interface, das Monad-&auml;hnliche Bindungsoperationen für Typen definiert,
- *         die einen 'inneren' Wert enthalten und eine bind-Methode anbieten. Diese
- *         Bindungsmethode erm&ouml;glicht die Verkettung von Operationen,
- *         die auf den inneren Wert zugreifen, &auml;hnlich wie das monadische <code>bind</code> in Haskell.
+ *         Monad‑like binding contract for rank‑1 higher‑kinded types (HKTs). It enables sequencing
+ *         of operations that produce values of the same HKT shape by applying a transformation to
+ *         the carried value and returning a new HKT instance.
+ *     </p>
+ *     <p>
+ *         The {@code WT} witness encodes the type constructor; {@code A} is the carried value type.
+ *         Implementations are expected to be null‑safe: the transformation function must not be
+ *         {@code null} and must not return {@code null}.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ des implementierenden Higher-Kinded-Typs
- * @param <A> Der Typ des 'inneren' Werts in diesem <code>Bindable</code>
+ * @param <WT> the witness type of the implementing HKT (see {@link org.quurz.foomp.higher.WitnessType})
+ * @param <A>  the carried value type
  *
  * @since 1.0.0
  *
@@ -28,17 +32,18 @@ public interface Bindable<WT extends WitnessType, A> {
     /**
      * <div>
      *     <p>
-     *         Wendet die angegebene Funktion auf den inneren Wert dieses <code>Bindable</code>-Objekts an,
-     *         um ein neues <code>Bindable</code>-Objekt mit dem neuen inneren Wert zurückzugeben.
-     *         Diese Methode unterst&uuml;tzt die Verkettung weiterer bind-Operationen,
-     *         die auf diesem <code>Bindable</code>-Objekt basieren.
+     *         Applies the given transformation to the carried value and returns a new HKT instance
+     *         of the same constructor shape. This operation supports fluent chaining of computations
+     *         that depend on the previous result (monadic bind).
+     *     </p>
+     *     <p>
+     *         Contract: the transformation must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion, die auf den inneren Wert angewendet wird und ein neues
-     *              <code>Bindable</code>-Objekt zurückgibt.
-     * @param <B> Der Typ des 'inneren' Werts des neuen <code>Bindable</code>-Objekts
-     * @return Ein neues <code>Bindable</code>-Objekt mit dem neuen inneren Wert
+     * @param transformation the function to transform the carried value into a new {@code Higher1} of the same witness
+     * @param <B>            the new carried value type
+     * @return a {@code Higher1} with the transformed value; never {@code null}
      *
      * @since 1.0.0
      */

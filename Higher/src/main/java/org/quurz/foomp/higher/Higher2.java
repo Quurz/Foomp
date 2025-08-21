@@ -3,18 +3,19 @@ package org.quurz.foomp.higher;
 /**
  * <div>
  *     <p>
- *         Basis f&uuml;r Higher-Kinded-Typen vom Rang 2.
+ *         Base interface for rank‑2 higher‑kinded types (HKTs).
  *     </p>
  *     <p>
- *         Diese Schnittstelle dient als Basis f&uuml;r Higher-Kinded-Typen, die genau zwei innere Typen besitzen.
- *         Solche Typen werden oft verwendet, um Strukturen zu modellieren, die zwei Typen als Parameter ben&ouml;tigen.
- *         Beispiele für solche Typen sind Funktoren oder Monaden der zweiten Ordnung, die zwei Typen als Parameter ben&ouml;tigen.
+ *         This interface represents higher‑kinded types that have exactly two type parameters.
+ *         It is typically used to model abstractions that are parameterized by two types,
+ *         such as certain bifunctors or second‑order constructs. The {@code WT} parameter acts
+ *         as the witness type (see {@link WitnessType}) to encode the HKT at the type level.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ des Higher-Kinded-Typs (Siehe auch {@link WitnessType})
- * @param <A> Das erste Typ-Argument, der von diesem Higher-Kinded-Typ gehandhabt wird
- * @param <B> Das zweite Typ-Argument, der von diesem Higher-Kinded-Typ gehandhabt wird
+ * @param <WT> The witness type of the HKT (see {@link WitnessType})
+ * @param <A>  The first type parameter carried by this HKT
+ * @param <B>  The second type parameter carried by this HKT
  *
  * @since 1.0.0
  *
@@ -27,14 +28,14 @@ public interface Higher2<WT extends WitnessType, A, B>
     /**
      * <div>
      *     <p>
-     *         Gibt den Rang des Higher-Kinded-Typs zur&uuml;ck.
+     *         Returns the rank (arity) of the higher‑kinded type.
      *     </p>
      *     <p>
-     *         Da dieser Higher-Kinded-Typ genau zwei Typ-Argumente besitzt, gibt diese Methode immer 2 zur&uuml;ck.
+     *         Since this HKT has exactly two type parameters, this method always returns 2.
      *     </p>
      * </div>
      *
-     * @return 2, da dieser Higher-Kinded-Typ genau zwei innere Typen besitzt
+     * @return 2, because this HKT has exactly two type parameters
      *
      * @since 1.0.0
      */

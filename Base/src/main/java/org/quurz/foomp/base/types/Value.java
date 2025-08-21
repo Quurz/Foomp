@@ -1,24 +1,23 @@
 package org.quurz.foomp.base.types;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 /**
  * <div>
  *     <p>
- *         Wrapper für einen optionalen Wert vom Typ <code>A</code>.
- *         Dieses Interface stellt eine vereinfachte API zur Verfügung,
- *         um mit möglicherweise nicht vorhandenen Werten umzugehen.
+ *         Minimal value‑carrier contract for a single value of type {@code A}. Implementations
+ *         expose presence information and provide access to the value.
  *     </p>
  *     <p>
- *         Das Interface erweitert {@link Supplier} und bietet Methoden,
- *         um den enthaltenen Wert sicher zu prüfen und abzurufen.
+ *         Nullability/absence policy is implementation‑specific and must be documented clearly:
+ *         some implementations may guarantee non‑null values, others may allow absence (similar to
+ *         {@code Optional}) or even tolerate {@code null}. Callers should adhere to the concrete
+ *         type’s contract.
  *     </p>
  * </div>
  *
- * @param <A> Der Typ des enthaltenen Werts
+ * @param <A> the contained value type
  *
  * @since 1.0.0
  *
@@ -30,11 +29,11 @@ public interface Value<A>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob ein Wert vorhanden ist.
+     *         Returns whether a value is present and can be retrieved without error.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls ein Wert vorhanden ist; andernfalls <code>false</code>
+     * @return {@code true} if a value is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -43,15 +42,13 @@ public interface Value<A>
     /**
      * <div>
      *     <p>
-     *         Gibt den enthaltenen Wert zur&uuml;ck, falls einer vorhanden ist.
-     *         Falls kein Wert vorhanden ist, wird eine
-     *         {@link NoSuchElementException} ausgel&ouml;st.
+     *         Returns the contained value if present. Depending on the concrete contract, this
+     *         method may throw a {@link NoSuchElementException} when no value is present.
      *     </p>
      * </div>
      *
-     * @return Der enthaltene Wert
-     *
-     * @throws NoSuchElementException Falls kein Wert vorhanden ist
+     * @return the contained value
+     * @throws NoSuchElementException if no value is present according to the implementation’s contract
      *
      * @since 1.0.0
      */

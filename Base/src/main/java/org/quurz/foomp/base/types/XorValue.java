@@ -7,14 +7,19 @@ import java.util.NoSuchElementException;
 /**
  * <div>
  *     <p>
- *         Basis für Container-Typen, die entweder auf der linken oder auf der rechten Seite einen - M&ouml;glichwerweise von unterschiedlichem Typ - Wert enthalten.<br />
- *         Enth&auml;lt der Container keinen Wert auf der linken, dann sollte er auf der rechten Seite einen enthalten und umgekehrt.
+ *         Disjoint two‑way value container: holds exactly one value, either on the <em>left</em>
+ *         of type {@code L} or on the <em>right</em> of type {@code R}. If there is no left value,
+ *         there must be a right value, and vice versa.
+ *     </p>
+ *     <p>
+ *         This interface extends {@link Value}{@code <R>} and treats the presence of the <em>right</em>
+ *         value as the notion of “being present”. Consequently, {@link #isPresent()} mirrors
+ *         {@link #isRight()}, and {@link #get()} returns the right value (or throws if absent).
  *     </p>
  * </div>
  *
- * @param <L> Typ des linken inneren Werts
- * @param <R> Typ des rechten inneren Werts
- *
+ * @param <L> the type of the left value
+ * @param <R> the type of the right value
  * @since 1.0.0
  *
  * @author Alexander Schell
@@ -25,11 +30,11 @@ public interface XorValue<L, R>
     /**
      * <div>
      *     <p>
-     *         Haben wir was auf der linken Seite?
+     *         Returns whether a left value is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code> falls ein Wert vorhanden ist; <code>false</code>, falls nicht
+     * @return {@code true} if a left value is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -40,11 +45,12 @@ public interface XorValue<L, R>
     /**
      * <div>
      *     <p>
-     *         Haben wir auf der rechten Seite?
+     *         Returns whether a right value is present. This mirrors {@link #isRight()} and, as an
+     *         override of {@link Value#isPresent()}, defines the presence notion for this type.
      *     </p>
      * </div>
      *
-     * @return <code>true</code> falls ein Wert vorhanden ist; <code>false</code>, falls nicht
+     * @return {@code true} if a right value is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -55,11 +61,11 @@ public interface XorValue<L, R>
     /**
      * <div>
      *     <p>
-     *         Haben wir auf der rechten Seite?
+     *         Returns whether a right value is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code> falls ein Wert vorhanden ist; <code>false</code>, falls nicht
+     * @return {@code true} if a right value is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -68,11 +74,12 @@ public interface XorValue<L, R>
     /**
      * <div>
      *     <p>
-     *         Liefert den Wert auf der linken Seite dieses <code>XorValue</code>-Objekts<br />.
+     *         Returns the left value of this {@code XorValue}.
      *     </p>
      * </div>
      *
-     * @return Der Wert auf der Linken Seite. Kann eine <code>NoSuchElementException</code> werfen, falls kein Wert vorhanden sein sollte.
+     * @return the left value
+     * @throws NoSuchElementException if no left value is present
      *
      * @since 1.0.0
      */
@@ -83,11 +90,13 @@ public interface XorValue<L, R>
     /**
      * <div>
      *     <p>
-     *         Liefert den Wert auf der rechten Seite dieses <code>XorValue</code>-Objekts<br />.
+     *         Returns the right value of this {@code XorValue}. This is the same as {@link #getRight()}
+     *         and overrides {@link Value#get()} to align with the presence semantics.
      *     </p>
      * </div>
      *
-     * @return Der Wert auf der rechten Seite. Kann eine <code>NoSuchElementException</code> werfen, falls kein Wert vorhanden sein sollte.
+     * @return the right value
+     * @throws NoSuchElementException if no right value is present
      *
      * @since 1.0.0
      */
@@ -100,11 +109,12 @@ public interface XorValue<L, R>
     /**
      * <div>
      *     <p>
-     *         Liefert den Wert auf der rechten Seite dieses <code>XorValue</code>-Objekts<br />.
+     *         Returns the right value of this {@code XorValue}.
      *     </p>
      * </div>
      *
-     * @return Der Wert auf der rechten Seite. Kann eine <code>NoSuchElementException</code> werfen, falls kein Wert vorhanden sein sollte.
+     * @return the right value
+     * @throws NoSuchElementException if no right value is present
      *
      * @since 1.0.0
      */

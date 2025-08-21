@@ -3,14 +3,16 @@ package org.quurz.foomp.base.types;
 /**
  * <div>
  *     <p>
- *         Ein Datentyp, dessen Werte durch eine Funktion aggregiert oder reduziert werden k&ouml;nnen.
+ *         A data type whose elements can be aggregated (reduced) using a folding function.
  *     </p>
  *     <p>
- *         Diese Schnittstelle vereint {@link FoldableLeft} und {@link FoldableRight} und erlaubt sowohl links- als auch rechtsseitiges Falten.
+ *         This interface unifies {@link FoldableLeft} and {@link FoldableRight} and allows
+ *         both left‑ and right‑associative folds. Implementations should document order,
+ *         strictness (eager vs. lazy), and null‑safety guarantees.
  *     </p>
  * </div>
  *
- * @param <A> Typ der Elemente, die gefaltet werden
+ * @param <A> the element type being folded
  *
  * @since 1.0.0
  *

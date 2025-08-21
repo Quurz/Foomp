@@ -9,15 +9,17 @@ import java.lang.annotation.Target;
 /**
  * <div>
  *     <p>
- *         Markiert eine Methode als "Unwinding Operation", was bedeutet, dass die Methode
- *         Werte "lazy" bereitstellt, also erst bei tats&auml;chlichem Zugriff berechnet.
- *         Diese Kennzeichnung signalisiert dem Nutzer, dass die Methode
- *         auf Anforderung ausgew&auml;hlte Werte zur&uuml;ckgibt, ohne den Zustand zu ver&auml;ndern.
+ *         Documentation-only marker for methods that <em>unwind</em> a value by triggering
+ *         evaluation/materialization of deferred or lazy computations.
  *     </p>
  *     <p>
- *         Sie ist n&uuml;tzlich für Klassen und Strukturen, die mit „lazy evaluation“ arbeiten und
- *         den Wert oder Zustand nur dann berechnen oder abrufen, wenn es n&ouml;tig ist, um
- *         Ressourcen zu sparen.
+ *         This annotation has no effect on runtime behaviour. It serves to make evaluation
+ *         points explicit for readers and tooling (e.g., code reviews, static analysis).
+ *     </p>
+ *     <p>
+ *         Note: This marker denotes <strong>evaluation now</strong>, not laziness. Use it to flag
+ *         methods that realize values (e.g., {@code unwind()}, {@code runState(...)}), not methods
+ *         that defer computation.
  *     </p>
  * </div>
  *
@@ -39,8 +41,7 @@ public @interface UnwindingOperation {
     /**
      * <div>
      *     <p>
-     *         Ein optionaler Kommentar, um zus&auml;tzliche Hinweise zur
-     *         Verwendung oder zur Art der "lazy" Evaluation zu geben.
+     *         Optional comment with additional hints about the kind of evaluation/materialization.
      *     </p>
      * </div>
      *

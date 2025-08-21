@@ -9,18 +9,22 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Repr&auml;sentiert einen Typ, dessen Elemente nach einer bestimmten Funktion abgebildet werden k&ouml;nnen.
+ *         Rank‑2 functor‑like interface that maps over the first type parameter while
+ *         preserving the second (result/context) parameter.
  *     </p>
  *     <p>
- *         &Auml;hnlich wie die `map`-Operation in funktionalen Sprachen erlaubt dieses Interface,
- *         jedes Element eines gegebenen Kontextes in einen neuen Wert abzubilden. Der Kontext
- *         bleibt dabei erhalten.
+ *         Conceptually similar to {@code map} in functional programming: it applies a transformation
+ *         {@code A -> B} inside the current context and returns a new value of the same constructor
+ *         shape with the first parameter replaced by {@code B}, leaving {@code R} unchanged.
+ *     </p>
+ *     <p>
+ *         Contract: the transformation must not be {@code null} and must not return {@code null}.
  *     </p>
  * </div>
  *
- * @param <WT> Der Witness-Typ, der den Kontext des h&ouml;heren Typs repr&auml;sentiert.
- * @param <A> Der Typ der Elemente, die abgebildet werden sollen.
- * @param <R> Der Typ des Resultats nach der Abbildung.
+ * @param <WT> the witness type representing the higher‑kinded constructor
+ * @param <A>  the mapped (first) type parameter
+ * @param <R>  the preserved (second) type parameter, e.g. a result/context type
  *
  * @since 1.0.0
  *
@@ -32,17 +36,13 @@ public interface H2Mappable<WT extends WitnessType, A, R> {
     /**
      * <div>
      *     <p>
-     *         Bildet jedes Element auf einen neuen Wert ab.
-     *     </p>
-     *     <p>
-     *         Wendet die gegebene Funktion `transformation` auf jedes Element des aktuellen Kontexts an
-     *         und gibt einen neuen Kontext mit den abgebildeten Werten zur&uuml;ck.
+     *         Maps the first type parameter using the given transformation while preserving {@code R}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Abbildungsfunktion, die auf jedes Element angewendet wird.
-     * @param <B> Der Typ der abgebildeten Werte.
-     * @return Ein neuer Kontext mit den abgebildeten Werten.
+     * @param transformation the mapping function for the first type parameter; must not be {@code null}
+     * @param <B>            the new first type parameter
+     * @return a value of the same constructor shape with {@code A} mapped to {@code B} and {@code R} preserved
      *
      * @since 1.0.0
      */

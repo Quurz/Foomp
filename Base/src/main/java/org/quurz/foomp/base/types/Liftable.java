@@ -9,12 +9,21 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Interface für 'Applicative'-&auml;hnliche Typen
+ *         Rank‑1 applicative‑like interface: lifts a function inside the context and applies it
+ *         to the carried value, producing a value of the same constructor shape.
+ *     </p>
+ *     <p>
+ *         Conceptually, this corresponds to applying {@code (A -> B)} within
+ *         {@code Higher1&lt;WT, A&gt;} to obtain {@code Higher1&lt;WT, B&gt;}.
+ *     </p>
+ *     <p>
+ *         Contract: the provided higher‑kinded value must not be {@code null}, must not contain
+ *         a {@code null} function, and the result must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <WT> Der 'innere' Typ des Higher-Kinded-Typs
- * @param <A> Der 'innere' Typ des Higher-Kinded-Typs
+ * @param <WT> the witness type representing the higher‑kinded constructor
+ * @param <A>  the input type consumed by the lifted function
  *
  * @since 1.0.0
  *
@@ -25,17 +34,16 @@ public interface Liftable<WT extends WitnessType, A> {
     /**
      * <div>
      *     <p>
-     *        Entpackt die im &uuml;bergebene <code>transformation</code>-Argument - Ein anderes <code>Liftable</code> - enthaltene
-     *        Funktion, wendet sie auf den Inhalt dieses <code>Liftable</code>-Objekts an und verpackt das Ergebnis in ein
-     *        neues <code>Liftable</code>-Objekt gleichen Typs.
+     *         Lifts a function {@code A -> B} inside the context and applies it to the carried value,
+     *         yielding a value of the same constructor shape with {@code B}.
      *     </p>
      * </div>
      *
-     * @param transformation Das die anzuwendende Funktion enthaltende <code>Liftable</code>-Objekt
-     * @param <B> Der 'innere' Typ des neuen <code>Liftable</code>-Objekts
-     * @return Ein neues <code>Liftable</code>-Objekt
-     *
-     * @since 1.0.0
+ *     @param transformation a higher‑kinded value carrying the function {@code A -> B}; must not be {@code null}
+ *     @param <B>            the new carried type after applying the function
+ *     @return a {@code Higher1<WT, B>} value; never {@code null}
+ *
+ *     @since 1.0.0
      */
     <B> @NonNull Higher1<? extends WT, B> lift(final @NonNull Higher1<? extends WT, ? extends Function<? super A, ? extends B>> transformation);
 

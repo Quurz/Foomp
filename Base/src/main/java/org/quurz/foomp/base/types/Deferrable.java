@@ -1,40 +1,44 @@
 package org.quurz.foomp.base.types;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 /**
  * <div>
- *     <p>
- *         Interface zur Verz&ouml;gerung der Ausf&uuml;hrung einer Berechnung. Bietet eine Methode, die eine Eingabe
- *         akzeptiert und die Berechnung auf einen sp&auml;teren Zeitpunkt vertagt, indem sie ein {@link Callable}-Objekt zur&uuml;ckgibt.
- *     </p>
+ *   <p>
+ *     Contract for deferring a computation by supplying its input later.
+ *     A deferrable maps an input supplier to an executable handle (e.g. {@link java.util.concurrent.Callable}).
+ *   </p>
+ *   <p>
+ *     Implementations must be null‑safe: the supplier must not be {@code null} and
+ *     must not supply {@code null} inputs. The returned handle must execute the same
+ *     computation as the immediate variant and must never return {@code null}.
+ *   </p>
  * </div>
  *
- * @param <A> Der Typ der Eingabe f&uuml;r die verz&ouml;gerte Berechnung
- * @param <B> Der R&uuml;ckgabetyp der Berechnung
+ * @param <X> the input type
+ * @param <Y> the result type
  *
  * @since 1.0.0
- *
- * @author Alexander Schell
  */
-@FunctionalInterface
-public interface Deferrable<A, B> {
+public interface Deferrable<X, Y> {
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt eine verz&ouml;gerte Berechnung auf Basis der gegebenen Eingabe. Die Berechnung wird erst
-     *         ausgef&uuml;hrt, wenn das resultierende {@link Callable} aufgerufen wird.
-     *     </p>
+     *   <p>
+     *     Returns an executable that, when called, obtains the input from the given supplier
+     *     and performs the computation, returning the result.
+     *   </p>
+     *   <p>
+     *     Contract: {@code supplier} must not be {@code null}, and must not supply {@code null} inputs.
+     *     The returned handle must not return {@code null}.
+     *   </p>
      * </div>
      *
-     * @param a Ein {@link Supplier} f&uuml;r die Eingabe der Berechnung
-     * @return Ein {@link Callable}, das die Berechnung ausf&uuml;hrt und das Ergebnis liefert, wenn es aufgerufen wird
+     * @param supplier the input supplier; must not be {@code null}
+     * @return an executable handle that computes the result
+     *
+     * @since 1.0.0
      */
-    @NonNull
-    Callable<B> defer(final @NonNull Supplier<A> a);
+    Callable<Y> defer(java.util.function.Supplier<X> supplier);
 
 }

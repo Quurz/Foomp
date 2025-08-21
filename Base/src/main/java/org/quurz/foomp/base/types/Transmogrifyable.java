@@ -7,19 +7,23 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Dieses Interface ermöglicht es, ein Objekt in einen anderen Typ zu transformieren,
- *         indem eine benutzerdefinierte Umwandlungs-Funktion angewandt wird.
+ *         Interface for types that can be transformed (“transmogrified”) into another type via a
+ *         user‑provided function. This enables fluent conversion pipelines without coupling to
+ *         a specific target type.
  *     </p>
  *     <p>
- *         Ab und an kann es n&ouml;tig sein, ein Objekt zu 'transformieren', also in einen anderen Typ umzuwandeln.<br />
- *         Wenn man mit dem neuen Typ flie&szlig;end weiterarbeiten m&ouml;chte, bietet sich an, die zu transformierende Klasse {@code Transmogrifyable} implementieren zu lassen.<br />
+ *         Sometimes it’s convenient to “transform” an object into a different representation and
+ *         keep working fluently with the result. Implementing {@code Transmogrifyable} provides a
+ *         single, explicit hook for such conversions.
  *     </p>
  *     <p>
- *         <p>PS: Andere kamen auch schon auf die Idee zur „Verwandlung“. Siehe <a href="https://www.gocomics.com/calvinandhobbes/1987/03/23">hier</a>.</p>
+ *         Pop‑culture footnote: The term “Transmogrifier” pays homage to Calvin &amp; Hobbes’ cardboard box
+ *         invention (see <a href="https://www.gocomics.com/calvinandhobbes/1987/03/23">Calvin &amp; Hobbes, 1987‑03‑23</a>).
+ *         Variants of the idea also pop up across classic sci‑fi (Star Trek, anyone?).
  *     </p>
  * </div>
  *
- * @param <SELF> Typ der implementierenden Transformable-Klasse
+ * @param <SELF> the implementing type (self type)
  *
  * @since 1.0.0
  *
@@ -31,13 +35,17 @@ public interface Transmogrifyable<SELF extends Transmogrifyable<?>> {
     /**
      * <div>
      *     <p>
-     *         Wendet die Umwandlungs-Funktion auf dieses Objekt an, um fließend weiter mit dem neuen Typ zu arbeiten.
+     *         Applies the given transformation to this instance and returns the result, enabling
+     *         fluent conversion to an arbitrary target type.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transmogrifier} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transmogrifier Die Umwandlungs-Funktion
-     * @param <T> Der Typ, den die Umwandlung liefert
-     * @return Ein Objekt vom Typ <code>T</code>
+     * @param transmogrifier the transformation function; must not be {@code null}
+     * @param <T>            the target type produced by the transformation
+     * @return a non‑null value of type {@code T}
      *
      * @since 1.0.0
      */
