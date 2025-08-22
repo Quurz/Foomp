@@ -9,14 +9,22 @@ import java.util.ResourceBundle;
 /**
  * <div>
  *     <p>
- *         Lokalisierung der Meldungen
+ *         Localisation of base-layer messages used across the library.
+ *     </p>
+ *     <p>
+ *         Provides a central access point to a {@link ResourceBundle} with strongly-named
+ *         message factory methods for common validation and error texts.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, arguments must not be {@code null}.
+ *         Returned messages are never {@code null}.
  *     </p>
  * </div>
  *
  * @since 1.0.0
  * @author Alexander Schell
  */
-// TODO: Fehlende Tests nachziehen
+// TODO: Add missing tests
 public final class BaseMessages {
 
     private static final ResourceBundle RESOURCE_BUNDLE
@@ -25,17 +33,17 @@ public final class BaseMessages {
     private BaseMessages() {}
 
     /*
-        Meldungen für Foomp-Base
+        Messages for Foomp-Base
      */
 
     /**
      * <div>
      *     <p>
-     *         Es gibt leider keine Werte
+     *         Indicates that no value is present.
      *     </p>
      * </div>
      *
-     * @return Die entsprechende Meldung
+     * @return the corresponding message (never {@code null})
      *
      * @since 1.0.0
      */
@@ -43,6 +51,20 @@ public final class BaseMessages {
         return RESOURCE_BUNDLE.getString("NO_VALUE_PRESENT");
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that no value is present in the given container.
+     *     </p>
+     * </div>
+     *
+     * @param containerName the container name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code containerName} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static String noValuePresentIn(final String containerName) {
         Objects.requireNonNull(containerName);
         return String.format(RESOURCE_BUNDLE.getString("NO_VALUE_PRESENT_IN"), containerName);
@@ -51,11 +73,14 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Das gesuchte Objekt konnte nicht gefunden werden
+     *         Indicates that the requested object could not be found.
      *     </p>
      * </div>
      *
-     * @return Die entsprechende Meldung
+     * @param object the object that was not found; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code object} is {@code null}
      *
      * @since 1.0.0
      */
@@ -64,6 +89,21 @@ public final class BaseMessages {
         return String.format(RESOURCE_BUNDLE.getString("NOT_FOUND"), object);
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the requested object could not be found inside a specific container.
+     *     </p>
+     * </div>
+     *
+     * @param object        the object that was not found; must not be {@code null}
+     * @param containerName the container name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if any argument is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static String notFoundIn(final @NonNull Object object,
                                     final @NonNull String containerName) {
         Objects.requireNonNull(object);
@@ -74,12 +114,14 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Null-Argumente sind nicht erlaubt
+     *         Null arguments are not allowed.
      *     </p>
      * </div>
      *
-     * @param argumentName Name des Null-Arguments
-     * @return Die entsprechende Meldung
+     * @param argumentName the name of the argument that was {@code null}; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code argumentName} is {@code null}
      *
      * @since 1.0.0
      */
@@ -91,12 +133,14 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Eine leere Collection ist wenig hilfreich
+     *         An empty collection is not useful.
      *     </p>
      * </div>
      *
-     * @param collectionName Der Name der leeren Collection
-     * @return Die entsprechende Meldung
+     * @param collectionName the collection name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code collectionName} is {@code null}
      *
      * @since 1.0.0
      */
@@ -108,23 +152,38 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Die Collection enthält ein Null-Element. Das ist nicht ideal.
+     *         The collection contains a {@code null} element at the specified index.
      *     </p>
      * </div>
      *
-     * @param containerName Name der Collection
-     * @param index Index des Null-Elements in der Collection
-     * @return Die entsprechende Meldung
+     * @param containerName the collection name; must not be {@code null}
+     * @param index         the index of the {@code null} element
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code containerName} is {@code null}
      *
      * @since 1.0.0
      */
     public static String nullElementInAt(final String containerName,
-                                         final int index
-    ) {
+                                         final int index) {
         Objects.requireNonNull(containerName);
         return String.format(RESOURCE_BUNDLE.getString("NULL_ELEMENT_IN_AT"), containerName, index);
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         The collection contains a {@code null} element.
+     *     </p>
+     * </div>
+     *
+     * @param containerName the collection name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code containerName} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static String nullElementIn(final String containerName) {
         Objects.requireNonNull(containerName);
         return String.format(RESOURCE_BUNDLE.getString("NULL_ELEMENT_IN"), containerName);
@@ -133,11 +192,11 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Das Ergebnis darf nicht Null sein
+     *         The result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @return Die entsprechende Meldung
+     * @return the message (never {@code null})
      *
      * @since 1.0.0
      */
@@ -145,6 +204,20 @@ public final class BaseMessages {
         return RESOURCE_BUNDLE.getString("NULL_RESULT");
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         The result produced by the given method must not be {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param methodName the method name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code methodName} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static String nullResultFrom(final @NonNull String methodName) {
         Objects.requireNonNull(methodName);
         return String.format(RESOURCE_BUNDLE.getString("NULL_RESULT_FROM"), methodName);
@@ -153,11 +226,11 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Ein Supplier sollte niemals Null zurückliefern
+     *         A supplier must never yield {@code null}.
      *     </p>
      * </div>
      *
-     * @return Die entsprechende Meldung
+     * @return the message (never {@code null})
      *
      * @since 1.0.0
      */
@@ -165,6 +238,20 @@ public final class BaseMessages {
         return RESOURCE_BUNDLE.getString("NULL_SUPPLIED");
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         A supplier must never yield {@code null} (including the supplier’s name for context).
+     *     </p>
+     * </div>
+     *
+     * @param supplierName the name of the supplier; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code supplierName} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static String nullSuppliedFrom(final @NonNull String supplierName) {
         Objects.requireNonNull(supplierName);
         return String.format(RESOURCE_BUNDLE.getString("NULL_SUPPLIED_FROM"), supplierName);
@@ -173,11 +260,14 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Bitte etwas positiver sein!
+     *         The value must not be negative.
      *     </p>
      * </div>
      *
-     * @return Die entsprechende Meldung
+     * @param parameterName the parameter name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code parameterName} is {@code null}
      *
      * @since 1.0.0
      */
@@ -189,11 +279,14 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Sei wirklich positiver!
+     *         The value must be positive.
      *     </p>
      * </div>
      *
-     * @return Die entsprechende Meldung
+     * @param parameterName the parameter name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code parameterName} is {@code null}
      *
      * @since 1.0.0
      */
@@ -205,12 +298,14 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Eine 0? Was soll ich damit anfangen?
+     *         The value must not be zero.
      *     </p>
      * </div>
      *
-     * @param parameterName Name des Parameters
-     * @return Die entsprechende Meldung
+     * @param parameterName the parameter name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code parameterName} is {@code null}
      *
      * @since 1.0.0
      */
@@ -222,16 +317,15 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Generiert eine Fehlermeldung, wenn versucht wird, ein Element in einer Datenstruktur
-     *         einzuf&uuml;gen, die keine mehrfach vorkommenden Elemente zul&auml;sst.
+     *         Generates an error message for inserting a duplicate element into a collection
+     *         that disallows duplicates.
      *     </p>
      * </div>
      *
-     * @param element Das Element, das bereits in der Datenstruktur vorhanden ist. Es wird
-     *                in die Fehlermeldung eingefügt.
-     * @return Eine formatierte Fehlermeldung, die anzeigt, dass das Element bereits vorhanden ist.
+     * @param element the element that already exists; must not be {@code null}
+     * @return a formatted message indicating the element already exists (never {@code null})
      *
-     * @throws NullPointerException Wenn das angegebene Element {@code null} ist.
+     * @throws NullPointerException if {@code element} is {@code null}
      *
      * @since 1.0.0
      */
@@ -240,6 +334,21 @@ public final class BaseMessages {
         return String.format(RESOURCE_BUNDLE.getString("DUPLICATE_ELEMENT"), element);
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Indicates illegal interval bounds (lower bound greater than upper bound).
+     *     </p>
+     * </div>
+     *
+     * @param lowerBound the lower bound; must not be {@code null}
+     * @param upperBound the upper bound; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if any argument is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static String illegalIntervalBounds(final @NonNull Object lowerBound,
                                                final @NonNull Object upperBound) {
         Objects.requireNonNull(lowerBound);
@@ -250,11 +359,11 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
-     *         Etwas ist hier wirklich schiefgelaufen
+     *         Indicates that something unexpectedly went wrong.
      *     </p>
      * </div>
      *
-     * @return Die entsprechende Meldung
+     * @return the message (never {@code null})
      *
      * @since 1.0.0
      */

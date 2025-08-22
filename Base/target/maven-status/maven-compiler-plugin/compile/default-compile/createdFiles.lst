@@ -39,6 +39,7 @@ org/quurz/foomp/base/functions/Operator.class
 org/quurz/foomp/base/util/async/AsyncExecutionException.class
 module-info.class
 org/quurz/foomp/base/util/Record3$µ.class
+org/quurz/foomp/base/types/Executable$2.class
 org/quurz/foomp/base/types/Liftable3.class
 org/quurz/foomp/base/types/UnsafeMonadic.class
 org/quurz/foomp/base/util/DecisionTree$Leaf.class
@@ -101,9 +102,9 @@ org/quurz/foomp/base/util/Validator.class
 org/quurz/foomp/base/functions/MemoisingFun$1.class
 org/quurz/foomp/base/types/Mutable.class
 org/quurz/foomp/base/functions/Provider$µ.class
-org/quurz/foomp/base/types/SafeExecutable$2.class
 org/quurz/foomp/base/util/async/AsyncCombinable$AsyncCombiner.class
 org/quurz/foomp/base/types/Container.class
+org/quurz/foomp/base/types/Executable$1.class
 org/quurz/foomp/base/types/Mappable3.class
 org/quurz/foomp/base/util/Bucket.class
 org/quurz/foomp/base/types/Value2.class
@@ -116,7 +117,6 @@ org/quurz/foomp/base/types/Liftable.class
 org/quurz/foomp/base/util/Result$Success.class
 org/quurz/foomp/base/functions/Pred2.class
 org/quurz/foomp/base/types/Deferrable.class
-org/quurz/foomp/base/types/SafeExecutable$1.class
 org/quurz/foomp/base/types/Mappable4.class
 org/quurz/foomp/base/util/Constraint.class
 org/quurz/foomp/base/functions/Komparator$Komparison.class
