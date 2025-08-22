@@ -12,11 +12,15 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein einstelliger Operator, der eine Abbildung von einer Menge in dieselbe Menge darstellt <code>f:T &#x21A6; T</code>.
+ *         A unary operator representing a mapping from a set to itself
+ *         <code>f: A → A</code>.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <A> der Typ des Operanden und des Ergebnisses
+ * @param <A> the operand/result type
  *
  * @see UnaryOperator
  *
@@ -32,21 +36,22 @@ public interface Operator<A>
     /**
      * <div>
      *     <p>
-     *         Verpackt den gegebenen <code>UnaryOperator</code> in einen <code>Operator</code>.
+     *         Wraps the given {@link UnaryOperator} into an {@code Operator} that enforces non-null
+     *         input and output.
      *     </p>
      * </div>
      *
-     * @param operator der einzupackende <code>UnaryOperator</code>
-     * @param <A> der Typ des Operanden
-     * @return der neue <code>Operator</code>
-     * @throws NullPointerException falls <code>operator</code> null ist
+     * @param operator the unary operator to wrap; must not be {@code null}
+     * @param <A>      the operand type
+     * @return a new {@code Operator} delegating to {@code operator}
+     * @throws NullPointerException if {@code operator} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
     static <A> Operator<A> operator(@NonNull final UnaryOperator<A> operator) {
         Objects.requireNonNull(operator, nullValue("operator"));
         return a -> {
-            Objects.requireNonNull(a, nullValue("t"));
+            Objects.requireNonNull(a, nullValue("a"));
             return Objects.requireNonNull(operator.apply(a), nullResult());
         };
     }
@@ -54,12 +59,15 @@ public interface Operator<A>
     /**
      * <div>
      *     <p>
-     *         Wendet diesen Operator auf das gegebene Argument an.
+     *         Applies this operator to the given argument.
+     *     </p>
+     *     <p>
+     *         Contract: {@code a} must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param a das Argument des Operators
-     * @return das Ergebnis der Anwendung des Operators
+     * @param a the input value; must not be {@code null}
+     * @return the result; never {@code null}
      *
      * @since 1.0.0
      */
@@ -71,20 +79,24 @@ public interface Operator<A>
     /**
      * <div>
      *     <p>
-     *         Komponiert diesen Operator mit einem anderen Operator.
+     *         Returns the composition {@code this ∘ before}.
+     *         The resulting operator first applies {@code before}, then applies {@code this}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code before} must not be {@code null}; intermediate and final results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param before der Operator, der vor diesem Operator angewendet wird
-     * @return die Komposition der beiden Operatoren
-     * @throws NullPointerException falls <code>before</code> null ist
+     * @param before the operator to apply first; must not be {@code null}
+     * @return the composed operator
+     * @throws NullPointerException if {@code before} is {@code null} or any intermediate result is {@code null}
      *
      * @since 1.0.0
      */
     default Operator<A> compose(@NonNull final Operator<A> before) {
         Objects.requireNonNull(before, "Argument 'before' must not be null");
         return a -> {
-            Objects.requireNonNull(a, nullValue("o"));
+            Objects.requireNonNull(a, nullValue("a"));
             final var temp
                 = Objects.requireNonNull(before.apply(a), nullResult());
             return Objects.requireNonNull(this.apply(temp), nullResult());
@@ -94,13 +106,17 @@ public interface Operator<A>
     /**
      * <div>
      *     <p>
-     *         Verkettet diesen Operator mit einem anderen Operator.
+     *         Returns the composition {@code next ∘ this}.
+     *         The resulting operator first applies {@code this}, then applies {@code next}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code next} must not be {@code null}; intermediate and final results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param next der Operator, der nach diesem Operator angewendet wird
-     * @return die Verkettung der beiden Operatoren
-     * @throws NullPointerException falls <code>next</code> null ist
+     * @param next the operator to apply afterwards; must not be {@code null}
+     * @return the composed operator
+     * @throws NullPointerException if {@code next} is {@code null} or any intermediate result is {@code null}
      *
      * @since 1.0.0
      */
@@ -116,12 +132,15 @@ public interface Operator<A>
     /**
      * <div>
      *     <p>
-     *         Liefert den identischen Operator, der das Argument unver&auml;ndert zur&uuml;ckgibt.
+     *         Returns the identity operator that yields its input unchanged.
+     *     </p>
+     *     <p>
+     *         Contract: the input must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param <A> der Typ des Arguments und des Ergebnisses
-     * @return der identische Operator
+     * @param <A> the operand/result type
+     * @return the identity operator
      *
      * @since 1.0.0
      */

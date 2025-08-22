@@ -19,18 +19,21 @@ import static org.quurz.foomp.base.util.Nothing.nothing;
 /**
  * <div>
  *     <p>
- *         Ein {@code Receiver} ist ein erweiterter {@link Consumer}, der Eingabewerte verarbeitet
- *         und eine funktionale Schnittstelle f&uuml;r kombinatorische Operationen bereitstellt.
+ *         A {@code Receiver} is an enhanced {@link Consumer} that processes input values and
+ *         exposes a functional interface suitable for combinator-style operations.
  *     </p>
  *     <p>
- *         Diese Schnittstelle erg&auml;nzt die Standard-Consumer-Funktionalit&auml;t durch die M&ouml;glichkeit,
- *         Werte basierend auf einem {@link Predicate} zu filtern, bevor sie akzeptiert werden.
- *         Zudem implementiert der {@link Fun}-Typ, sodass eine Integration in funktionale
- *         Programmierschnittstellen erm&ouml;glicht wird.
+ *         This interface augments standard consumer behaviour with optional filtering via a
+ *         {@link Predicate} before values are accepted. It also implements {@link Fun} for
+ *         seamless integration with functional APIs.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, inputs must not be {@code null}. Implementations
+ *         should reject {@code null} values and must not produce {@code null} results where applicable.
  *     </p>
  * </div>
  *
- * @param <A> der Typ der akzeptierten Eingabewerte
+ * @param <A> the type of accepted input values
  *
  * @since 1.0.0
  *
@@ -44,18 +47,18 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         Erstellt einen neuen {@code Receiver}, der die gegebene {@link Consumer}-Funktionalit&auml;t
-     *         ohne Filterung &uuml;bernimmt.
+     *         Creates a new {@code Receiver} that delegates to the given {@link Consumer} without filtering.
+     *     </p>
+     *     <p>
+     *         Contract: {@code consumer} must not be {@code null}; accepted values must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param consumer die Funktion, die den Wert verarbeitet
+     * @param consumer the consumer to delegate to; must not be {@code null}
+     * @param <A>      the input value type
+     * @return a new {@code Receiver} wrapping the given {@code consumer}
      *
-     * @param <A> der Typ des Eingabewerts
-     *
-     * @return ein neuer {@code Receiver}, der den {@code Consumer} kapselt
-     *
-     * @throws NullPointerException falls {@code consumer} {@code null} ist
+     * @throws NullPointerException if {@code consumer} is {@code null}
      */
     @SuppressWarnings("unused")
     static <A> Receiver<A> receiver(final @NonNull Consumer<A> consumer) {
@@ -66,18 +69,20 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         Erstellt einen neuen {@code Receiver}, der die gegebene {@link Consumer}-Funktionalit&auml;t
-     *         &uuml;bernimmt und Eingabewerte basierend auf einem {@link Predicate} filtert.
+     *         Creates a new {@code Receiver} that delegates to the given {@link Consumer} and filters
+     *         incoming values using the provided {@link Predicate}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code consumer} and {@code filter} must not be {@code null}; accepted values must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param consumer die Funktion, die den Wert verarbeitet
-     * @param filter die Bedingung, die ein Wert erf&uuml;llen muss, um akzeptiert zu werden
-     * @param <A> der Typ des Eingabewerts
+     * @param consumer the consumer that processes accepted values; must not be {@code null}
+     * @param filter   the acceptance condition; must not be {@code null}
+     * @param <A>      the input value type
+     * @return a new {@code Receiver} encapsulating the given logic
      *
-     * @return ein neuer {@code Receiver}, der die gegebene Logik kapselt
-     *
-     * @throws NullPointerException falls {@code consumer} oder {@code filter} {@code null} ist
+     * @throws NullPointerException if {@code consumer} or {@code filter} is {@code null}
      */
     static <A> Receiver<A> receiver(final @NonNull Consumer<A> consumer,
                                     final @NonNull Predicate<A> filter) {
@@ -91,6 +96,26 @@ public interface Receiver<A>
         };
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates a new {@code Receiver} that delegates to the given {@link Consumer}, filters values
+     *         with {@link Predicate}, and throws an exception built by {@code exceptionBuilder} for rejected values.
+     *     </p>
+     *     <p>
+     *         Contract: {@code consumer}, {@code filter}, and {@code exceptionBuilder} must not be {@code null}.
+     *         The {@code exceptionBuilder} must not return {@code null}. Accepted values must not be {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param consumer         the consumer processing accepted values; must not be {@code null}
+     * @param filter           the acceptance condition; must not be {@code null}
+     * @param exceptionBuilder builds the exception for rejected values; must not be {@code null} and must not return {@code null}
+     * @param <A>              the input value type
+     * @return a new {@code Receiver} encapsulating the given logic
+     *
+     * @throws NullPointerException if any parameter is {@code null} or if {@code exceptionBuilder} returns {@code null}
+     */
     static <A> Receiver<A> receiver(final @NonNull Consumer<A> consumer,
                                     final @NonNull Predicate<A> filter,
                                     final @NonNull Function<? super A, ? extends RuntimeException> exceptionBuilder) {
@@ -110,16 +135,17 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt die Verarbeitung eines Eingabewerts durch und gibt ein leeres Ergebnis zur&uuml;ck,
-     *         um die {@link Fun}-Schnittstelle zu erf&uuml;llen.
+     *         Processes a single input value and returns {@link Nothing} to satisfy the {@link Fun} contract.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der Eingabewert, der verarbeitet werden soll
+     * @param value the input value to process; must not be {@code null}
+     * @return the {@link Nothing} singleton
      *
-     * @return das {@link Nothing}-Objekt
-     *
-     * @throws NullPointerException falls {@code value} {@code null} ist
+     * @throws NullPointerException if {@code value} is {@code null}
      */
     @Override
     @NonNull
@@ -131,15 +157,17 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         Akzeptiert einen Eingabewert und gibt den {@code Receiver} selbst zur&uuml;ck, um eine fluente API zu erm&ouml;glichen.
+     *         Accepts a value and returns {@code this} to enable fluent chaining.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der Eingabewert, der verarbeitet werden soll
+     * @param value the value to process; must not be {@code null}
+     * @return this {@code Receiver}
      *
-     * @return dieser {@code Receiver}
-     *
-     * @throws NullPointerException falls {@code value} {@code null} ist
+     * @throws NullPointerException if {@code value} is {@code null}
      */
     @NonNull
     default Receiver<A> acceptAndContinue(final @NonNull A value) {
@@ -150,16 +178,18 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         Verarbeitet das erste Element sowie beliebig viele weitere Elemente und gibt den aktuellen
-     *         {@code Receiver} zur weiteren Verwendung zur&uuml;ck.
+     *         Processes the first element and any number of additional elements and returns this receiver.
+     *     </p>
+     *     <p>
+     *         Contract: none of the elements may be {@code null}.
      *     </p>
      * </div>
      *
-     * @param first  das erste Element, das verarbeitet werden soll
-     * @param others zus&auml;tzliche Elemente, die verarbeitet werden sollen
-     * @return der aktuelle {@code Receiver} zur weiteren Verwendung
+     * @param first  the first element to process; must not be {@code null}
+     * @param others additional elements to process; must not be {@code null}
+     * @return this {@code Receiver} for further use
      *
-     * @throws NullPointerException falls eines der Elemente {@code null} ist
+     * @throws NullPointerException if any element is {@code null}
      */
     @SuppressWarnings("unchecked")
     default Receiver<A> acceptAllAndContinue(final @NonNull A first,
@@ -176,15 +206,17 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         Verarbeitet alle Elemente aus einer {@link Iterable}-Sammlung und gibt den aktuellen
-     *         {@code Receiver} zur weiteren Verwendung zur&uuml;ck.
+     *         Processes all elements from the given {@link Iterable} and returns this receiver.
+     *     </p>
+     *     <p>
+     *         Contract: {@code iterator} and all yielded elements must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param iterator eine Sammlung von Elementen, die verarbeitet werden sollen
-     * @return der aktuelle {@code Receiver} zur weiteren Verwendung
+     * @param iterator an iterable collection of elements; must not be {@code null}
+     * @return this {@code Receiver} for further use
      *
-     * @throws NullPointerException falls {@code iterator} oder eines der Elemente {@code null} ist
+     * @throws NullPointerException if {@code iterator} is {@code null} or yields {@code null}
      */
     default Receiver<A> acceptAllAndContinue(final @NonNull Iterator<A> iterator) {
         Objects.requireNonNull(iterator, nullValue("iterator"));
@@ -199,15 +231,17 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         Verarbeitet alle Elemente aus einem {@link Stream} und gibt den aktuellen
-     *         {@code Receiver} zur weiteren Verwendung zur&uuml;ck.
+     *         Processes all elements from the given {@link Stream} and returns this receiver.
+     *     </p>
+     *     <p>
+     *         Contract: {@code values} and all of its elements must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param values ein Stream von Elementen, die verarbeitet werden sollen
-     * @return der aktuelle {@code Receiver} zur weiteren Verwendung
+     * @param values a stream of elements to process; must not be {@code null}
+     * @return this {@code Receiver} for further use
      *
-     * @throws NullPointerException falls {@code values} oder eines der Elemente {@code null} ist
+     * @throws NullPointerException if {@code values} is {@code null} or contains {@code null}
      */
     default Receiver<A> acceptAllAndContinue(final @NonNull Stream<A> values) {
         Objects.requireNonNull(values, nullValue("values"));
@@ -218,15 +252,17 @@ public interface Receiver<A>
     /**
      * <div>
      *     <p>
-     *         Verarbeitet alle Elemente aus einer {@link Collection} und gibt den aktuellen
-     *         {@code Receiver} zur weiteren Verwendung zur&uuml;ck.
+     *         Processes all elements from the given {@link Collection} and returns this receiver.
+     *     </p>
+     *     <p>
+     *         Contract: {@code values} and all contained elements must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param values eine Sammlung von Elementen, die verarbeitet werden sollen
-     * @return der aktuelle {@code Receiver} zur weiteren Verwendung
+     * @param values a collection of elements to process; must not be {@code null}
+     * @return this {@code Receiver} for further use
      *
-     * @throws NullPointerException falls {@code values} oder eines der Elemente {@code null} ist
+     * @throws NullPointerException if {@code values} is {@code null} or contains {@code null}
      */
     default Receiver<A> acceptAllAndContinue(final @NonNull Collection<A> values) {
         Objects.requireNonNull(values, nullValue("values"));

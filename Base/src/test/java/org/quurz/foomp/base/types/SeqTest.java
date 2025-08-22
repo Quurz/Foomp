@@ -1,136 +1,135 @@
 package org.quurz.foomp.base.types;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.Test;
-import org.quurz.foomp.higher.Higher1;
-import org.slf4j.Logger;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.function.Predicate;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.slf4j.LoggerFactory.getLogger;
+import static org.junit.jupiter.api.Assertions.*;
 
-class SeqTest {
-
-    private static final Logger LOGGER
-        = getLogger(SeqTest.class);
-
-    @SuppressWarnings({"DataFlowIssue", "NullableProblems"})
-    private static final class TestSeq
-            implements Seq<Integer> {
-
-        private final boolean empty;
-
-        public TestSeq(boolean empty) {
-            this.empty
-                = empty;
-        }
-
-        @Override
-        public boolean isNotEmpty() {
-            return !this.empty;
-        }
-
-        @Override
-        public @NonNull Integer head() throws NoSuchElementException {
-            return 0;
-        }
-
-        @Override
-        public @NonNull Seq<Integer> tail() {
-            return null;
-        }
-
-        @Override
-        public @NonNull Seq<Integer> cons(@NonNull Integer element) {
-            return null;
-        }
-
-        @Override
-        public @NonNull Seq<Integer> consAll(@NonNull Higher1<? extends µ, Integer> other) {
-            return null;
-        }
-
-        @Override
-        public @NonNull Value2<Integer, ? extends Seq<Integer>> decons() throws NoSuchElementException {
-            return null;
-        }
-
-        @Override
-        public @NonNull Value2<? extends Seq<Integer>, ? extends Seq<Integer>> split(@NonNull Predicate<? super Integer> predicate) {
-            return null;
-        }
-
-        @Override
-        public @NonNull Value2<? extends Seq<Integer>, ? extends Seq<Integer>> split() throws IllegalStateException {
-            return null;
-        }
-
-        @Override
-        public @NonNull Seq<Integer> filter(@NonNull Predicate<? super Integer> pred) {
-            return null;
-        }
-
-        @Override
-        public @NonNull Collection<Integer> toCollection(@NonNull Supplier<Collection<Integer>> init) {
-            return List.of();
-        }
-
-        @Override
-        public boolean contains(@NonNull Integer element) {
-            return false;
-        }
-
-        @Override
-        public Integer search(@NonNull Integer element) throws NoSuchElementException {
-            return 0;
-        }
-
-        @Override
-        public @NonNull Stream<Integer> stream() {
-            return Stream.empty();
-        }
-
-        @Override
-        public boolean isPresent() {
-            return false;
-        }
-
-        @Override
-        public @NonNull Integer get() throws NoSuchElementException {
-            return 0;
-        }
-
-        @Override
-        public Iterator<Integer> iterator() {
-            return null;
-        }
-    }
-
-    final TestSeq emptySeq
-        = new TestSeq(true);
-    final TestSeq nonEmptySeq
-        = new TestSeq(false);
+class SeqDefaultMethodsTest {
 
     @Test
-    void testIsEmpty() {
-        LOGGER.info("Test seq.isEmpty and seq.isNotEmpty");
-
-        assertThat(emptySeq.isEmpty())
-            .isTrue();
-        assertThat(emptySeq.isNotEmpty())
-            .isFalse();
-
-        assertThat(nonEmptySeq.isNotEmpty())
-            .isTrue();
-        assertThat(nonEmptySeq.isEmpty())
-            .isFalse();
+    void isEmpty_true_when_no_elements() {
+        Seq<Integer> seq = proxySeq(List.of());
+        assertTrue(seq.isEmpty(), "isEmpty() sollte true liefern, wenn keine Elemente vorhanden sind");
+        assertFalse(seq.isNotEmpty(), "isNotEmpty() sollte false liefern, wenn keine Elemente vorhanden sind");
     }
 
+    @Test
+    void isEmpty_false_when_elements_present() {
+        Seq<Integer> seq = proxySeq(List.of(1, 2, 3));
+        assertFalse(seq.isEmpty(), "isEmpty() sollte false liefern, wenn Elemente vorhanden sind");
+        assertTrue(seq.isNotEmpty(), "isNotEmpty() sollte true liefern, wenn Elemente vorhanden sind");
+    }
+
+    @Test
+    void toList_materializes_as_ArrayList_preserves_order_non_null() {
+        List<Integer> data = List.of(1, 2, 3);
+        Seq<Integer> seq = proxySeq(data);
+
+        List<Integer> list = seq.toList();
+
+        assertNotNull(list, "toList() darf kein null liefern");
+        assertInstanceOf(ArrayList.class, list, "toList() sollte über ArrayList::new materialisieren");
+        assertEquals(data, list, "toList() sollte die Encounter-Order beibehalten");
+    }
+
+    @Test
+    void toSet_materializes_as_LinkedHashSet_preserves_encounter_order_and_uniqueness() {
+        List<Integer> data = List.of(1, 2, 2, 3, 1, 4);
+        Seq<Integer> seq = proxySeq(data);
+
+        Set<Integer> set = seq.toSet();
+
+        assertNotNull(set, "toSet() darf kein null liefern");
+        assertInstanceOf(LinkedHashSet.class, set, "toSet() sollte über LinkedHashSet::new materialisieren");
+
+        // LinkedHashSet bewahrt Encounter-Order und entfernt Duplikate
+        LinkedHashSet<Integer> expected = new LinkedHashSet<>(data);
+        assertEquals(expected, set, "toSet() sollte Encounter-Order bewahren und Duplikate entfernen");
+    }
+
+    // Hilfsfunktion: Erzeugt einen Proxy-basierten Seq-Stub, der nur die für die Tests
+    // benötigten Wege implementiert:
+    // - isNotEmpty(): basierend auf der Größe der Elements-Liste
+    // - toCollection(Supplier): nutzt den Supplier, fügt alle Elemente hinzu und gibt die Collection zurück
+    // - iterator(): liefert Iterator über die Elemente (weil Seq Iterable ist)
+    //
+    // Default-Methoden des Interfaces (isEmpty, toList, toSet) werden über MethodHandles korrekt aufgerufen.
+    private static <A> Seq<A> proxySeq(final List<A> elements) {
+        Objects.requireNonNull(elements, "elements");
+
+        InvocationHandler handler = (proxy, method, args) -> {
+            // Default-Methoden des Interface korrekt invokieren
+            if (method.isDefault()) {
+                return invokeDefaultMethod(proxy, method, args);
+            }
+
+            String name = method.getName();
+            switch (name) {
+                case "isNotEmpty":
+                    return !elements.isEmpty();
+
+                case "toCollection": {
+                    @SuppressWarnings("unchecked")
+                    Supplier<Collection<? super A>> init = (Supplier<Collection<? super A>>) args[0];
+                    Collection<? super A> c = Objects.requireNonNull(init.get(), "Supplier#get darf kein null liefern");
+                    c.addAll(elements);
+                    return c;
+                }
+
+                case "iterator":
+                    return elements.iterator();
+
+                // Der Rest der Seq-API wird in diesen Tests nicht benötigt
+                case "head":
+                case "tail":
+                case "cons":
+                case "consAll":
+                case "decons":
+                case "split":
+                case "filter":
+                    throw new UnsupportedOperationException("Nicht benötigt in Default-Methoden-Tests: " + name);
+
+                // Basis-Objektmethoden sicher behandeln
+                case "toString":
+                    return "SeqProxy" + elements;
+                case "hashCode":
+                    return System.identityHashCode(proxy);
+                case "equals":
+                    return proxy == args[0];
+
+                default:
+                    // Für alle nicht erwarteten Methoden lieber fail-fast
+                    throw new UnsupportedOperationException("Nicht implementiert im Test-Stub: " + method);
+            }
+        };
+
+        Object proxy = Proxy.newProxyInstance(
+                Seq.class.getClassLoader(),
+                new Class<?>[]{Seq.class},
+                handler
+        );
+        @SuppressWarnings("unchecked")
+        Seq<A> seq = (Seq<A>) proxy;
+        return seq;
+    }
+
+    // Ruft eine Default-Methode eines Interfaces auf (für Proxy).
+    // Nutzt MethodHandles.privateLookupIn + unreflectSpecial.
+    private static Object invokeDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
+        final Class<?> declaringClass = method.getDeclaringClass();
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup());
+        MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
+        MethodHandle handle = lookup.findSpecial(declaringClass, method.getName(), methodType, declaringClass)
+                .bindTo(proxy);
+        return handle.invokeWithArguments(args == null ? new Object[0] : args);
+    }
 }

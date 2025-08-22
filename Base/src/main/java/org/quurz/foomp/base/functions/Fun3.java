@@ -16,16 +16,18 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein funktionales Interface, das eine Funktion mit drei Argumenten darstellt.
- *         Das {@code Fun3}-Interface definiert eine tern&auml;re Funktion, die drei Eingabe-Argumente
- *         annimmt und ein Ergebnis liefert.
+ *         A functional interface for ternary functions. Provides utilities for composition,
+ *         currying, partial application, and deferral with strict non-null contracts.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <X1> der Typ des ersten Arguments
- * @param <X2> der Typ des zweiten Arguments
- * @param <X3> der Typ des dritten Arguments
- * @param <Y>  der Typ des Ergebnisses
+ * @param <X1> the type of the first argument
+ * @param <X2> the type of the second argument
+ * @param <X3> the type of the third argument
+ * @param <Y>  the result type
  *
  * @since 1.0.0
  *
@@ -38,14 +40,17 @@ public interface Fun3<X1, X2, X3, Y>
     /**
      * <div>
      *     <p>
-     *         Wendet diese Funktion auf die gegebenen Argumente an.
+     *         Applies this function to the given arguments.
+     *     </p>
+     *     <p>
+     *         Contract: inputs must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param x1 das erste Argument
-     * @param x2 das zweite Argument
-     * @param x3 das dritte Argument
-     * @return das Ergebnis der Funktionsanwendung
+     * @param x1 the first argument; must not be {@code null}
+     * @param x2 the second argument; must not be {@code null}
+     * @param x3 the third argument; must not be {@code null}
+     * @return the result; never {@code null}
      */
     @Pure
     @NonNull Y apply(@NonNull final X1 x1,
@@ -55,15 +60,17 @@ public interface Fun3<X1, X2, X3, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine zusammengesetzte Funktion zur&#252;ck, die diese Funktion auf ihre Eingaben
-     *         anwendet und dann die Funktion {@code next} auf das Ergebnis anwendet.
+     *         Composes this function with a post-processing step: applies {@code this} and then {@code next}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code next} must not be {@code null}; intermediate and final results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param <Z>  der Ausgabetyp der {@code next}-Funktion
-     * @param next die Funktion, die nach dieser Funktion angewendet werden soll
-     * @return eine zusammengesetzte Funktion, die zuerst diese Funktion und dann {@code next} anwendet
-     * @throws NullPointerException wenn {@code next} {@code null} ist
+     * @param <Z>  the result type of {@code next}
+     * @param next the function to apply after this one; must not be {@code null}
+     * @return a composed {@code Fun3} that applies {@code this} and then {@code next}
+     * @throws NullPointerException if {@code next} is {@code null} or any intermediate result is {@code null}
      */
     default <Z> @NonNull Fun3<X1, X2, X3, Z> andThen(@NonNull final Function<? super Y, ? extends Z> next) {
         Objects.requireNonNull(next, "Argument 'next' must not be null");
@@ -97,15 +104,17 @@ public interface Fun3<X1, X2, X3, Y>
     /**
      * <div>
      *     <p>
-     *         Wendet diese Funktion teilweise an, indem das erste Argument &#252;ber den
-     *         {@code supplier} bereitgestellt wird, und gibt eine Funktion zur&#252;ck,
-     *         die die verbleibenden Argumente akzeptiert.
+     *         Partially applies this function by supplying the first argument via a {@link Supplier}.
+     *         Returns a binary function over the remaining arguments.
+     *     </p>
+     *     <p>
+     *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier ein Lieferant f&#252;r das erste Argument
-     * @return eine neue Funktion, die das zweite und dritte Argument akzeptiert
-     * @throws NullPointerException wenn {@code supplier} {@code null} ist
+     * @param supplier supplier for {@code x1}; must not be {@code null}
+     * @return a binary function over {@code x2} and {@code x3}
+     * @throws NullPointerException if the supplier or its value is {@code null}, or the result is {@code null}
      */
     default @NonNull Fun2<X2, X3, Y> partial1(@NonNull final Supplier<X1> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
@@ -119,15 +128,17 @@ public interface Fun3<X1, X2, X3, Y>
     /**
      * <div>
      *     <p>
-     *         Wendet diese Funktion teilweise an, indem das zweite Argument &#252;ber den
-     *         {@code supplier} bereitgestellt wird, und gibt eine Funktion zur&#252;ck,
-     *         die die verbleibenden Argumente akzeptiert.
+     *         Partially applies this function by supplying the second argument via a {@link Supplier}.
+     *         Returns a binary function over the remaining arguments.
+     *     </p>
+     *     <p>
+     *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier ein Lieferant f&#252;r das zweite Argument
-     * @return eine neue Funktion, die das erste und dritte Argument akzeptiert
-     * @throws NullPointerException wenn {@code supplier} {@code null} ist
+     * @param supplier supplier for {@code x2}; must not be {@code null}
+     * @return a binary function over {@code x1} and {@code x3}
+     * @throws NullPointerException if the supplier or its value is {@code null}, or the result is {@code null}
      */
     default @NonNull Fun2<X1, X3, Y> partial2(@NonNull final Supplier<X2> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
@@ -141,15 +152,17 @@ public interface Fun3<X1, X2, X3, Y>
     /**
      * <div>
      *     <p>
-     *         Wendet diese Funktion teilweise an, indem das dritte Argument &#252;ber den
-     *         {@code supplier} bereitgestellt wird, und gibt eine Funktion zur&#252;ck,
-     *         die die verbleibenden Argumente akzeptiert.
+     *         Partially applies this function by supplying the third argument via a {@link Supplier}.
+     *         Returns a binary function over the remaining arguments.
+     *     </p>
+     *     <p>
+     *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier ein Lieferant f&#252;r das dritte Argument
-     * @return eine neue Funktion, die das erste und zweite Argument akzeptiert
-     * @throws NullPointerException wenn {@code supplier} {@code null} ist
+     * @param supplier supplier for {@code x3}; must not be {@code null}
+     * @return a binary function over {@code x1} and {@code x2}
+     * @throws NullPointerException if the supplier or its value is {@code null}
      */
     default @NonNull Fun2<X1, X2, Y> partial3(@NonNull final Supplier<X3> supplier) {
         Objects.requireNonNull(supplier, "Argument 'supplier' must not be null");
@@ -163,11 +176,14 @@ public interface Fun3<X1, X2, X3, Y>
     /**
      * <div>
      *     <p>
-     *         Curried diese Funktion in eine verschachtelte Kette von un&#228;ren Funktionen.
+     *         Curries this ternary function into a chain of unary functions.
+     *     </p>
+     *     <p>
+     *         Contract: inputs and all intermediate results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @return eine curried Form dieser Funktion
+     * @return the curried representation of this function
      */
     default @NonNull Fun<X1, Fun<X2, Fun<X3, Y>>> curry() {
         return x1 -> x2 -> x3 -> {
@@ -181,17 +197,20 @@ public interface Fun3<X1, X2, X3, Y>
     /**
      * <div>
      *     <p>
-     *         Konvertiert eine curried Funktion in eine {@code Fun3}-Instanz.
+     *         Uncurries a curried ternary function into a {@code Fun3}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code curried} must not be {@code null}; none of the intermediate results may be {@code null}.
      *     </p>
      * </div>
      *
-     * @param curried die curried Funktion, die konvertiert werden soll
-     * @param <X1>    der Typ des ersten Arguments
-     * @param <X2>    der Typ des zweiten Arguments
-     * @param <X3>    der Typ des dritten Arguments
-     * @param <Y>     der Typ des Ergebnisses
-     * @return eine {@code Fun3}-Instanz, die die gegebene curried Funktion darstellt
-     * @throws NullPointerException wenn {@code curried} {@code null} ist
+     * @param curried the curried function to uncurry; must not be {@code null}
+     * @param <X1>    the type of the first argument
+     * @param <X2>    the type of the second argument
+     * @param <X3>    the type of the third argument
+     * @param <Y>     the result type
+     * @return a {@code Fun3} representing the uncurried function
+     * @throws NullPointerException if {@code curried} is {@code null} or any intermediate result is {@code null}
      */
     static <X1, X2, X3, Y> Fun3<X1, X2, X3, Y> uncurry(@NonNull final Function<X1, Function<X2, Function<X3, Y>>> curried) {
         Objects.requireNonNull(curried, nullValue("curried"));

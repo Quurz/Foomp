@@ -14,13 +14,17 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein dreistelliges Pr&auml;dikat <code>f:A1 &#x2715; A2 &#x2715; A3 &#x21A6; {true, false}</code>
+ *         A ternary predicate <code>f: A1 × A2 × A3 → {true, false}</code>.
+ *     </p>
+ *     <p>
+ *         Contract: inputs must not be {@code null}. Combinators operate with short‑circuit semantics
+ *         between predicates (this vs. other) where applicable (e.g., {@code and}, {@code or}).
  *     </p>
  * </div>
  *
- * @param <A1> Typ des ersten Arguments
- * @param <A2> Typ des zweiten Arguments
- * @param <A3> Typ des dritten Arguments
+ * @param <A1> the type of the first argument
+ * @param <A2> the type of the second argument
+ * @param <A3> the type of the third argument
  *
  * @since 1.0.0
  *
@@ -33,15 +37,18 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Negiert das gegebene <code>Pred3</code>.
+     *         Returns the logical negation of the given {@code Pred3}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code pred3} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param pred3 Das zu negierende <code>Pred3</code>
-     * @param <A1> Typ des ersten Arguments
-     * @param <A2> Typ des zweiten Arguments
-     * @param <A3> Typ des dritten Arguments
-     * @return Das negierte <code>Pred3</code>
+     * @param pred3 the predicate to negate; must not be {@code null}
+     * @param <A1>  the type of the first argument
+     * @param <A2>  the type of the second argument
+     * @param <A3>  the type of the third argument
+     * @return a predicate representing {@code NOT pred3}
      *
      * @since 1.0.0
      */
@@ -53,14 +60,17 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat f&uuml;r die gegebenen Argumente aus.
+     *         Evaluates this predicate for the given inputs.
+     *     </p>
+     *     <p>
+     *         Contract: all inputs must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param a1 Das erste Eingabe-Argument
-     * @param a2 Das zweite Eingabe-Argument
-     * @param a3 Das dritte Eingabe-Argument
-     * @return <code>true</code> oder <code>false</code>
+     * @param a1 the first input; must not be {@code null}
+     * @param a2 the second input; must not be {@code null}
+     * @param a3 the third input; must not be {@code null}
+     * @return {@code true} or {@code false}
      *
      * @since 1.0.0
      */
@@ -71,11 +81,11 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Negiert dieses <code>Pred3</code>.
+     *         Returns the logical negation of this predicate.
      *     </p>
      * </div>
      *
-     * @return Das negierte <code>Pred3</code>
+     * @return the negated predicate
      *
      * @since 1.0.0
      */
@@ -87,12 +97,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         AND-Verkn&uuml;pfung mit einem anderen <code>Pred3</code>.
+     *         Returns the logical conjunction of this predicate and {@code other}.
+     *         Short‑circuits: {@code other} is evaluated only if {@code this.test(a1, a2, a3)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred3</code>
-     * @return Die AND-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this AND other}
      *
      * @since 1.0.0
      */
@@ -105,12 +116,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         AND-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code>.
+     *         Logical conjunction with a {@link BooleanSupplier}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2, a3)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @param booleanSupplier Der <code>BooleanSupplier</code>
-     * @return Die AND-Verkn&uuml;pfung
+     * @param booleanSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this AND booleanSupplier}
      *
      * @since 1.0.0
      */
@@ -123,12 +135,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         AND-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code>.
+     *         Logical conjunction with a {@link Supplier}{@code <Boolean>}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2, a3)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die AND-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this AND supplier.get()}
      *
      * @since 1.0.0
      */
@@ -143,12 +156,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         NAND-Verkn&uuml;pfung mit einem anderen <code>Pred3</code>.
+     *         Returns the logical NAND of this predicate and {@code other}.
+     *         Implemented as {@code NOT (this AND other)}; short‑circuiting follows {@code and}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred3</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code NOT (this AND other)}
      *
      * @since 1.0.0
      */
@@ -161,12 +175,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         NAND-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code>.
+     *         Logical NAND with a {@link BooleanSupplier}.
      *     </p>
      * </div>
      *
-     * @param booleanSupplier Der <code>BooleanSupplier</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param booleanSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this AND booleanSupplier)}
      *
      * @since 1.0.0
      */
@@ -179,12 +193,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         NAND-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code>.
+     *         Logical NAND with a {@link Supplier}{@code <Boolean>}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this AND supplier.get())}
      *
      * @since 1.0.0
      */
@@ -199,12 +213,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         OR-Verkn&uuml;pfung mit einem anderen <code>Pred3</code>.
+     *         Returns the logical disjunction of this predicate and {@code other}.
+     *         Short‑circuits: {@code other} is evaluated only if {@code this.test(a1, a2, a3)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred3</code>
-     * @return Die OR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this OR other}
      *
      * @since 1.0.0
      */
@@ -217,12 +232,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         OR-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code>.
+     *         Logical disjunction with a {@link BooleanSupplier}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2, a3)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param booleanSupplier Der <code>BooleanSupplier</code>
-     * @return Die OR-Verkn&uuml;pfung
+     * @param booleanSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this OR booleanSupplier}
      *
      * @since 1.0.0
      */
@@ -235,12 +251,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         OR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code>.
+     *         Logical disjunction with a {@link Supplier}{@code <Boolean>}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2, a3)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die OR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this OR supplier.get()}
      *
      * @since 1.0.0
      */
@@ -255,12 +272,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         NOR-Verkn&uuml;pfung mit einem anderen <code>Pred3</code>.
+     *         Logical NOR of this predicate and {@code other} (negation of disjunction).
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred3</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code NOT (this OR other)}
      *
      * @since 1.0.0
      */
@@ -273,12 +290,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         NOR-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code>.
+     *         Logical NOR with a {@link BooleanSupplier}.
      *     </p>
      * </div>
      *
-     * @param booleanSupplier Der <code>BooleanSupplier</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param booleanSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this OR booleanSupplier)}
      *
      * @since 1.0.0
      */
@@ -291,12 +308,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         NOR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code>.
+     *         Logical NOR with a {@link Supplier}{@code <Boolean>}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this OR supplier.get())}
      *
      * @since 1.0.0
      */
@@ -311,12 +328,13 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         XOR-Verkn&uuml;pfung mit einem anderen <code>Pred3</code>.
+     *         Exclusive OR of this predicate and {@code other}.
+     *         Implemented as {@code (this OR other) AND NOT (this AND other)}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred3</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this XOR other}
      *
      * @since 1.0.0
      */
@@ -326,16 +344,16 @@ public interface Pred3<A1, A2, A3>
         return (this.or(other)).and(not(this.and(other)));
     }
 
-
     /**
      * <div>
      *     <p>
-     *         XOR-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code>.
+     *         Exclusive OR with a {@link BooleanSupplier}.
+     *         Implemented as {@code (this OR boolSupplier) AND NOT (this AND boolSupplier)}.
      *     </p>
      * </div>
      *
-     * @param booleanSupplier Der <code>BooleanSupplier</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param booleanSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this XOR booleanSupplier}
      *
      * @since 1.0.0
      */
@@ -348,12 +366,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         XOR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code>.
+     *         Exclusive OR with a {@link Supplier}{@code <Boolean>}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this XOR supplier.get()}
      *
      * @since 1.0.0
      */
@@ -368,12 +386,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat partiell f&uuml;r das erste Argument aus.
+     *         Partially evaluates this predicate by supplying the first argument.
      *     </p>
      * </div>
      *
-     * @param supplier Lieferant f&uuml;r das erste Argument
-     * @return Ein Pr&auml;dikat <code>f:A2 &#x2715; A3 &#x21A6; {true, false}</code>
+     * @param supplier supplies the first argument; must not be {@code null}
+     * @return a binary predicate {@code f: A2 × A3 → {true, false}}
      *
      * @since 1.0.0
      */
@@ -386,12 +404,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat partiell f&uuml;r das zweite Argument aus.
+     *         Partially evaluates this predicate by supplying the second argument.
      *     </p>
      * </div>
      *
-     * @param supplier Lieferant f&uuml;r das zweite Argument
-     * @return Ein Pr&auml;dikat <code>f:A1 &#x2715; A3 &#x21A6; {true, false}</code>
+     * @param supplier supplies the second argument; must not be {@code null}
+     * @return a binary predicate {@code f: A1 × A3 → {true, false}}
      *
      * @since 1.0.0
      */
@@ -404,12 +422,12 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat partiell f&uuml;r das dritte Argument aus.
+     *         Partially evaluates this predicate by supplying the third argument.
      *     </p>
      * </div>
      *
-     * @param supplier Lieferant f&uuml;r das dritte Argument
-     * @return Ein Pr&auml;dikat <code>f:A1 &#x2715; A2 &#x21A6; {true, false}</code>
+     * @param supplier supplies the third argument; must not be {@code null}
+     * @return a binary predicate {@code f: A1 × A2 → {true, false}}
      *
      * @since 1.0.0
      */
@@ -422,16 +440,19 @@ public interface Pred3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Verz&ouml;gert die Auswertung des Pr&auml;dikats, bis alle drei Argumente
-     *         durch die angegebenen {@link Supplier} bereitgestellt werden.
+     *         Delays the evaluation of this predicate until all three inputs are supplied
+     *         by the given {@link Supplier}s.
+     *     </p>
+     *     <p>
+     *         Contract: suppliers must not be {@code null} and must not supply {@code null} values.
      *     </p>
      * </div>
      *
-     * @param supplier1 Lieferant f&uuml;r das erste Argument
-     * @param supplier2 Lieferant f&uuml;r das zweite Argument
-     * @param supplier3 Lieferant f&uuml;r das dritte Argument
-     * @return Ein {@link Callable}, das das Pr&auml;dikat auswertet, sobald es aufgerufen wird.
-     * @throws NullPointerException Wenn einer der {@link Supplier} oder deren bereitgestellter Wert <code>null</code> ist.
+     * @param supplier1 supplies the first input; must not be {@code null}
+     * @param supplier2 supplies the second input; must not be {@code null}
+     * @param supplier3 supplies the third input; must not be {@code null}
+     * @return a {@link Callable} that evaluates the predicate when called
+     * @throws NullPointerException if any supplier is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */

@@ -13,13 +13,18 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Eine funktionale Schnittstelle, die erweiterte Funktionalit&auml;t für Funktionen bereitstellt,
- *         wie Komposition, Memoisierung und Null-Pr&uuml;fung.
+ *         A functional interface that extends {@link Function} with stronger contracts and
+ *         convenient combinators such as composition, memoization, and null-safety wrappers.
+ *     </p>
+ *     <p>
+ *         Compared to the JDK's {@code Function}, this interface adopts a stricter non-null contract:
+ *         unless explicitly stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
+ *         Helper methods like {@link #fun(Function)} and {@link #nullSafe()} make these guarantees explicit.
  *     </p>
  * </div>
  *
- * @param <X> der Eingabetyp der Funktion
- * @param <Y> der Rückgabetyp der Funktion
+ * @param <X> the input type
+ * @param <Y> the output type
  *
  * @since 1.0.0
  *
@@ -33,15 +38,18 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Erzeugt eine neue {@code Fun}-Instanz aus einer gegebenen {@link Function},
-     *         die zus&auml;tzliche Null-Pr&uuml;fungen für Eingabe- und Ausgabeparameter bietet.
+     *         Creates a new {@code Fun} from the given {@link Function}, enforcing non-null input and output.
+     *     </p>
+     *     <p>
+     *         Contract: {@code function} must not be {@code null}; applying the returned {@code Fun} will
+     *         throw a {@link NullPointerException} if the input is {@code null} or if the wrapped function returns {@code null}.
      *     </p>
      * </div>
      *
-     * @param <X> der Eingabetyp der Funktion
-     * @param <Y> der R&uuml;ckgabetyp der Funktion
-     * @param function die Funktion, die in die {@code Fun}-Instanz umgewandelt wird; darf nicht {@code null} sein
-     * @return eine neue {@code Fun}-Instanz mit der angegebenen Funktionalit&auml;t
+     * @param <X>       the input type
+     * @param <Y>       the output type
+     * @param function  the function to wrap; must not be {@code null}
+     * @return a {@code Fun} that enforces the non-null contract
      *
      * @since 1.0.0
      */
@@ -56,13 +64,18 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Wendet die Funktion auf den gegebenen Eingabewert an.
+     *         Applies this function to the provided input.
+     *     </p>
+     *     <p>
+     *         Contract: {@code x} must not be {@code null}; the result must not be {@code null}.
+     *         Implementations can rely on wrappers like {@link #fun(Function)} or {@link #nullSafe()}
+     *         to enforce this at runtime.
      *     </p>
      * </div>
      *
-     * @param x der Eingabewert; darf nicht {@code null} sein
-     * @return das Ergebnis der Funktion; darf nicht {@code null} sein
-     * @throws NullPointerException falls {@code x} oder das Resultat {@code null} ist
+     * @param x the input; must not be {@code null}
+     * @return the result; never {@code null}
+     * @throws NullPointerException if {@code x} is {@code null} or the implementation returns {@code null}
      *
      * @since 1.0.0
      */
@@ -74,14 +87,19 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Erzeugt eine neue Funktion, die die gegebene Funktion vor dieser Funktion ausführt.
+     *         Returns a function representing the composition {@code this ∘ first}.
+     *         The resulting function first applies {@code first}, then applies {@code this}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code first} must not be {@code null}; both {@code first} and {@code this} must not
+     *         return {@code null}.
      *     </p>
      * </div>
      *
-     * @param <W> der Eingabetyp der ersten Funktion
-     * @param first die erste anzuwendende Funktion; darf nicht {@code null} sein
-     * @return eine zusammengesetzte Funktion, die zuerst {@code first} und dann diese Funktion aufruft
-     * @throws NullPointerException falls {@code first} oder deren Resultat {@code null} ist
+     * @param <W>   the input type of {@code first}
+     * @param first the function to apply before this one; must not be {@code null}
+     * @return the composed function
+     * @throws NullPointerException if {@code first} is {@code null} or any intermediate result is {@code null}
      *
      * @since 1.0.0
      */
@@ -97,14 +115,19 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Erzeugt eine neue Funktion, die die gegebene Funktion nach dieser Funktion ausführt.
+     *         Returns a function representing the composition {@code next ∘ this}.
+     *         The resulting function first applies {@code this}, then applies {@code next}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code next} must not be {@code null}; both {@code this} and {@code next} must not
+     *         return {@code null}.
      *     </p>
      * </div>
      *
-     * @param <Z> der R&uuml;ckgabetyp der neuen Funktion
-     * @param next die Funktion, die nach dieser Funktion ausgef&uuml;hrt wird; darf nicht {@code null} sein
-     * @return eine zusammengesetzte Funktion, die zuerst diese Funktion und dann {@code next} aufruft
-     * @throws NullPointerException falls {@code next} oder deren Resultat {@code null} ist
+     * @param <Z>  the output type of the resulting function
+     * @param next the function to apply after this one; must not be {@code null}
+     * @return the composed function
+     * @throws NullPointerException if {@code next} is {@code null} or any intermediate result is {@code null}
      *
      * @since 1.0.0
      */
@@ -121,12 +144,15 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine memoisierte Version dieser Funktion zur&uuml;ck, die Ergebnisse zwischenspeichert und
-     *         so die Performance bei mehrfachen Aufrufen mit denselben Eingaben verbessern kann.
+     *         Returns a memoized view of this function that caches results by input.
+     *     </p>
+     *     <p>
+     *         Contract: the returned function must never return {@code null}; cache semantics are
+     *         implementation-specific but should be referentially transparent for equal inputs.
      *     </p>
      * </div>
      *
-     * @return eine memoisierte Version dieser Funktion
+     * @return a memoizing wrapper of this function
      *
      * @since 1.0.0
      */
@@ -137,12 +163,12 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine Version dieser Funktion zur&uuml;ck, die zus&auml;tzliche Null-Pr&uuml;fungen für den
-     *         Eingabeparameter und das Ergebnis durchf&uuml;hrt.
+     *         Returns a null-checking wrapper around this function that rejects {@code null} inputs
+     *         and results with {@link NullPointerException}.
      *     </p>
      * </div>
      *
-     * @return eine Null-pr&uuml;fende Version dieser Funktion
+     * @return a null-safe wrapper of this function
      *
      * @since 1.0.0
      */
@@ -156,11 +182,11 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt diese Funktion als {@code Applicable} zurück.
+     *         Exposes this function as an {@link Applicable}.
      *     </p>
      * </div>
      *
-     * @return diese Funktion als {@code Applicable}
+     * @return this function as {@code Applicable}
      *
      * @since 1.0.0
      */
@@ -171,12 +197,16 @@ public interface Fun<X, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine Identit&auml;tsfunktion zur&uuml;ck, die jeden Eingabewert unver&auml;ndert zur&uuml;ckgibt.
+     *         Returns a strict identity function, rejecting {@code null} inputs.
+     *     </p>
+     *     <p>
+     *         This is stricter than {@link Function#identity()} which allows {@code null}. Here, a
+     *         {@link NullPointerException} is thrown if the input is {@code null}.
      *     </p>
      * </div>
      *
-     * @param <X> der Typ der Eingabe und Ausgabe
-     * @return die Identit&Auml;tsfunktion für den Typ {@code X}
+     * @param <X> the input/output type
+     * @return an identity function for type {@code X}
      *
      * @since 1.0.0
      */

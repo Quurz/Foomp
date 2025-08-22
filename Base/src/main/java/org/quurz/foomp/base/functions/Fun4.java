@@ -15,17 +15,21 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Eine vierstellige Funktion <code>f:X1 &#x2715; X2 &#x2715; X3 &#x2715; X4 &rarr; Y</code>
+ *         A quaternary function <code>f: X1 × X2 × X3 × X4 → Y</code>.
+ *     </p>
+ *     <p>
+ *         Provides utilities for post-composition, deferral, partial application, and currying.
+ *         Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <X1> Typ des ersten Arguments
- * @param <X2> Typ des zweiten Arguments
- * @param <X3> Typ des dritten Arguments
- * @param <X4> Typ des vierten Arguments
- * @param <Y> Typ des Ergebnisses
+ * @param <X1> the type of the first argument
+ * @param <X2> the type of the second argument
+ * @param <X3> the type of the third argument
+ * @param <X4> the type of the fourth argument
+ * @param <Y>  the result type
  *
- * @since 1.0.
+ * @since 1.0.0
  *
  * @author Alexander Schell
  */
@@ -36,15 +40,18 @@ public interface Fun4<X1, X2, X3, X4, Y>
     /**
      * <div>
      *     <p>
-     *         Wendet die Funktion auf die vier &uuml;bergebenen Argumente an
+     *         Applies this function to the four provided arguments.
+     *     </p>
+     *     <p>
+     *         Contract: inputs must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param x1 Das erste Argument
-     * @param x2 Das zweite Argument
-     * @param x3 Das dritte Argument
-     * @param x4 Das vierte Argument
-     * @return Ergebnis
+     * @param x1 the first argument; must not be {@code null}
+     * @param x2 the second argument; must not be {@code null}
+     * @param x3 the third argument; must not be {@code null}
+     * @param x4 the fourth argument; must not be {@code null}
+     * @return the result; never {@code null}
      *
      * @since 1.0.0
      */
@@ -56,15 +63,18 @@ public interface Fun4<X1, X2, X3, X4, Y>
     /**
      * <div>
      *     <p>
-     *         Hintereinanderschaltung von Abbildungen
+     *         Post-composes this function with {@code next}: applies {@code this} and then {@code next}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code next} must not be {@code null}; intermediate and final results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param next Eine Funktion <code>Y &rarr; Z</code>
-     * @param <Z> Typ des Ergebnisses der Funktion <code>next</code> und damit auch der Hintereinanderschaltung
-     * @return Die Hintereinanderschaltung
+     * @param next a function <code>Y → Z</code> to apply after this function; must not be {@code null}
+     * @param <Z>  the result type of {@code next} and thus of the composition
+     * @return the composed function
      *
-     * @throws NullPointerException Falls <code>next &#61;&#61; null</code>
+     * @throws NullPointerException if {@code next} is {@code null} or if any intermediate result is {@code null}
      *
      * @since 1.0.0
      */

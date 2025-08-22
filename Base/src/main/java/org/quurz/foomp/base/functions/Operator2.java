@@ -15,11 +15,15 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein zweistelliger Operator, der eine Abbildung von einer Menge in dieselbe Menge darstellt <code>f:T &#x2715; T &rarr; T</code>.
+ *         A binary operator representing a mapping from a set to itself
+ *         <code>f: A × A → A</code>.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <A> der Typ der Operanden und des Ergebnisses
+ * @param <A> the operand/result type
  *
  * @see Fun2
  *
@@ -35,22 +39,23 @@ public interface Operator2<A>
     /**
      * <div>
      *     <p>
-     *         Verpackt den gegebenen <code>BinaryOperator</code> in einen <code>Operator2</code>.
+     *         Wraps the given {@link BinaryOperator} into an {@code Operator2} that enforces non-null
+     *         inputs and results.
      *     </p>
      * </div>
      *
-     * @param binaryOperator der einzupackende <code>BinaryOperator</code>
-     * @param <A> der Typ der Operanden
-     * @return der neue <code>Operator2</code>
-     * @throws NullPointerException falls <code>binaryOperator</code> null ist
+     * @param binaryOperator the binary operator to wrap; must not be {@code null}
+     * @param <A>            the operand type
+     * @return a new {@code Operator2} delegating to {@code binaryOperator}
+     * @throws NullPointerException if {@code binaryOperator} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
     static <A> Operator2<A> operator2(@NonNull final BinaryOperator<A> binaryOperator) {
-        Objects.requireNonNull(binaryOperator);
+        Objects.requireNonNull(binaryOperator, nullValue("binaryOperator"));
         return (a1, a2) -> {
             Objects.requireNonNull(a1, nullValue("a1"));
-            Objects.requireNonNull(a2, nullValue("as"));
+            Objects.requireNonNull(a2, nullValue("a2"));
             return Objects.requireNonNull(binaryOperator.apply(a1, a2), nullResult());
         };
     }
@@ -58,13 +63,16 @@ public interface Operator2<A>
     /**
      * <div>
      *     <p>
-     *         Wendet diesen Operator auf die gegebenen Argumente an.
+     *         Applies this operator to the given arguments.
+     *     </p>
+     *     <p>
+     *         Contract: inputs must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param a1 das erste Argument des Operators
-     * @param a2 das zweite Argument des Operators
-     * @return das Ergebnis der Anwendung des Operators
+     * @param a1 the first operand; must not be {@code null}
+     * @param a2 the second operand; must not be {@code null}
+     * @return the result; never {@code null}
      *
      * @since 1.0.0
      */
@@ -77,13 +85,16 @@ public interface Operator2<A>
     /**
      * <div>
      *     <p>
-     *         Verkettet diesen Operator mit einem <code>UnaryOperator</code>.
+     *         Returns a composed operator that applies {@code this} and then {@code after}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code after} must not be {@code null}; intermediate and final results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param after der Operator, der nach diesem Operator angewendet wird
-     * @return die Verkettung der beiden Operatoren
-     * @throws NullPointerException falls <code>after</code> null ist
+     * @param after the unary post-operator; must not be {@code null}
+     * @return the composed operator
+     * @throws NullPointerException if {@code after} is {@code null} or any intermediate result is {@code null}
      *
      * @since 1.0.0
      */
@@ -101,13 +112,16 @@ public interface Operator2<A>
     /**
      * <div>
      *     <p>
-     *         Wendet diesen Operator partiell auf das erste Argument an.
+     *         Partially applies this operator by supplying the first argument from a {@link Supplier}.
+     *     </p>
+     *     <p>
+     *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier Lieferant f&uuml;r das erste Argument
-     * @return ein <code>Operator</code>, der das zweite Argument akzeptiert und das Ergebnis liefert
-     * @throws NullPointerException falls <code>supplier</code> null ist
+     * @param supplier supplies the first operand; must not be {@code null}
+     * @return an {@link Operator} over the remaining argument
+     * @throws NullPointerException if the supplier or its value is {@code null}, or the result is {@code null}
      *
      * @since 1.0.0
      */
@@ -125,13 +139,16 @@ public interface Operator2<A>
     /**
      * <div>
      *     <p>
-     *         Wendet diesen Operator partiell auf das zweite Argument an.
+     *         Partially applies this operator by supplying the second argument from a {@link Supplier}.
+     *     </p>
+     *     <p>
+     *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier Lieferant f&uuml;r das zweite Argument
-     * @return ein <code>Operator</code>, der das erste Argument akzeptiert und das Ergebnis liefert
-     * @throws NullPointerException falls <code>supplier</code> null ist
+     * @param supplier supplies the second operand; must not be {@code null}
+     * @return an {@link Operator} over the remaining argument
+     * @throws NullPointerException if the supplier or its value is {@code null}, or the result is {@code null}
      *
      * @since 1.0.0
      */
@@ -149,11 +166,12 @@ public interface Operator2<A>
     /**
      * <div>
      *     <p>
-     *         Vertauscht die Argumente dieses Operators.
+     *         Returns an operator with flipped argument order.
      *     </p>
      * </div>
      *
-     * @return ein <code>Operator2</code>, der die Argumente vertauscht
+     * @return an {@code Operator2} that applies {@code this} with reversed arguments
+     *
      * @since 1.0.0
      */
     @Override

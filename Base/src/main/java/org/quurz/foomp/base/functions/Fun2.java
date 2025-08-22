@@ -18,15 +18,18 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein funktionales Interface f&Uuml;r eine bin&auml;re Funktion, die zwei Argumente vom Typ {@code X1} und {@code X2} akzeptiert
- *         und ein Ergebnis vom Typ {@code Y} liefert. Diese Schnittstelle erweitert {@link BiFunction} und bietet zus&auml;tzliche
- *         Funktionalit&auml;ten f&uuml;r Currying, Partialanwendung und das Vertauschen der Argumente.
+ *         A functional interface for binary functions that augments {@link BiFunction} with
+ *         stronger non-null contracts and utilities for currying, partial application, flipping,
+ *         deferring, and composition.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, arguments must not be {@code null} and results must not be {@code null}.
  *     </p>
  * </div>
  *
- * @param <X1> Der Typ des ersten Arguments der Funktion
- * @param <X2> Der Typ des zweiten Arguments der Funktion
- * @param <Y> Der R&uuml;ckgabetyp der Funktion
+ * @param <X1> the type of the first argument
+ * @param <X2> the type of the second argument
+ * @param <Y>  the result type
  *
  * @since 1.0.0
  *
@@ -40,16 +43,16 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Erzeugt eine {@code Fun2}-Instanz aus einer gegebenen {@link BiFunction}.
+     *         Wraps the provided {@link BiFunction} into a {@code Fun2}, enforcing a non-null result.
      *     </p>
      * </div>
      *
-     * @param function Die zu verwendende BiFunction
-     * @param <X1> Der Typ des ersten Arguments der Funktion
-     * @param <X2> Der Typ des zweiten Arguments der Funktion
-     * @param <Y> Der R&uuml;ckgabetyp der Funktion
-     * @return Eine neue {@code Fun2}-Instanz
-     * @throws NullPointerException Wenn die gegebene Funktion {@code null} ist
+     * @param function the function to wrap; must not be {@code null}
+     * @param <X1>     the type of the first argument
+     * @param <X2>     the type of the second argument
+     * @param <Y>      the result type
+     * @return a {@code Fun2} wrapper
+     * @throws NullPointerException if {@code function} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -61,14 +64,17 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Wendet die Funktion auf die angegebenen Argumente an.
+     *         Applies this binary function to the given arguments.
+     *     </p>
+     *     <p>
+     *         Contract: inputs must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param x1 Das erste Argument
-     * @param x2 Das zweite Argument
-     * @return Das Ergebnis der Funktion
-     * @throws NullPointerException Wenn eines der Argumente {@code null} ist oder das Ergebnis {@code null} ergibt
+     * @param x1 the first argument; must not be {@code null}
+     * @param x2 the second argument; must not be {@code null}
+     * @return the result; never {@code null}
+     * @throws NullPointerException if any input is {@code null} or the implementation returns {@code null}
      *
      * @since 1.0.0
      */
@@ -81,15 +87,18 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Verkettet diese Funktion mit einer nachfolgenden Funktion. Das Ergebnis dieser Funktion wird als Argument
-     *         f&uuml;r die gegebene Funktion {@code next} verwendet.
+     *         Returns a function that applies {@code this} and then applies {@code next} to the result.
+     *     </p>
+     *     <p>
+     *         Contract: {@code next} must not be {@code null}; both {@code this} and {@code next} must not
+     *         return {@code null}.
      *     </p>
      * </div>
      *
-     * @param next Die nachfolgende Funktion, die auf das Ergebnis angewendet wird
-     * @param <Z> Der R&uuml;ckgabetyp der nachfolgenden Funktion
-     * @return Eine neue {@code Fun2}-Funktion, die die Verkettung der beiden Funktionen repr&auml;sentiert
-     * @throws NullPointerException Wenn {@code next} oder das Ergebnis {@code null} ist
+     * @param next the function to apply afterwards; must not be {@code null}
+     * @param <Z>  the result type of {@code next}
+     * @return the composed function
+     * @throws NullPointerException if {@code next} is {@code null} or any intermediate result is {@code null}
      *
      * @since 1.0.0
      */
@@ -106,17 +115,18 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Erzeugt eine {@link Callable}-Instanz, die die Ausf&uuml;hrung der zweistelligen Funktion verz&ouml;gert.
-     *         Dabei werden die Eingabeparameter durch die angegebenen {@link Supplier}-Instanzen bereitgestellt.
-     *         Die Methode &uuml;berpr&uuml;ft, ob die Supplier und die von ihnen gelieferten Werte nicht {@code null} sind,
-     *         und wirft andernfalls eine {@link NullPointerException}.
+     *         Defers application by turning this function into a {@link Callable} whose arguments are
+     *         supplied lazily via {@link java.util.function.Supplier}s.
+     *     </p>
+     *     <p>
+     *         Contract: suppliers and the values they supply must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param s1 ein {@link Supplier}, der den ersten Eingabeparameter liefert; darf nicht {@code null} sein
-     * @param s2 ein {@link Supplier}, der den zweiten Eingabeparameter liefert; darf nicht {@code null} sein
-     * @return ein {@link Callable}, das die Funktion mit den durch die Supplier bereitgestellten Eingaben ausf&uuml;hrt
-     * @throws NullPointerException falls einer der Supplier oder die von ihnen gelieferten Werte {@code null} ist
+     * @param s1 supplier for the first argument; must not be {@code null}
+     * @param s2 supplier for the second argument; must not be {@code null}
+     * @return a callable that applies this function to supplied values
+     * @throws NullPointerException if any supplier or supplied value is {@code null}, or the result is {@code null}
      *
      * @since 1.0.0
      */
@@ -138,16 +148,20 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine Funktion, bei der das erste Argument dieser Funktion durch den gegebenen {@link Supplier} bereitgestellt wird.
+     *         Partially applies this function by supplying the first argument via a {@link java.util.function.Supplier}.
+     *     </p>
+     *     <p>
+     *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier Ein Supplier, der das erste Argument liefert
-     * @return Eine Funktion, die nur das zweite Argument ben&Ouml;tigt
-     * @throws NullPointerException Wenn {@code supplier} oder das gelieferte Argument {@code null} ist
+     * @param supplier supplier for the first argument; must not be {@code null}
+     * @return a unary function over the second argument
+     * @throws NullPointerException if the supplier or its value is {@code null}, or the result is {@code null}
+     *
      * @since 1.0.0
      */
-    default @NonNull Fun<X2, Y> partial1(@NonNull final Supplier<X1> supplier) {
+    default @NonNull Fun<X2, Y> partial1(final @NonNull Supplier<X1> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
         return x2 -> {
             Objects.requireNonNull(x2, nullValue("x2"));
@@ -160,17 +174,20 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine Funktion, bei der das zweite Argument dieser Funktion durch den gegebenen {@link Supplier} bereitgestellt wird.
+     *         Partially applies this function by supplying the second argument via a {@link java.util.function.Supplier}.
+     *     </p>
+     *     <p>
+     *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier Ein Supplier, der das zweite Argument liefert
-     * @return Eine Funktion, die nur das erste Argument ben&Ouml;tigt
-     * @throws NullPointerException Wenn {@code supplier} oder das gelieferte Argument {@code null} ist
+     * @param supplier supplier for the second argument; must not be {@code null}
+     * @return a unary function over the first argument
+     * @throws NullPointerException if the supplier or its value is {@code null}, or the result is {@code null}
      *
      * @since 1.0.0
      */
-    default @NonNull Fun<X1, Y> partial2(@NonNull final Supplier<X2> supplier) {
+    default @NonNull Fun<X1, Y> partial2(final @NonNull Supplier<X2> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
         return x1 -> {
             Objects.requireNonNull(x1, nullValue("x1"));
@@ -183,11 +200,11 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Gibt eine Funktion zur&uuml;ck, die diese Funktion mit vertauschten Argumenten aufruft.
+     *         Returns a function that flips the order of arguments before applying {@code this}.
      *     </p>
      * </div>
      *
-     * @return Eine neue Funktion mit vertauschten Argumenten
+     * @return a function with flipped argument order
      *
      * @since 1.0.0
      */
@@ -202,12 +219,14 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine Currying-Transformation durch, indem das erste Argument gebunden wird und eine Funktion zur&uuml;ckgegeben wird,
-     *         die nur das zweite Argument akzeptiert.
+     *         Curries this binary function into a unary function returning another unary function.
+     *     </p>
+     *     <p>
+     *         Contract: neither intermediate nor final results may be {@code null}.
      *     </p>
      * </div>
      *
-     * @return Eine curried Funktion, die das erste Argument bindet und eine Funktion f&Uuml;r das zweite Argument liefert
+     * @return a curried form of this function
      *
      * @since 1.0.0
      */
@@ -222,16 +241,20 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         'Entcurryt' eine curried Funktion, um sie als normale zweistellige Funktion zu verwenden.
+     *         Uncurries a curried function into a binary function.
+     *     </p>
+     *     <p>
+     *         Contract: {@code curried} must not be {@code null}; none of the intermediate results may be {@code null}.
      *     </p>
      * </div>
      *
-     * @param curried Die curried Funktion
-     * @param <X1> Der Typ des ersten Arguments der Funktion
-     * @param <X2> Der Typ des zweiten Arguments der Funktion
-     * @param <Y> Der R&uuml;ckgabetyp der Funktion
-     * @return Eine {@code Fun2}-Funktion, die die curried Funktion decurried
-     * @throws NullPointerException Wenn {@code curried} oder eines der gebundenen Argumente {@code null} ist
+     * @param curried the curried function; must not be {@code null}
+     * @param <X1>    the type of the first argument
+     * @param <X2>    the type of the second argument
+     * @param <Y>     the result type
+     * @return the uncurried {@code Fun2}
+     * @throws NullPointerException if {@code curried} is {@code null} or any intermediate result is {@code null}
+     *
      * @since 1.0.0
      */
     static <X1, X2, Y> Fun2<X1, X2, Y> uncurry(@NonNull final Fun<X1, Fun<X2, Y>> curried) {

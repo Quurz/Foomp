@@ -2,7 +2,10 @@ package org.quurz.foomp.base.types;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
+
+import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 
 /**
  * <div>
@@ -68,8 +71,58 @@ public interface Executable<A>
      *
      * @since 1.0.0
      */
-    default SafeExecutable<A> safe() {
-        return this::execute;
+    default @NonNull SafeExecutable<A> safe() {
+        final var self
+            = this;
+
+        return () -> {
+            try {
+                final var result
+                    = self.execute();
+
+                return new XorValue<>() {
+
+                    @Override
+                    public boolean isRight() {
+                        return true;
+                    }
+
+                    @Override
+                    public @NonNull Exception getLeft()
+                            throws NoSuchElementException {
+                        return new NoSuchElementException(noValuePresent());
+                    }
+
+                    @Override
+                    public @NonNull A getRight()
+                            throws NoSuchElementException {
+                        return result;
+                    }
+
+                };
+            } catch (final Exception exception) {
+                return new XorValue<>() {
+
+                    @Override
+                    public boolean isRight() {
+                        return false;
+                    }
+
+                    @Override
+                    public @NonNull Exception getLeft()
+                            throws NoSuchElementException {
+                        return exception;
+                    }
+
+                    @Override
+                    public @NonNull A getRight()
+                            throws NoSuchElementException {
+                        throw new NoSuchElementException(noValuePresent());
+                    }
+
+                };
+            }
+        };
     }
 
 }

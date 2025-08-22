@@ -15,17 +15,20 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Eine funktionale Schnittstelle, die eine Bedingung f&uuml;r den Typ {@code A} beschreibt.
+ *         A functional interface describing a boolean condition over values of type {@code A}.
  *     </p>
  *     <p>
- *         Diese Schnittstelle erweitert die Funktionalit&auml;t der Standard {@code Predicate<A>}
- *         Schnittstelle in Java und bietet zus&auml;tzliche logische Operationen wie
- *         NAND, NOR, und XOR. Sie unterst&uuml;tzt auch eine Zusammensetzung von
- *         Bedingungen durch Methoden wie {@code and}, {@code or}, und {@code not}.
+ *         Extends the standard {@link Predicate} with additional logical combinators such as
+ *         NAND, NOR, and XOR, and provides utilities for composing predicates via methods like
+ *         {@code and}, {@code or}, and {@code negate}.
+ *     </p>
+ *     <p>
+ *         Contract: inputs must not be {@code null}. Combinators use short‑circuit evaluation
+ *         where applicable (e.g., {@code and}, {@code or}).
  *     </p>
  * </div>
  *
- * @param <A> der Typ der Eingabewerte, die gepr&uuml;ft werden.
+ * @param <A> the input type checked by this predicate
  *
  * @see Predicate
  *
@@ -41,22 +44,17 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Erzeugt ein Pr&auml;dikat, das immer {@code true} zur&uuml;ckgibt, unabh&auml;ngig vom Eingabewert.
+     *         Returns a predicate that always yields {@code true}, regardless of the input value.
      *     </p>
      *     <p>
-     *         Das Pr&auml;dikat &uuml;berpr&uuml;ft zun&auml;chst, ob der &uuml;bergebene Wert {@code null} ist, und l&ouml;st
-     *         in diesem Fall eine {@link NullPointerException} aus.
+     *         Contract: the input must not be {@code null}. A {@link NullPointerException} is thrown
+     *         if a {@code null} input is provided.
      *     </p>
      * </div>
      *
-     * Erzeugt ein Pr&auml;dikat, das immer {@code true} zur&uuml;ckgibt, unabh&auml;ngig vom Eingabewert.
-     * <p>
-     *
-     * in diesem Fall eine {@link NullPointerException} aus.
-     *
-     * @param <A> der Typ des Eingabewerts, den das Pr&auml;dikat akzeptiert
-     * @return ein Pr&auml;dikat, das immer {@code true} zur&uuml;ckgibt
-     * @throws NullPointerException wenn der Eingabewert {@code null} ist
+     * @param <A> the input type accepted by the predicate
+     * @return a predicate that always returns {@code true}
+     * @throws NullPointerException if the input is {@code null}
      *
      * @since 1.0.0
      */
@@ -70,17 +68,17 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Erzeugt ein Pr&auml;dikat, das immer {@code false} zur&uuml;ckgibt, unabh&auml;ngig vom Eingabewert.
+     *         Returns a predicate that always yields {@code false}, regardless of the input value.
      *     </p>
      *     <p>
-     *         Das Pr&auml;dikat &uuml;berpr&uuml;ft zun&auml;chst, ob der &uuml;bergebene Wert {@code null} ist, und l&ouml;st
-     *         in diesem Fall eine {@link NullPointerException} aus.
+     *         Contract: the input must not be {@code null}. A {@link NullPointerException} is thrown
+     *         if a {@code null} input is provided.
      *     </p>
      * </div>
      *
-     * @param <A> der Typ des Eingabewerts, den das Pr&auml;dikat akzeptiert
-     * @return ein Pr&auml;dikat, das immer {@code false} zur&uuml;ckgibt
-     * @throws NullPointerException wenn der Eingabewert {@code null} ist
+     * @param <A> the input type accepted by the predicate
+     * @return a predicate that always returns {@code false}
+     * @throws NullPointerException if the input is {@code null}
      *
      * @since 1.0.0
      */
@@ -94,15 +92,18 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Verpackt das gegebene <code>{@link Predicate}</code> in ein <code>Pred</code>.
+     *         Wraps the given {@link Predicate} into a {@code Pred}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code predicate} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param predicate Das einzupackende <code>Predicate</code>
-     * @param <A> Typ des Arguments
-     * @return Das neue <code>Pred</code>
+     * @param predicate the predicate to wrap; must not be {@code null}
+     * @param <A>       the input type
+     * @return a {@code Pred} delegating to {@code predicate}
      *
-     * @throws NullPointerException Wenn <code>predicate &#61;&#61; null</code>
+     * @throws NullPointerException if {@code predicate} is {@code null}
      *
      * @since 1.0.0
      */
@@ -114,13 +115,18 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Negiert das gegebene <code>Pred</code>.
+     *         Returns the logical negation of the given {@code Pred}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code predicate} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param predicate Das zu negierende <code>Pred</code>
-     * @param <A> Typ des Arguments
-     * @return Das negierte <code>Pred</code>
+     * @param predicate the predicate to negate; must not be {@code null}
+     * @param <A>       the input type
+     * @return a predicate representing {@code NOT predicate}
+     *
+     * @throws NullPointerException if {@code predicate} is {@code null}
      *
      * @since 1.0.0
      */
@@ -132,15 +138,21 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Erzeugt ein <code>Pred</code> aus der UND-Verkn&uuml;pfung der gegebenen Pr&auml;dikate.
+     *         Returns the logical conjunction of all provided predicates:
+     *         {@code first AND second AND ... others}.
+     *     </p>
+     *     <p>
+     *         Contract: all predicates must not be {@code null}. Short‑circuits from left to right.
      *     </p>
      * </div>
      *
-     * @param first Das erste Pr&auml;dikat
-     * @param second Das zweite Pr&auml;dikat
-     * @param others Weitere Pr&auml;dikate
-     * @return Das Ergebnis der UND-Verkn&uuml;pfung
-     * @param <A> Typ des Pr&auml;dikats
+     * @param first  the first predicate; must not be {@code null}
+     * @param second the second predicate; must not be {@code null}
+     * @param others additional predicates; must not be {@code null}
+     * @param <A>    the input type
+     * @return the conjunction of all predicates
+     *
+     * @throws NullPointerException if any predicate array or element is {@code null}
      *
      * @since 1.0.0
      */
@@ -163,15 +175,21 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Erzeugt ein <code>Pred</code> aus der ODER-Verkn&uuml;pfung der gegebenen Pr&auml;dikate.
+     *         Returns the logical disjunction of all provided predicates:
+     *         {@code first OR second OR ... others}.
+     *     </p>
+     *     <p>
+     *         Contract: all predicates must not be {@code null}. Short‑circuits from left to right.
      *     </p>
      * </div>
      *
-     * @param first Das erste Pr&auml;dikat
-     * @param second Das zweite Pr&auml;dikat
-     * @param others Weitere Pr&auml;dikate
-     * @return Das Ergebnis der ODER-Verkn&uuml;pfung
-     * @param <A> Typ des Pr&auml;dikats
+     * @param first  the first predicate; must not be {@code null}
+     * @param second the second predicate; must not be {@code null}
+     * @param others additional predicates; must not be {@code null}
+     * @param <A>    the input type
+     * @return the disjunction of all predicates
+     *
+     * @throws NullPointerException if any predicate array or element is {@code null}
      *
      * @since 1.0.0
      */
@@ -194,15 +212,21 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Erzeugt ein <code>Pred</code> aus der exklusiven ODER-Verkn&uuml;pfung der gegebenen Pr&auml;dikate.
+     *         Returns the exclusive OR of all provided predicates, implemented as a left‑to‑right fold of XOR:
+     *         {@code (((first XOR second) XOR ...) XOR others[n])}.
+     *     </p>
+     *     <p>
+     *         Contract: all predicates must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param first Das erste Pr&auml;dikat
-     * @param second Das zweite Pr&auml;dikat
-     * @param others Weitere Pr&auml;dikate
-     * @return Das Ergebnis der exklusiven ODER-Verkn&uuml;pfung
-     * @param <A> Typ des Pr&auml;dikats
+     * @param first  the first predicate; must not be {@code null}
+     * @param second the second predicate; must not be {@code null}
+     * @param others additional predicates; must not be {@code null}
+     * @param <A>    the input type
+     * @return the XOR combination of all predicates
+     *
+     * @throws NullPointerException if any predicate array or element is {@code null}
      *
      * @since 1.0.0
      */
@@ -225,12 +249,15 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat f&uuml;r das gegebene Argument aus.
+     *         Evaluates this predicate for the given input.
+     *     </p>
+     *     <p>
+     *         Contract: {@code a} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param a Das Eingabe-Argument
-     * @return <code>true</code> oder <code>false</code>
+     * @param a the input value; must not be {@code null}
+     * @return {@code true} or {@code false}
      *
      * @since 1.0.0
      */
@@ -240,11 +267,11 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Negiert dieses <code>Pred</code>.
+     *         Returns the logical negation of this predicate.
      *     </p>
      * </div>
      *
-     * @return Das negierte <code>Pred</code>
+     * @return the negated predicate
      *
      * @since 1.0.0
      */
@@ -257,12 +284,15 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine UND-Verkn&uuml;pfung mit einem anderen <code>Pred</code> durch.
+     *         Returns the logical conjunction of this predicate and {@code other}.
+     *         Short‑circuits: {@code other} is evaluated only if {@code this.test(a)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred</code>
-     * @return Die UND-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this AND other}
+     *
+     * @throws NullPointerException if {@code other} is {@code null}
      *
      * @since 1.0.0
      */
@@ -275,12 +305,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine UND-Verkn&uuml;pfung mit einem <code>BoolSupplier</code> durch.
+     *         Performs a logical conjunction with a {@code BoolSupplier}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>BoolSupplier</code>
-     * @return Die UND-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the conjunction
      *
      * @since 1.0.0
      */
@@ -293,12 +324,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine UND-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code> durch.
+     *         Performs a logical conjunction with a {@link Supplier}{@code <Boolean>}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die UND-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the conjunction
      *
      * @since 1.0.0
      */
@@ -313,12 +345,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine NAND-Verkn&uuml;pfung mit einem anderen <code>Pred</code> durch.
+     *         Returns the logical NAND of this predicate and {@code other}.
+     *         Implemented as {@code NOT (this AND other)}; short‑circuiting follows {@code and}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code NOT (this AND other)}
      *
      * @since 1.0.0
      */
@@ -331,12 +364,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine NAND-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code> durch.
+     *         Returns the logical NAND with a {@link BooleanSupplier}.
+     *         Equivalent to {@code NOT (this AND boolSupplier)}; short‑circuits accordingly.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the NAND combination
      *
      * @since 1.0.0
      */
@@ -349,12 +383,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine ODER-Verkn&uuml;pfung mit einem anderen <code>Pred</code> durch.
+     *         Returns the logical NAND with a {@link Supplier}{@code <Boolean>}.
+     *         Equivalent to {@code NOT (this AND supplier.get())}; short‑circuits accordingly.
      *     </p>
      * </div>
      *
-     * @param supplier Das zu verkn&uuml;pfende <code>Pred</code>
-     * @return Die ODER-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the NAND combination
      *
      * @since 1.0.0
      */
@@ -369,12 +404,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine ODER-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code> durch.
+     *         Returns the logical disjunction of this predicate and {@code other}.
+     *         Short‑circuits: {@code other} is evaluated only if {@code this.test(a)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param other Der <code>BooleanSupplier</code>
-     * @return Die ODER-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this OR other}
      *
      * @since 1.0.0
      */
@@ -387,12 +423,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine ODER-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code> durch.
+     *         Performs a logical disjunction with a {@link BooleanSupplier}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die ODER-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the disjunction
      *
      * @since 1.0.0
      */
@@ -402,6 +439,19 @@ public interface Pred<A>
         return a -> (this.test(a) || boolSupplier.getAsBoolean());
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Performs a logical disjunction with a {@link Supplier}{@code <Boolean>}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a)} is {@code false}.
+     *     </p>
+     * </div>
+     *
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the disjunction
+     *
+     * @since 1.0.0
+     */
     @NonNull
     default Pred<A> or(final @NonNull Supplier<Boolean> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
@@ -413,12 +463,12 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine NOR-Verkn&uuml;pfung mit einem anderen <code>Pred</code> durch.
+     *         Returns the logical NOR of this predicate and {@code other} (negation of disjunction).
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code NOT (this OR other)}
      *
      * @since 1.0.0
      */
@@ -431,12 +481,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine NOR-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code> durch.
+     *         Returns the logical NOR with a {@link BooleanSupplier}.
+     *         Equivalent to {@code NOT (this OR boolSupplier)}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>BooleanSupplier</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the NOR combination
      *
      * @since 1.0.0
      */
@@ -449,12 +500,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine NOR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code> durch.
+     *         Returns the logical NOR with a {@link Supplier}{@code <Boolean>}.
+     *         Equivalent to {@code NOT (this OR supplier.get())}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the NOR combination
      *
      * @since 1.0.0
      */
@@ -469,12 +521,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine XOR-Verkn&uuml;pfung mit einem anderen <code>Pred</code> durch.
+     *         Returns the exclusive OR (XOR) of this predicate and {@code other}.
+     *         Implemented as {@code (this OR other) AND NOT (this AND other)}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this XOR other}
      *
      * @since 1.0.0
      */
@@ -487,12 +540,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine XOR-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code> durch.
+     *         Returns the exclusive OR (XOR) with a {@link BooleanSupplier}.
+     *         Implemented as {@code (this OR boolSupplier) AND NOT (this AND boolSupplier)}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>BooleanSupplier</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the XOR combination
      *
      * @since 1.0.0
      */
@@ -505,12 +559,13 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         F&uuml;hrt eine XOR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolean&gt;</code> durch.
+     *         Returns the exclusive OR (XOR) with a {@link Supplier}{@code <Boolean>}.
+     *         Implemented as {@code (this OR supplier.get()) AND NOT (this AND supplier.get())}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;Boolean&gt;</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return the XOR combination
      *
      * @since 1.0.0
      */
@@ -525,12 +580,15 @@ public interface Pred<A>
     /**
      * <div>
      *     <p>
-     *         Verz&ouml;gert die Auswertung des Pr&auml;dikats bis zur Ausf&uuml;hrung des <code>BooleanSupplier</code>.
+     *         Defers evaluation of this predicate until the input is supplied by the given {@link Supplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code supplier} must not be {@code null} and must not supply {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier Der <code>Supplier&lt;A&gt;</code>
-     * @return Ein <code>Callable</code>, der das Pr&auml;dikat auswertet
+     * @param supplier supplies the input value; must not be {@code null}
+     * @return a {@link Callable} that evaluates this predicate when called
      *
      * @since 1.0.0
      */

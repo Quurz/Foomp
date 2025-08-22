@@ -22,32 +22,29 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Die {@code Provider}-Schnittstelle stellt einen funktionalen Typ dar, der einen Wert des Typs {@code A}
- *         liefert und verschiedene Funktionalit&auml;ten f&uuml;r die funktionale Programmierung bereitstellt.
- *         Sie kombiniert Merkmale von Funktoren, Monaden und weiteren Konzepten, um eine vielseitige API
- *         f&uuml;r die Bereitstellung und Transformation von Werten zu erm&ouml;glichen.
+ *         The {@code Provider} interface represents a functional type that yields a value of type {@code A}
+ *         and exposes a focused set of functional programming utilities.
  *     </p>
  *     <p>
- *         Als funktionale Schnittstelle kann {@code Provider} direkt mit Lambda-Ausdr&uuml;cken oder Method-Referenzen verwendet werden.
- *         Ein {@code Provider} wird h&auml;ufig genutzt, um Werte zu kapseln, lazy zu evaluieren oder die
- *         Wiederverwendbarkeit und Transformation von Werten in einer funktionalen Weise zu erleichtern.
+ *         It combines traits typically associated with functors and monads to offer a versatile API
+ *         for providing and transforming values. As a functional interface, {@code Provider} can be used
+ *         directly with lambdas or method references. Common use cases include value encapsulation,
+ *         lazy evaluation, and reusable transformations in a functional style.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
  *     </p>
  * </div>
  *
- * <h2>Eigenschaften:</h2>
+ * <h2>Features</h2>
  * <ul>
- *     <li>Implementiert {@link Supplier}, um Werte bereitzustellen.</li>
- *     <li>Unterst&uuml;tzt Monaden-Operationen wie {@code map} und {@code bind}.</li>
- *     <li>Ist als {@link Fun}, {@link Value} und {@link Higher1} kompatibel.</li>
- *     <li>Bietet zus&auml;tzliche Funktionen wie {@code copy}, {@code unwind} und {@code transmogrify}.</li>
+ *     <li>Implements {@link Supplier} to provide values.</li>
+ *     <li>Supports monadic operations such as {@code map}, {@code lift}, and {@code bind}.</li>
+ *     <li>Integrates with {@link Fun}, {@link Value}, and {@link Higher1}.</li>
+ *     <li>Provides extras like {@code copy}, {@code unwind}, and {@code transmogrify}.</li>
  * </ul>
  *
- * <h2>Typparameter:</h2>
- * <ul>
- *     <li>{@code A} – der Typ des bereitgestellten Wertes.</li>
- * </ul>
- *
- * @param <A> der Typ des bereitgestellten Wertes
+ * @param <A> the provided value type
  *
  * @since 1.0.0
  *
@@ -67,7 +64,7 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Der Witness-Typ f&uuml;r <code>Provider</code>
+     *         The witness type for {@code Provider}.
      *     </p>
      * </div>
      *
@@ -78,14 +75,17 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Wandelt ein {@code Higher1}-Objekt in einen {@code Provider} um.
+     *         Narrows a {@link Higher1} instance to a {@code Provider}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code wide} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param wide das zu konvertierende {@code Higher1}-Objekt
-     * @param <A>  der Typ des bereitgestellten Wertes
-     * @return ein {@code Provider}-Objekt
-     * @throws NullPointerException falls {@code wide} {@code null} ist
+     * @param wide the higher‑kinded value to narrow; must not be {@code null}
+     * @param <A>  the provided value type
+     * @return a {@code Provider} instance
+     * @throws NullPointerException if {@code wide} is {@code null}
      *
      * @since 1.0.0
      */
@@ -97,14 +97,17 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Erstellt einen {@code Provider}, der stets den angegebenen Wert zur&uuml;ckgibt.
+     *         Creates a {@code Provider} that always returns the given value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der Wert, der bereitgestellt wird
-     * @param <A>   der Typ des Wertes
-     * @return ein {@code Provider}, der den angegebenen Wert liefert
-     * @throws NullPointerException falls {@code value} {@code null} ist
+     * @param value the value to provide; must not be {@code null}
+     * @param <A>   the value type
+     * @return a {@code Provider} yielding {@code value}
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -116,14 +119,17 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Erstellt einen {@code Provider}, der den Wert von einem {@code Supplier} bezieht.
+     *         Creates a {@code Provider} that obtains its value from the given {@link Supplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code supplier} must not be {@code null} and must not supply {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier die Quelle des Wertes
-     * @param <A>      der Typ des bereitgestellten Wertes
-     * @return ein {@code Provider}, der Werte aus dem {@code Supplier} bezieht
-     * @throws NullPointerException falls {@code supplier} oder der von ihm gelieferte Wert {@code null} ist
+     * @param supplier the source of the value; must not be {@code null}
+     * @param <A>      the provided value type
+     * @return a {@code Provider} that pulls values from {@code supplier}
+     * @throws NullPointerException if {@code supplier} is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -135,11 +141,11 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob der Provider einen g&uuml;ltigen Wert enth&auml;lt.
+     *         Indicates whether a valid value is present.
      *     </p>
      * </div>
      *
-     * @return immer {@code true}, da ein {@code Provider} per Definition einen Wert enth&auml;lt
+     * @return always {@code true}; by definition a {@code Provider} carries a value
      *
      * @since 1.0.0
      */
@@ -151,11 +157,11 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Gibt den gespeicherten Wert zur&uuml;ck.
+     *         Returns the stored value.
      *     </p>
      * </div>
      *
-     * @return der gespeicherte Wert
+     * @return the stored value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -167,17 +173,16 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Wendet diese Funktion auf das gegebene {@link Nothing}-Argument an und gibt das gespeicherte Ergebnis zur&uuml;ck.
+     *         Applies this function to the given {@link Nothing} placeholder and returns the stored value.
      *     </p>
      *     <p>
-     *         Diese Methode erzwingt die Evaluation des gespeicherten Werts, falls er noch nicht berechnet wurde.
-     *         Da {@link Nothing} keine tats&auml;chlichen Werte enth&auml;lt, dient es hier lediglich als Platzhalter.
+     *         Contract: {@code nothing} must not be {@code null}; the stored value must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param nothing der Platzhalterwert {@link Nothing}; darf nicht {@code null} sein
-     * @return der gespeicherte Wert dieses {@code Provider}-Objekts
-     * @throws NullPointerException wenn {@code nothing} oder der gespeicherte Wert {@code null} ist
+     * @param nothing the {@link Nothing} placeholder; must not be {@code null}
+     * @return the stored value
+     * @throws NullPointerException if {@code nothing} is {@code null} or if the stored value is {@code null}
      *
      * @since 1.0.0
      */
@@ -192,14 +197,17 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Wendet die Funktion auf den gespeicherten Wert an und gibt das Ergebnis als neuen {@code Provider} zur&uuml;ck.
+     *         Maps the stored value using the given transformation and returns a new {@code Provider}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die Transformationsfunktion
-     * @param <B>  der neue Typ des Wertes
-     * @return ein neuer {@code Provider} mit dem transformierten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis {@code null} ist
+     * @param transformation the mapping function; must not be {@code null}
+     * @param <B>            the resulting value type
+     * @return a new {@code Provider} with the transformed value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -213,14 +221,17 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Hebt eine Funktion in den Kontext eines {@code Provider} an und wendet sie an.
+     *         Lifts a function into the {@code Provider} context and applies it to the stored value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must carry a non‑null function.
      *     </p>
      * </div>
      *
-     * @param transformation die Funktion, die in den Kontext eines {@code Provider} gehoben wurde
-     * @param <B>   der Ergebnis-Typ
-     * @return ein neuer {@code Provider} mit dem transformierten Wert
-     * @throws NullPointerException falls {@code liftA} oder die enthaltene Funktion {@code null} ist
+     * @param transformation a {@code Provider}-wrapped function to apply; must not be {@code null}
+     * @param <B>            the resulting value type
+     * @return a new {@code Provider} with the transformed value
+     * @throws NullPointerException if {@code transformation} is {@code null} or carries a {@code null} function
      *
      * @since 1.0.0
      */
@@ -236,13 +247,17 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Wendet eine monadische Transformation an und gibt das Ergebnis als neuen {@code Provider} zur&uuml;ck.
+     *         Applies a monadic transformation and returns the resulting {@code Provider}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null}; the returned higher‑kinded value
+     *         must narrow to a non‑null {@code Provider} whose {@code get()} must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die monadische Transformationsfunktion
-     * @param <B>   der Ergebnis-Typ
-     * @return ein neuer {@code Provider} mit dem transformierten Wert
+     * @param transformation the monadic transformation
+     * @param <B>            the resulting value type
+     * @return a new {@code Provider} with the transformed value
      *
      * @since 1.0.0
      */
@@ -256,11 +271,15 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine exakte Kopie dieses {@code Provider}.
+     *         Creates an exact copy of this {@code Provider}.
+     *     </p>
+     *     <p>
+     *         Semantics: this default implementation returns a new instance delegating to {@code get()}.
+     *         Implementations may override to control evaluation (lazy vs. eager) or copying strategy.
      *     </p>
      * </div>
      *
-     * @return eine neue Instanz des {@code Provider}, die denselben Wert liefert
+     * @return a new {@code Provider} instance yielding the same value
      *
      * @since 1.0.0
      */
@@ -275,14 +294,17 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Transformiert diesen {@code Provider} mithilfe der angegebenen Funktion.
+     *         Transforms this {@code Provider} using the given function.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transmogrifier} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transmogrifier die Transformationsfunktion
-     * @param <T>            der Ergebnis-Typ der Transformation
-     * @return das transformierte Objekt
-     * @throws NullPointerException falls {@code transmogrifier} {@code null} ist oder ein {@code null}-Ergebnis liefert
+     * @param transmogrifier the transformation function; must not be {@code null}
+     * @param <T>            the result type
+     * @return the transformed object
+     * @throws NullPointerException if {@code transmogrifier} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -296,11 +318,14 @@ public interface Provider<A>
     /**
      * <div>
      *     <p>
-     *         Wickelt diesen {@code Provider} ab und liefert eine nicht-lazy evaluierte Version.
+     *         Unwinds this {@code Provider} and returns an eagerly evaluated representation.
+     *     </p>
+     *     <p>
+     *         Contract: the stored value must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @return ein neuer {@code Provider}, der den aktuellen Wert enth&auml;lt
+     * @return a new {@code Provider} containing the current value
      *
      * @since 1.0.0
      */

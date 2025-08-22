@@ -15,14 +15,18 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Ein zweistelliges Pr&auml;dikat <code>f:A1 &#x2715; A2 &#x21A6; {true, false}</code>
+ *         A binary predicate <code>f: A1 × A2 → {true, false}</code>.
+ *     </p>
+ *     <p>
+ *         Contract: inputs must not be {@code null}. Combinators use short‑circuit evaluation
+ *         where applicable (e.g., {@code and}, {@code or}, {@code implies}).
  *     </p>
  * </div>
  *
  * @see BiPredicate
  *
- * @param <A1> Typ des ersten Arguments
- * @param <A2> Typ des zweiten Arguments
+ * @param <A1> the type of the first argument
+ * @param <A2> the type of the second argument
  *
  * @since 1.0.0
  *
@@ -36,16 +40,19 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Verpackt das gegebene <code>{@link BiPredicate}</code> in ein <code>Pred</code>
+     *         Wraps the given {@link BiPredicate} into a {@code Pred2}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code biPredicate} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param biPredicate Das einzupackende <code>BiPredicate</code>
-     * @param <A1> Typ des ersten Arguments
-     * @param <A2> Typ des zweiten Arguments
-     * @return Das neue <code>Pred2</code>
+     * @param biPredicate the predicate to wrap; must not be {@code null}
+     * @param <A1>        the first argument type
+     * @param <A2>        the second argument type
+     * @return a {@code Pred2} delegating to {@code biPredicate}
      *
-     * @throws NullPointerException Falls <code>function &#61;&#61; null</code>
+     * @throws NullPointerException if {@code biPredicate} is {@code null}
      *
      * @since 1.0.0
      */
@@ -56,15 +63,20 @@ public interface Pred2<A1, A2>
 
     /**
      * <div>
-     *     <P>
-     *         Negiert das gegebene <code>Pred2</code>
-     *     </P>
+     *     <p>
+     *         Returns the logical negation of the given {@code Pred2}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code pred2} must not be {@code null}.
+     *     </p>
      * </div>
      *
-     * @param pred2 Das zu negierende <code>BiPredicate</code>
-     * @param <A1> Typ des ersten Arguments
-     * @param <A2> Typ des zweiten Arguments
-     * @return Das negierte <code>Pred</code>
+     * @param pred2 the predicate to negate; must not be {@code null}
+     * @param <A1>  the first argument type
+     * @param <A2>  the second argument type
+     * @return a predicate representing {@code NOT pred2}
+     *
+     * @throws NullPointerException if {@code pred2} is {@code null}
      *
      * @since 1.0.0
      */
@@ -76,13 +88,16 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat f&uuml;r die gegebenen Argumente aus
+     *         Evaluates this predicate for the given inputs.
+     *     </p>
+     *     <p>
+     *         Contract: inputs must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param a1 Das erste Eingabe-Argument
-     * @param a2 Das zweite Eingabe-Argument
-     * @return <code>true</code> oder <code>false</code>
+     * @param a1 the first input; must not be {@code null}
+     * @param a2 the second input; must not be {@code null}
+     * @return {@code true} or {@code false}
      *
      * @since 1.0.0
      */
@@ -93,29 +108,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Negiert dieses <code>Pred2</code>
+     *         Returns the logical conjunction of this predicate and {@code other}.
+     *         Short‑circuits: {@code other} is evaluated only if {@code this.test(a1, a2)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @return Das negierte <code>Pred2</code>
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this AND other}
      *
-     * @since 1.0.0
-     */
-    @Override
-    @NonNull
-    default Pred2<A1, A2> negate() {
-        return not(this);
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         AND-Verkn&uuml;pfung mit einem anderen <code>Pred2</code>
-     *     </p>
-     * </div>
-     *
-     * @param other Das zu verkn&uuml;pfende <code>Pred2</code>
-     * @return Die AND-Verkn&uuml;pfung
+     * @throws NullPointerException if {@code other} is {@code null}
      *
      * @since 1.0.0
      */
@@ -128,12 +129,13 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         AND-Verkn&uuml;pfung mit einem <code>BooleanSupplier</code>
+     *         Logical conjunction with a {@link BooleanSupplier}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @param booleanSupplier Der <code>BooleanSupplier</code>
-     * @return Die AND-Verkn&uuml;pfung
+     * @param booleanSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this AND booleanSupplier}
      *
      * @since 1.0.0
      */
@@ -146,12 +148,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         AND-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolen&gt;</code>
+     *         Logical conjunction with a {@link Supplier}{@code <Boolean>}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2)} is {@code true}.
      *     </p>
      * </div>
      *
-     * @param supplier <code>Supplier&lt;Boolen&gt;</code>
-     * @return Die AND-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this AND supplier.get()}
+     *
+     * @throws NullPointerException if {@code supplier} is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -166,12 +171,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         NAND-Verkn&uuml;pfung mit einem anderen <code>Pred2</code>
+     *         Returns the logical NAND of this predicate and {@code other}.
+     *         Implemented as {@code NOT (this AND other)}; short‑circuiting follows {@code and}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred2</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code NOT (this AND other)}
+     *
+     * @throws NullPointerException if {@code other} is {@code null}
      *
      * @since 1.0.0
      */
@@ -184,12 +192,14 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         NAND-Verkn&uuml;pfung mit einem <code>BoolSupplier</code>
+     *         Logical NAND with a {@link BooleanSupplier}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>BoolSupplier</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this AND boolSupplier)}
+     *
+     * @throws NullPointerException if {@code boolSupplier} is {@code null}
      *
      * @since 1.0.0
      */
@@ -202,12 +212,14 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         NAND-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolen&gt;</code>
+     *         Logical NAND with a {@link Supplier}{@code <Boolean>}.
      *     </p>
      * </div>
      *
-     * @param supplier <code>Supplier&lt;Boolen&gt;</code>
-     * @return Die NAND-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this AND supplier.get())}
+     *
+     * @throws NullPointerException if {@code supplier} is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -222,12 +234,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         OR-Verkn&uuml;pfung mit einem anderen <code>Pred2</code>
+     *         Returns the logical disjunction of this predicate and {@code other}.
+     *         Short‑circuits: {@code other} is evaluated only if {@code this.test(a1, a2)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred2</code>
-     * @return Die OR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this OR other}
+     *
+     * @throws NullPointerException if {@code other} is {@code null}
      *
      * @since 1.0.0
      */
@@ -240,12 +255,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         OR-Verkn&uuml;pfung mit einem <code>BoolSupplier</code>
+     *         Logical disjunction with a {@link BooleanSupplier}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>BoolSupplier</code>
-     * @return Die OR-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this OR boolSupplier}
+     *
+     * @throws NullPointerException if {@code boolSupplier} is {@code null}
      *
      * @since 1.0.0
      */
@@ -258,12 +276,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         OR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolen&gt;</code>
+     *         Logical disjunction with a {@link Supplier}{@code <Boolean>}.
+     *         Short‑circuits: the supplier is invoked only if {@code this.test(a1, a2)} is {@code false}.
      *     </p>
      * </div>
      *
-     * @param supplier <code>Supplier&lt;Boolen&gt;</code>
-     * @return Die OR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this OR supplier.get()}
+     *
+     * @throws NullPointerException if {@code supplier} is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -278,12 +299,14 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         NOR-Verkn&uuml;pfung mit einem anderen <code>Pred2</code>
+     *         Logical NOR of this predicate and {@code other} (negation of disjunction).
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred2</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code NOT (this OR other)}
+     *
+     * @throws NullPointerException if {@code other} is {@code null}
      *
      * @since 1.0.0
      */
@@ -296,12 +319,14 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         NOR-Verkn&uuml;pfung mit einem <code>BoolSupplier</code>
+     *         Logical NOR with a {@link BooleanSupplier}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>BoolSupplier</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this OR boolSupplier)}
+     *
+     * @throws NullPointerException if {@code boolSupplier} is {@code null}
      *
      * @since 1.0.0
      */
@@ -314,12 +339,16 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         NOR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolen&gt;</code>
+     *         Logical NOR with a {@link Supplier}{@code <Boolean>}.
      *     </p>
      * </div>
      *
-     * @param supplier <code>Supplier&lt;Boolen&gt;</code>
-     * @return Die NOR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code NOT (this OR supplier.get())}
+     *
+     * @throws NullPointerException if {@code supplier} is {@code null} or supplies {@code null}
+     *
+     * @since 1.0.0
      */
     @NonNull
     default Pred2<A1, A2> nor(@NonNull final Supplier<Boolean> supplier) {
@@ -332,12 +361,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         XOR-Verkn&uuml;pfung mit einem anderen <code>Pred2</code>
+     *         Exclusive OR of this predicate and {@code other}.
+     *         Implemented as {@code (this OR other) AND NOT (this AND other)}.
      *     </p>
      * </div>
      *
-     * @param other Das zu verkn&uuml;pfende <code>Pred2</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param other the predicate to combine with; must not be {@code null}
+     * @return a predicate representing {@code this XOR other}
+     *
+     * @throws NullPointerException if {@code other} is {@code null}
      *
      * @since 1.0.0
      */
@@ -350,12 +382,15 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         XOR-Verkn&uuml;pfung mit einem <code>BoolSupplier</code>
+     *         Exclusive OR with a {@link BooleanSupplier}.
+     *         Implemented as {@code (this OR boolSupplier) AND NOT (this AND boolSupplier)}.
      *     </p>
      * </div>
      *
-     * @param boolSupplier Der <code>BoolSupplier</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param boolSupplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this XOR boolSupplier}
+     *
+     * @throws NullPointerException if {@code boolSupplier} is {@code null}
      *
      * @since 1.0.0
      */
@@ -368,12 +403,14 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         XOR-Verkn&uuml;pfung mit einem <code>Supplier&lt;Boolen&gt;</code>
+     *         Exclusive OR with a {@link Supplier}{@code <Boolean>}.
      *     </p>
      * </div>
      *
-     * @param supplier <code>Supplier&lt;Boolen&gt;</code>
-     * @return Die XOR-Verkn&uuml;pfung
+     * @param supplier supplies the right‑hand boolean; must not be {@code null}
+     * @return a predicate representing {@code this XOR supplier.get()}
+     *
+     * @throws NullPointerException if {@code supplier} is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -388,12 +425,14 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat partiell f&uuml;r das erste Argument aus
+     *         Partially evaluates this predicate by supplying the first argument.
      *     </p>
      * </div>
      *
-     * @param supplier Lieferant f&uuml;r das erste Argument
-     * @return Ein Pr&auml;dikat <code>f:A2 &#x21A6; {true, false}</code>
+     * @param supplier supplies the first argument; must not be {@code null}
+     * @return a unary predicate {@code f: A2 → {true, false}}
+     *
+     * @throws NullPointerException if {@code supplier} is {@code null}
      *
      * @since 1.0.0
      */
@@ -406,12 +445,14 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Wertet das Pr&auml;dikat partiell f&uuml;r das zweite Argument aus
+     *         Partially evaluates this predicate by supplying the second argument.
      *     </p>
      * </div>
      *
-     * @param supplier Lieferant f&uuml;r das zweite Argument
-     * @return Eine Funktion <code>f:A1 &#x21A6; {true, false}</code>
+     * @param supplier supplies the second argument; must not be {@code null}
+     * @return a unary predicate {@code f: A1 → {true, false}}
+     *
+     * @throws NullPointerException if {@code supplier} is {@code null}
      *
      * @since 1.0.0
      */
@@ -424,15 +465,19 @@ public interface Pred2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Verz&ouml;gert die Auswertung des Pr&auml;dikats, bis beide Argumente
-     *         durch die angegebenen {@link Supplier} bereitgestellt werden.
+     *         Delays the evaluation of this predicate until both inputs are
+     *         supplied by the given {@link Supplier}s.
+     *     </p>
+     *     <p>
+     *         Contract: suppliers must not be {@code null} and must not supply {@code null}.
      *     </p>
      * </div>
      *
-     * @param supplier1 Lieferant f&uuml;r das erste Argument
-     * @param supplier2 Lieferant f&uuml;r das zweite Argument
-     * @return Ein {@link Callable}, das das Pr&auml;dikat auswertet, sobald es aufgerufen wird.
-     * @throws NullPointerException Wenn einer der {@link Supplier} oder deren bereitgestellter Wert <code>null</code> ist.
+     * @param supplier1 supplies the first input; must not be {@code null}
+     * @param supplier2 supplies the second input; must not be {@code null}
+     * @return a deferred computation of this predicate
+     *
+     * @throws NullPointerException if any argument is {@code null} or any supplier supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -443,9 +488,9 @@ public interface Pred2<A1, A2>
         Objects.requireNonNull(supplier1, nullValue("supplier1"));
         Objects.requireNonNull(supplier2, nullValue("supplier2"));
         return () -> this.test(
-                        Objects.requireNonNull(supplier1.get(), nullSupplied()),
-                        Objects.requireNonNull(supplier2.get(), nullSupplied())
-                     );
+                Objects.requireNonNull(supplier1.get(), nullSupplied()),
+                Objects.requireNonNull(supplier2.get(), nullSupplied())
+        );
     }
 
 }
