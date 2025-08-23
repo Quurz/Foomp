@@ -1,4 +1,4 @@
-package org.quurz.foomp.base.util.async;
+package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun2;
@@ -29,7 +29,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nonPositiveValue;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
-// TODO: Komplett neu implementieren -> ExecutionContext -> In eigenes Package 'async' verschieben
+// TODO: Komplett neu implementieren -> ExecutionContext
 
 /**
  * <div>

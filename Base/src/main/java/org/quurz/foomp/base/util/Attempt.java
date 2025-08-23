@@ -24,13 +24,18 @@ import static org.quurz.foomp.base.util.Result.success;
 /**
  * <div>
  *     <p>
- *         An implementation of an error monad that enables lazy evaluation of computations
- *         and safe handling of exceptions.
+ *         A lazy error monad for computations that may succeed with a value or fail with an exception.
  *     </p>
  *     <p>
- *         The class {@code Attempt<A>} stores either a successful value of type {@code A}
- *         or an exception that occurred during computation. It provides methods for
- *         transformation, error handling and safe processing of the contained values.
+ *         An {@code Attempt<A>} defers evaluation by storing a supplier of {@link Result}{@code <A>}.
+ *         On evaluation, it produces either a {@code Result.Success<A>} or a {@code Result.Failure<A>}.
+ *         The API provides transformations, error handling, and safe processing while preserving laziness
+ *         where possible.
+ *     </p>
+ *     <p>
+ *         Contract: unless stated otherwise, inputs must not be {@code null}. Transformations should not
+ *         return {@code null}. Exceptions thrown by user-provided functions are captured and represented
+ *         as failures.
  *     </p>
  * </div>
  *
@@ -48,8 +53,8 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         A marker type (witness) that represents {@code Attempt} within the type hierarchy.
-     *         This type is used to simulate Higher-Kinded Types in Java.
+     *         Marker type (witness) representing {@code Attempt} in higher‑kinded encodings.
+     *         Enables type‑safe simulation of Higher‑Kinded Types in Java.
      *     </p>
      * </div>
      *
@@ -58,12 +63,19 @@ public final class Attempt<A>
     public static final class µ implements WitnessType { private µ() {} }
 
     /**
-     * Converts an instance of {@link Higher1} into a concrete {@code Attempt} instance.
+     * <div>
+     *     <p>
+     *         Narrows a {@link Higher1} value to a concrete {@code Attempt}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code wide} must not be {@code null}.
+     *     </p>
+     * </div>
      *
-     * @param wide the object to be converted into {@code Attempt}
-     * @param <A> the type of the contained value
+     * @param wide the higher‑kinded value to narrow; must not be {@code null}
+     * @param <A>  the carried value type
      * @return an {@code Attempt} instance
-     * @throws NullPointerException if {@code wide} is null
+     * @throws NullPointerException if {@code wide} is {@code null}
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
@@ -74,14 +86,17 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Creates a successful {@code Attempt} instance with the given value.
+     *         Creates a successful {@code Attempt} with the given value.
+     *     </p>
+     *     <p>
+     *         The computation is stored lazily and will yield {@code Success(value)} when evaluated.
      *     </p>
      * </div>
      *
-     * @param value the value to be stored
-     * @param <A> the type of the contained value
-     * @return a successful {@code Attempt} instance
-     * @throws NullPointerException if {@code value} is null
+     * @param value the value to store; must not be {@code null}
+     * @param <A>   the carried value type
+     * @return a successful {@code Attempt}
+     * @throws NullPointerException if {@code value} is {@code null}
      * @since 1.0.0
      */
     public static <A> Attempt<A> attempt(final @NonNull A value) {
@@ -99,35 +114,39 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Executes the encapsulated computation and returns the result.
+     *         Evaluates the deferred computation and returns its {@link Result}.
      *     </p>
      *     <p>
-     *         This method "unwinds" the lazily stored computation and returns the
-     *         result as a {@link Result}. It can be called multiple times.
+     *         This method “unwinds” the lazy computation and is safe to call multiple times; it does not throw,
+     *         but returns failures as {@code Result.Failure}.
      *     </p>
      * </div>
      *
-     * @return the result of the computation as {@link Result}
+     * @return the evaluation outcome as {@link Result}
      *
      * @since 1.0.0
      */
     @Override
     @UnwindingOperation
-    public Result<A> tryIt() {
+    public @NonNull Result<A> tryIt() {
         return this.spool.get();
     }
 
     /**
      * <div>
      *     <p>
-     *         Executes a recovery action if the computation fails, and returns
-     *         a new {@code Attempt} with the recovery value.
+     *         Specifies a lazy recovery path if evaluation fails, using the given supplier.
+     *     </p>
+     *     <p>
+     *         Recovery is attempted only when the computation is evaluated and only in the failure case.
+     *         If the supplier throws or yields {@code null}, the resulting failure will contain that exception
+     *         (with the original exception added as suppressed in case of {@link NullPointerException}).
      *     </p>
      * </div>
      *
-     * @param recover a supplier that provides the recovery value
-     * @return a new {@code Attempt} with either the original or the recovery value
-     * @throws NullPointerException if {@code recover} is null
+     * @param recover supplies the recovery value; must not be {@code null}
+     * @return an {@code Attempt} that yields either the original success or the recovery value
+     * @throws NullPointerException if {@code recover} is {@code null}
      *
      * @since 1.0.0
      */
@@ -148,6 +167,11 @@ public final class Attempt<A>
                             nullPointerException.addSuppressed(failure.getException());
                             result
                                 = failure(nullPointerException);
+                        } catch (final Exception exception) {
+                            // Preserve original failure context
+                            exception.addSuppressed(failure.getException());
+                            result
+                                = failure(exception);
                         }
                         yield result;
                     }
@@ -158,15 +182,17 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Performs recovery if an exception is stored.
-     *         Recovery is done using a function that processes the exception
-     *         and provides a new value.
+     *         Specifies a lazy recovery function if evaluation fails.
+     *     </p>
+     *     <p>
+     *         The function receives the stored exception and returns a recovery value.
+     *         If it throws or returns {@code null}, the resulting failure contains the thrown exception.
      *     </p>
      * </div>
      *
-     * @param recover a function that processes the exception and provides a recovery value
-     * @return a new {@code Attempt} instance with either the original or recovered value
-     * @throws NullPointerException if the function is {@code null} or returns {@code null}
+     * @param recover maps the exception to a recovery value; must not be {@code null}
+     * @return an {@code Attempt} yielding either the original success or the recovered value
+     * @throws NullPointerException if {@code recover} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -183,6 +209,8 @@ public final class Attempt<A>
                         result
                             = success(value);
                     } catch (final Exception exception) {
+                        // Preserve original failure context
+                        exception.addSuppressed(failure.getException());
                         result
                             = failure(exception);
                     }
@@ -195,13 +223,15 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Attempts to extract the stored value. However, if the computation failed,
-     *         the stored exception is thrown.
+     *         Unwinds this computation, throwing the stored exception on failure.
+     *     </p>
+     *     <p>
+     *         If successful, returns {@code this} unchanged. Otherwise, throws the stored exception.
      *     </p>
      * </div>
      *
-     * @return this {@code Attempt} instance if successful
-     * @throws Exception the stored exception if the computation failed
+     * @return this {@code Attempt} if successful
+     * @throws Exception the stored exception if evaluation fails
      *
      * @since 1.0.0
      */
@@ -218,21 +248,16 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Registers an action to be executed if this {@code Attempt} fails.
+     *         Registers a lazy side effect to be executed if evaluation fails.
      *     </p>
      *     <p>
-     *         This method is <em>lazy</em>: The provided {@link Consumer} is only called upon
-     *         first access to the result (e.g., through {@code isSuccess()}, {@code get()}
-     *         or {@code toString()}) - and only if the result actually fails.
-     *     </p>
-     *     <p>
-     *         The method doesn't modify the result but returns a new {@code Attempt}
-     *         that will execute the given action in case of failure during evaluation.
+     *         The consumer is invoked during evaluation and only for failures. The returned
+     *         {@code Attempt} preserves laziness and does not modify the underlying result.
      *     </p>
      * </div>
      *
-     * @param failureConsumer an action that accepts the {@link Exception} value in case of failure
-     * @return an {@code Attempt} that executes the action during evaluation in case of failure
+     * @param failureConsumer consumes the failure exception; must not be {@code null}
+     * @return an {@code Attempt} that will run the side effect on failure during evaluation
      * @throws NullPointerException if {@code failureConsumer} is {@code null}
      *
      * @since 1.0.0
@@ -240,33 +265,28 @@ public final class Attempt<A>
     public Attempt<A> peekFailureLazy(final @NonNull Consumer<? super Exception> failureConsumer) {
         Objects.requireNonNull(failureConsumer, nullValue("peek"));
         return new Attempt<>(
-                () -> switch (this.spool.get()) {
-                    case Result.Success<A> success -> success;
-                    case Result.Failure<A> failure -> {
-                        failureConsumer.accept(failure.getException());
-                        yield failure;
-                    }
+            () -> switch (this.spool.get()) {
+                case Result.Success<A> success -> success;
+                case Result.Failure<A> failure -> {
+                    failureConsumer.accept(failure.getException());
+                    yield failure;
                 }
+            }
         );
     }
 
     /**
      * <div>
      *     <p>
-     *         Immediately executes an action if the stored result contains an exception.
+     *         Executes a side effect immediately if the current state is failure.
      *     </p>
      *     <p>
-     *         This method is <em>eager</em>: The provided {@link Consumer} is executed
-     *         immediately when this method is called - but only if an error exists.</p>
-     *     </p>
-     *     <p>
-     *         The method returns the same {@code Attempt} instance without modifying
-     *         its state.
+     *         Eager variant: evaluates now and returns {@code this} unchanged.
      *     </p>
      * </div>
      *
-     * @param failureConsumer an action that is called with the stored {@link Exception}
-     * @return the same {@code Attempt} instance
+     * @param failureConsumer consumes the failure exception; must not be {@code null}
+     * @return this {@code Attempt}
      * @throws NullPointerException if {@code failureConsumer} is {@code null}
      *
      * @since 1.0.0
@@ -285,16 +305,17 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Applies a function to the stored value and returns a new {@code Attempt} with
-     *         the result of the function. If an exception occurs during the application of the function,
-     *         it is stored in the new instance.
+     *         Maps the successful value using the given function and captures thrown exceptions as failures.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation a function for transforming the value
-     * @param <B> the type of the function's result
-     * @return a new {@code Attempt} with the transformed value or a stored exception
-     * @throws NullPointerException if the function is {@code null} or returns {@code null}
+     * @param transformation mapping function for the success value; must not be {@code null}
+     * @param <B>            the target type
+     * @return a new {@code Attempt} with the transformed value or a failure
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -305,14 +326,14 @@ public final class Attempt<A>
         Objects.requireNonNull(transformation, nullValue("fMap"));
         return new Attempt<>(
             () -> switch (this.spool.get()) {
-                    case Result.Success<A> success -> {
-                        try {
-                            yield success(Objects.requireNonNull(transformation.apply(success.get()), nullResultFrom("fMap")));
-                        } catch (final Exception exception) {
-                            yield (Result<B>) failure(exception);
-                        }
+                case Result.Success<A> success -> {
+                    try {
+                        yield success(Objects.requireNonNull(transformation.apply(success.get()), nullResultFrom("fMap")));
+                    } catch (final Exception exception) {
+                        yield (Result<B>) failure(exception);
                     }
-                    case Result.Failure<A> failure -> (Result<B>) failure;
+                }
+                case Result.Failure<A> failure -> (Result<B>) failure;
             }
         );
     }
@@ -320,20 +341,17 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Performs a transformation on the stored value using an {@link Applicable} instance.
-     *         If an exception is thrown during application, it is stored as a failure
-     *         in the new {@code Attempt}.
+     *         Maps the successful value using an {@link Applicable} transformation, capturing exceptions as failures.
      *     </p>
      *     <p>
-     *         This variant of the {@code map} operation supports unchecked exceptions in the transformation
-     *         and is therefore intended for unsafe environments.
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation an {@link Applicable} instance for transforming the value
-     * @param <B> the type of the new value
-     * @return a new {@code Attempt} with transformed value or an error
-     * @throws NullPointerException if the transformation is {@code null} or returns {@code null}
+     * @param transformation the applicable to apply; must not be {@code null}
+     * @param <B>            the target type
+     * @return a new {@code Attempt} with the transformed value or a failure
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -342,31 +360,33 @@ public final class Attempt<A>
     public @NonNull <B> Attempt<B> mapUnsafe(final @NonNull Applicable<? super A, ? extends B> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return new Attempt<>(
-                () -> switch (this.spool.get()) {
-                    case Result.Success<A> success -> {
-                        try {
-                            yield success(Objects.requireNonNull(transformation.apply(success.get()), nullResultFrom("fMap")));
-                        } catch (final Exception exception) {
-                            yield (Result<B>) failure(exception);
-                        }
+            () -> switch (this.spool.get()) {
+                case Result.Success<A> success -> {
+                    try {
+                        yield success(Objects.requireNonNull(transformation.apply(success.get()), nullResultFrom("fMap")));
+                    } catch (final Exception exception) {
+                        yield (Result<B>) failure(exception);
                     }
-                    case Result.Failure<A> failure -> (Result<B>) failure;
                 }
+                case Result.Failure<A> failure -> (Result<B>) failure;
+            }
         );
     }
 
     /**
      * <div>
      *     <p>
-     *         Lifts the application of a function within a {@link Higher1} to the stored
-     *         values in this {@code Attempt}.
+     *         Lifts a function stored inside a {@link Higher1} into this context and applies it to the value.
+     *     </p>
+     *     <p>
+     *         If the function container fails, the failure is propagated; otherwise the function is applied lazily.
      *     </p>
      * </div>
      *
-     * @param transformation a {@link Higher1} containing a function to be applied to the values
-     * @param <B> the type of the function's result
-     * @return a new {@code Attempt} with the result of the lifted function
-     * @throws NullPointerException if the given {@link Higher1} is {@code null}
+     * @param transformation a higher‑kinded container of a function; must not be {@code null}
+     * @param <B>            the target type
+     * @return a new {@code Attempt} representing the lifted application
+     * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
      */
@@ -387,19 +407,16 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Lifts an {@link Applicable} transformation within a {@link Higher1} context to the
-     *         stored value. This method allows applying a function stored in an {@code Attempt}
-     *         to the stored value of this instance.
+     *         Lifts an {@link Applicable} transformation stored inside a {@link Higher1} and applies it to the value.
      *     </p>
      *     <p>
-     *         Unlike {@link #lift(Higher1)}, this variant also allows transformations
-     *         that can throw checked or unchecked exceptions.
+     *         Exceptions thrown by the transformation are captured as failures.
      *     </p>
      * </div>
      *
-     * @param transformation a {@link Higher1} containing an {@link Applicable} transformation
-     * @param <B> the target type after applying the function
-     * @return a new {@code Attempt} with the result of the lifted transformation or an error
+     * @param transformation a higher‑kinded container of an {@link Applicable}; must not be {@code null}
+     * @param <B>            the target type
+     * @return a new {@code Attempt} representing the lifted application
      * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
@@ -409,28 +426,29 @@ public final class Attempt<A>
     public @NonNull <B> Attempt<B> liftUnsafe(final @NonNull Higher1<? extends µ, Applicable<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         return new Attempt<>(
-                () -> switch (narrow(transformation).spool.get()) {
-                    case Result.Success<? extends Applicable<? super A, ? extends B>> success
-                        -> (Result<B>) this.mapUnsafe(success.getValue()).tryIt();
-                    case Result.Failure<Applicable<? super A, ? extends B>> failure
-                        -> (Result<B>) failure;
-                }
+            () -> switch (narrow(transformation).spool.get()) {
+                case Result.Success<? extends Applicable<? super A, ? extends B>> success
+                    -> (Result<B>) this.mapUnsafe(success.getValue()).tryIt();
+                case Result.Failure<Applicable<? super A, ? extends B>> failure
+                    -> (Result<B>) failure;
+            }
         );
     }
 
     /**
      * <div>
      *     <p>
-     *         Performs the bind operation by applying the given function to the stored value,
-     *         and returns a new {@code Attempt} containing the result.
+     *         Monadic bind (flatMap): applies the function to the success value, flattens the result.
+     *     </p>
+     *     <p>
+     *         Failures short‑circuit and are propagated unchanged.
      *     </p>
      * </div>
      *
-     * @param transformation a function that transforms the stored value and creates a new {@link Higher1}
-     * @param <B> the type of the function's result
-     * @return a new {@code Attempt} with the transformed value or a stored exception
-     *
-     * @throws NullPointerException if the function is {@code null}
+     * @param transformation maps the value to another {@link Higher1}; must not be {@code null}
+     * @param <B>            the target type
+     * @return a new {@code Attempt} representing the flattened result
+     * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
      */
@@ -450,18 +468,16 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Performs a bind operation (monadic FlatMap) with an unsafe {@link Applicable} function.
-     *         The function returns a new {@link Higher1} that is unwrapped and processed further.
+     *         Unsafe monadic bind: like {@link #bind(Function)} but accepts an {@link Applicable} that may throw.
      *     </p>
      *     <p>
-     *         In case of error (e.g. through an exception when applying the function) the new {@code Attempt}
-     *         will contain the error.
+     *         Exceptions thrown by the transformation are captured as failures.
      *     </p>
      * </div>
      *
-     * @param transformation an {@link Applicable} function that returns a new {@link Higher1}
-     * @param <B>            the type of the transformed value
-     * @return a new {@code Attempt} with the result of the transformation or an error
+     * @param transformation an {@link Applicable} mapping to another {@link Higher1}; must not be {@code null}
+     * @param <B>            the target type
+     * @return a new {@code Attempt} representing the flattened result
      * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
@@ -471,21 +487,24 @@ public final class Attempt<A>
     public @NonNull <B> Attempt<B> bindUnsafe(@NonNull Applicable<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("bindM"));
         return new Attempt<>(
-                () -> switch (this.mapUnsafe(transformation).tryIt()) {
-                    case Result.Success<? extends Higher1<? extends µ, B>> success -> narrow(success.getValue()).tryIt();
-                    case Result.Failure<? extends Higher1<? extends µ, B>> failure -> (Result<B>) failure;
-                }
+            () -> switch (this.mapUnsafe(transformation).tryIt()) {
+                case Result.Success<? extends Higher1<? extends µ, B>> success -> narrow(success.getValue()).tryIt();
+                case Result.Failure<? extends Higher1<? extends µ, B>> failure -> (Result<B>) failure;
+            }
         );
     }
 
     /**
      * <div>
      *     <p>
-     *         Unwinds all operations on this <code>Attempt</code> and returns a new <code>Attempt</code> object
+     *         Unwinds the current state and returns an {@code Attempt} that consistently yields this state.
+     *     </p>
+     *     <p>
+     *         Eagerly materializes the current {@link Result}, while preserving the success/failure information.
      *     </p>
      * </div>
      *
-     * @return The new <code>{@link Attempt}</code>
+     * @return a new {@code Attempt} that, when evaluated, yields the current result
      *
      * @since 1.0.0
      */

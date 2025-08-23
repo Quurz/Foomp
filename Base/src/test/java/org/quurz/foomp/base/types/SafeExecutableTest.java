@@ -25,20 +25,10 @@ class SafeExecutableTest
         LOGGER.info("Test safeExecutable.executeSafe");
 
         final var safeExecutable1
-            = new SafeExecutable<String>() {
-                @Override
-                public @NonNull String execute() {
-                    throw new IllegalArgumentException(OUCH);
-                }
-            };
+            = ((Executable<String>) () -> { throw new IllegalArgumentException(OUCH); }).safe();
 
         final var safeExecutable2
-            = new SafeExecutable<String>() {
-                @Override
-                public @NonNull String execute() {
-                    return SOME_STRING_VALUE;
-                }
-            };
+            = ((Executable<String>) () -> SOME_STRING_VALUE).safe();
 
         assertThat(safeExecutable1.executeSafe())
             .isInstanceOf(XorValue.class)

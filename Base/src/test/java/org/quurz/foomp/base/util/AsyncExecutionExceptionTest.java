@@ -1,7 +1,6 @@
 package org.quurz.foomp.base.util;
 
 import org.junit.jupiter.api.Test;
-import org.quurz.foomp.base.util.async.AsyncExecutionException;
 import org.slf4j.Logger;
 
 import java.util.concurrent.ExecutorService;

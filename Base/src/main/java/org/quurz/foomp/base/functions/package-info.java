@@ -27,7 +27,4 @@
  *
  * @since 1.0.0
  */
-@org.checkerframework.framework.qual.DefaultQualifier(
-    org.checkerframework.checker.nullness.qual.NonNull.class
-)
 package org.quurz.foomp.base.functions;

@@ -1,4 +1,4 @@
-package org.quurz.foomp.base.util.async;
+package org.quurz.foomp.base.util;
 
 import lombok.Getter;
 

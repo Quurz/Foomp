@@ -22,8 +22,20 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *         a result {@code Y}. Extends {@link Deferrable} to support deferred execution.
  *     </p>
  *     <p>
- *         Provides both a direct, exception‑throwing execution model ({@link #apply(Object)})
- *         and a safe adaptor ({@link #safe()}) that captures failures as values using {@link XorValue}.
+ *         Execution semantics:
+ *     </p>
+ *     <ul>
+ *         <li>Operations may throw checked exceptions (see {@link #apply(Object)}).</li>
+ *         <li>Side effects are allowed; {@code Applicable} does <em>not</em> require purity or
+ *             referential transparency. Implementations should document their behaviour.</li>
+ *     </ul>
+ *     <p>
+ *         Safe adaptor: {@link #safe()} performs the same computation but never throws; failures are
+ *         returned as {@code Left(Exception)}, successes as {@code Right(Y)} using {@link XorValue}.
+ *     </p>
+ *     <p>
+ *         Memoization: Use {@link MemoisingApplicable} only for pure/referentially transparent operations.
+ *         Memoizing non‑pure operations can yield stale or misleading cached values and missing side effects.
  *     </p>
  * </div>
  *
@@ -45,8 +57,13 @@ public interface Applicable<X, Y>
      *         applies the function to its input and returns the non‑null result.
      *     </p>
      *     <p>
-     *         Contract: {@code function} must not be {@code null} and must not return {@code null}.
+     *         Contract:
      *     </p>
+     *     <ul>
+     *         <li>{@code function} must not be {@code null} and must not return {@code null}.</li>
+     *         <li>Side effects in {@code function} are allowed. If you need memoization, prefer
+     *             {@link MemoisingApplicable#memoisingApplicable(Applicable)} with a pure function.</li>
+     *     </ul>
      * </div>
      *
      * @param <X> the input type of the function
@@ -67,6 +84,13 @@ public interface Applicable<X, Y>
      *     <p>
      *         Executes the operation and returns the result.
      *     </p>
+     *     <p>
+     *         Contract:
+     *     </p>
+     *     <ul>
+     *         <li>{@code x} must not be {@code null}; the result must not be {@code null}.</li>
+     *         <li>Implementations may perform side effects and may throw checked exceptions.</li>
+     *     </ul>
      * </div>
      *
      * @param x the input value
@@ -86,8 +110,13 @@ public interface Applicable<X, Y>
      *         on failure, {@code Left(Exception)}.
      *     </p>
      *     <p>
-     *         Contract: the returned function must never return {@code null}.
+     *         Contract:
      *     </p>
+     *     <ul>
+     *         <li>The returned function must never return {@code null}.</li>
+     *         <li>Side effects of the underlying operation still occur during evaluation.</li>
+     *         <li>Exceptions are not thrown but returned as {@code Left(Exception)}.</li>
+     *     </ul>
      * </div>
      *
      * @return a function yielding {@code XorValue<Exception, Y>} instead of throwing
@@ -97,7 +126,8 @@ public interface Applicable<X, Y>
     default Fun<X, ? extends XorValue<Exception, Y>> safe() {
         return x -> {
             try {
-                final var result = this.apply(x);
+                final var result
+                    = this.apply(x);
                 return new XorValue<>() {
                     @Override
                     public boolean isRight() {
@@ -138,9 +168,13 @@ public interface Applicable<X, Y>
      *         obtaining the input from the given {@link Supplier}.
      *     </p>
      *     <p>
-     *         Contract: {@code supplier} must not be {@code null} and must not supply {@code null}.
-     *         The returned callable must not return {@code null}.
+     *         Contract:
      *     </p>
+     *     <ul>
+     *         <li>{@code supplier} must not be {@code null} and must not supply {@code null}.</li>
+     *         <li>The returned callable must not return {@code null}.</li>
+     *         <li>Side effects (if any) occur when the callable is executed.</li>
+     *     </ul>
      * </div>
      *
      * @param supplier the input supplier; must not be {@code null}

@@ -21,6 +21,11 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *         unless explicitly stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
  *         Helper methods like {@link #fun(Function)} and {@link #nullSafe()} make these guarantees explicit.
  *     </p>
+ *     <p>
+ *         Side effects: Functions created or used via {@code Fun} are not required to be pure or
+ *         referentially transparent. They may have side effects and may produce different results over time.
+ *         If you need memoization with stable semantics, use {@link MemoisingFun} only with pure functions.
+ *     </p>
  * </div>
  *
  * @param <X> the input type
@@ -147,9 +152,13 @@ public interface Fun<X, Y>
      *         Returns a memoized view of this function that caches results by input.
      *     </p>
      *     <p>
-     *         Contract: the returned function must never return {@code null}; cache semantics are
-     *         implementation-specific but should be referentially transparent for equal inputs.
+     *         Contract:
      *     </p>
+     *     <ul>
+     *         <li>The returned function must never return {@code null}.</li>
+     *         <li>Cache semantics assume referential transparency for equal inputs. Using this on
+     *             non‑pure/side‑effecting functions can yield surprising results and is not recommended.</li>
+     *     </ul>
      * </div>
      *
      * @return a memoizing wrapper of this function

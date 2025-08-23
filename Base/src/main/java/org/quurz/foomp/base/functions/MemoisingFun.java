@@ -2,31 +2,38 @@
 
     import org.checkerframework.checker.nullness.qual.NonNull;
 
-    import java.util.HashMap;
-    import java.util.Map;
-    import java.util.Objects;
-    import java.util.function.Function;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
-    import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
-    import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
-    /**
-     * <div>
-     *     <p>
-     *         A functional interface for memoized functions. Caches results by input to avoid
-     *         repeated computation on identical arguments.
-     *     </p>
-     *     <p>
-     *         Contract: inputs must not be {@code null} and results must not be {@code null}.
-     *         The cache is unbounded and keyed by the input's equality semantics ({@link Object#equals(Object)}
-     *         and {@link Object#hashCode()}).
-     *     </p>
-     *     <p>
-     *         Concurrency: the default implementation returned by {@link #memoisingFun(Function)} is not
-     *         thread-safe. If concurrent access is required, wrap externally or adapt the implementation
-     *         to use a concurrent map.
-     *     </p>
-     * </div>
+/**
+ * <div>
+ *     <p>
+ *         A functional interface for memoized functions. Caches results by input to avoid
+ *         repeated computation on identical arguments.
+ *     </p>
+ *     <p>
+ *         Contract:
+ *     </p>
+ *     <ul>
+ *         <li>Inputs must not be {@code null} and results must not be {@code null}.</li>
+ *         <li>The wrapped computation SHOULD be referentially transparent (pure): for equal inputs it must
+ *             always produce equal results and must not rely on or cause observable side effects. Using
+ *             non‑pure/side‑effecting functions with memoization can yield stale or misleading cached values
+ *             and is discouraged.</li>
+ *         <li>The cache is unbounded and keyed by the input's equality semantics ({@link Object#equals(Object)}
+ *             and {@link Object#hashCode()}).</li>
+ *     </ul>
+ *     <p>
+ *         Concurrency: the implementation returned by {@link #memoisingFun(Function)} is thread‑safe and
+ *         uses a {@link java.util.concurrent.ConcurrentHashMap}. Cache inserts are atomic via
+ *         {@link java.util.concurrent.ConcurrentMap#computeIfAbsent(Object, java.util.function.Function)}.
+ *     </p>
+ * </div>
      *
      * @param <X> the input type
      * @param <Y> the output type
@@ -38,25 +45,31 @@
     public interface MemoisingFun<X, Y>
             extends Fun<X, Y> {
 
-        /**
-         * <div>
-         *     <p>
-         *         Erzeugt eine neue {@code MemoisingFun}-Instanz aus einer gegebenen {@link Function}, die
-         *         Creates a memoizing wrapper over the given {@link Function}. The returned function
-         *         caches results for previously seen inputs and returns cached values on subsequent calls
-         *         with equal inputs.
-         *     </p>
-         *     <p>
-         *         Contract: {@code function} must not be {@code null}; inputs must not be {@code null};
-         *         the wrapped function must not return {@code null}. The cache is unbounded and uses the
-         *         input's {@code equals}/{@code hashCode} for keying. The returned implementation is not
-         *         thread-safe.
-         *     </p>
-         * </div>
-         *
-         * @param <X>       the input type
-         * @param <Y>       the output type
-         * @param function  the function to memoize; must not be {@code null}
+    /**
+     * <div>
+     *     <p>
+     *         Erzeugt eine neue {@code MemoisingFun}-Instanz aus einer gegebenen {@link Function}, die
+     *         Creates a memoizing wrapper over the given {@link Function}. The returned function
+     *         caches results for previously seen inputs and returns cached values on subsequent calls
+     *         with equal inputs.
+     *     </p>
+     *     <p>
+     *         Contract:
+     *     </p>
+     *     <ul>
+     *         <li>{@code function} must not be {@code null}; inputs must not be {@code null}; the wrapped
+     *             function must not return {@code null}.</li>
+     *         <li>The wrapped function SHOULD be pure/referentially transparent. Applying memoization to
+     *             non‑pure functions can cause surprising behaviour (e.g., missing side effects or outdated
+     *             values) and is therefore not recommended.</li>
+     *         <li>The cache is unbounded and uses the input's {@code equals}/{@code hashCode} for keying.</li>
+     *         <li>Thread‑Safety: the returned implementation is thread‑safe (based on {@link ConcurrentHashMap}).</li>
+     *     </ul>
+     * </div>
+     *
+     * @param <X>       the input type
+     * @param <Y>       the output type
+     * @param function  the function to memoize; must not be {@code null}
          * @return a memoizing function wrapper
          * @throws NullPointerException falls {@code function} oder deren Resultat {@code null} ist
          *
@@ -67,7 +80,7 @@
 
             return new MemoisingFun<>() {
                 private final Map<X, Y> memo
-                    = new HashMap<>();
+                    = new ConcurrentHashMap<>();
 
                 @Override
                 public @NonNull Y apply(final @NonNull X x) {

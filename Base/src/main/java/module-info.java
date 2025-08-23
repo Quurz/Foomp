@@ -1,6 +1,5 @@
 module foomp.base {
     exports org.quurz.foomp.base.util;
-    exports org.quurz.foomp.base.util.async;
     exports org.quurz.foomp.base.functions;
     exports org.quurz.foomp.base.types;
     exports org.quurz.foomp.base.localisation;

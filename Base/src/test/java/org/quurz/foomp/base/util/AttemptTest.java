@@ -1,8 +1,13 @@
 package org.quurz.foomp.base.util;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.quurz.foomp.base.TestHelper;
 import org.quurz.foomp.base.functions.Fun;
+import org.quurz.foomp.higher.Higher1;
 import org.slf4j.Logger;
 
 import java.util.NoSuchElementException;
@@ -16,341 +21,494 @@ import static org.quurz.foomp.base.util.Attempt.attempt;
 import static org.quurz.foomp.base.util.Result.success;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@SuppressWarnings("unused")
-class AttemptTest
-        extends TestHelper {
+@DisplayName("Attempt")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+class AttemptTest extends TestHelper {
 
     private static final Logger LOGGER
         = getLogger(AttemptTest.class);
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testAttempt() {
-        LOGGER.info("Test Attempt.attempt");
+    @Nested
+    @DisplayName("Factory")
+    class Factory {
 
-        assertThatThrownBy(() -> attempt(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> attempt(5));
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void attempt_null_throws_NullPointerException() {
+            LOGGER.info("Attempt.attempt(...) should throw NullPointerException when value is null");
+            assertThatThrownBy(() -> attempt(null))
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void attempt_value_creates_success() {
+            LOGGER.info("Attempt.attempt(...) should create a successful Attempt when value is non-null");
+            assertThatNoException().isThrownBy(() -> attempt(5));
+        }
+
     }
 
-    @Test
-    void testTryIt() {
-        LOGGER.info("Test attempt.tryIt");
+    @Nested
+    @DisplayName("TryIt")
+    class TryIt {
 
-        assertThat(attempt(5).tryIt().isSuccess())
-            .isTrue();
-        assertThat(attempt(5).tryIt())
-            .isEqualTo(success(5));
+        @Test
+        void returns_success_result() {
+            LOGGER.info("Attempt.tryIt() should return a Success result");
+            assertThat(attempt(5).tryIt())
+                .isEqualTo(success(5));
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testOnFailureRecoverWithSupplier() {
-        LOGGER.info("Test attempt.onFailureRecover with supplier");
+    @Nested
+    @DisplayName("Recover")
+    class Recover {
 
-        final Function<Integer, Integer> throwingFunction
-            = i -> { throw new IllegalStateException(); };
-        final var invocationCountingSupplier
-            = super.invocationCountingSupplier(() -> 23);
+        @Nested
+        @DisplayName("With Supplier")
+        class With_Supplier {
 
-        final var attempt
-            = attempt(5);
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void null_supplier_throws_NullPointerException() {
+                LOGGER.info("Attempt.onFailureRecover(Supplier) should throw NullPointerException when recover is null");
+                assertThatThrownBy(() -> attempt(5).onFailureRecover((Supplier<Integer>) null))
+                    .isInstanceOf(NullPointerException.class);
+            }
 
-        assertThatThrownBy(() -> attempt.onFailureRecover((Supplier<Integer>) null))
-            .isInstanceOf(NullPointerException.class);
+            @Test
+            void supplier_not_invoked_on_success() {
+                LOGGER.info("Attempt.onFailureRecover(Supplier) should not invoke supplier when computation succeeds");
+                final var supplier = invocationCountingSupplier(() -> 23);
+                assertThat(attempt(5).map(Function.identity()).onFailureRecover(supplier).tryIt())
+                    .isEqualTo(success(5));
+                assertThat(supplier.getInvocationCount())
+                    .isZero();
+            }
 
-        assertThat(attempt.map(Function.identity()).onFailureRecover(invocationCountingSupplier).tryIt())
-            .isEqualTo(success(5));
-        assertThat(invocationCountingSupplier.getInvocationCount())
-            .isZero();
+            @Test
+            void supplier_used_on_failure_and_produces_success() {
+                LOGGER.info("Attempt.onFailureRecover(Supplier) should invoke supplier on failure and recover with its value");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
+                final var supplier = invocationCountingSupplier(() -> 23);
+                assertThat(attempt(5).map(throwing).onFailureRecover(supplier).tryIt())
+                    .isEqualTo(success(23));
+                assertThat(supplier.getInvocationCount())
+                    .isEqualTo(1);
+            }
 
-        assertThat(attempt.map(throwingFunction).onFailureRecover(invocationCountingSupplier).tryIt())
-            .isEqualTo(success(23));
-        assertThat(invocationCountingSupplier.getInvocationCount())
-            .isEqualTo(1);
+            @Test
+            void null_from_supplier_becomes_npe_failure() {
+                LOGGER.info("Attempt.onFailureRecover(Supplier) should turn null from supplier into NullPointerException failure");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
+                assertThat(attempt(5).map(throwing).onFailureRecover(() -> null).tryIt().getException())
+                    .isInstanceOf(NullPointerException.class);
+            }
 
-        assertThat(attempt.map(throwingFunction).onFailureRecover(() -> null).tryIt().getException())
-            .isInstanceOf(NullPointerException.class);
+            @Test
+            void supplier_throws_other_exception_and_preserves_original_as_suppressed() {
+                LOGGER.info("Attempt.onFailureRecover(Supplier) should propagate supplier exception and keep original as suppressed");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException("ORIGINAL"); };
+                final var safeExecutableLikeSupplier = (Supplier<Integer>) () -> { throw new IllegalArgumentException("RECOVER"); };
+
+                final var failure = attempt(5).map(throwing).onFailureRecover(safeExecutableLikeSupplier).tryIt().getException();
+                assertThat(failure)
+                    .isInstanceOf(IllegalArgumentException.class);
+                assertThat(failure.getSuppressed().length)
+                    .isEqualTo(1);
+                assertThat(failure.getSuppressed()[0])
+                    .isInstanceOf(IllegalStateException.class);
+            }
+
+        }
+
+        @Nested
+        @DisplayName("With Function")
+        class With_Function {
+
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void null_function_throws_NullPointerException() {
+                LOGGER.info("Attempt.onFailureRecover(Function) should throw NullPointerException when recover is null");
+                assertThatThrownBy(() -> attempt(5).onFailureRecover((Function<? super Exception, Integer>) null))
+                    .isInstanceOf(NullPointerException.class);
+            }
+
+            @Test
+            void function_not_invoked_on_success() {
+                LOGGER.info("Attempt.onFailureRecover(Function) should not invoke recover on success");
+                final var fun = invocationCountingFun((Exception e) -> 23);
+                assertThat(attempt(5).map(Function.identity()).onFailureRecover(fun).tryIt())
+                    .isEqualTo(success(5));
+                assertThat(fun.getInvocationCount())
+                    .isZero();
+            }
+
+            @Test
+            void function_used_on_failure_and_produces_success() {
+                LOGGER.info("Attempt.onFailureRecover(Function) should invoke recover on failure and produce success");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
+                final var fun = invocationCountingFun((Exception e) -> 23);
+                assertThat(attempt(5).map(throwing).onFailureRecover(fun).tryIt())
+                    .isEqualTo(success(23));
+                assertThat(fun.getInvocationCount())
+                    .isEqualTo(1);
+            }
+
+            @Test
+            void null_from_function_becomes_npe_failure() {
+                LOGGER.info("Attempt.onFailureRecover(Function) should turn null from recover into NullPointerException failure");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
+                assertThat(attempt(5).map(throwing).onFailureRecover(_$ -> null).tryIt().getException())
+                    .isInstanceOf(NullPointerException.class);
+            }
+
+            @Test
+            void function_throws_exception_and_preserves_original_as_suppressed() {
+                LOGGER.info("Attempt.onFailureRecover(Function) should propagate recover exception and keep original as suppressed");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException("ORIGINAL"); };
+                final var recover = (Function<Exception, Integer>) e -> { throw new IllegalArgumentException("RECOVER"); };
+
+                final var failure = attempt(5).map(throwing).onFailureRecover(recover).tryIt().getException();
+                assertThat(failure)
+                    .isInstanceOf(IllegalArgumentException.class);
+                assertThat(failure.getSuppressed().length)
+                    .isEqualTo(1);
+                assertThat(failure.getSuppressed()[0])
+                    .isInstanceOf(IllegalStateException.class);
+            }
+
+        }
+
+        @Nested
+        @DisplayName("Throw")
+        class Throwing {
+
+            @Test
+            void returns_self_on_success() {
+                LOGGER.info("Attempt.onFailureThrow() should return self on success");
+                assertThatNoException()
+                    .isThrownBy(() -> attempt(5).map(Function.identity()).onFailureThrow().tryIt());
+            }
+
+            @Test
+            void throws_original_exception_on_failure() {
+                LOGGER.info("Attempt.onFailureThrow() should throw the original exception on failure");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
+                assertThatThrownBy(() -> attempt(5).map(throwing).onFailureThrow())
+                    .isInstanceOf(IllegalStateException.class);
+            }
+
+        }
+
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testOnFailureRecoverWithFunction() {
-        LOGGER.info("Test attempt.onFailureRecover with function");
+    @Nested
+    @DisplayName("Behaviour")
+    class Behaviour {
 
-        final Function<Integer, Integer> throwingFunction
-            = i -> { throw new IllegalStateException(); };
-        final var invocationCountingFun
-            = super.invocationCountingFun((Exception exception) -> 23);
+        @Nested
+        @DisplayName("Functional (map, lift, bind)")
+        class Functional {
 
-        final var attempt
-            = attempt(5);
+            @Nested
+            @DisplayName("Map")
+            class Map_ {
 
-        assertThatThrownBy(() -> attempt.onFailureRecover((Function<? super Exception, Integer>) null))
-            .isInstanceOf(NullPointerException.class);
+                @Test
+                void null_function_throws_NullPointerException() {
+                    LOGGER.info("Attempt.map(...) should throw NullPointerException when transformation is null");
+                    assertThatThrownBy(() -> attempt(5).map(null))
+                        .isInstanceOf(NullPointerException.class);
+                }
 
-        assertThat(attempt.map(Function.identity()).onFailureRecover(invocationCountingFun).tryIt())
-            .isEqualTo(success(5));
-        assertThat(invocationCountingFun.getInvocationCount())
-            .isZero();
+                @Test
+                void null_result_from_function_becomes_failure_NPE() {
+                    LOGGER.info("Attempt.map(...) should turn null result into NullPointerException failure");
+                    assertThatThrownBy(() -> attempt(5).map(_$ -> null).tryIt().getValue())
+                        .isInstanceOf(NoSuchElementException.class);
+                    assertThat(attempt(5).map(_$ -> null).tryIt().getException())
+                        .isInstanceOf(NullPointerException.class);
+                }
 
-        assertThat(attempt.map(throwingFunction).onFailureRecover(invocationCountingFun).tryIt())
-            .isEqualTo(success(23));
-        assertThat(invocationCountingFun.getInvocationCount())
-            .isEqualTo(1);
+                @Test
+                void mapping_works() {
+                    LOGGER.info("Attempt.map(...) should map value when transformation succeeds");
+                    assertThat(attempt(5).map(i -> i * 2).tryIt().getValue())
+                        .isEqualTo(10);
+                }
 
-        assertThat(attempt.map(throwingFunction).onFailureRecover(exception -> null).tryIt().getException())
-            .isInstanceOf(NullPointerException.class);
+            }
+
+            @Nested
+            @DisplayName("Lift")
+            class Lift_ {
+
+                @Test
+                void handles_various_paths() {
+                    LOGGER.info("Attempt.lift(...) should handle nulls, thrown exceptions and success paths correctly");
+
+                    // null HK-value
+                    assertThatThrownBy(() -> attempt(5).lift(null))
+                        .isInstanceOf(NullPointerException.class);
+
+                    // function container returns null -> NPE
+                    assertThatThrownBy(() -> attempt(5).lift(attempt(_$ -> null)).tryIt().getValue())
+                        .isInstanceOf(NoSuchElementException.class);
+                    assertThat(attempt(5).lift(attempt(_$ -> null)).tryIt().getException())
+                        .isInstanceOf(NullPointerException.class);
+
+                    // identity -> exception access
+                    assertThatThrownBy(() -> attempt(5).lift(attempt(Fun.identity())).tryIt().getException())
+                        .isInstanceOf(NoSuchElementException.class);
+
+                    // function container throws
+                    assertThatThrownBy(
+                        () -> attempt(5).lift(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getValue()
+                    ).isInstanceOf(NoSuchElementException.class);
+                    assertThat(attempt(5).lift(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getException())
+                        .isInstanceOf(IllegalArgumentException.class);
+
+                    // precedence cases
+                    final var ex1 = attempt(5)
+                        .map(_$ -> { throw new IllegalStateException(); })
+                        .lift(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .tryIt().getException();
+                    assertThat(ex1).isInstanceOf(IllegalStateException.class);
+
+                    final var ex2 = attempt(5)
+                        .lift(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .map(_$ -> { throw new IllegalStateException(); })
+                        .tryIt().getException();
+                    assertThat(ex2).isInstanceOf(IllegalArgumentException.class);
+
+                    // happy path
+                    assertThat(attempt(5).lift(attempt(i -> i * 2)).tryIt())
+                        .isEqualTo(success(10));
+                }
+
+                @Test
+                void lifted_function_returns_null_results_in_npe_failure() {
+                    LOGGER.info("Attempt.lift(...) should fail with NPE when lifted function returns null");
+                    final var liftedNull = attempt((Function<Integer, Integer>) (_$ -> null));
+                    assertThat(attempt(5).lift(liftedNull).tryIt().getException())
+                        .isInstanceOf(NullPointerException.class);
+                }
+
+            }
+
+            @Nested
+            @DisplayName("Bind")
+            class Bind_ {
+
+                @Test
+                void null_function_throws_NullPointerException() {
+                    LOGGER.info("Attempt.bind(...) should throw NullPointerException when transformation is null");
+                    assertThatThrownBy(() -> attempt(5).bind(null))
+                        .isInstanceOf(NullPointerException.class);
+                }
+
+                @Test
+                void transformation_throws_exception_results_in_failure() {
+                    LOGGER.info("Attempt.bind(...) should capture exceptions from transformation as failure");
+                    final var failure = attempt(5).bind(_$ -> { throw new IllegalArgumentException("BIND"); }).tryIt().getException();
+                    assertThat(failure).isInstanceOf(IllegalArgumentException.class);
+                }
+
+                @Test
+                void null_monadic_result_causes_access_failure() {
+                    LOGGER.info("Attempt.bind(...) should fail when transformation returns null monadic value");
+                    assertThatThrownBy(() -> attempt(5).bind(_$ -> null).tryIt().getValue())
+                        .isInstanceOf(NoSuchElementException.class);
+                }
+
+                @Test
+                void binding_works() {
+                    LOGGER.info("Attempt.bind(...) should bind and flatten the resulting Attempt");
+                    assertThat(attempt(5).bind(i -> attempt(i * 2)).tryIt().getValue())
+                        .isEqualTo(10);
+                }
+
+            }
+
+            @Nested
+            @DisplayName("Unsafe variants")
+            class Unsafe {
+
+                @Test
+                void mapUnsafe_null_applicable_throws_NullPointerException() {
+                    LOGGER.info("Attempt.mapUnsafe(...) should throw NullPointerException when applicable is null");
+                    assertThatThrownBy(() -> attempt(5).mapUnsafe(null))
+                        .isInstanceOf(NullPointerException.class);
+                }
+
+                @Test
+                void mapUnsafe_null_result_becomes_failure_NPE() {
+                    LOGGER.info("Attempt.mapUnsafe(...) should turn null result into NullPointerException failure");
+                    assertThatThrownBy(() -> attempt(5).mapUnsafe(_$ -> null).tryIt().getValue())
+                        .isInstanceOf(NoSuchElementException.class);
+                    assertThat(attempt(5).mapUnsafe(_$ -> null).tryIt().getException())
+                        .isInstanceOf(NullPointerException.class);
+                }
+
+                @Test
+                void liftUnsafe_various_paths() {
+                    LOGGER.info("Attempt.liftUnsafe(...) should handle nulls, thrown exceptions and success paths correctly");
+
+                    assertThatThrownBy(() -> attempt(5).liftUnsafe(null))
+                        .isInstanceOf(NullPointerException.class);
+
+                    assertThatThrownBy(() -> attempt(5).liftUnsafe(attempt(_$ -> null)).tryIt().getValue())
+                        .isInstanceOf(NoSuchElementException.class);
+                    assertThat(attempt(5).liftUnsafe(attempt(_$ -> null)).tryIt().getException())
+                        .isInstanceOf(NullPointerException.class);
+
+                    assertThatThrownBy(() -> attempt(5).liftUnsafe(attempt(Fun.identity())).tryIt().getException())
+                        .isInstanceOf(NoSuchElementException.class);
+
+                    assertThatThrownBy(
+                        () -> attempt(5)
+                                .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                                .tryIt().getValue()
+                    ).isInstanceOf(NoSuchElementException.class);
+                    assertThat(attempt(5).liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getException())
+                        .isInstanceOf(IllegalArgumentException.class);
+
+                    final var ex1 = attempt(5)
+                        .map(_$ -> { throw new IllegalStateException(); })
+                        .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .tryIt().getException();
+                    assertThat(ex1).isInstanceOf(IllegalStateException.class);
+
+                    final var ex2 = attempt(5)
+                        .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .map(_$ -> { throw new IllegalStateException(); })
+                        .tryIt().getException();
+                    assertThat(ex2).isInstanceOf(IllegalArgumentException.class);
+
+                    assertThat(attempt(5).liftUnsafe(attempt(i -> i * 2)).tryIt())
+                        .isEqualTo(success(10));
+                }
+
+                @Test
+                void bindUnsafe_null_applicable_throws_NullPointerException() {
+                    LOGGER.info("Attempt.bindUnsafe(...) should throw NullPointerException when applicable is null");
+                    assertThatThrownBy(() -> attempt(5).bindUnsafe(null))
+                        .isInstanceOf(NullPointerException.class);
+                }
+
+                @Test
+                void bindUnsafe_null_monadic_result_causes_access_failure() {
+                    LOGGER.info("Attempt.bindUnsafe(...) should fail when transformation returns null monadic value");
+                    assertThatThrownBy(() -> attempt(5).bindUnsafe(_$ -> null).tryIt().getValue())
+                        .isInstanceOf(NoSuchElementException.class);
+                }
+
+                @Test
+                void bindUnsafe_works() {
+                    LOGGER.info("Attempt.bindUnsafe(...) should bind and flatten the resulting Attempt");
+                    assertThat(attempt(5).bindUnsafe(i -> attempt(i * 2)).tryIt().getValue())
+                        .isEqualTo(10);
+                }
+
+            }
+
+        }
+
+        @Nested
+        @DisplayName("Peek")
+        class Peek {
+
+            @Test
+            void lazy_consumer_invoked_only_on_failure_during_evaluation() {
+                LOGGER.info("Attempt.peekFailureLazy(...) should invoke consumer only when evaluation fails");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
+                final var consumer = invocationCountingConsumer((Exception e) -> {});
+
+                attempt(5).map(throwing).peekFailureLazy(consumer);
+                assertThat(consumer.getInvocationCount()).isZero();
+
+                assertThat(attempt(5).map(throwing).peekFailureLazy(consumer).tryIt())
+                    .isInstanceOf(Result.Failure.class);
+                assertThat(consumer.getInvocationCount()).isEqualTo(1);
+
+                consumer.resetInvocationCount();
+
+                assertThat(attempt(5).map(Fun.identity()).peekFailureLazy(consumer).tryIt())
+                    .isInstanceOf(Result.Success.class);
+                assertThat(consumer.getInvocationCount()).isZero();
+            }
+
+            @Test
+            void eager_consumer_invoked_immediately_on_failure() {
+                LOGGER.info("Attempt.peekFailureEager(...) should invoke consumer immediately when already in failure");
+                final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
+                final var consumer = invocationCountingConsumer((Exception e) -> {});
+
+                attempt(5).map(throwing).peekFailureEager(consumer);
+                assertThat(consumer.getInvocationCount()).isEqualTo(1);
+
+                consumer.resetInvocationCount();
+
+                assertThat(attempt(5).map(Fun.identity()).peekFailureEager(consumer).tryIt())
+                    .isInstanceOf(Result.Success.class);
+                assertThat(consumer.getInvocationCount()).isZero();
+            }
+
+        }
+
+        @Nested
+        @DisplayName("Unwind")
+        class Unwind_ {
+
+            @Test
+            void materializes_current_result_and_keeps_value() {
+                LOGGER.info("Attempt.unwind() should materialize current result and preserve value");
+                final InvocationCountingFun<Integer, Integer> invocationCountingFun
+                    = invocationCountingFun(i -> i * 2);
+
+                final var attempt
+                    = attempt(5)
+                        .map(invocationCountingFun)
+                        .lift(attempt(invocationCountingFun))
+                        .bind(i -> attempt(invocationCountingFun.apply(i)));
+
+                assertThat(invocationCountingFun.getInvocationCount())
+                    .isZero();
+
+                final var unwound
+                    = attempt.unwind();
+                assertThat(invocationCountingFun.getInvocationCount())
+                    .isEqualTo(3);
+
+                final var value
+                    = unwound.unwind().tryIt().getValue();
+                assertThat(value)
+                    .isEqualTo(40);
+                assertThat(invocationCountingFun.getInvocationCount())
+                    .isEqualTo(3);
+            }
+
+        }
+
     }
 
-    @Test
-    void testOnFailureThrow() {
-        LOGGER.info("Test attempt.onFailureThrow");
+    @Nested
+    @DisplayName("Helpers")
+    class Helpers {
 
-        final Function<Integer, Integer> throwingFunction
-            = i -> { throw new IllegalStateException(); };
+        @Test
+        void narrow_should_return_same_instance_and_not_throw() {
+            LOGGER.info("Attempt.narrow(...) should return the same instance without throwing");
+            final var att
+                = attempt(42);
+            final var widened
+                = (Higher1<Attempt.µ, Integer>) att;
+            final var narrowed
+                = Attempt.narrow(widened);
+            assertThat(narrowed).isSameAs(att);
+        }
 
-        final var attempt
-            = attempt(5);
-
-        assertThatNoException()
-            .isThrownBy(() -> attempt.map(Function.identity()).onFailureThrow().tryIt());
-
-        assertThatThrownBy(() -> attempt.map(throwingFunction).onFailureThrow())
-            .isInstanceOf(IllegalStateException.class);
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testPeekFailureLazy() {
-        LOGGER.info("Test attempt.peekFailureLazy");
-
-        final Function<Integer, Integer> throwingFunction
-            = i -> { throw new IllegalStateException(); };
-        final var invocationCountingConsumer
-            = super.invocationCountingConsumer((Exception exception) -> {});
-
-        final var attempt
-            = attempt(5);
-
-        assertThatThrownBy(() -> attempt.peekFailureLazy(null))
-            .isInstanceOf(NullPointerException.class);
-
-        attempt.map(throwingFunction).peekFailureLazy(invocationCountingConsumer);
-        assertThat(invocationCountingConsumer.getInvocationCount())
-            .isZero();
-
-        assertThat(attempt.map(throwingFunction).peekFailureLazy(invocationCountingConsumer).tryIt())
-            .isInstanceOf(Result.Failure.class);
-        assertThat(invocationCountingConsumer.getInvocationCount())
-            .isEqualTo(1);
-        invocationCountingConsumer.resetInvocationCount();
-
-        assertThat(attempt.map(Fun.identity()).peekFailureLazy(invocationCountingConsumer).tryIt())
-            .isInstanceOf(Result.Success.class);
-        assertThat(invocationCountingConsumer.getInvocationCount())
-            .isZero();
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testPeekFailureEager() {
-        LOGGER.info("Test attempt.peekFailureEager");
-
-        final Function<Integer, Integer> throwingFunction
-            = i -> { throw new IllegalStateException(); };
-        final var invocationCountingConsumer
-            = super.invocationCountingConsumer((Exception exception) -> {});
-
-        final var attempt
-            = attempt(5);
-
-        assertThatThrownBy(() -> attempt.peekFailureEager(null))
-            .isInstanceOf(NullPointerException.class);
-
-        attempt.map(throwingFunction).peekFailureEager(invocationCountingConsumer);
-        assertThat(invocationCountingConsumer.getInvocationCount())
-            .isEqualTo(1);
-        invocationCountingConsumer.resetInvocationCount();
-
-        assertThat(attempt.map(Fun.identity()).peekFailureEager(invocationCountingConsumer).tryIt())
-            .isInstanceOf(Result.Success.class);
-        assertThat(invocationCountingConsumer.getInvocationCount())
-            .isZero();
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testMap() {
-        LOGGER.info("Test attempt.map");
-
-        assertThatThrownBy(() -> attempt(5).map(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).map(_$ -> null).tryIt().getValue())
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).map(_$ -> null).tryIt().getException())
-            .isInstanceOf(NullPointerException.class);
-
-        assertThat(attempt(5).map(i -> i * 2).tryIt().getValue())
-            .isEqualTo(10);
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testMapUnsafe() {
-        LOGGER.info("Test attempt.mapUnsafe");
-
-        assertThatThrownBy(() -> attempt(5).mapUnsafe(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).mapUnsafe(_$ -> null).tryIt().getValue())
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).mapUnsafe(_$ -> null).tryIt().getException())
-            .isInstanceOf(NullPointerException.class);
-
-        assertThat(attempt(5).mapUnsafe(i -> i * 2).tryIt().getValue())
-            .isEqualTo(10);
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "ThrowableNotThrown"})
-    @Test
-    void testLift() {
-        LOGGER.info("Test attempt.lift");
-
-        assertThatThrownBy(() -> attempt(5).lift(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).lift(attempt(_$ -> null)).tryIt().getValue())
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).lift(attempt(_$ -> null)).tryIt().getException())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).lift(attempt(Fun.identity())).tryIt().getException())
-            .isInstanceOf(NoSuchElementException.class);
-
-        assertThatThrownBy(
-                () -> attempt(5)
-                        .lift(attempt(_$ -> { throw new IllegalArgumentException(); } ))
-                        .tryIt()
-                        .getValue()
-            )
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).lift(attempt(_$ -> { throw new IllegalArgumentException(); } )).tryIt().getException())
-            .isInstanceOf(IllegalArgumentException.class);
-
-        final var exception1
-            = attempt(5)
-                .map(_$ -> { throw new IllegalStateException(); })
-                .lift(attempt(_$ -> { throw new IllegalArgumentException(); } ))
-                .tryIt()
-                .getException();
-        assertThat(exception1)
-            .isInstanceOf(IllegalStateException.class);
-
-        final var exception2
-            = attempt(5)
-                .lift(attempt(_$ -> { throw new IllegalArgumentException(); } ))
-                .map(_$ -> { throw new IllegalStateException(); })
-                .tryIt()
-                .getException();
-        assertThat(exception2)
-            .isInstanceOf(IllegalArgumentException.class);
-
-        assertThat(attempt(5).lift(attempt(i -> i * 2)).tryIt())
-            .isEqualTo(success(10));
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "ThrowableNotThrown"})
-    void testLiftUnsafe() {
-        LOGGER.info("Test attempt.liftUnsafe");
-
-        assertThatThrownBy(() -> attempt(5).liftUnsafe(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).liftUnsafe(attempt(_$ -> null)).tryIt().getValue())
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).liftUnsafe(attempt(_$ -> null)).tryIt().getException())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).liftUnsafe(attempt(Fun.identity())).tryIt().getException())
-            .isInstanceOf(NoSuchElementException.class);
-
-        assertThatThrownBy(
-            () -> attempt(5)
-                    .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); } ))
-                    .tryIt()
-                    .getValue()
-            )
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); } )).tryIt().getException())
-                .isInstanceOf(IllegalArgumentException.class);
-
-        final var exception1
-            = attempt(5)
-                .map(_$ -> { throw new IllegalStateException(); })
-                .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); } ))
-                .tryIt()
-                .getException();
-        assertThat(exception1)
-            .isInstanceOf(IllegalStateException.class);
-
-        final var exception2
-            = attempt(5)
-                .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); } ))
-                .map(_$ -> { throw new IllegalStateException(); })
-                .tryIt()
-                .getException();
-        assertThat(exception2)
-            .isInstanceOf(IllegalArgumentException.class);
-
-        assertThat(attempt(5).liftUnsafe(attempt(i -> i * 2)).tryIt())
-            .isEqualTo(success(10));
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testBind() {
-        LOGGER.info("Test attempt.bind");
-
-        assertThatThrownBy(() -> attempt(5).bind(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).bind(_$ -> null).tryIt().getValue())
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).bind(i -> attempt(i * 2)).tryIt().getValue())
-            .isEqualTo(10);
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testBindUnsafe() {
-        LOGGER.info("Test attempt.bindUnsafe");
-
-        assertThatThrownBy(() -> attempt(5).bindUnsafe(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> attempt(5).bindUnsafe(_$ -> null).tryIt().getValue())
-            .isInstanceOf(NoSuchElementException.class);
-        assertThat(attempt(5).bindUnsafe(i -> attempt(i * 2)).tryIt().getValue())
-            .isEqualTo(10);
-    }
-
-    @Test
-    void testUnwind() {
-        LOGGER.info("Test attempt.unwind");
-
-        final InvocationCountingFun<Integer, Integer> invocationCountingFun
-            = super.invocationCountingFun(i -> i * 2);
-
-        final var attempt
-            = attempt(5)
-                .map(invocationCountingFun)
-                .lift(attempt(invocationCountingFun))
-                .bind(i -> attempt(invocationCountingFun.apply(i)));
-
-        assertThat(invocationCountingFun.getInvocationCount())
-            .isZero();
-
-        attempt.unwind();
-        assertThat(invocationCountingFun.getInvocationCount())
-            .isEqualTo(3);
-
-        assertThat(attempt.unwind().tryIt().getValue())
-            .isEqualTo(40);
     }
 
 }
