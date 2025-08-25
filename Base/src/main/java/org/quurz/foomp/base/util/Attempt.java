@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.quurz.foomp.base.functions.Applicable.applicable;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -319,23 +320,11 @@ public final class Attempt<A>
      *
      * @since 1.0.0
      */
-    @SuppressWarnings("unchecked")
     @NonNull
     @Override
     public <B> Attempt<B> map(final @NonNull Function<? super A, ? extends B> transformation) {
-        Objects.requireNonNull(transformation, nullValue("fMap"));
-        return new Attempt<>(
-            () -> switch (this.spool.get()) {
-                case Result.Success<A> success -> {
-                    try {
-                        yield success(Objects.requireNonNull(transformation.apply(success.get()), nullResultFrom("fMap")));
-                    } catch (final Exception exception) {
-                        yield (Result<B>) failure(exception);
-                    }
-                }
-                case Result.Failure<A> failure -> (Result<B>) failure;
-            }
-        );
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        return this.mapUnsafe(applicable(transformation));
     }
 
     /**
@@ -363,7 +352,7 @@ public final class Attempt<A>
             () -> switch (this.spool.get()) {
                 case Result.Success<A> success -> {
                     try {
-                        yield success(Objects.requireNonNull(transformation.apply(success.get()), nullResultFrom("fMap")));
+                        yield success(Objects.requireNonNull(transformation.apply(success.get()), nullResultFrom("transformation")));
                     } catch (final Exception exception) {
                         yield (Result<B>) failure(exception);
                     }
@@ -421,15 +410,15 @@ public final class Attempt<A>
      *
      * @since 1.0.0
      */
-    @Override
     @SuppressWarnings("unchecked")
-    public @NonNull <B> Attempt<B> liftUnsafe(final @NonNull Higher1<? extends µ, Applicable<? super A, ? extends B>> transformation) {
+    @Override
+    public @NonNull <B> Attempt<B> liftUnsafe(final @NonNull Higher1<? extends µ, ? extends Applicable<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         return new Attempt<>(
             () -> switch (narrow(transformation).spool.get()) {
                 case Result.Success<? extends Applicable<? super A, ? extends B>> success
                     -> (Result<B>) this.mapUnsafe(success.getValue()).tryIt();
-                case Result.Failure<Applicable<? super A, ? extends B>> failure
+                case Result.Failure<? extends Applicable<? super A, ? extends B>> failure
                     -> (Result<B>) failure;
             }
         );
@@ -452,17 +441,11 @@ public final class Attempt<A>
      *
      * @since 1.0.0
      */
-    @SuppressWarnings("unchecked")
     @Override
     @NonNull
     public <B> Attempt<B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("bindM"));
-        return new Attempt<>(
-            () -> switch (this.map(transformation).tryIt()) {
-                case Result.Success<? extends Higher1<? extends µ, B>> success -> narrow(success.getValue()).tryIt();
-                case Result.Failure<? extends Higher1<? extends µ, B>> failure -> (Result<B>) failure;
-            }
-        );
+        return this.bindUnsafe(applicable(transformation));
     }
 
     /**

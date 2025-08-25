@@ -10,6 +10,8 @@ import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.higher.Higher1;
 import org.slf4j.Logger;
 
+import org.quurz.foomp.base.functions.Applicable;
+
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -215,6 +217,7 @@ class AttemptTest extends TestHelper {
             @DisplayName("Map")
             class Map_ {
 
+                @SuppressWarnings("DataFlowIssue")
                 @Test
                 void null_function_throws_NullPointerException() {
                     LOGGER.info("Attempt.map(...) should throw NullPointerException when transformation is null");
@@ -244,6 +247,23 @@ class AttemptTest extends TestHelper {
             @DisplayName("Lift")
             class Lift_ {
 
+                @Test
+                void lift_container_is_failure_hits_failure_branch() {
+                    LOGGER.info("Attempt.lift(...) should hit failure branch when container is Failure");
+
+                    // Container: Evaluation führt sofort zu Failure (IllegalStateException)
+                    Attempt<Function<Integer, Integer>> failingContainer =
+                        Attempt.attempt(0).map(_$ -> { throw new IllegalStateException("CONTAINER"); });
+
+                    final var result = Attempt.attempt(5).lift(failingContainer).tryIt();
+
+                    assertThat(result.isFailure()).isTrue();
+                    assertThat(result.getException())
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessage("CONTAINER");
+                }
+
+                @SuppressWarnings({"DataFlowIssue", "ThrowableNotThrown"})
                 @Test
                 void handles_various_paths() {
                     LOGGER.info("Attempt.lift(...) should handle nulls, thrown exceptions and success paths correctly");
@@ -301,6 +321,7 @@ class AttemptTest extends TestHelper {
             @DisplayName("Bind")
             class Bind_ {
 
+                @SuppressWarnings("DataFlowIssue")
                 @Test
                 void null_function_throws_NullPointerException() {
                     LOGGER.info("Attempt.bind(...) should throw NullPointerException when transformation is null");
@@ -335,6 +356,7 @@ class AttemptTest extends TestHelper {
             @DisplayName("Unsafe variants")
             class Unsafe {
 
+                @SuppressWarnings("DataFlowIssue")
                 @Test
                 void mapUnsafe_null_applicable_throws_NullPointerException() {
                     LOGGER.info("Attempt.mapUnsafe(...) should throw NullPointerException when applicable is null");
@@ -351,6 +373,7 @@ class AttemptTest extends TestHelper {
                         .isInstanceOf(NullPointerException.class);
                 }
 
+                @SuppressWarnings({"DataFlowIssue", "ThrowableNotThrown"})
                 @Test
                 void liftUnsafe_various_paths() {
                     LOGGER.info("Attempt.liftUnsafe(...) should handle nulls, thrown exceptions and success paths correctly");
@@ -390,6 +413,23 @@ class AttemptTest extends TestHelper {
                         .isEqualTo(success(10));
                 }
 
+                @Test
+                void liftUnsafe_container_is_failure_hits_failure_branch() {
+                    LOGGER.info("Attempt.liftUnsafe(...) should hit failure branch when container is Failure");
+
+                    // Container: Evaluation führt sofort zu Failure (IllegalStateException)
+                    Attempt<Applicable<Integer, Integer>> failingContainer =
+                        Attempt.attempt(0).map(_$ -> { throw new IllegalStateException("CONTAINER"); });
+
+                    final var result = Attempt.attempt(5).liftUnsafe(failingContainer).tryIt();
+
+                    assertThat(result.isFailure()).isTrue();
+                    assertThat(result.getException())
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessage("CONTAINER");
+                }
+
+                @SuppressWarnings("DataFlowIssue")
                 @Test
                 void bindUnsafe_null_applicable_throws_NullPointerException() {
                     LOGGER.info("Attempt.bindUnsafe(...) should throw NullPointerException when applicable is null");
@@ -493,6 +533,7 @@ class AttemptTest extends TestHelper {
 
     }
 
+    @SuppressWarnings("NonAsciiCharacters")
     @Nested
     @DisplayName("Helpers")
     class Helpers {

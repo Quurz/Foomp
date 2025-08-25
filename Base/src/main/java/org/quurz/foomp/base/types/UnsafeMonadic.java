@@ -64,7 +64,7 @@ public interface UnsafeMonadic<WT extends WitnessType, A> {
      *
      * @since 1.0.0
      */
-    <B> @NonNull Higher1<? extends WT, B> liftUnsafe(final @NonNull Higher1<? extends WT, Applicable<? super A, ? extends B>> transformation)
+    <B> @NonNull Higher1<? extends WT, B> liftUnsafe(final @NonNull Higher1<? extends WT, ? extends Applicable<? super A, ? extends B>> transformation)
         throws Exception;
 
     /**
