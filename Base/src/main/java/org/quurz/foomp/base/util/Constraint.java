@@ -82,8 +82,8 @@ public final class Constraint<A, FAILURE>
         Objects.requireNonNull(failureFunction, nullValue("failureFunction"));
 
         return value -> check.test(value)
-                ? none()
-                : some(Objects.requireNonNull(failureFunction.apply(value), nullResultFrom("failureFunction")));
+                    ? none()
+                    : some(Objects.requireNonNull(failureFunction.apply(value), nullResultFrom("failureFunction")));
     }
 
     /**

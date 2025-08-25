@@ -13,22 +13,59 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>
- *     <p>
- *         Repräsentiert eine Continuation, die eine Funktion speichert, die einen Wert vom Typ {@code A}
- *         entgegennimmt und ein Ergebnis vom Typ {@code R} zurückgibt. Diese Klasse unterstützt eine monadische
- *         Struktur, die es ermöglicht, Funktionen sequenziell zu verknüpfen, wobei der Zustand über Continuations
- *         aufrechterhalten wird, ohne den Kontrollfluss direkt zu verändern.
- *     </p>
- *     <p>
- *         Die {@code Continuation}-Klasse wird oft in funktionalen Programmiersprachen verwendet, um eine
- *         Fortsetzung der Ausführung eines Programms zu modellieren. Sie unterstützt Methoden wie {@code map},
- *         {@code bind}, {@code lift}, und {@code apply}, die es ermöglichen, mit Werten in der Continuation
- *         auf eine funktionale Art zu arbeiten.
- *     </p>
+ *   <p>
+ *     Models a continuation in continuation‑passing style (CPS). A continuation stores a function
+ *     of the shape {@code runCont: (A -> R) -> R}, i.e., it expects a consumer for the produced
+ *     value {@code A} and returns a result of type {@code R}.
+ *   </p>
+ *   <p>
+ *     This corresponds to Haskell’s {@code Cont r a}, where the parameter order here is {@code <A, R>}
+ *     (value, result). In other words: {@code Continuation<A, R>} ≙ {@code Cont r a} with {@code r = R}
+ *     and {@code a = A}.
+ *   </p>
+ *   <p>
+ *     The type supports the usual functor/applicative/monad operations:
+ *     {@code map}, {@code lift} (applicative application), {@code bind} (flatMap), and {@code apply}
+ *     to run the continuation with a final computation.
+ *   </p>
+ *   <p>
+ *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
+ *     Null‑checks are enforced to keep Java usage safe while preserving CPS semantics.
+ *   </p>
+ *   <p>
+ *     Examples:
+ *   </p>
+ *   <pre>{@code
+ *   // 1) Plain CPS pipeline: map and bind
+ *   // runCont: (A -> R) -> R, with A = Integer, R = Integer
+ *   var cont = Continuation.<Integer, Integer>pureContinuation(5)
+ *       .map(i -> i * 2)            // 10
+ *       .bind(i -> Continuation.pureContinuation(i + 1)); // 11
+ *
+ *   // Apply the final continuation (A -> R). Here we choose identity to get the produced value:
+ *   var result = cont.apply(x -> x); // 11
+ *
+ *   // 2) Early exit with call/cc (call-with-current-continuation)
+ *   // If a condition holds, invoke k(...) to short-circuit and return immediately.
+ *   var earlyExit = Continuation.<Integer, Integer>pureContinuation(5)
+ *       .bind(i -> Continuation.callCurrentCont(
+ *           (java.util.function.Function<Integer, Continuation<Integer, Integer>>) k -> {
+ *               if (i > 0) {
+ *                   // abort the rest of the computation and return 42 now
+ *                   return k.apply(42);
+ *               } else {
+ *                   // proceed normally
+ *                   return Continuation.pureContinuation(i);
+ *               }
+ *           }
+ *       ));
+ *
+ *   var exited = earlyExit.apply(x -> x); // 42
+ *   }</pre>
  * </div>
  *
- * @param <A> Der Typ des Werts, der in der {@code Continuation} gespeichert ist.
- * @param <R> Der Rückgabetyp der {@code Continuation}.
+ * @param <A> the produced value type (the input of the final continuation function)
+ * @param <R> the overall result type of the CPS computation
  *
  * @since 1.0.0
  *
@@ -38,18 +75,14 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 public class Continuation<A, R>
         implements H2Monadic<Continuation.µ, A, R>,
                    Function<Function<A, R>, R>,
-        Higher2<Continuation.µ, A, R> {
+                   Higher2<Continuation.µ, A, R> {
 
     /**
      * <div>
-     *     <p>
-     *         Ein Marker-Typ (Witness Type) für die {@code Continuation}-Monade.
-     *     </p>
-     *     <p>
-     *         Dieser Typ dient als Identifikator für die {@code Continuation}-Monade innerhalb des
-     *         Higher-Kinded Type Systems. Er wird in generischen Methoden und Schnittstellen verwendet,
-     *         um den konkreten Typ zu kennzeichnen.
-     *     </p>
+     *   <p>
+     *     Witness type for {@code Continuation} in the higher‑kinded encoding.
+     *     Used to keep the constructor identity across {@code Higher2}-based APIs.
+     *   </p>
      * </div>
      *
      * @since 1.0.0
@@ -58,22 +91,17 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Wandelt eine {@link Higher2}-Instanz in eine {@code Continuation}-Instanz um.
-     *     </p>
-     *     <p>
-     *         Diese Methode ist hilfreich, um einen allgemeiner typisierten Wert in eine konkrete
-     *         {@code Continuation}-Instanz zu transformieren. Dies ermöglicht die Verwendung der Continuation
-     *         innerhalb eines Higher-Kinded Type-Systems.
-     *     </p>
+     *   <p>
+     *     Narrows a {@link Higher2} value to a concrete {@code Continuation}.
+     *     Useful when working with higher‑kinded APIs.
+     *   </p>
      * </div>
      *
-     * @param higher Ein {@link Higher2}-Wert, der in eine {@code Continuation} umgewandelt werden soll.
-     *             Darf nicht {@code null} sein.
-     * @param <A>  Der Typ des Werts, der in der {@code Continuation} gespeichert ist.
-     * @param <R>  Der Rückgabetyp der {@code Continuation}.
-     * @return Eine {@code Continuation}-Instanz, die aus dem gegebenen {@code Higher2}-Wert erstellt wurde.
-     * @throws NullPointerException Wenn {@code wide} {@code null} ist.
+     * @param higher a {@link Higher2} value to be viewed as {@code Continuation}; must not be {@code null}
+     * @param <A>    the produced value type
+     * @param <R>    the result type
+     * @return the same instance, viewed as {@code Continuation}
+     * @throws NullPointerException if {@code higher} is {@code null}
      *
      * @since 1.0.0
      */
@@ -84,22 +112,17 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt eine neue {@code Continuation}-Instanz mit der gegebenen {@code runCont}-Funktion.
-     *     </p>
-     *     <p>
-     *         Die {@code runCont}-Funktion repräsentiert die Ausführung der Continuation, wobei sie
-     *         eine Funktion erwartet, die den erzeugten Wert {@code A} konsumiert und ein Ergebnis {@code R} zurückliefert.
-     *     </p>
+     *   <p>
+     *     Constructs a {@code Continuation} from a CPS runner function {@code runCont}.
+     *     The runner consumes a continuation {@code (A -> R)} and produces {@code R}.
+     *   </p>
      * </div>
      *
-     * @param runCont Eine Funktion, die die Continuation ausführt. Sie nimmt eine Funktion entgegen,
-     *                die den Wert {@code A} verarbeitet und ein Ergebnis {@code R} liefert.
-     *                Darf nicht {@code null} sein.
-     * @param <A>     Der Typ des Werts, der in der Continuation gespeichert ist.
-     * @param <R>     Der Rückgabetyp der Continuation.
-     * @return Eine neue {@code Continuation}-Instanz, die auf der gegebenen {@code runCont}-Funktion basiert.
-     * @throws NullPointerException Wenn {@code runCont} {@code null} ist.
+     * @param runCont the CPS runner, of type {@code (A -> R) -> R}; must not be {@code null}
+     * @param <A>     the produced value type
+     * @param <R>     the result type
+     * @return a new {@code Continuation}
+     * @throws NullPointerException if {@code runCont} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -110,20 +133,16 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt eine neue {@code Continuation}-Instanz, die einen festen Wert {@code value} enthält.
-     *     </p>
-     *     <p>
-     *         Diese Methode dient dazu, eine Continuation zu erstellen, die einen gegebenen Wert
-     *         direkt zurückgibt, ohne weitere Berechnungen durchzuführen.
-     *     </p>
+     *   <p>
+     *     Lifts a plain value into a {@code Continuation}: {@code a ↦ (k -> k(a))}.
+     *   </p>
      * </div>
      *
-     * @param value Der Wert, der in der Continuation gespeichert werden soll. Darf nicht {@code null} sein.
-     * @param <A>   Der Typ des Werts, der in der Continuation gespeichert ist.
-     * @param <R>   Der Rückgabetyp der Continuation (kann beliebig sein, da der Wert direkt zurückgegeben wird).
-     * @return Eine neue {@code Continuation}-Instanz, die den gegebenen Wert enthält.
-     * @throws NullPointerException Wenn {@code value} {@code null} ist.
+     * @param value the value to lift; must not be {@code null}
+     * @param <A>   the produced value type
+     * @param <R>   the result type (arbitrary for the literal continuation)
+     * @return a continuation that immediately applies {@code value} to the provided continuation
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -141,26 +160,16 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine gegebene Funktion auf das Ergebnis der Continuation an und gibt eine neue Continuation zurück.
-     *     </p>
-     *     <p>
-     *         Diese Methode ist analog zur `map`-Operation in funktionalen Programmiersprachen.
-     *         Sie ermöglicht es, den Wert, der von der Continuation erzeugt wird, zu transformieren, ohne die
-     *         grundlegende Struktur der Continuation zu verändern.
-     *     </p>
-     *     <p>Beispiel:</p>
-     *     <pre>{@code
-     *         Continuation<Integer, String> cont = Continuation.continuation(k -> k.apply(42));
-     *         Continuation<String, String> mappedCont = cont.map(x -> "The value is: " + x);
-     *         String result = mappedCont.apply(x -> x);
-     *     }</pre>
+     *   <p>
+     *     Functor map: transforms the produced value while preserving the CPS structure.
+     *     Defined as {@code map g = k -> runCont (a -> k (g a))}.
+     *   </p>
      * </div>
      *
-     * @param <B> Der Typ des neuen Ergebnisses nach Anwendung der Funktion.
-     * @param transformation  Eine Funktion, die das Ergebnis von Typ {@code A} in ein Ergebnis vom Typ {@code B} transformiert.
-     * @return Eine neue Continuation, die das transformierte Ergebnis enthält.
-     * @throws NullPointerException Wenn {@code transformation} oder das von {@code transformation} zurückgegebene Ergebnis {@code null} ist.
+     * @param <B>            the target value type
+     * @param transformation mapping {@code A -> B}; must not be {@code null} and must not return {@code null}
+     * @return a continuation producing {@code B} within the same {@code R}
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -170,7 +179,6 @@ public class Continuation<A, R>
         return new Continuation<>(
             f -> this.runCont.apply(
                 f.compose(a -> {
-                    // Null-Check auf a, um unerwartete Null-Werte abzufangen
                     Objects.requireNonNull(a, nullValue("a"));
                     return Objects.requireNonNull(transformation.apply(a), nullResultFrom("transformation"));
                 })
@@ -180,20 +188,16 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Hebt eine Continuation, die eine Funktion enthält, in diese Continuation hoch.
-     *     </p>
-     *     <p>
-     *         Die gegebene Continuation {@code transformation} enthält eine Funktion, die auf das Ergebnis dieser Continuation
-     *         angewendet wird. Das Ergebnis der Anwendung wird in einer neuen Continuation zurückgegeben.
-     *     </p>
+     *   <p>
+     *     Applicative application (lift): applies a continuation holding a function to this continuation’s value.
+     *     Conceptually, {@code ap cf cx = k -> cf.run (t -> cx.map(t).run(k))}.
+     *   </p>
      * </div>
      *
-     * @param <B> Der Typ des neuen Ergebnisses nach Anwendung der Funktion.
-     * @param transformation  Eine Continuation, die eine Funktion {@code Function<? super A, ? extends B>} enthält.
-     * @return Eine neue Continuation, die das Ergebnis der Anwendung der Funktion auf das Ergebnis dieser Continuation enthält.
-     * @throws NullPointerException Wenn {@code transformation} {@code null} ist oder die darin enthaltene Funktion
-     *                              ein {@code null}-Ergebnis liefert.
+     * @param <B>            the target value type
+     * @param transformation a continuation producing a function {@code A -> B}; must not be {@code null}
+     * @return a continuation producing {@code B}
+     * @throws NullPointerException if {@code transformation} is {@code null} or its function yields {@code null}
      *
      * @since 1.0.0
      */
@@ -207,24 +211,17 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Verkettet die aktuelle Continuation mit einer neuen Continuation, die aus der gegebenen
-     *         Funktion {@code transformation} erzeugt wird.
-     *     </p>
-     *     <p>
-     *         Diese Methode führt die aktuelle Continuation aus, um einen Wert {@code a} zu erzeugen,
-     *         und übergibt diesen Wert an die Funktion {@code transformation}. Die Funktion liefert eine neue
-     *         Continuation zurück, die mit der übergebenen {@code cont}-Funktion weitergeführt wird.
-     *     </p>
+     *   <p>
+     *     Monadic bind (flatMap): sequences CPS computations. Defined as
+     *     {@code bind f = k -> runCont (a -> f(a).runCont(k))}.
+     *   </p>
      * </div>
      *
-     * @param transformation Eine Funktion, die den aktuellen Wert {@code a} in eine neue Continuation
-     *              vom Typ {@code Continuation<B, R>} transformiert. Sie darf nicht {@code null} sein.
-     * @param <B>   Der Typ des Wertes der neu erzeugten Continuation.
-     * @return Eine neue Continuation, die die aktuelle Continuation ausführt und mit der neuen
-     *         Continuation aus {@code transformation} weitergeführt wird.
-     * @throws NullPointerException Wenn {@code transformation} {@code null} ist oder die von {@code bindM}
-     *                              erzeugte Continuation {@code null} ist.
+     * @param <B>            the target value type
+     * @param transformation {@code A -> Continuation<B, R>}; must not be {@code null}
+     * @return a continuation producing {@code B}
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
+     *
      * @since 1.0.0
      */
     @Override
@@ -235,22 +232,14 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet die gegebene Funktion auf die Continuation an und führt sie aus,
-     *         um ein Ergebnis vom Typ {@code R} zu liefern.
-     *     </p>
-     *     <p>
-     *         Diese Methode führt die gespeicherte Continuation aus, indem sie die
-     *         bereitgestellte Funktion {@code computation} auf den inneren Wert anwendet,
-     *         der durch die Continuation zur Verfügung gestellt wird.
-     *      </p>
+     *   <p>
+     *     Runs this continuation with the provided final continuation function (the “consumer” of {@code A}).
+     *   </p>
      * </div>
      *
-     * @param computation Die Funktion, die auf den Wert der Continuation angewendet werden soll.
-     * Sie darf nicht {@code null} sein.
-     * @return Das Ergebnis der Ausführung der Continuation, nachdem die Funktion angewendet wurde.
-     * @throws NullPointerException Wenn {@code computation} {@code null} ist oder die Funktion
-     * ein {@code null}-Ergebnis liefert.
+     * @param computation the final continuation {@code A -> R}; must not be {@code null}
+     * @return the computed {@code R}
+     * @throws NullPointerException if {@code computation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -262,16 +251,18 @@ public class Continuation<A, R>
 
     /**
      * <div>
-     *     <p>
-     *         Führt diese Continuation aus und ignoriert ihr Ergebnis,
-     *         um anschließend die übergebene Continuation weiterzuführen.
-     *     </p>
+     *   <p>
+     *     Sequences this continuation and then proceeds with the given continuation, ignoring this value.
+     *     Equivalent to {@code this.bind(_ -> continuation)}.
+     *   </p>
      * </div>
      *
-     * @param continuation die Continuation, die nach dieser ausgeführt wird
-     * @return eine neue Continuation, die diese Continuation ausführt
-     *         und danach die übergebene {@code continuation} weiterführt
-     * @throws NullPointerException wenn {@code continuation} {@code null} ist
+     * @param continuation the next continuation to run; must not be {@code null}
+     * @param <B>          the next value type
+     * @return a continuation that first runs {@code this}, then {@code continuation}
+     * @throws NullPointerException if {@code continuation} is {@code null}
+     *
+     * @since 1.0.0
      */
     @SuppressWarnings("unused")
     public <B> Continuation<B, R> then(final @NonNull Continuation<B, R> continuation) {
@@ -279,6 +270,27 @@ public class Continuation<A, R>
         return this.bind(ignored -> continuation);
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     call/cc (call-with-current-continuation) for {@code Continuation}: provides an escape continuation {@code k}
+     *     to the computation, allowing early exit or non-local control flow.
+     *   </p>
+     *   <p>
+     *     Usage sketch:
+     *     {@code callCurrentCont(k -> /* build a computation that may invoke k(a) to short-circuit *\/ ...)}
+     *   </p>
+     * </div>
+     *
+     * @param computation a function receiving the current continuation {@code k} and producing a computation
+     * @param <R>         the result type
+     * @param <A>         the input value type for {@code k}
+     * @param <B>         the produced value type of the resulting continuation
+     * @return a continuation that runs {@code computation} with the current continuation
+     * @throws NullPointerException if {@code computation} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static <R, A, B> Continuation<B, R> callCurrentCont(final @NonNull Function<Function<A, Continuation<B, R>>, Continuation<A, R>> computation) {
         Objects.requireNonNull(computation, nullValue("computation"));
         //noinspection unchecked
