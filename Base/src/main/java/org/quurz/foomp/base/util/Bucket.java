@@ -16,17 +16,36 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 
 /**
- * <p>
- *     Ein Eimerchen. Ein Eimerchen sogar mit &Uuml;berlauf.
- * </p>
+ * <div>
+ *   <p>
+ *     A simple in-memory batching buffer with overflow behaviour (“bucket”). Elements are accumulated
+ *     until the configured maximum size is reached; then the batch is flushed to a provided sink,
+ *     the bucket is emptied, and accumulation continues.
+ *   </p>
+ *   <p>
+ *     Intended use cases:
+ *   </p>
+ *   <ul>
+ *     <li>Event/callback pipelines where items arrive one-by-one and should be processed in batches.</li>
+ *     <li>Batching for sinks like databases, file/IO, message queues, or HTTP endpoints.</li>
+ *     <li>Non-streaming scenarios where you want explicit add()/flush() control.</li>
+ *   </ul>
+ *   <p>
+ *     Notes and guidance:
+ *   </p>
+ *   <ul>
+ *     <li>For stream pipelines on recent JDKs, prefer {@code java.util.stream.Gatherers.windowFixed(int)}
+ *         for size-based chunking.</li>
+ *     <li>Thread-safety: this implementation uses a write lock around mutation and flush. The current
+ *         design invokes the sink while holding the write lock. If the sink is slow or blocking, consider
+ *         adapting the implementation to copy-and-release the lock before calling the sink.</li>
+ *     <li>Memory: the buffer grows up to {@code maxSize}. There is no time-based flushing in this class.</li>
+ *     <li>Future extensions (not implemented here): size-or-time flushing, retry policies on sink failures,
+ *         dead-letter sinks, asynchronous sinks with bounded parallelism, metrics hooks.</li>
+ *   </ul>
+ * </div>
  *
- * <p>
- *     Der <code>Bucket</code> nimmt solange Elemente an, bis seine maximale Gr&ouml;&szlig;e erreicht ist,
- *     um diese Elemente dann in den Abfluss zu gie&szlig;en. Danach ist er bereit, wieder Elemente aufzunehmen.<br />
- *     Ad Infinitum! &#128513;
- * </p>
- *
- * @param <A> Typ der Elemente, die der <code>Bucket</code> aufnehmen kann.
+ * @param <A> element type accepted by this bucket
  *
  * @since 1.0.0
  */
@@ -34,18 +53,25 @@ public class Bucket<A> {
 
     /**
      * <div>
-     *     <p>
-     *         Baut einen neuen <code>Bucket</code>
-     *     </p>
+     *   <p>
+     *     Creates a new {@code Bucket}.
+     *   </p>
+     *   <p>
+     *     Contract:
+     *   </p>
+     *   <ul>
+     *     <li>{@code maxSize} must be at least 1.</li>
+     *     <li>{@code sink} must not be {@code null} and must tolerate being called multiple times,
+     *         possibly with empty lists if used incorrectly.</li>
+     *   </ul>
      * </div>
      *
-     * @param maxSize Die maximale Gr&ouml;&szlig; des <code>Bucket</code>s
-     * @param sink Der Abfluss
-     * @return Der neue <code>Bucket</code>
-     * @param <A> Typ der Elemente, die der <code>Bucket</code> aufnehmen kann.
-     *
-     * @throws IllegalArgumentException Falls <code>maxSize &lt; 1</code>
-     * @throws NullPointerException Falls <code>sink &#61;&#61; null</code>
+     * @param maxSize the maximum number of elements per batch; must be {@code >= 1}
+     * @param sink    the consumer invoked on flush with the current batch; must not be {@code null}
+     * @param <A>     the element type
+     * @return a new {@code Bucket<A>}
+     * @throws IllegalArgumentException if {@code maxSize < 1}
+     * @throws NullPointerException     if {@code sink == null}
      *
      * @since 1.0.0
      */
@@ -60,19 +86,28 @@ public class Bucket<A> {
 
     /**
      * <div>
-     *     <p>Erzeugt einen <code>Collector</code> für einen <code>Bucket</code></p>
-     *     <p>&#x26A0; Obacht! Als <code>Collector</code> in einem parallelen Stream wird die Reihenfolge nicht beachtet!</p>
+     *   <p>
+     *     Creates a {@link Collector} that routes stream elements through a {@code Bucket} and ensures a final flush.
+     *   </p>
+     *   <p>
+     *     Caveats:
+     *   </p>
+     *   <ul>
+     *     <li>In parallel streams, encounter order is not guaranteed by this collector’s simple combiner.</li>
+     *     <li>This collector batches by size only. For modern JDKs, {@code Gatherers.windowFixed(maxSize)}
+     *         is usually the more idiomatic choice for pure stream pipelines.</li>
+     *   </ul>
      * </div>
      *
-     * @param maxSize Die maximale Gr&ouml;&szlig; des <code>Bucket</code>s
-     * @param sink Der Abfluss
-     * @return Der neue <code>Collector</code>
-     * @param <A> Typ der Elemente, die der <code>Bucket</code> aufnehmen kann.
+     * @param maxSize the maximum batch size; must be {@code >= 1}
+     * @param sink    the sink invoked with each flushed batch; must not be {@code null}
+     * @param <A>     the element type
+     * @return a collector that batches elements into the given sink via an internal {@code Bucket}
      *
      * @see java.util.stream.Collector
      *
-     * @throws IllegalArgumentException Falls <code>maxSize &lt; 1</code>
-     * @throws NullPointerException Falls <code>sink &#61;&#61; null</code>
+     * @throws IllegalArgumentException if {@code maxSize < 1}
+     * @throws NullPointerException     if {@code sink == null}
      *
      * @since 1.0.0
      */
@@ -128,14 +163,19 @@ public class Bucket<A> {
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;gt dem <code>Bucket</code> ein neues Element hinzu
-     *     </p>
+     *   <p>
+     *     Adds an element to the bucket. When the bucket reaches {@code maxSize}, the current batch
+     *     is flushed to the sink and the bucket is cleared.
+     *   </p>
+     *   <p>
+     *     Concurrency: acquires the write lock. If the flush threshold is reached, {@link #flush()} is called
+     *     within the same critical section.
+     *   </p>
      * </div>
      *
-     * @param element Das neue Element
+     * @param element the element to add; must not be {@code null}
      *
-     * @throws NullPointerException Falls <code>element &#61;&#61; null</code>
+     * @throws NullPointerException if {@code element == null}
      *
      * @since 1.0.0
      */
@@ -155,9 +195,17 @@ public class Bucket<A> {
 
     /**
      * <div>
-     *     <p>
-     *         Gie&szlig;t den eventuell vorhandenen Rest an Elementen in diesem <code>Bucket</code> in den Abfluss.
-     *     </p>
+     *   <p>
+     *     Flushes any currently buffered elements to the sink and clears the bucket.
+     *   </p>
+     *   <p>
+     *     Implementation notes:
+     *   </p>
+     *   <ul>
+     *     <li>This method holds the write lock while copying the current batch and while invoking the sink.</li>
+     *     <li>If the sink can block or is slow, consider an alternative design that copies under the lock,
+     *         releases the lock, and only then invokes the sink.</li>
+     *   </ul>
      * </div>
      *
      * @since 1.0.0
