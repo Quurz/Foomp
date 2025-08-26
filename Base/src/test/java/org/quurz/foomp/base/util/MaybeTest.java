@@ -1,5 +1,9 @@
 package org.quurz.foomp.base.util;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,464 +30,344 @@ import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @ExtendWith(MockitoExtension.class)
-class MaybeTest
-        extends TestHelper {
+@DisplayName("Maybe")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+class MaybeTest extends TestHelper {
 
-    private static final Logger LOGGER
-        = getLogger(MaybeTest.class);
+    private static final Logger LOGGER = getLogger(MaybeTest.class);
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testSome() {
-        LOGGER.info("Test Maybe.some");
+    @Nested
+    @DisplayName("Factory")
+    class Factory {
 
-        assertThatThrownBy(() -> some(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = some(SOME_STRING_VALUE);
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void some_with_null_value_throws() {
+            LOGGER.info("Maybe.some(...) should throw NullPointerException when value is null");
+            assertThatThrownBy(() -> some(null))
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void some_with_valid_value_is_some() {
+            LOGGER.info("Maybe.some(...) should create Some when value is non-null");
+            assertThatNoException().isThrownBy(() -> {
+                final var maybe = some(SOME_STRING_VALUE);
                 checkIsSomeWithValue(maybe, SOME_STRING_VALUE);
             });
+        }
+
+        @Test
+        void maybeOfNullable_handles_null_and_non_null() {
+            LOGGER.info("Maybe.maybeOfNullable should map null->None and non-null->Some");
+            assertThatNoException().isThrownBy(() -> {
+                final var noneMaybe = maybeOfNullable(null);
+                checkIsNone(noneMaybe);
+                assertThatThrownBy(noneMaybe::get).isInstanceOf(NoSuchElementException.class);
+                assertThat(noneMaybe.isNone()).isTrue();
+            });
+            assertThatNoException().isThrownBy(() -> {
+                final var someMaybe = maybeOfNullable(SOME_STRING_VALUE);
+                checkIsSomeWithValue(someMaybe, SOME_STRING_VALUE);
+            });
+        }
+
+        @SuppressWarnings({"OptionalAssignedToNull", "DataFlowIssue"})
+        @Test
+        void maybeFrom_converts_optional() {
+            LOGGER.info("Maybe.maybeFrom should convert Optional to Maybe");
+            assertThatThrownBy(() -> maybeFrom(null))
+                .isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var m = maybeFrom(Optional.empty());
+                checkIsNone(m);
+                assertThatThrownBy(m::get).isInstanceOf(NoSuchElementException.class);
+            });
+
+            assertThatNoException().isThrownBy(() -> {
+                final var m = maybeFrom(Optional.of(SOME_STRING_VALUE));
+                checkIsSomeWithValue(m, SOME_STRING_VALUE);
+            });
+        }
     }
 
-    @Test
-    void testMaybeOfNullable() {
-        LOGGER.info("Test Maybe.maybeOfNullable");
+    @Nested
+    @DisplayName("Accessors")
+    class Accessors {
 
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = maybeOfNullable(null);
-                checkIsNone(maybe);
-                assertThatThrownBy(maybe::get)
-                    .isInstanceOf(NoSuchElementException.class);
-                assertThat(maybe.isNone())
-                    .isTrue();
+        @Test
+        void get_on_none_throws_and_on_some_returns() {
+            LOGGER.info("Maybe.get should throw on None and return value on Some");
+            final var mNone = none();
+            assertThatThrownBy(mNone::get).isInstanceOf(NoSuchElementException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var mSome = some(SOME_STRING_VALUE);
+                assertThat(mSome.get()).isEqualTo(SOME_STRING_VALUE);
             });
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = maybeOfNullable(SOME_STRING_VALUE);
-                checkIsSomeWithValue(maybe, SOME_STRING_VALUE);
-            });
-    }
+        }
 
-    @SuppressWarnings({"OptionalAssignedToNull", "DataFlowIssue"})
-    @Test
-    void testMaybeFrom() {
-        LOGGER.info("Test Maybe.maybeFrom");
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void getOrElse_contracts_and_values() {
+            LOGGER.info("Maybe.getOrElse should enforce null contracts and return correct fallback/value");
+            assertThatThrownBy(() -> none().getOrElse(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> none().getOrElse(() -> null)).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> maybeFrom(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = maybeFrom(Optional.empty());
+            assertThatNoException().isThrownBy(() ->
+                assertThat(none().getOrElse(() -> SOME_STRING_VALUE)).isEqualTo(SOME_STRING_VALUE)
+            );
 
-                checkIsNone(maybe);
-                assertThatThrownBy(maybe::get)
-                    .isInstanceOf(NoSuchElementException.class);
-            });
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = maybeFrom(Optional.of(SOME_STRING_VALUE));
-                checkIsSomeWithValue(maybe, SOME_STRING_VALUE);
-            });
-    }
+            assertThatThrownBy(() -> some(SOME_STRING_VALUE).getOrElse(null))
+                .isInstanceOf(NullPointerException.class);
 
-    @Test
-    void testGet() {
-        LOGGER.info("Test maybe.get");
+            assertThatNoException().isThrownBy(() ->
+                assertThat(some(SOME_STRING_VALUE).getOrElse(() -> SOME_OTHER_STRING_VALUE))
+                    .isEqualTo(SOME_STRING_VALUE)
+            );
+        }
 
-        final var maybe
-            = none();
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void getOrThrow_contracts_and_values() {
+            LOGGER.info("Maybe.getOrThrow should enforce null contracts and throw supplied/return value");
+            assertThatThrownBy(() -> none().getOrThrow(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> none().getOrThrow(() -> null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> none().getOrThrow(() -> new IllegalArgumentException(OUCH)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(OUCH);
 
-        assertThatThrownBy(maybe::get)
-            .isInstanceOf(NoSuchElementException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final Maybe<String> some
-                    = some(SOME_STRING_VALUE);
-                assertThatNoException()
-                    .isThrownBy(some::get);
-                assertThat(some.get())
+            assertThatNoException().isThrownBy(() -> {
+                final var m = some(SOME_STRING_VALUE);
+                assertThat(m.getOrThrow(() -> new IllegalArgumentException(OUCH)))
                     .isEqualTo(SOME_STRING_VALUE);
             });
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testGetOrElse() {
-        LOGGER.info("Test Maybe.getOrElse");
+    @Nested
+    @DisplayName("Utilities (peeks)")
+    class Utilities_Peeks {
 
-        assertThatThrownBy(() -> {
-            final var maybe
-                = none();
-            maybe.getOrElse(null);
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> {
-            final var maybe
-                = none();
-            maybe.getOrElse(() -> null);
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = none();
-                assertThat(maybe.getOrElse(() -> SOME_STRING_VALUE))
-                    .isEqualTo(SOME_STRING_VALUE);
+        @SuppressWarnings({"DataFlowIssue", "unchecked", "unused"})
+        @Test
+        void ifSome_behaviour_and_contracts() {
+            LOGGER.info("Maybe.ifSome should enforce null contracts and behave as peek");
+            assertThatThrownBy(() -> none().ifSome(null)).isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var m = none();
+                final var consumer = mockLambda(Consumer.class, _$ -> {});
+                final var cont = m.ifSome(consumer);
+                assertThat(cont).isEqualTo(m);
+                verify(consumer, times(0)).accept(any());
             });
-        assertThatThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            maybe.getOrElse(null);
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = some(SOME_STRING_VALUE);
-                assertThat(maybe.getOrElse(() -> SOME_OTHER_STRING_VALUE))
-                    .isEqualTo(SOME_STRING_VALUE);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var m = some(SOME_STRING_VALUE);
+                final var consumer = mockLambda(Consumer.class, _$ -> {});
+                final var cont = m.ifSome(consumer);
+                assertThat(cont).isEqualTo(m);
+                verify(consumer, times(1)).accept(SOME_STRING_VALUE);
             });
-    }
+        }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testGetOrThrow() {
-        LOGGER.info("Test maybe.getOrThrow");
+        @SuppressWarnings({"DataFlowIssue", "unused", "unchecked"})
+        @Test
+        void ifPresentOrElse_behaviour_and_contracts() {
+            LOGGER.info("Maybe.ifPresentOrElse should enforce null contracts and run correct branch");
+            assertThatThrownBy(() -> none().ifPresentOrElse(_$ -> {}, null))
+                .isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> none().getOrThrow(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> none().getOrThrow(() -> null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> none().getOrThrow(() -> new IllegalArgumentException(OUCH)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage(OUCH);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = some(SOME_STRING_VALUE);
-                maybe.getOrThrow(() -> new IllegalArgumentException(OUCH));
-                assertThat(maybe.get())
-                    .isEqualTo(SOME_STRING_VALUE);
+            assertThatNoException().isThrownBy(() -> {
+                final var m = none();
+                final var consumer = mockLambda(Consumer.class, _$ -> {});
+                final var runnable = mockLambda(Runnable.class, () -> {});
+                final var cont = m.ifPresentOrElse(consumer, runnable);
+                assertThat(cont).isEqualTo(m);
+                verify(consumer, times(0)).accept(any());
+                verify(runnable, times(1)).run();
             });
-    }
 
-    @SuppressWarnings({"DataFlowIssue", "unchecked", "unused"})
-    @Test
-    void testIfSome() {
-        LOGGER.info("Test maybe.ifPresent");
-
-        assertThatThrownBy(() -> none().ifSome(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = none();
-                final var consumer
-                    = mockLambda(Consumer.class, _$ -> {});
-                final var cont
-                    = maybe.ifSome(consumer);
-                assertThat(cont)
-                    .isEqualTo(maybe);
-                verify(consumer, times(0))
-                    .accept(any());
-            });
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = some(SOME_STRING_VALUE);
-                final var consumer
-                    = mockLambda(Consumer.class, _$ -> {});
-                final var cont
-                    = maybe.ifSome(consumer);
-                assertThat(cont)
-                    .isEqualTo(maybe);
-                verify(consumer, times(1))
-                    .accept(SOME_STRING_VALUE);
-                });
-        assertThatThrownBy(() -> {
-            final var maybe
-                = none();
-            maybe.ifPresentOrElse(null, () -> {});
-        })
-        .isInstanceOf(NullPointerException.class);
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused", "unchecked"})
-    @Test
-    void testIfSomeOrElseWithNullRunnable() {
-        LOGGER.info("Test maybe.ifPresentOrElse");
-
-        assertThatThrownBy(() -> {
-            final var maybe
-                = none();
-            maybe.ifPresentOrElse(_$ -> {} , null);
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                = none();
-                final var consumer
-                    = mockLambda(Consumer.class, _$ -> {});
-                final var runnable
-                = mockLambda(Runnable.class, () -> {});
-                final var cont
-                    = maybe.ifPresentOrElse(consumer, runnable);
-                assertThat(cont)
-                    .isEqualTo(maybe);
-                verify(consumer, times(0))
-                    .accept(any());
-                verify(runnable, times(1))
-                    .run();
-            });
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = some(SOME_STRING_VALUE);
-                final var consumer
-                    = mockLambda(Consumer.class, _$ -> {});
-                final var runnable
-                    = mockLambda(Runnable.class, () -> {});
-                final var cont
-                    = maybe.ifPresentOrElse(consumer, runnable);
-                assertThat(cont)
-                    .isEqualTo(maybe);
+            assertThatNoException().isThrownBy(() -> {
+                final var m = some(SOME_STRING_VALUE);
+                final var consumer = mockLambda(Consumer.class, _$ -> {});
+                final var runnable = mockLambda(Runnable.class, () -> {});
+                final var cont = m.ifPresentOrElse(consumer, runnable);
+                assertThat(cont).isEqualTo(m);
                 verify(consumer, times(1)).accept(any());
                 verify(runnable, times(0)).run();
             });
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testMapWithNullFunction() {
-        LOGGER.info("Test maybe.map");
+    @Nested
+    @DisplayName("Functional (map, lift, bind)")
+    class Functional {
 
-        assertThatThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            maybe.map(null);
-        })
-        .isInstanceOf(NullPointerException.class);
+        @Nested
+        @DisplayName("map")
+        class Map_ {
 
-        assertThatThrownBy(() -> {
-            final var maybe
-                = none();
-            maybe.map(null);
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> {
-            final Maybe<String> maybe
-                = some(SOME_STRING_VALUE).map(_$ -> null);
-            maybe.get();
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatNoException().isThrownBy(() -> {
-            final Maybe<String> maybe
-                = none();
-            final var mapped
-                = maybe.map(String::length);
-            checkIsNone(mapped);
-        });
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var maybe
-                    = some(SOME_STRING_VALUE).map(String::length).unwind();
-                checkIsSomeWithValue(maybe, SOME_STRING_VALUE.length());
+            @SuppressWarnings({"DataFlowIssue", "unused"})
+            @Test
+            void map_contracts_and_laziness() {
+                LOGGER.info("Maybe.map should enforce null contracts and preserve laziness");
+                assertThatThrownBy(() -> some(SOME_STRING_VALUE).map(null))
+                    .isInstanceOf(NullPointerException.class);
+                assertThatThrownBy(() -> none().map(null))
+                    .isInstanceOf(NullPointerException.class);
+                assertThatThrownBy(() -> some(SOME_STRING_VALUE).map(_$ -> null).get())
+                    .isInstanceOf(NullPointerException.class);
+
+                assertThatNoException().isThrownBy(() -> {
+                    final var mappedNone = Maybe.<String>none().map(String::length);
+                    checkIsNone(mappedNone);
+                });
+
+                assertThatNoException().isThrownBy(() -> {
+                    final var mappedSome = some(SOME_STRING_VALUE).map(String::length).unwind();
+                    checkIsSomeWithValue(mappedSome, SOME_STRING_VALUE.length());
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("lift")
+        class Lift_ {
+
+            @SuppressWarnings({"DataFlowIssue", "unused"})
+            @Test
+            void lift_contracts_and_behaviour() {
+                LOGGER.info("Maybe.lift should enforce null contracts and apply function only if present");
+                assertThatThrownBy(() -> none().lift(null))
+                    .isInstanceOf(NullPointerException.class);
+
+                assertThatNoException().isThrownBy(() -> {
+                    final var m = Maybe.<String>none();
+                    final var tf = some((Function<String, Integer>) String::length);
+                    final var lifted = m.lift(tf);
+                    checkIsNone(lifted);
+                });
+
+                assertThatThrownBy(() -> {
+                    final var m = some(SOME_STRING_VALUE);
+                    final Fun<String, Integer> fMap = _$ -> null;
+                    m.lift(some(fMap)).unwind();
+                }).isInstanceOf(NullPointerException.class);
+
+                assertThatNoException().isThrownBy(() -> {
+                    final var m = some(SOME_STRING_VALUE);
+                    final var lifted = m.lift(none()).unwind();
+                    checkIsNone(lifted);
+                });
+
+                assertThatNoException().isThrownBy(() -> {
+                    final var m = some(SOME_STRING_VALUE);
+                    final var tf = some(funStringLength);
+                    final var lifted = m.lift(tf).unwind();
+                    checkIsSomeWithValue(lifted, lifted.get());
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("bind")
+        class Bind_ {
+
+            @SuppressWarnings({"DataFlowIssue", "unused"})
+            @Test
+            void bind_contracts_and_behaviour() {
+                LOGGER.info("Maybe.bind should enforce null contracts and flatten results");
+                assertThatThrownBy(() -> none().bind(null))
+                    .isInstanceOf(NullPointerException.class);
+
+                assertThatThrownBy(() -> {
+                    final var m = some(SOME_STRING_VALUE);
+                    final Fun<String, Maybe<Integer>> bindM = _$ -> null;
+                    m.bind(bindM).unwind();
+                }).isInstanceOf(NullPointerException.class);
+
+                assertThatNoException().isThrownBy(() -> {
+                    final var m = some(SOME_STRING_VALUE);
+                    final Fun<String, Maybe<Integer>> bindM = s -> some(s.length());
+                    final var bound = m.bind(bindM).unwind();
+                    checkIsSomeWithValue(bound, bound.get());
+                });
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Conversions and misc")
+    class Conversions_And_Misc {
+
+        @Test
+        void toOptional_converts_correctly() {
+            LOGGER.info("Maybe.toOptional should convert Some/None to Optional");
+            assertThat(none().toOptional()).isEmpty();
+
+            final var someMaybe = some(SOME_STRING_VALUE);
+            final var opt = someMaybe.toOptional();
+            assertThat(opt).isPresent();
+            assertThat(opt.get()).isEqualTo(SOME_STRING_VALUE);
+        }
+
+        @Test
+        void copy_preserves_value_and_laziness() {
+            LOGGER.info("Maybe.copy should preserve value and laziness");
+            final var noneCopy = none().copy();
+            checkIsNone(noneCopy.unwind());
+
+            final var someCopy = some(SOME_STRING_VALUE).copy();
+            checkIsSome(someCopy.unwind());
+            assertThat(someCopy.get()).isEqualTo(SOME_STRING_VALUE);
+        }
+
+        @SuppressWarnings("unused")
+        @Test
+        void unwind_materializes_some_and_keeps_none() {
+            LOGGER.info("Maybe.unwind should materialize Some and keep None");
+            assertThatNoException().isThrownBy(() -> {
+                final var m = none();
+                final var fMap = mockLambda(Fun.class, Fun.identity());
+                m.map(fMap).lift(some(fMap)).unwind();
+                verify(fMap, times(0)).apply(any());
             });
+
+            assertThatNoException().isThrownBy(() -> {
+                final var m = some(SOME_STRING_VALUE);
+                final var fMap = mockLambda(Fun.class, Fun.identity());
+                final var cont = m.map(fMap).lift(some(fMap)).bind(_$ -> some(SOME_STRING_VALUE));
+
+                verify(fMap, times(0)).apply(any());
+
+                final var unwound = cont.unwind();
+                checkIsSomeWithValue(unwound, SOME_STRING_VALUE);
+                verify(fMap, times(2)).apply(any());
+
+                unwound.get();
+                verify(fMap, times(2)).apply(any());
+            });
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void transmogrify_contracts() {
+            LOGGER.info("Maybe.transmogrify should enforce NullPointerException contracts");
+            assertThatThrownBy(() -> none().transmogrify(null))
+                .isInstanceOf(NullPointerException.class);
+            assertThatNoException()
+                .isThrownBy(() -> some(SOME_STRING_VALUE).transmogrify(_$ -> nothing));
+        }
+
+        @Test
+        void toString_formats_variants() {
+            LOGGER.info("Maybe.toString should format Some and None");
+            assertThat(none().toString()).isEqualTo("None[]");
+            assertThat(some(SOME_STRING_VALUE).toString())
+                .isEqualTo("Some[value=%s]".formatted(SOME_STRING_VALUE));
+        }
     }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testLift() {
-        LOGGER.info("Test maybe.lift");
-
-        assertThatThrownBy(() -> none().lift(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException().isThrownBy(() -> {
-            final Maybe<String> maybe
-                = none();
-            final Maybe<Function<String, Integer>> liftA
-                = some(String::length);
-            final var lifted
-                = maybe.lift(liftA);
-            checkIsNone(lifted);
-        });
-        assertThatThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            final Fun<String, Integer> fMap
-                = _$ -> null;
-            final var liftA
-                = some(fMap);
-            maybe.lift(liftA).unwind();
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatNoException().isThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            final var lifted
-                = maybe.lift(none()).unwind();
-            checkIsNone(lifted);
-        });
-        assertThatNoException().isThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            final var liftA
-                = some(funStringLength);
-            final var lifted
-                = maybe.lift(liftA).unwind();
-            checkIsSomeWithValue(lifted, lifted.get());
-        });
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testBindWithNullFunction() {
-        LOGGER.info("Test maybe.bind");
-
-        assertThatThrownBy(() -> {
-            final var maybe
-                = none();
-            maybe.bind(null);
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            final Fun<String, Maybe<Integer>> bindM
-                = _$ -> null;
-            maybe.bind(bindM).unwind();
-        })
-        .isInstanceOf(NullPointerException.class);
-        assertThatNoException().isThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            final Fun<String, Maybe<Integer>> bindM
-                = string -> some(string.length());
-            final var bound
-                = maybe.bind(bindM).unwind();
-            checkIsSomeWithValue(bound, bound.get());
-        });
-    }
-
-    @Test
-    void testToOptional() {
-        LOGGER.info("Test maybe.toOptional");
-
-        final var none
-            = none();
-        final var optionalFromNone
-            = none.toOptional();
-
-        assertThat(optionalFromNone)
-            .isEmpty();
-
-        final var some
-            = some(SOME_STRING_VALUE);
-        final var optionalFromSome
-            = some.toOptional();
-
-        assertThat(optionalFromSome)
-            .isPresent();
-        assertThat(optionalFromSome.get())
-            .isEqualTo(SOME_STRING_VALUE);
-    }
-
-    @Test
-    void testCopy() {
-        LOGGER.info("Test maybe.copy");
-
-        final var none
-            = none();
-        final var copyOfNone
-            = none.copy();
-
-        checkIsNone(copyOfNone.unwind());
-
-        final var some
-            = some(SOME_STRING_VALUE);
-        final var copyOfSome
-            = some.copy();
-
-        checkIsSome(copyOfSome.unwind());
-        assertThat(copyOfSome.get())
-            .isEqualTo(SOME_STRING_VALUE);
-    }
-
-    @SuppressWarnings("unused")
-    @Test
-    void testUnwind() {
-        LOGGER.info("Test maybe.unwind");
-
-        assertThatNoException().isThrownBy(() -> {
-            final var maybe
-                = none();
-            final var fMap
-                = mockLambda(Fun.class, Fun.identity());
-            maybe.map(fMap)
-                .lift(some(fMap))
-                .unwind();
-
-            verify(fMap, times(0))
-                .apply(any());
-        });
-        assertThatNoException().isThrownBy(() -> {
-            final var maybe
-                = some(SOME_STRING_VALUE);
-            final var fMap
-                = mockLambda(Fun.class, Fun.identity());
-
-            final var cont
-                = maybe
-                    .map(fMap)
-                    .lift(some(fMap))
-                    .bind(_$ -> some(SOME_STRING_VALUE));
-            verify(fMap, times(0))
-                .apply(any());
-
-            final var unwound
-                = cont.unwind();
-            checkIsSomeWithValue(unwound, SOME_STRING_VALUE);
-            verify(fMap, times(2))
-                .apply(any());
-
-            unwound.get();
-            verify(fMap, times(2))
-                .apply(any());
-        });
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testTransmogrify() {
-        LOGGER.info("Test maybe.transmogrify");
-
-        assertThatThrownBy(() -> none().transmogrify(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> some(SOME_STRING_VALUE).transmogrify(_$ -> nothing));
-    }
-
-    @Test
-    void testToString() {
-        LOGGER.info("Test maybe.toString");
-
-        final var stringFromNone
-            = none().toString();
-        assertThat(stringFromNone)
-            .isEqualTo("None[]");
-
-        final var stringFromSome
-            = some(SOME_STRING_VALUE).toString();
-        assertThat(stringFromSome)
-            .isEqualTo("Some[value=%s]".formatted(SOME_STRING_VALUE));
-    }
-
 }

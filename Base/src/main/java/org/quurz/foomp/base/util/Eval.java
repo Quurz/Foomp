@@ -18,12 +18,22 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>
- *     <p>
- *         Eine monadische Schnittstelle für die Lazy-Bewertung von Werten.
- *     </p>
+ *   <p>
+ *     A monadic interface for deferred evaluation of values, similar in spirit to Cats’ {@code Eval}.
+ *     It models three evaluation modes:
+ *   </p>
+ *   <ul>
+ *     <li>{@code Now}: eager, value is available immediately.</li>
+ *     <li>{@code Later}: lazy and memoized; computed on first access and cached thereafter.</li>
+ *     <li>{@code Always}: lazy and non‑memoized; computed on every access.</li>
+ *   </ul>
+ *   <p>
+ *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
+ *     Laziness is implemented via suppliers; unwinding and accessors may evaluate them.
+ *   </p>
  * </div>
  *
- * @param <A> Typ des Werts, der in der Evaluation verwendet wird
+ * @param <A> the value type carried by this evaluation
  *
  * @since 1.0.0
  *
@@ -42,24 +52,24 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Witness-Type des <code>Eval</code>s
-     *     </p>
+     *   <p>
+     *     Witness type for {@code Eval} in the higher‑kinded encoding.
+     *   </p>
      * </div>
      */
     final class µ implements WitnessType { private µ() {} }
 
     /**
      * <div>
-     *     <p>
-     *         Wandelt einen breiten Higher1-Typ in einen Eval-Typ um.
-     *     </p>
+     *   <p>
+     *     Narrows a {@link Higher1} value to an {@code Eval}.
+     *   </p>
      * </div>
      *
-     * @param wide der zu konvertierende Higher1-Typ
-     * @param <A> der Typ des Werts
-     * @return ein Eval-Objekt
-     * @throws NullPointerException wenn <code>wide</code> null ist
+     * @param wide the higher‑kinded value; must not be {@code null}
+     * @param <A>  the value type
+     * @return an {@code Eval} instance
+     * @throws NullPointerException if {@code wide} is {@code null}
      *
      * @since 1.0.0
      */
@@ -70,15 +80,15 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Entpackt einen verschachtelten Higher1-Typ in einen Eval-Typ.
-     *     </p>
+     *   <p>
+     *     Unwraps a nested {@code Eval} by one level.
+     *   </p>
      * </div>
      *
-     * @param wrapped der verschachtelte Higher1-Typ
-     * @param <A> der Typ des Werts
-     * @return ein Eval-Objekt
-     * @throws NullPointerException wenn <code>wrapped</code> null ist
+     * @param wrapped a nested {@code Eval}; must not be {@code null}
+     * @param <A>     the value type
+     * @return a flattened {@code Eval}
+     * @throws NullPointerException if {@code wrapped} is {@code null}
      *
      * @since 1.0.0
      */
@@ -91,69 +101,71 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Erstellt ein Eval-Objekt mit einem sofort verf&uuml;gbaren Wert.
-     *     </p>
+     *   <p>
+     *     Eager constructor: wraps a value that is already available.
+     *   </p>
      * </div>
      *
-     * @param value der sofort verf&uuml;gbare Wert
-     * @param <A> der Typ des Werts
-     * @return ein Eval-Objekt, das den angegebenen Wert enthält
-     * @throws NullPointerException wenn <code>value</code> null ist
+     * @param value the eager value; must not be {@code null}
+     * @param <A>   the value type
+     * @return an eager {@code Eval}
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
-    static <A> Eval<A> evalNow(@NonNull A value) {
+    static <A> Eval<A> evalNow(final @NonNull A value) {
         Objects.requireNonNull(value, nullValue("value"));
         return new Now<>(value);
     }
 
     /**
      * <div>
-     *     <p>
-     *         Erstellt ein Eval-Objekt, das einen Wert zur Laufzeit liefert.
-     *     </p>
+     *   <p>
+     *     Convenience: memoized lazy constructor wrapping a constant. The value is already computed
+     *     and will be returned on first access (and cached thereafter).
+     *   </p>
      * </div>
      *
-     * @param value der Wert, der zur Laufzeit bereitgestellt wird
-     * @param <A> der Typ des Werts
-     * @return ein Eval-Objekt, das den zur Laufzeit angegebenen Wert enth&auml;lt
-     * @throws NullPointerException wenn <code>value</code> null ist
+     * @param value the constant to expose lazily; must not be {@code null}
+     * @param <A>   the value type
+     * @return a memoized lazy {@code Eval}
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
-    static <A> Eval<A> evalLater(@NonNull final A value) {
+    static <A> Eval<A> evalLater(final @NonNull A value) {
         Objects.requireNonNull(value, nullValue("value"));
         return new Later<>(() -> value);
     }
 
     /**
      * <div>
-     *     <p>
-     *         Erstellt ein Eval-Objekt, das immer einen Wert zur&uuml;ckgibt.
-     *     </p>
+     *   <p>
+     *     Convenience: non‑memoized lazy constructor wrapping a constant. The value is already computed
+     *     and will be returned on each access (recomputed semantics do not apply to constants).
+     *   </p>
      * </div>
      *
-     * @param value der Wert, der immer bereitgestellt wird
-     * @param <A> der Typ des Werts
-     * @return ein Eval-Objekt, das immer den angegebenen Wert zur&uuml;ckgibt
-     * @throws NullPointerException wenn <code>value</code> null ist
+     * @param value the constant to expose lazily; must not be {@code null}
+     * @param <A>   the value type
+     * @return a non‑memoized lazy {@code Eval}
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
-    static <A> Eval<A> evalAlways(@NonNull final A value) {
+    static <A> Eval<A> evalAlways(final @NonNull A value) {
         Objects.requireNonNull(value, nullValue("value"));
         return new Always<>(() -> value);
     }
 
     /**
      * <div>
-     *     <p>
-     *         &Uuml;berpr&uuml;ft, ob ein Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Indicates that a value is present. By design, {@code Eval} always carries a value.
+     *   </p>
      * </div>
      *
-     * @return immer <code>true</code>, da Eval immer einen Wert hat
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -164,15 +176,16 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den in Eval gespeicherten Wert an und gibt ein neues Eval-Objekt zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Functor map: transforms the stored value and preserves the evaluation mode.
+     *     Now maps eagerly; Later and Always remain lazy (memoized vs. non‑memoized).
+     *   </p>
      * </div>
      *
-     * @param transformation die Funktion, die auf den gespeicherten Wert angewendet wird
-     * @param <B> der Typ des neuen Werts
-     * @return ein neues Eval-Objekt mit dem transformierten Wert
-     * @throws NullPointerException wenn <code>fMap</code> null ist oder das Ergebnis null
+     * @param transformation the mapping function; must not be {@code null} and must not return {@code null}
+     * @param <B>            the result type
+     * @return an {@code Eval} in the corresponding mode (Now/Later/Always)
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -189,15 +202,16 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den in Eval gespeicherten Wert an und gibt ein neues Eval-Objekt zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Applicative lift: applies a function carried by another {@code Eval} to this value.
+     *     The function container is evaluated lazily where possible (Later/Always), preserving mode semantics.
+     *   </p>
      * </div>
      *
-     * @param transformation die Funktion, die auf den gespeicherten Wert angewendet wird
-     * @param <B> der Typ des neuen Werts
-     * @return ein neues Eval-Objekt mit dem transformierten Wert
-     * @throws NullPointerException wenn <code>liftA</code> null ist
+     * @param transformation an {@code Eval} containing a function; must not be {@code null}
+     * @param <B>            the result type
+     * @return an {@code Eval} with the applied function, preserving evaluation mode
+     * @throws NullPointerException if {@code transformation} is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -205,20 +219,32 @@ public sealed interface Eval<A>
     @NonNull
     default <B> Eval<B> lift(@NonNull final Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
-        return this.map(narrow(transformation).get());
+        final Eval<? extends Function<? super A, ? extends B>> funEval = narrow(transformation);
+        return switch (this) {
+            case Now<A> now -> evalNow(Objects.requireNonNull(funEval.get().apply(now.get()), nullResult()));
+            case Later<A> later -> new Later<>(() -> {
+                final var f = Objects.requireNonNull(funEval.get(), nullSupplied());
+                return Objects.requireNonNull(f.apply(later.get()), nullResult());
+            });
+            case Always<A> always -> new Always<>(() -> {
+                final var f = Objects.requireNonNull(funEval.get(), nullSupplied());
+                return Objects.requireNonNull(f.apply(always.get()), nullResult());
+            });
+        };
     }
 
     /**
      * <div>
-     *     <p>
-     *         Bindet eine Funktion an den in Eval gespeicherten Wert und gibt ein neues Eval-Objekt zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Monadic bind: sequences computation by mapping to another {@code Eval} and flattening.
+     *     Now binds eagerly; Later and Always remain lazy (memoized vs. non‑memoized).
+     *   </p>
      * </div>
      *
-     * @param transformation die Funktion, die an den gespeicherten Wert gebunden wird
-     * @param <B> der Typ des neuen Werts
-     * @return ein neues Eval-Objekt mit dem transformierten Wert
-     * @throws NullPointerException wenn <code>bindM</code> null ist
+     * @param transformation the monadic transformation; must not be {@code null}
+     * @param <B>            the result type
+     * @return the bound {@code Eval}
+     * @throws NullPointerException if {@code transformation} is {@code null} or supplies {@code null}
      *
      * @since 1.0.0
      */
@@ -236,12 +262,19 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Spult alle Operationen ab und gibt den im Eval gespeicherten Wert und gibt ihn zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Unwinds this {@code Eval} to a semantically equivalent representation while preserving
+     *     its concrete evaluation mode (subtype).
+     *   </p>
+     *   <ul>
+     *     <li>{@code Now}: returns a new {@code Now} with the current value.</li>
+     *     <li>{@code Later}: evaluates immediately and returns a {@code Later} that yields the
+     *         materialized value (constant supplier; remains memoized and stable).</li>
+     *     <li>{@code Always}: preserves the original supplier to keep non‑memoized semantics.</li>
+     *   </ul>
      * </div>
      *
-     * @return ein neues Eval-Objekt mit dem ermittelten Wert
+     * @return a semantically equivalent {@code Eval} with preserved subtype
      *
      * @since 1.0.0
      */
@@ -249,23 +282,23 @@ public sealed interface Eval<A>
     @NonNull
     default Eval<A> unwind() {
        return switch (this) {
-           case Now<A> now -> new Now<>(now.get());
-           case Later<A> later -> new Later<>(later.supplier);
+           case Now<A> now -> evalNow(now.get());
+           case Later<A> later -> evalLater(later.get());
            case Always<A> always -> new Always<>(always.supplier);
        };
     }
 
     /**
      * <div>
-     *     <p>
-     *         Wendet einen Transmogrifier auf das Eval-Objekt an.
-     *     </p>
+     *   <p>
+     *     Applies a transmogrifier function to this {@code Eval}.
+     *   </p>
      * </div>
      *
-     * @param transmogrifier die Funktion, die auf das Eval-Objekt angewendet wird
-     * @param <T> der Typ des Ergebnisses
-     * @return das Ergebnis der Transmogrification
-     * @throws NullPointerException wenn <code>transmogrifier</code> null ist oder das Ergebnis null
+     * @param transmogrifier the transformation function; must not be {@code null} and must not return {@code null}
+     * @param <T>            the result type
+     * @return the transformation result
+     * @throws NullPointerException if {@code transmogrifier} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -278,12 +311,12 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Repr&auml;sentiert einen sofort verf&uuml;gbaren Wert in Eval.
-     *     </p>
+     *   <p>
+     *     Eager value holder ({@code Now}).
+     *   </p>
      * </div>
      *
-     * @param <A> der Typ des Werts
+     * @param <A> the value type
      *
      * @since 1.0.0
      */
@@ -307,12 +340,12 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Repr&auml;sentiert einen verz&ouml;gerten Wert in Eval, der zur Laufzeit geliefert wird.
-     *     </p>
+     *   <p>
+     *     Lazy + memoized value holder ({@code Later}). Computed once and cached.
+     *   </p>
      * </div>
      *
-     * @param <A> der Typ des Werts
+     * @param <A> the value type
      *
      * @since 1.0.0
      */
@@ -341,12 +374,12 @@ public sealed interface Eval<A>
 
     /**
      * <div>
-     *     <p>
-     *         Repr&auml;sentiert einen Wert in Eval, der immer ermittelt wird.
-     *     </p>
+     *   <p>
+     *     Lazy + non‑memoized value holder ({@code Always}). Computed on every access.
+     *   </p>
      * </div>
      *
-     * @param <A> der Typ des Werts
+     * @param <A> the value type
      *
      * @since 1.0.0
      */

@@ -1,5 +1,9 @@
 package org.quurz.foomp.base.util;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.quurz.foomp.base.TestHelper;
 import org.quurz.foomp.base.functions.Fun;
@@ -14,416 +18,313 @@ import static org.quurz.foomp.base.util.Eval.evalLater;
 import static org.quurz.foomp.base.util.Eval.evalNow;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@DisplayName("Eval")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class EvalTest
         extends TestHelper {
 
-    private static final Logger LOGGER
-        = getLogger(EvalTest.class);
+    private static final Logger LOGGER = getLogger(EvalTest.class);
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testNow() {
-        LOGGER.info("Test Eval.now");
+    @Nested
+    @DisplayName("Factory")
+    class Factory {
 
-        assertThatThrownBy(() -> evalNow(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThat(evalNow(SOME_STRING_VALUE).isPresent())
-            .isTrue();
-        assertThat(evalNow(SOME_STRING_VALUE).get())
-            .isEqualTo(SOME_STRING_VALUE);
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void now_null_throws_and_value_is_eager() {
+            LOGGER.info("Eval.evalNow(...) should throw NullPointerException when value is null; eager value should be accessible");
+            assertThatThrownBy(() -> evalNow(null))
+                .isInstanceOf(NullPointerException.class);
+            assertThat(evalNow(SOME_STRING_VALUE).isPresent()).isTrue();
+            assertThat(evalNow(SOME_STRING_VALUE).get()).isEqualTo(SOME_STRING_VALUE);
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void later_null_throws_and_value_is_lazy_memoized() {
+            LOGGER.info("Eval.evalLater(...) should throw NullPointerException when value is null; lazy memoized value should be accessible");
+            assertThatThrownBy(() -> evalLater(null))
+                .isInstanceOf(NullPointerException.class);
+            assertThat(evalLater(SOME_STRING_VALUE).isPresent()).isTrue();
+            assertThat(evalLater(SOME_STRING_VALUE).get()).isEqualTo(SOME_STRING_VALUE);
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void always_null_throws_and_value_is_lazy_non_memoized() {
+            LOGGER.info("Eval.evalAlways(...) should throw NullPointerException when value is null; lazy non-memoized value should be accessible");
+            assertThatThrownBy(() -> evalAlways(null))
+                .isInstanceOf(NullPointerException.class);
+            assertThat(evalAlways(SOME_STRING_VALUE).isPresent()).isTrue();
+            assertThat(evalAlways(SOME_STRING_VALUE).get()).isEqualTo(SOME_STRING_VALUE);
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testLater() {
-        LOGGER.info("Test Eval.later");
+    @Nested
+    @DisplayName("Behaviour (map)")
+    class Behaviour_Map {
 
-        assertThatThrownBy(() -> evalLater(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThat(evalLater(SOME_STRING_VALUE).isPresent())
-            .isTrue();
-        assertThat(evalLater(SOME_STRING_VALUE).get())
-            .isEqualTo(SOME_STRING_VALUE);
-    }
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void now_map_is_eager_and_stable() {
+            LOGGER.info("Eval.Now.map should be eager and stable (transformation applied once)");
+            final var eval = evalNow(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testAlways() {
-        LOGGER.info("Test Eval.always");
+            assertThatThrownBy(() -> eval.map(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.map(_$ -> null)).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> evalAlways(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThat(evalAlways(SOME_STRING_VALUE).isPresent())
-            .isTrue();
-        assertThat(evalAlways(SOME_STRING_VALUE).get())
-            .isEqualTo(SOME_STRING_VALUE);
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testNowMap() {
-        LOGGER.info("Test Eval.Now.map");
-
-        final var eval
-            = evalNow(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
-
-        assertThatThrownBy(() -> eval.map(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.map(_$ -> null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException().isThrownBy(() -> {
-            final var mapped
-                = eval.map(fun);
-            assertThat(fun.getInvocationCount())
-                .isEqualTo(1);
-            assertThat(mapped.get())
-                .isEqualTo(SOME_STRING_VALUE);
-            mapped.get();
-            assertThat(fun.getInvocationCount())
-                .isEqualTo(1);
-            assertThat(mapped.get())
-                .isEqualTo(SOME_STRING_VALUE);
-        });
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testLaterMap() {
-        LOGGER.info("Test Eval.Later.map");
-
-        final var eval
-            = evalLater(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
-
-        assertThatThrownBy(() -> eval.map(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.map(_$ -> null).get())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var mapped
-                    = eval.map(fun);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(0);
-                assertThat(mapped.get())
-                    .isEqualTo(SOME_STRING_VALUE);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
+            assertThatNoException().isThrownBy(() -> {
+                final var mapped = eval.map(fun);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(mapped.get()).isEqualTo(SOME_STRING_VALUE);
                 mapped.get();
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
-                assertThat(mapped.get())
-                    .isEqualTo(SOME_STRING_VALUE);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(mapped.get()).isEqualTo(SOME_STRING_VALUE);
             });
-    }
+        }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testAlwaysMap() {
-        LOGGER.info("Test Eval.Always.map");
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void later_map_is_lazy_memoized() {
+            LOGGER.info("Eval.Later.map should be lazy and memoized (transformation deferred and applied once)");
+            final var eval = evalLater(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
 
-        final var eval
-            = evalAlways(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
+            assertThatThrownBy(() -> eval.map(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.map(_$ -> null).get()).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> eval.map(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.map(_$ -> null).get())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException().
-            isThrownBy(() -> {
-                final var mapped
-                    = eval.map(fun);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(0);
-                assertThat(mapped.get())
-                    .isEqualTo(SOME_STRING_VALUE);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
+            assertThatNoException().isThrownBy(() -> {
+                final var mapped = eval.map(fun);
+                assertThat(fun.getInvocationCount()).isEqualTo(0);
+                assertThat(mapped.get()).isEqualTo(SOME_STRING_VALUE);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
                 mapped.get();
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(2);
-                assertThat(mapped.get())
-                    .isEqualTo(SOME_STRING_VALUE);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(mapped.get()).isEqualTo(SOME_STRING_VALUE);
             });
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void always_map_is_lazy_non_memoized() {
+            LOGGER.info("Eval.Always.map should be lazy and non-memoized (transformation applied on every access)");
+            final var eval = evalAlways(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
+
+            assertThatThrownBy(() -> eval.map(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.map(_$ -> null).get()).isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var mapped = eval.map(fun);
+                assertThat(fun.getInvocationCount()).isEqualTo(0);
+                assertThat(mapped.get()).isEqualTo(SOME_STRING_VALUE);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                mapped.get();
+                assertThat(fun.getInvocationCount()).isEqualTo(2);
+                assertThat(mapped.get()).isEqualTo(SOME_STRING_VALUE);
+            });
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testNowLift() {
-        LOGGER.info("Test Eval.Now.lift");
+    @Nested
+    @DisplayName("Behaviour (lift)")
+    class Behaviour_Lift {
 
-        final var eval
-            = evalNow(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void now_lift_is_eager_and_stable() {
+            LOGGER.info("Eval.Now.lift should be eager and stable (function applied once)");
+            final var eval = evalNow(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
 
-        assertThatThrownBy(() -> eval.lift(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException().isThrownBy(() -> {
-            final var lifted
-                = eval.lift(evalNow(fun));
-            assertThat(fun.getInvocationCount())
-                .isEqualTo(1);
-            assertThat(lifted.get())
-                .isEqualTo(SOME_STRING_VALUE);
-            lifted.get();
-            assertThat(fun.getInvocationCount())
-                .isEqualTo(1);
-            assertThat(lifted.get())
-                .isEqualTo(SOME_STRING_VALUE);
-        });
-    }
+            assertThatThrownBy(() -> eval.lift(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testLaterLift() {
-        LOGGER.info("Test Eval.Later.lift");
-
-        final var eval
-            = evalLater(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
-
-        assertThatThrownBy(() -> eval.lift(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException().isThrownBy(() -> {
-            final var lifted
-                = eval.lift(evalLater(fun));
-            assertThat(fun.getInvocationCount())
-                .isEqualTo(0);
-            assertThat(lifted.get())
-                .isEqualTo(SOME_STRING_VALUE);
-            lifted.get();
-            assertThat(fun.getInvocationCount())
-                .isEqualTo(1);
-            assertThat(lifted.get())
-                .isEqualTo(SOME_STRING_VALUE);
-        });
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testAlwaysLift() {
-        LOGGER.info("Test Eval.Always.lift");
-
-        final var eval
-            = evalAlways(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
-
-        assertThatThrownBy(() -> eval.lift(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException().
-            isThrownBy(() -> {
-                final var lifted
-                    = eval.lift(evalAlways(fun));
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(0);
-                assertThat(lifted.get())
-                    .isEqualTo(SOME_STRING_VALUE);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
+            assertThatNoException().isThrownBy(() -> {
+                final var lifted = eval.lift(evalNow(fun));
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
                 lifted.get();
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(2);
-                assertThat(lifted.get())
-                    .isEqualTo(SOME_STRING_VALUE);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
             });
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void later_lift_is_lazy_memoized() {
+            LOGGER.info("Eval.Later.lift should be lazy and memoized (function deferred and applied once)");
+            final var eval = evalLater(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
+
+            assertThatThrownBy(() -> eval.lift(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var lifted = eval.lift(evalLater(fun));
+                assertThat(fun.getInvocationCount()).isEqualTo(0);
+                assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
+                lifted.get();
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
+            });
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void always_lift_is_lazy_non_memoized() {
+            LOGGER.info("Eval.Always.lift should be lazy and non-memoized (function applied on every access)");
+            final var eval = evalAlways(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
+
+            assertThatThrownBy(() -> eval.lift(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var lifted = eval.lift(evalAlways(fun));
+                assertThat(fun.getInvocationCount()).isEqualTo(0);
+                assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                lifted.get();
+                assertThat(fun.getInvocationCount()).isEqualTo(2);
+                assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
+            });
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testNowBind() {
-        LOGGER.info("Test Eval.Now.bind");
+    @Nested
+    @DisplayName("Behaviour (bind)")
+    class Behaviour_Bind {
 
-        final var eval
-            = evalNow(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, Eval<Integer>> fun
-            = invocationCountingFun(s -> evalNow(s.length()));
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void now_bind_is_eager_and_stable() {
+            LOGGER.info("Eval.Now.bind should be eager and stable (binding applied once)");
+            final var eval = evalNow(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, Eval<Integer>> fun = invocationCountingFun(s -> evalNow(s.length()));
 
-        assertThatThrownBy(() -> eval.bind(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.bind(_$ -> null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var bound
-                    = eval.bind(fun);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
-                assertThat(bound.get())
-                    .isEqualTo(SOME_STRING_VALUE.length());
+            assertThatThrownBy(() -> eval.bind(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.bind(_$ -> null)).isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                final var bound = eval.bind(fun);
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
                 bound.get();
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
-                assertThat(bound.get())
-                    .isEqualTo(SOME_STRING_VALUE.length());
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
             });
-    }
+        }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testLaterBind() {
-        LOGGER.info("Test Eval.Later.bind");
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void later_bind_is_lazy_memoized() {
+            LOGGER.info("Eval.Later.bind should be lazy and memoized (binding deferred and applied once)");
+            final var eval = evalLater(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, Eval<Integer>> fun = invocationCountingFun(s -> evalLater(s.length()));
 
-        final var eval
-            = evalLater(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, Eval<Integer>> fun
-            = invocationCountingFun(s -> evalLater(s.length()));
+            assertThatThrownBy(() -> eval.bind(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.bind(_$ -> null).get()).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> eval.bind(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.bind(_$ -> null).get())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var bound
-                    = eval.bind(fun);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(0);
-                assertThat(bound.get())
-                    .isEqualTo(SOME_STRING_VALUE.length());
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
+            assertThatNoException().isThrownBy(() -> {
+                final var bound = eval.bind(fun);
+                assertThat(fun.getInvocationCount()).isEqualTo(0);
+                assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
                 bound.get();
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
-                assertThat(bound.get())
-                    .isEqualTo(SOME_STRING_VALUE.length());
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
+                assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
             });
-    }
+        }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testAlwaysBind() {
-        LOGGER.info("Test Eval.Always.bind");
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void always_bind_is_lazy_non_memoized() {
+            LOGGER.info("Eval.Always.bind should be lazy and non-memoized (binding applied on every access)");
+            final var eval = evalAlways(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, Eval<Integer>> fun = invocationCountingFun(s -> evalAlways(s.length()));
 
-        final var eval
-            = evalAlways(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, Eval<Integer>> fun
-            = invocationCountingFun(s -> evalAlways(s.length()));
+            assertThatThrownBy(() -> eval.bind(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.bind(_$ -> null).get()).isInstanceOf(NullPointerException.class);
 
-        assertThatThrownBy(() -> eval.bind(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.bind(_$ -> null).get())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var bound
-                    = eval.bind(fun);
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(0);
-                assertThat(bound.get())
-                    .isEqualTo(SOME_STRING_VALUE.length());
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(1);
+            assertThatNoException().isThrownBy(() -> {
+                final var bound = eval.bind(fun);
+                assertThat(fun.getInvocationCount()).isEqualTo(0);
+                assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
+                assertThat(fun.getInvocationCount()).isEqualTo(1);
                 bound.get();
-                assertThat(fun.getInvocationCount())
-                    .isEqualTo(2);
-                assertThat(bound.get())
-                    .isEqualTo(SOME_STRING_VALUE.length());
+                assertThat(fun.getInvocationCount()).isEqualTo(2);
+                assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
             });
+        }
     }
 
-    @Test
-    void testNowUnwind() {
-        LOGGER.info("Test Eval.Now.unwind");
+    @Nested
+    @DisplayName("Unwind")
+    class Unwind_ {
 
-        final var eval
-            = evalNow(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
-        final var mapped
-            = eval.map(fun);
+        @Test
+        void now_unwind_materializes_but_remains_stable() {
+            LOGGER.info("Eval.Now.unwind should materialize and remain stable (no further transformations executed)");
+            final var eval = evalNow(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
+            final var mapped = eval.map(fun);
 
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(1);
-        final var unwound
-            = mapped.unwind();
-        assertThat(unwound.get())
-            .isEqualTo(SOME_STRING_VALUE);
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(1);
-        mapped.get();
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(1);
-        unwound.get();
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(1);
+            assertThat(fun.getInvocationCount()).isEqualTo(1);
+            final var unwound = mapped.unwind();
+            assertThat(unwound.get()).isEqualTo(SOME_STRING_VALUE);
+            assertThat(fun.getInvocationCount()).isEqualTo(1);
+            mapped.get();
+            assertThat(fun.getInvocationCount()).isEqualTo(1);
+            unwound.get();
+            assertThat(fun.getInvocationCount()).isEqualTo(1);
+        }
+
+        @Test
+        void later_unwind_materializes_and_is_stable() {
+            LOGGER.info("Eval.Later.unwind should materialize (once) and remain stable afterwards");
+            final var eval = evalLater(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
+            final var mapped = eval.map(fun);
+
+            assertThat(fun.getInvocationCount()).isEqualTo(0);
+            final var unwound = mapped.unwind();
+            assertThat(unwound.get()).isEqualTo(SOME_STRING_VALUE);
+            assertThat(fun.getInvocationCount()).isEqualTo(1);
+            unwound.get();
+            assertThat(fun.getInvocationCount()).isEqualTo(1);
+        }
+
+        @Test
+        void always_unwind_preserves_non_memoized_semantics() {
+            LOGGER.info("Eval.Always.unwind should preserve non-memoized semantics (re-evaluates on subsequent accesses)");
+            final var eval = evalAlways(SOME_STRING_VALUE);
+            final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
+            final var mapped = eval.map(fun);
+
+            assertThat(fun.getInvocationCount()).isEqualTo(0);
+            final var unwound = mapped.unwind();
+            assertThat(unwound.get()).isEqualTo(SOME_STRING_VALUE);
+            assertThat(fun.getInvocationCount()).isEqualTo(1);
+            mapped.unwind().get();
+            assertThat(fun.getInvocationCount()).isEqualTo(2);
+        }
     }
 
-    @Test
-    void testLaterUnwind() {
-        LOGGER.info("Test Eval.Later.unwind");
+    @Nested
+    @DisplayName("Misc")
+    class Misc {
 
-        final var eval
-            = evalLater(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
-        final var mapped
-            = eval.map(fun);
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void transmogrify_contracts_and_valid_usage() {
+            LOGGER.info("Eval.transmogrify should enforce NullPointerException contracts and support valid usage");
+            final var eval = evalNow(SOME_STRING_VALUE);
 
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(0);
-        final var unwound
-            = mapped.unwind();
-        assertThat(unwound.get())
-            .isEqualTo(SOME_STRING_VALUE);
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(1);
-        unwound.get();
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(1);
-    }
-
-    @Test
-    void testAlwaysUnwind() {
-        LOGGER.info("Test Eval.Always.unwind");
-
-        final var eval
-            = evalAlways(SOME_STRING_VALUE);
-        final InvocationCountingFun<String, String> fun
-            = invocationCountingFun(Fun.identity());
-        final var mapped
-            = eval.map(fun);
-
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(0);
-        final var unwound
-            = mapped.unwind();
-        assertThat(unwound.get())
-            .isEqualTo(SOME_STRING_VALUE);
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(1);
-        mapped.unwind().get();
-        assertThat(fun.getInvocationCount())
-            .isEqualTo(2);
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testTransmogrify() {
-        LOGGER.info("Test Eval.*.transmogrify");
-
-        final var eval
-            = evalNow(SOME_STRING_VALUE);
-
-        assertThatThrownBy(() -> eval.transmogrify(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> eval.transmogrify(_$ -> null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> eval.transmogrify(Value::get));
+            assertThatThrownBy(() -> eval.transmogrify(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.transmogrify(_$ -> null)).isInstanceOf(NullPointerException.class);
+            assertThatNoException().isThrownBy(() -> eval.transmogrify(Value::get));
+        }
     }
 }

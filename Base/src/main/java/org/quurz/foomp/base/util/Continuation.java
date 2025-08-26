@@ -205,7 +205,7 @@ public class Continuation<A, R>
     public @NonNull <B> Continuation<B, R> lift(@NonNull Higher2<? extends µ, Function<A, B>, R> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         final var continuation
-                = narrow(transformation);
+            = narrow(transformation);
         return new Continuation<>(f -> continuation.apply(t -> this.map(t).apply(f)));
     }
 

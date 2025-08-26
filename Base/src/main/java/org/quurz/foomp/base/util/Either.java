@@ -31,18 +31,24 @@ import static org.quurz.foomp.base.util.Maybe.some;
 
 /**
  * <div>
- *     <p>
- *         Ein generischer Container, der entweder einen Wert des Typs {@code L} (linke Seite)
- *         oder einen Wert des Typs {@code R} (rechte Seite) enth&auml;lt.
- *     </p>
- *     <p>
- *         Dieser Typ wird h&auml;ufig verwendet, um alternative Ergebnisse oder Fehlerf&auml;lle zu
- *         modellieren, ohne Ausnahmen zu werfen.
- *     </p>
+ *   <p>
+ *     A disjoint union (sum type) that holds either a value of type {@code L} (left)
+ *     or a value of type {@code R} (right).
+ *   </p>
+ *   <p>
+ *     Commonly used to model alternative outcomes (e.g., error or success) without throwing
+ *     exceptions. This implementation is right‑biased: mapping and binding operations act
+ *     on the right value, while leaving the left value unchanged.
+ *   </p>
+ *   <p>
+ *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be
+ *     {@code null}. Lazy evaluation is used internally via suppliers; unwinding methods evaluate
+ *     stored suppliers.
+ *   </p>
  * </div>
  *
- * @param <L> der Typ des Wertes auf der linken Seite
- * @param <R> der Typ des Wertes auf der rechten Seite
+ * @param <L> the left value type
+ * @param <R> the right value type
  *
  * @since 1.0.0
  *
@@ -66,9 +72,9 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Der {@code WitnessType} f&uuml;r den {@code Either}-Typ.
-     *     </p>
+     *   <p>
+     *     Witness type for {@code Either} used in higher‑kinded encodings.
+     *   </p>
      * </div>
      *
      * @since 1.0.0
@@ -77,16 +83,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Wandelt ein {@code Higher2} in ein {@code Either} um.
-     *     </p>
+     *   <p>
+     *     Narrows a {@link Higher2} instance to an {@code Either}.
+     *   </p>
      * </div>
      *
-     * @param wide das breite {@code Higher2}
-     * @param <L> der Typ des linken Wertes
-     * @param <R> der Typ des rechten Wertes
-     *
-     * @return das umgewandelte {@code Either}
+     * @param wide the higher‑kinded value; must not be {@code null}
+     * @param <L>  the left value type
+     * @param <R>  the right value type
+     * @return the narrowed {@code Either}
+     * @throws NullPointerException if {@code wide} is {@code null}
      *
      * @since 1.0.0
      */
@@ -96,16 +102,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Entpackt ein {@code Either} aus.
-     *     </p>
+     *   <p>
+     *     Unwraps a nested {@code Either} by one level when the right side contains a higher‑kinded value.
+     *   </p>
      * </div>
      *
-     * @param wrapped das eingepackte {@code Either}
-     * @param <L> der Typ des linken Wertes
-     * @param <R> der Typ des rechten Wertes
-     *
-     * @return das ausgewickelte {@code Either}
+     * @param wrapped the wrapped {@code Either}; must not be {@code null}
+     * @param <L>     the left value type
+     * @param <R>     the right value type
+     * @return the unwrapped {@code Either}
+     * @throws NullPointerException if {@code wrapped} is {@code null}
      *
      * @since 1.0.0
      */
@@ -119,15 +125,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein {@code Either} mit einem linken Wert.
-     *     </p>
+     *   <p>
+     *     Constructs a left value.
+     *   </p>
      * </div>
      *
-     * @param value der linke Wert
-     * @param <L> der Typ des linken Wertes
-     * @param <R> der Typ des rechten Wertes
-     * @return das erzeugte {@code Either}
+     * @param value the left value; must not be {@code null}
+     * @param <L>   the left value type
+     * @param <R>   the right value type
+     * @return an {@code Either.Left}
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -138,16 +145,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein {@code Either} mit einem rechten Wert.
-     *     </p>
+     *   <p>
+     *     Constructs a right value.
+     *   </p>
      * </div>
      *
-     * @param value der rechte Wert
-     * @param <L> der Typ des linken Wertes
-     * @param <R> der Typ des rechten Wertes
-     *
-     * @return das erzeugte {@code Either}
+     * @param value the right value; must not be {@code null}
+     * @param <L>   the left value type
+     * @param <R>   the right value type
+     * @return an {@code Either.Right}
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -158,12 +165,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt an, ob das {@code Either} einen linken Wert enth&auml;lt.
-     *     </p>
+     *   <p>
+     *     Returns whether this {@code Either} holds a left value.
+     *   </p>
      * </div>
      *
-     * @return true, wenn das {@code Either} einen linken Wert enth&auml;lt, sonst false
+     * @return {@code true} if this is a left; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -174,13 +181,13 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den linken Wert zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns the left value or throws if this is a right.
+     *   </p>
      * </div>
      *
-     * @return der linke Wert
-     * @throws NoSuchElementException wenn kein linker Wert vorhanden ist
+     * @return the left value
+     * @throws NoSuchElementException if this is a right
      *
      * @since 1.0.0
      */
@@ -196,17 +203,15 @@ public sealed interface Either<L, R>
         };
     }
 
-
     /**
      * <div>
-     *     <p>
-     *         Gibt den linken Wert zur&uuml;ck oder einen alternativen Wert, wenn kein linker Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Returns the left value or an alternative supplied value when this is a right.
+     *   </p>
      * </div>
      *
-     * @param supplier der Lieferant des alternativen Wertes
-     *
-     * @return der linke Wert oder der alternative Wert
+     * @param supplier supplies the fallback; must not be {@code null}
+     * @return the left value or the supplied alternative
      *
      * @since 1.0.0
      */
@@ -223,12 +228,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den linken Wert sicher zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Safely returns the left value as {@code Maybe}: {@code Some(left)} or {@code None}.
+     *   </p>
      * </div>
      *
-     * @return ein {@code Maybe.Some} mit dem linken Wert oder ein {@code Maybe.None}, wenn kein linker Wert vorhanden ist
+     * @return {@code Some(left)} if left; otherwise {@code None}
      *
      * @since 1.0.0
      */
@@ -244,17 +249,15 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den linken Wert zur&uuml;ck oder wirft eine Ausnahme, wenn kein linker Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Returns the left value or throws a supplied exception when this is a right.
+     *   </p>
      * </div>
      *
-     * @param exceptionSupplier der Lieferant der Ausnahme
-     * @param <E> der Typ der Ausnahme
-     *
-     * @return der linke Wert
-     *
-     * @throws E die Ausnahme, wenn kein linker Wert vorhanden ist
+     * @param exceptionSupplier supplies the exception to throw; must not be {@code null}
+     * @param <E>               the exception type
+     * @return the left value
+     * @throws E if this is a right
      *
      * @since 1.0.0
      */
@@ -272,12 +275,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt an, ob das {@code Either} einen rechten Wert enth&auml;lt.
-     *     </p>
+     *   <p>
+     *     Indicates whether a right value is present (right‑biased presence).
+     *   </p>
      * </div>
      *
-     * @return true, wenn das {@code Either} einen rechten Wert enth&auml;lt, sonst false
+     * @return {@code true} if this is a right; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -288,12 +291,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt an, ob das {@code Either} einen rechten Wert enth&auml;lt.
-     *     </p>
+     *   <p>
+     *     Returns whether this {@code Either} holds a right value.
+     *   </p>
      * </div>
      *
-     * @return true, wenn das {@code Either} einen rechten Wert enth&auml;lt, sonst false
+     * @return {@code true} if this is a right; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -308,13 +311,13 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den rechten Wert zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Right‑biased {@code get}: returns the right value or throws if this is a left.
+     *   </p>
      * </div>
      *
-     * @return der rechte Wert
-     * @throws NoSuchElementException wenn kein rechter Wert vorhanden ist
+     * @return the right value
+     * @throws NoSuchElementException if this is a left
      *
      * @since 1.0.0
      */
@@ -327,14 +330,13 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den rechten Wert zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns the right value or throws if this is a left.
+     *   </p>
      * </div>
      *
-     * @return der rechte Wert
-     *
-     * @throws NoSuchElementException wenn kein rechter Wert vorhanden ist
+     * @return the right value
+     * @throws NoSuchElementException if this is a left
      *
      * @since 1.0.0
      */
@@ -352,14 +354,13 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den rechten Wert zur&uuml;ck oder einen alternativen Wert, wenn kein rechter Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Returns the right value or a supplied alternative when this is a left.
+     *   </p>
      * </div>
      *
-     * @param supplier der Lieferant des alternativen Wertes
-     *
-     * @return der rechte Wert oder der alternative Wert
+     * @param supplier supplies the fallback; must not be {@code null}
+     * @return the right value or the supplied alternative
      *
      * @since 1.0.0
      */
@@ -376,12 +377,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den rechten Wert sicher zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Safely returns the right value as {@code Maybe}: {@code Some(right)} or {@code None}.
+     *   </p>
      * </div>
      *
-     * @return ein {@code Maybe.Some} mit dem rechten Wert oder ein {@code Maybe.None}, wenn kein rechter Wert vorhanden ist
+     * @return {@code Some(right)} if right; otherwise {@code None}
      *
      * @since 1.0.0
      */
@@ -397,16 +398,15 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den rechten Wert zur&uuml;ck oder wirft eine Ausnahme, wenn kein rechter Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Returns the right value or throws a supplied exception when this is a left.
+     *   </p>
      * </div>
      *
-     * @param exceptionSupplier der Lieferant der Ausnahme
-     * @param <E> der Typ der Ausnahme
-     * @return der rechte Wert
-     *
-     * @throws E die Ausnahme, wenn kein rechter Wert vorhanden ist
+     * @param exceptionSupplier supplies the exception to throw; must not be {@code null}
+     * @param <E>               the exception type
+     * @return the right value
+     * @throws E if this is a left
      *
      * @since 1.0.0
      */
@@ -424,14 +424,13 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;hrt eine Aktion aus, wenn ein linker Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Runs the given action if a left value is present (peek).
+     *   </p>
      * </div>
      *
-     * @param consumer der Verbraucher des linken Wertes
-     *
-     * @return das {@code Either}
+     * @param consumer consumes the left value; must not be {@code null}
+     * @return this {@code Either}
      *
      * @since 1.0.0
      */
@@ -445,14 +444,13 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;hrt eine Aktion aus, wenn ein rechter Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Runs the given action if a right value is present (peek).
+     *   </p>
      * </div>
      *
-     * @param consumer der Verbraucher des rechten Wertes
-     *
-     * @return das {@code Either}
+     * @param consumer consumes the right value; must not be {@code null}
+     * @return this {@code Either}
      *
      * @since 1.0.0
      */
@@ -466,15 +464,14 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;hrt eine Aktion aus, wenn ein linker oder rechter Wert vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Runs the corresponding action depending on whether this is a left or a right (peek).
+     *   </p>
      * </div>
      *
-     * @param leftConsumer der Verbraucher des linken Wertes
-     * @param rightConsumer der Verbraucher des rechten Wertes
-     *
-     * @return das {@code Either}
+     * @param leftConsumer  consumes the left value; must not be {@code null}
+     * @param rightConsumer consumes the right value; must not be {@code null}
+     * @return this {@code Either}
      *
      * @since 1.0.0
      */
@@ -493,15 +490,14 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Mappt den rechten Wert.
-     *     </p>
+     *   <p>
+     *     Functor map (right‑biased): maps the right value.
+     *   </p>
      * </div>
      *
-     * @param transformation die Mapping-Funktion
-     * @param <S> der Typ des gemappten Wertes
-     *
-     * @return das gemappte {@code Either}
+     * @param transformation mapping function; must not be {@code null}
+     * @param <S>            the new right value type
+     * @return the mapped {@code Either}
      *
      * @since 1.0.0
      */
@@ -514,15 +510,14 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Mappt den rechten Wert.
-     *     </p>
+     *   <p>
+     *     Maps the right value.
+     *   </p>
      * </div>
      *
-     * @param fMap die Mapping-Funktion
-     * @param <S> der Typ des gemappten Wertes
-     *
-     * @return das gemappte {@code Either}
+     * @param fMap mapping for the right value; must not be {@code null}
+     * @param <S>  the new right value type
+     * @return the mapped {@code Either}
      *
      * @since 1.0.0
      */
@@ -542,15 +537,14 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Mappt den linken Wert.
-     *     </p>
+     *   <p>
+     *     Maps the left value.
+     *   </p>
      * </div>
      *
-     * @param fMap die Mapping-Funktion
-     * @param <M> der Typ des gemappten Wertes
-     *
-     * @return das gemappte {@code Either}
+     * @param fMap mapping for the left value; must not be {@code null}
+     * @param <M>  the new left value type
+     * @return the mapped {@code Either}
      *
      * @since 1.0.0
      */
@@ -570,17 +564,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Mappt den linken und rechten Wert.
-     *     </p>
+     *   <p>
+     *     Maps both sides (bimap): left using {@code fMapLeft} and right using {@code fMapRight}.
+     *   </p>
      * </div>
      *
-     * @param fMapLeft die Mapping-Funktion f&uuml;r den linken Wert
-     * @param fMapRight die Mapping-Funktion f&uuml;r den rechten Wert
-     * @param <M> der Typ des gemappten linken Wertes
-     * @param <S> der Typ des gemappten rechten Wertes
-     *
-     * @return das gemappte {@code Either}
+     * @param fMapLeft  mapping for the left value; must not be {@code null}
+     * @param fMapRight mapping for the right value; must not be {@code null}
+     * @param <M>       the new left value type
+     * @param <S>       the new right value type
+     * @return the mapped {@code Either}
      *
      * @since 1.0.0
      */
@@ -596,16 +589,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet die gegebene Funktion an, die im {@code Either}-Objekt enthalten ist.
-     *     </p>
+     *   <p>
+     *     Applicative lift: applies functions stored in {@code transformation} to this {@code Either},
+     *     respecting sides (left applies to left, right applies to right).
+     *   </p>
      * </div>
      *
-     * @param transformation Das die anzuwendende Funktion enthaltende {@code Either}-Objekt
-     * @param <M> Der Typ des gemappten linken Wertes
-     * @param <S> Der Typ des gemappten rechten Wertes
-     *
-     * @return Das gemappte {@code Either}
+     * @param transformation {@code Either} of functions for left/right; must not be {@code null}
+     * @param <M>            the new left type
+     * @param <S>            the new right type
+     * @return the lifted {@code Either}
      *
      * @since 1.0.0
      */
@@ -628,15 +621,15 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Bindet den rechten Wert an eine Funktion, die ein {@code Either} zur&uuml;ckgibt.
-     *     </p>
+     *   <p>
+     *     Monadic bind (right‑biased): binds the right value with {@code transformation}.
+     *     Left values pass through unchanged.
+     *   </p>
      * </div>
      *
-     * @param transformation die Bindefunktion
-     * @param <S> der Typ des gebundenen Wertes
-     *
-     * @return das gebundene {@code Either}
+     * @param transformation right‑side binder; must not be {@code null}
+     * @param <S>            the resulting right type
+     * @return the bound {@code Either}
      *
      * @since 1.0.0
      */
@@ -653,12 +646,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Vertauscht die linke und rechte Seite des {@code Either}.
-     *     </p>
+     *   <p>
+     *     Swaps sides: left becomes right and right becomes left.
+     *   </p>
      * </div>
      *
-     * @return das vertauschte {@code Either}
+     * @return the swapped {@code Either}
      *
      * @since 1.0.0
      */
@@ -673,12 +666,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Kopiert das {@code Either}.
-     *     </p>
+     *   <p>
+     *     Returns a shallow copy of this {@code Either} (preserves laziness).
+     *   </p>
      * </div>
      *
-     * @return die Kopie des {@code Either}
+     * @return a copy of this {@code Either}
      *
      * @since 1.0.0
      */
@@ -693,15 +686,15 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Transmogrifiziert das {@code Either} mit einer gegebenen Funktion.
-     *     </p>
+     *   <p>
+     *     Transmogrifies this {@code Either} with a provided function.
+     *   </p>
      * </div>
      *
-     * @param transmogrifier die Transmogrifizierungsfunktion
-     * @param <T> der Typ des transmogrifizierten Wertes
-     *
-     * @return der transmogrifizierte Wert
+     * @param transmogrifier the function to apply; must not be {@code null}
+     * @param <T>            the result type
+     * @return the transformed value
+     * @throws NullPointerException if {@code transmogrifier} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -713,12 +706,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Spult alle aufgewickelten Operationen in diesem {@code Either} ab.
-     *     </p>
+     *   <p>
+     *     Unwinds (materializes) the current value on the active side and returns a strict {@code Either}.
+     *   </p>
      * </div>
      *
-     * @return das entwirrte {@code Either}
+     * @return a strict {@code Either} with the same side/value
      *
      * @since 1.0.0
      */
@@ -734,13 +727,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Repr&auml;sentiert die linke Seite eines {@code Either}.
-     *     </p>
+     *   <p>
+     *     Represents the left variant of {@code Either}.
+     *   </p>
+     *   <p>
+     *     Note: equality and hashCode unwind the stored supplier.
+     *   </p>
      * </div>
      *
-     * @param <L> der Typ des linken Wertes
-     * @param <R> der Typ des rechten Wertes
+     * @param <L> the left value type
+     * @param <R> the right value type
      *
      * @since 1.0.0
      */
@@ -756,14 +752,14 @@ public sealed interface Either<L, R>
 
         /**
          * <div>
-         *     <p>
-         *         Vergleicht dieses {@code Left} mit einem anderen Objekt auf Gleichheit.
-         *         Zwei {@code Left}-Instanzen sind gleich, wenn der enthaltene linke Wert gleich ist.
-         *     </p>
+         *   <p>
+         *     Compares this {@code Left} for equality with another object.
+         *     Two {@code Left} instances are equal if their left values are equal.
+         *   </p>
          * </div>
          *
-         * @param o das zu vergleichende Objekt
-         * @return {@code true}, wenn das andere Objekt ein {@code Left} mit dem gleichen Wert ist; ansonsten {@code false}
+         * @param o the object to compare with
+         * @return {@code true} if the other object is a {@code Left} with an equal value; otherwise {@code false}
          *
          * @since 1.0.0
          */
@@ -777,12 +773,12 @@ public sealed interface Either<L, R>
 
         /**
          * <div>
-         *     <p>
-         *         Berechnet den Hash-Code f&uuml;r dieses {@code Left}, basierend auf dem Hash-Code des enthaltenen linken Wertes.
-         *     </p>
+         *   <p>
+         *     Computes the hash code based on the left value.
+         *   </p>
          * </div>
          *
-         * @return der Hash-Code dieses {@code Left}
+         * @return the hash code for this {@code Left}
          * @since 1.0.0
          */
         @Override
@@ -793,12 +789,12 @@ public sealed interface Either<L, R>
 
         /**
          * <div>
-         *     <p>
-         *         Gibt eine String-Darstellung des linken Wertes zur&uuml;ck.
-         *     </p>
+         *   <p>
+         *     Returns a string representation of the left value.
+         *   </p>
          * </div>
          *
-         * @return die String-Darstellung des linken Wertes
+         * @return the string representation of the left value
          *
          * @since 1.0.0
          */
@@ -814,13 +810,16 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Repr&auml;sentiert die rechte Seite eines {@code Either}.
-     *     </p>
+     *   <p>
+     *     Represents the right variant of {@code Either}.
+     *   </p>
+     *   <p>
+     *     Note: equality and hashCode unwind the stored supplier.
+     *   </p>
      * </div>
      *
-     * @param <L> der Typ des linken Wertes
-     * @param <R> der Typ des rechten Wertes
+     * @param <L> the left value type
+     * @param <R> the right value type
      *
      * @since 1.0.0
      */
@@ -836,14 +835,14 @@ public sealed interface Either<L, R>
 
         /**
          * <div>
-         *     <p>
-         *         Vergleicht dieses {@code Right} mit einem anderen Objekt auf Gleichheit.
-         *         {@code Right}-Instanzen sind gleich, wenn der enthaltene rechte Wert gleich ist.
-         *     </p>
+         *   <p>
+         *     Compares this {@code Right} for equality with another object.
+         *     Two {@code Right} instances are equal if their right values are equal.
+         *   </p>
          * </div>
          *
-         * @param o das zu vergleichende Objekt
-         * @return {@code true}, wenn das andere Objekt ein {@code Right} mit dem gleichen Wert ist; ansonsten {@code false}
+         * @param o the object to compare with
+         * @return {@code true} if the other object is a {@code Right} with an equal value; otherwise {@code false}
          *
          * @since 1.0.0
          */
@@ -857,12 +856,12 @@ public sealed interface Either<L, R>
 
         /**
          * <div>
-         *     <p>
-         *         Berechnet den Hash-Code f&uuml;r dieses {@code Right}, basierend auf dem Hash-Code des enthaltenen rechten Wertes.
-         *     </p>
+         *   <p>
+         *     Computes the hash code based on the right value.
+         *   </p>
          * </div>
          *
-         * @return der Hash-Code dieses {@code Right}
+         * @return the hash code for this {@code Right}
          *
          * @since 1.0.0
          */
@@ -874,12 +873,12 @@ public sealed interface Either<L, R>
 
         /**
          * <div>
-         *     <p>
-         *         Gibt eine String-Darstellung des rechten Wertes zur&uuml;ck.
-         *     </p>
+         *   <p>
+         *     Returns a string representation of the right value.
+         *   </p>
          * </div>
          *
-         * @return die String-Darstellung des rechten Wertes
+         * @return the string representation of the right value
          *
          * @since 1.0.0
          */
@@ -895,12 +894,12 @@ public sealed interface Either<L, R>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt die Anzahl der Typ-Argumente zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns the arity of the right‑projection (this {@code Either} implements {@link Higher1} for {@code R}).
+     *   </p>
      * </div>
      *
-     * @return die Anzahl der Argumente
+     * @return {@code 1} (right‑projection arity)
      *
      * @since 1.0.0
      */
