@@ -1,5 +1,9 @@
 package org.quurz.foomp.base.util;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -10,283 +14,211 @@ import static org.quurz.foomp.base.util.Record3.record3;
 import static org.quurz.foomp.base.util.Tuple3.tuple3;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@DisplayName("Record3")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class Record3Test {
 
-    private static final Logger LOGGER
-        = getLogger(Record3Test.class);
+    private static final Logger LOGGER = getLogger(Record3Test.class);
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRecord3() {
-        LOGGER.info("Test Record3.record3 and Record3::new");
+    @Nested
+    @DisplayName("Factory")
+    class Factory {
 
-        assertThatThrownBy(() -> record3(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3(null, null, 23))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3(null, 23, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3(null, 23, 23))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3(23, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3(23, null, 23))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3(23, 23, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> record3(23, 23, 23));
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void record3_and_constructor_enforce_non_null() {
+            LOGGER.info("Record3.record3 and Record3::<init> NPE contracts");
 
-        assertThatThrownBy(() -> new Record3<>(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new Record3<>(null, null, 23))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new Record3<>(null, 23, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new Record3<>(null, 23, 23))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new Record3<>(23, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new Record3<>(23, null, 23))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new Record3<>(23, 23, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy(() -> new Record3<>(23, 23, 23));
+            assertThatThrownBy(() -> record3(null, null, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> record3(null, null, 23)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> record3(null, 23, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> record3(null, 23, 23)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> record3(23, null, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> record3(23, null, 23)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> record3(23, 23, null)).isInstanceOf(NullPointerException.class);
+            assertThatNoException().isThrownBy(() -> record3(23, 23, 23));
+
+            assertThatThrownBy(() -> new Record3<>(null, null, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> new Record3<>(null, null, 23)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> new Record3<>(null, 23, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> new Record3<>(null, 23, 23)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> new Record3<>(23, null, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> new Record3<>(23, null, 23)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> new Record3<>(23, 23, null)).isInstanceOf(NullPointerException.class);
+            assertThatNoException().isThrownBy(() -> new Record3<>(23, 23, 23));
+        }
     }
 
-    @Test
-    void testPresent() {
-        LOGGER.info("Test record3.isPresent, record3.is1, record3.is2 and record3.is3");
+    @Nested
+    @DisplayName("Accessors")
+    class Accessors {
 
-        final var record3
-            = record3("TEST", 23, 23);
+        @Test
+        void presence_and_getters() {
+            LOGGER.info("Record3.isPresent/is1/is2/is3 + get/value accessors");
 
-        assertThat(record3.isPresent())
-            .isTrue();
-        assertThat(record3.is1())
-            .isTrue();
-        assertThat(record3.is2())
-            .isTrue();
-        assertThat(record3.is3())
-            .isTrue();
+            final var r = record3("TEST", 23, 23);
+
+            assertThat(r.isPresent()).isTrue();
+            assertThat(r.is1()).isTrue();
+            assertThat(r.is2()).isTrue();
+            assertThat(r.is3()).isTrue();
+
+            assertThat(r.get()).isEqualTo("TEST");
+            assertThat(r.get1()).isEqualTo("TEST");
+            assertThat(r.get2()).isEqualTo(23);
+            assertThat(r.get3()).isEqualTo(23);
+
+            assertThat(r.value1()).isEqualTo("TEST");
+            assertThat(r.value2()).isEqualTo(23);
+            assertThat(r.value3()).isEqualTo(23);
+
+            assertThat(r.get1()).isEqualTo(r.value1());
+            assertThat(r.get2()).isEqualTo(r.value2());
+            assertThat(r.get3()).isEqualTo(r.value3());
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void with_updates_values_and_enforces_non_null() {
+            LOGGER.info("Record3.with1/with2/with3 null contracts and updates");
+
+            final var r = record3("TEST", 23, 23);
+
+            assertThatThrownBy(() -> r.with1(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.with2(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.with3(null)).isInstanceOf(NullPointerException.class);
+
+            assertThat(r.with1("TEST2")).isEqualTo(record3("TEST2", 23, 23));
+            assertThat(r.with2(24)).isEqualTo(record3("TEST", 24, 23));
+            assertThat(r.with3(24)).isEqualTo(record3("TEST", 23, 24));
+        }
     }
 
-    @Test
-    void testGet() {
-        LOGGER.info("Test record3.get, record3.get1, record3.get2 and record3.get3");
+    @Nested
+    @DisplayName("Functional (map)")
+    class Functional_Map {
 
-        final var record3
-            = record3("TEST", 23, 23);
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void map_methods_enforce_contracts_and_transform_components() {
+            LOGGER.info("Record3.map1/map2/map3 contracts and transformations");
 
-        assertThat(record3.get())
-            .isEqualTo("TEST");
-        assertThat(record3.get1())
-            .isEqualTo("TEST");
-        assertThat(record3.get2())
-            .isEqualTo(23);
-        assertThat(record3.get3())
-            .isEqualTo(23);
-        assertThat(record3.value1())
-            .isEqualTo("TEST");
-        assertThat(record3.value2())
-            .isEqualTo(23);
-        assertThat(record3.value3())
-            .isEqualTo(23);
+            final var r = record3("TEST", 23, 3.0d);
 
-        assertThat(record3.get1())
-            .isEqualTo(record3.value1());
-        assertThat(record3.get2())
-            .isEqualTo(record3.value2());
-        assertThat(record3.get3())
-            .isEqualTo(record3.value3());
+            assertThatThrownBy(() -> r.map1(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.map2(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.map3(null)).isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> r.map1(_$ -> null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.map2(_$ -> null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.map3(_$ -> null)).isInstanceOf(NullPointerException.class);
+
+            assertThat(r.map1(String::length)).isEqualTo(record3(4, 23, 3.0d));
+            assertThat(r.map2(i -> i + 1)).isEqualTo(record3("TEST", 24, 3.0d));
+            assertThat(r.map3(d -> d + 1)).isEqualTo(record3("TEST", 23, 4.0d));
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void mapAll_enforces_contracts_and_transforms_all() {
+            LOGGER.info("Record3.mapAll contracts and transformation of all components");
+
+            final var r = record3("TEST", 23, 3.0d);
+
+            assertThatThrownBy(() -> r.mapAll(null, null, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(null, null, d -> d + 1)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(null, i -> i + 1, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(null, i -> i + 1, d -> d + 1)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(String::length, null, null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(String::length, null, d -> d + 1)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(String::length, i -> i + 1, null)).isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> r.mapAll(String::length, i -> i + 1, _$ -> null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(String::length, _$ -> null, d -> d + 1)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.mapAll(_$ -> null, i -> i + 1, d -> d + 1)).isInstanceOf(NullPointerException.class);
+
+            assertThat(r.mapAll(String::length, i -> i + 1, d -> d + 1))
+                .isEqualTo(record3(4, 24, 4.0d));
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testWith() {
-        LOGGER.info("Test record3.with1, record3.with2 and record3.with3");
+    @Nested
+    @DisplayName("Applicative (lift)")
+    class Applicative_Lift {
 
-        final var record3
-            = record3("TEST", 23, 23);
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void lift_enforces_contracts_and_applies_functions() {
+            LOGGER.info("Record3.lift null contracts and behaviour");
 
-        assertThatThrownBy(() -> record3.with1(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.with2(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.with3(null))
-            .isInstanceOf(NullPointerException.class);
+            final var r = record3("TEST", 23, 3.0d);
 
-        assertThat(record3.with1("TEST2"))
-            .isEqualTo(record3("TEST2", 23, 23));
-        assertThat(record3.with2(24))
-            .isEqualTo(record3("TEST", 24, 23));
-        assertThat(record3.with3(24))
-            .isEqualTo(record3("TEST", 23, 24));
+            assertThatThrownBy(() -> r.lift(null)).isInstanceOf(NullPointerException.class);
+
+            assertThat(r.lift(record3(String::length, i -> i + 1, d -> d + 1)))
+                .isEqualTo(record3(4, 24, 4.0d));
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testMap() {
-        LOGGER.info("Test record3.map1, record3.map2 and record3.map3");
+    @Nested
+    @DisplayName("Conversions and misc")
+    class Conversions_And_Misc {
 
-        final var record3
-            = record3("TEST", 23, 3.0d);
+        @Test
+        void toTuple_converts_values() {
+            LOGGER.info("Record3.toTuple conversion");
 
-        assertThatThrownBy(() -> record3.map1(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.map2(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.map3(null))
-            .isInstanceOf(NullPointerException.class);
+            final var r = record3("TEST", 23, 3.0d);
+            assertThat(r.toTuple()).isEqualTo(tuple3("TEST", 23, 3.0d));
+        }
 
-        assertThatThrownBy(() -> record3.map1(_$ -> null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.map2(_$ -> null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.map3(_$ -> null))
-            .isInstanceOf(NullPointerException.class);
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void transmogrify_contracts_and_value() {
+            LOGGER.info("Record3.transmogrify contracts and result");
 
-        assertThat(record3.map1(String::length))
-            .isEqualTo(record3(4, 23, 3.0d));
-        assertThat(record3.map2(i -> i + 1))
-            .isEqualTo(record3("TEST", 24, 3.0d));
-        assertThat(record3.map3(d -> d + 1))
-            .isEqualTo(record3("TEST", 23, 4.0d));
-    }
+            final var r = record3("TEST", 23, 3.0d);
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testMapAll() {
-        LOGGER.info("Test record3.mapAll");
+            assertThatThrownBy(() -> r.transmogrify(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.transmogrify(_$ -> null)).isInstanceOf(NullPointerException.class);
 
-        final var record3
-            = record3("TEST", 23, 3.0d);
-
-        assertThatThrownBy(() -> record3.mapAll(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(null, null, d -> d + 1))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(null, i -> i + 1, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(null, i -> i + 1, d -> d + 1))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(String::length, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(String::length, null, d -> d + 1))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(String::length, i -> i + 1, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> record3.mapAll(String::length, i -> i + 1, _$ -> null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(String::length, _$ -> null, d -> d + 1))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.mapAll(_$ -> null, i -> i + 1, d -> d + 1))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThat(record3.mapAll(String::length, i -> i + 1, d -> d + 1))
-            .isEqualTo(record3(4, 24, 4.0d));
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testLift() {
-        LOGGER.info("Test record3.lift");
-
-        final var record3
-            = record3("TEST", 23, 3.0d);
-
-        assertThatThrownBy(() -> record3.lift(null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThat(record3.lift(record3(String::length, i -> i + 1, d -> d + 1)))
-            .isEqualTo(record3(4, 24, 4.0d));
-    }
-
-    @Test
-    void testToTuple() {
-        LOGGER.info("Test record3.tuple");
-
-        final var record3
-            = record3("TEST", 23, 3.0d);
-
-        assertThat(record3.toTuple())
-            .isEqualTo(tuple3("TEST", 23, 3.0d));
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testTransmogrify() {
-        LOGGER.info("Test record3.transmogrify");
-
-        final var record3
-            = record3("TEST", 23, 3.0d);
-
-        assertThatThrownBy(() -> record3.transmogrify(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> record3.transmogrify(_$ -> null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var result
-                    = record3.transmogrify(r -> r.get1() + r.get2() + r.get3());
-                assertThat(result)
-                    .isEqualTo("TEST233.0");
+            assertThatNoException().isThrownBy(() -> {
+                final var result = r.transmogrify(x -> x.get1() + x.get2() + x.get3());
+                assertThat(result).isEqualTo("TEST233.0");
             });
+        }
+
+        @Test
+        void copy_preserves_semantics() {
+            LOGGER.info("Record3.copy should keep values");
+
+            final var r = record3("TEST", 23, 3.0d);
+            assertThat(r.copy()).isEqualTo(record3("TEST", 23, 3.0d));
+        }
+
+        @Test
+        void equals_hashCode_and_toString() {
+            LOGGER.info("Record3.equals/hashCode structural and toString formatting");
+
+            final var r1 = record3("TEST", 23, 3.0d);
+            final var r2 = record3("TEST", 23, 3.0d);
+            final var r3 = record3("TEST2", 23, 3.0d);
+
+            // hashCode and equals against different type
+            assertThat(r1.hashCode()).isNotEqualTo("GUMPF".hashCode());
+            assertThat(r1).isNotEqualTo("GUMPF");
+
+            // equals/hashCode structural
+            assertThat(r1).hasSameHashCodeAs(r2);
+            assertThat(r1.hashCode()).isNotEqualTo(r3.hashCode());
+
+            assertThat(r1).isEqualTo(r1);
+            assertThat(r1).isEqualTo(r2);
+            assertThat(r1).isNotEqualTo(r3);
+
+            // toString
+            assertThat(r1).hasToString("Record3[value1=TEST, value2=23, value3=3.0]");
+        }
     }
-
-    @Test
-    void testCopy() {
-        LOGGER.info("Test record3.copy");
-
-        final var record3
-            = record3("TEST", 23, 3.0d);
-
-        assertThat(record3.copy())
-            .isEqualTo(record3("TEST", 23, 3.0d));
-    }
-
-    @Test
-    void testHashCodeAndEquals() {
-        LOGGER.info("Test record3.hashCode and record3.equals");
-
-        final var record3First
-            = record3("TEST", 23, 3.0d);
-        final var record3Second
-            = record3("TEST", 23, 3.0d);
-        final var record3Third
-            = record3("TEST2", 23, 3.0d);
-
-
-        assertThat(record3First.hashCode())
-            .isNotEqualTo("GUMPF".hashCode());
-        assertThat(record3First)
-            .isNotEqualTo("GUMPF");
-
-        assertThat(record3First)
-            .hasSameHashCodeAs(record3Second);
-        assertThat(record3First.hashCode())
-            .isNotEqualTo(record3Third.hashCode());
-
-        assertThat(record3First)
-            .isEqualTo(record3First);
-        assertThat(record3First)
-            .isEqualTo(record3Second);
-        assertThat(record3First)
-            .isNotEqualTo(record3Third);
-    }
-
-    @Test
-    void testToString() {
-        LOGGER.info("Test record3.toString");
-
-        final var record3
-            = record3("TEST", 23, 3.0d);
-
-        assertThat(record3)
-            .hasToString("Record3[value1=TEST, value2=23, value3=3.0]");
-    }
-
 }
