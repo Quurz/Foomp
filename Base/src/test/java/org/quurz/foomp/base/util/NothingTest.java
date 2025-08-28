@@ -50,6 +50,13 @@ class NothingTest
         assertThat(nothing1.equals(nothing2) && (nothing1.hashCode() == nothing2.hashCode()))
             .isTrue();
 
+        // zusätzliche Robustheitschecks
+        assertThat(nothing1)
+            .isNotEqualTo(null);
+        assertThat(nothing1)
+            .isNotEqualTo("GUMPF");
+        assertThat(nothing1)
+            .hasSameHashCodeAs(nothing2);
     }
 
     @Test

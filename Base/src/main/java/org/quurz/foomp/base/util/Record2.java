@@ -21,12 +21,23 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
 /**
  * <div>
  *     <p>
- *         Ein record-basiertes Tupel mit zwei Werten.
+ *         A record-based, immutable 2-tuple carrying two non-null values. This type offers
+ *         value accessors, structural updates (with1/with2), mapping utilities (map/map1/map2/mapAll),
+ *         applicative lifting (lift) and conversions (toTuple), as well as transmogrification and copying.
+ *     </p>
+ *     <p>
+ *         Semantics:
+ *         <ul>
+ *             <li>Non-null contract: inputs must not be {@code null}, results must not be {@code null}.</li>
+ *             <li>Eager evaluation: mapping and lifting operations evaluate immediately.</li>
+ *             <li>Structural equality: equals/hashCode compare values component-wise.</li>
+ *             <li>Stable string format: {@code Record2[value1=..., value2=...]}</li>
+ *         </ul>
  *     </p>
  * </div>
  *
- * @param <A1> der Typ des ersten Wertes
- * @param <A2> der Typ des zweiten Wertes
+ * @param <A1> the type of the first value
+ * @param <A2> the type of the second value
  *
  * @since 1.0.0
  *
@@ -45,7 +56,7 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Der Witness-Typ f&uuml;r {@code Record2}.
+     *         The witness type for {@code Record2}.
      *     </p>
      * </div>
      *
@@ -57,19 +68,18 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wandelt ein {@code Higher2} in ein {@code Record2} um.
+     *         Narrows a {@code Higher2} value to a concrete {@code Record2}.
      *     </p>
      *     <p>
-     *         &Uuml;berpr&uuml;ft, ob das &uuml;bergebene {@code Higher2} eine Instanz von {@code Record2} ist
-     *         und gibt es dann zur&uuml;ck.
+     *         Contract: {@code wide} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param wide das zu konvertierende {@code Higher2}; darf nicht {@code null} sein
-     * @param <A1> der Typ des ersten Wertes
-     * @param <A2> der Typ des zweiten Wertes
-     * @return das umgewandelte {@code Record2}
-     * @throws NullPointerException wenn {@code wide} {@code null} ist
+     * @param wide the higher-kinded value to narrow; must not be {@code null}
+     * @param <A1> the first component type
+     * @param <A2> the second component type
+     * @return the narrowed {@code Record2}
+     * @throws NullPointerException if {@code wide} is {@code null}
      *
      * @since 1.0.0
      */
@@ -81,19 +91,19 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz von {@code Record2} mit den gegebenen Werten.
+     *         Creates a new {@code Record2} with the given values (convenience factory).
      *     </p>
      *     <p>
-     *         Diese Methode ist eine bequeme Abk&uuml;rzung f&uuml;r den Konstruktor.
+     *         Contract: {@code value1} and {@code value2} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value1 der erste Wert; darf nicht {@code null} sein
-     * @param value2 der zweite Wert; darf nicht {@code null} sein
-     * @param <A1> der Typ des ersten Wertes
-     * @param <A2> der Typ des zweiten Wertes
-     * @return ein neues {@code Record2}-Objekt mit den angegebenen Werten
-     * @throws NullPointerException wenn einer der Werte {@code null} ist
+     * @param value1 the first value; must not be {@code null}
+     * @param value2 the second value; must not be {@code null}
+     * @param <A1> the first component type
+     * @param <A2> the second component type
+     * @return a {@code Record2} instance containing the values
+     * @throws NullPointerException if any value is {@code null}
      *
      * @since 1.0.0
      */
@@ -107,13 +117,16 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz von {@code Record2} mit den gegebenen Werten.
+     *         Canonical constructor validating non-null components.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value1} and {@code value2} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value1 der erste Wert; darf nicht {@code null} sein
-     * @param value2 der zweite Wert; darf nicht {@code null} sein
-     * @throws NullPointerException wenn einer der Werte {@code null} ist
+     * @param value1 the first value; must not be {@code null}
+     * @param value2 the second value; must not be {@code null}
+     * @throws NullPointerException if any value is {@code null}
      *
      * @since 1.0.0
      */
@@ -126,11 +139,12 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der erste Wert pr&auml;sent ist.
+     *         Indicates presence of values (always {@code true} for records).
+     *         Alias for {@link #is1()}.
      *     </p>
      * </div>
      *
-     * @return immer {@code true}, da das Tupel stets Werte enth&auml;lt
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -142,11 +156,11 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der erste Wert pr&auml;sent ist.
+     *         Indicates whether the first value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return immer {@code true}
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -158,11 +172,11 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der zweite Wert pr&auml;sent ist.
+     *         Indicates whether the second value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return immer {@code true}
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -174,14 +188,11 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den ersten Wert des Tupels zur&uuml;ck.
-     *     </p>
-     *     <p>
-     *         Entspricht dem Aufruf von {@code get1()}.
+     *         Returns the first value (alias for {@link #get1()}).
      *     </p>
      * </div>
      *
-     * @return Der erste Wert.
+     * @return the first value
      *
      * @since 1.0.0
      */
@@ -193,14 +204,11 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den ersten Wert des Tupels zur&uuml;ck.
-     *     </p>
-     *     <p>
-     *         Entspricht dem Aufruf von {@code get1()}.
+     *         Returns the first value.
      *     </p>
      * </div>
      *
-     * @return Der erste Wert.
+     * @return the first value
      *
      * @since 1.0.0
      */
@@ -212,11 +220,13 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den zweiten Wert dieses Datensatzes zur&uuml;ck.
+     *         Returns the second value.
      *     </p>
      * </div>
      *
-     * @return der zweite Wert des Datensatzes, niemals {@code null}
+     * @return the second value; never {@code null}
+     *
+     * @since 1.0.0
      */
     @Override
     public @NonNull A2 get2() {
@@ -226,14 +236,17 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz mit einem ge&auml;nderten ersten Wert.
+     *         Returns a new {@code Record2} with a replaced first value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der neue erste Wert; darf nicht {@code null} sein
-     * @param <B1> der Typ des neuen ersten Wertes
-     * @return ein neues {@code Record2} mit ge&auml;ndertem ersten Wert
-     * @throws NullPointerException wenn {@code value} {@code null} ist
+     * @param value the new first value; must not be {@code null}
+     * @param <B1> the new first component type
+     * @return a new {@code Record2} with the updated first value
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -245,14 +258,17 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz mit einem ge&auml;nderten zweiten Wert.
+     *         Returns a new {@code Record2} with a replaced second value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der neue zweite Wert; darf nicht {@code null} sein
-     * @param <B2> der Typ des neuen zweiten Wertes
-     * @return ein neues {@code Record2} mit ge&auml;ndertem zweiten Wert
-     * @throws NullPointerException wenn {@code value} {@code null} ist
+     * @param value the new second value; must not be {@code null}
+     * @param <B2> the new second component type
+     * @return a new {@code Record2} with the updated second value
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -264,14 +280,17 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet die gegebene Abbildungsfunktion auf den ersten Wert dieses Datensatzes an.
+     *         Maps the first value using the provided transformation. The second value remains unchanged.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die Abbildungsfunktion f&uuml;r den ersten Wert
-     * @param <B1> der Typ des transformierten ersten Werts
-     * @return ein neuer Datensatz mit dem transformierten ersten Wert und unver&auml;ndertem zweiten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis von {@code fMap} {@code null} ist
+     * @param transformation function to transform the first value
+     * @param <B1> the transformed first component type
+     * @return a new {@code Record2} with the transformed first value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -285,14 +304,13 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Alias f&uuml;r {@link #map(Function)}.
+     *         Alias for {@link #map(Function)}.
      *     </p>
      * </div>
      *
-     * @param transformation die Abbildungsfunktion f&uuml;r den ersten Wert
-     * @param <B1> der Typ des transformierten ersten Werts
-     * @return ein neuer Datensatz mit dem transformierten ersten Wert und unver&auml;ndertem zweiten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis von {@code fMap} {@code null} ist
+     * @param transformation function to transform the first value; see {@link #map(Function)}
+     * @param <B1> the transformed first component type
+     * @return a new {@code Record2} with the transformed first value
      *
      * @since 1.0.0
      */
@@ -305,14 +323,19 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet die gegebene Abbildungsfunktion auf den zweiten Wert dieses Datensatzes an.
+     *         Maps the second value using the provided transformation. The first value remains unchanged.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die Abbildungsfunktion f&uuml;r den zweiten Wert
-     * @param <B2> der Typ des transformierten zweiten Werts
-     * @return ein neuer Datensatz mit unver&auml;ndertem ersten Wert und transformiertem zweiten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis von {@code fMap} {@code null} ist
+     * @param transformation function to transform the second value
+     * @param <B2> the transformed second component type
+     * @return a new {@code Record2} with the transformed second value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
+     *
+     * @since 1.0.0
      */
     @Override
     @Eager
@@ -321,20 +344,22 @@ public record Record2<A1, A2>(A1 value1,
         return this.mapAll(Function.identity(), transformation);
     }
 
-
     /**
      * <div>
      *     <p>
-     *         Wendet die gegebenen Abbildungsfunktionen auf beide Werte dieses Datensatzes an.
+     *         Maps both values using the provided transformations.
+     *     </p>
+     *     <p>
+     *         Contract: neither transformation may be {@code null}, and neither result may be {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation1  die Abbildungsfunktion f&uuml;r den ersten Wert
-     * @param transformation2 die Abbildungsfunktion f&uuml;r den zweiten Wert
-     * @param <B1> der Typ des transformierten ersten Werts
-     * @param <B2> der Typ des transformierten zweiten Werts
-     * @return ein neuer Datensatz mit transformierten Werten
-     * @throws NullPointerException falls {@code fMapFirst}, {@code fMapSecond} oder deren Ergebnisse {@code null} sind
+     * @param transformation1 transformation for the first value; must not be {@code null} and must not return {@code null}
+     * @param transformation2 transformation for the second value; must not be {@code null} and must not return {@code null}
+     * @param <B1> the transformed first component type
+     * @param <B2> the transformed second component type
+     * @return a new {@code Record2} with transformed values
+     * @throws NullPointerException if any transformation is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -353,18 +378,18 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet zwei Funktionen aus einer h&ouml;heren Struktur auf die Werte dieses Datensatzes an.
+     *         Lifts two functions from a higher-kinded value and applies them to the respective components.
      *     </p>
      *     <p>
-     *         Die Funktionen werden aus der gegebenen {@code Higher2}-Struktur extrahiert und auf die jeweiligen Werte angewendet.
+     *         Contract: {@code transformation} must not be {@code null}; contained functions/results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation eine h&ouml;here Struktur, die je eine Funktion f&uuml;r den ersten und den zweiten Wert enth&auml;lt
-     * @param <B1>  der Typ des transformierten ersten Werts
-     * @param <B2>  der Typ des transformierten zweiten Werts
-     * @return ein neuer Datensatz mit den transformierten Werten
-     * @throws NullPointerException falls {@code liftA}, die extrahierten Funktionen oder deren Ergebnisse {@code null} sind
+     * @param transformation the higher-kinded value carrying functions for both components
+     * @param <B1> the transformed first component type
+     * @param <B2> the transformed second component type
+     * @return a new {@code Record2} with transformed values
+     * @throws NullPointerException if {@code transformation} is {@code null} or any function/result is {@code null}
      *
      * @since 1.0.0
      */
@@ -380,11 +405,11 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt dieses Record als {@code Tuple2} zur&uuml;ck.
+     *         Converts this record to a {@link Tuple2} carrying the same values.
      *     </p>
      * </div>
      *
-     * @return das Tupel als {@code Tuple2}
+     * @return a {@code Tuple2} containing {@code value1} and {@code value2}
      *
      * @since 1.0.0
      */
@@ -395,17 +420,15 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wandelt dieses {@code Record2} in einen anderen Typ um, indem die gegebene Transformationsfunktion angewendet wird.
-     *     </p>
-     *     <p>
-     *         Die Transformation erfolgt eager und das Ergebnis darf nicht {@code null} sein.
+     *         Transmogrifies this record into another type using the given function.
+     *         The transformation is eager and must not yield {@code null}.
      *     </p>
      * </div>
      *
-     * @param transmogrifier die Funktion, die dieses {@code Record2} in einen anderen Typ umwandelt
-     * @param <T>            der Zieltyp der Transformation
-     * @return das transformierte Objekt
-     * @throws NullPointerException falls {@code transmogrifier} oder das Transformationsergebnis {@code null} ist
+     * @param transmogrifier the transforming function; must not be {@code null} and must not return {@code null}
+     * @param <T> the target type
+     * @return the transformed value
+     * @throws NullPointerException if {@code transmogrifier} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -418,14 +441,12 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine Kopie dieses {@code Record2}-Datensatzes.
-     *     </p>
-     *     <p>
-     *         Die Kopie enthält die gleichen Werte wie das Original und ist strukturell identisch.
+     *         Returns a structural copy of this record (values are identical; identity is not preserved).
      *     </p>
      * </div>
      *
-     * @return eine Kopie dieses {@code Record2}
+     * @return a copy of this {@code Record2}
+     *
      * @since 1.0.0
      */
     @Override
@@ -436,14 +457,11 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Berechnet den Hashcode f&uuml;r diesen Datensatz anhand der enthaltenen Werte.
-     *     </p>
-     *     <p>
-     *         Der Hashcode wird basierend auf {@link Objects#hashCode(Object)} f&uuml;r beide Werte bestimmt.
+     *         Computes the hash code based on both contained values using {@link Objects#hashCode(Object)}.
      *     </p>
      * </div>
      *
-     * @return der Hashcode dieses Datensatzes
+     * @return the hash code of this record
      *
      * @since 1.0.0
      */
@@ -458,16 +476,12 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         &Uuml;berpr&uuml;ft, ob dieses Objekt gleich einem anderen ist.
-     *     </p>
-     *     <p>
-     *         Zwei {@code Record2}-Instanzen gelten als gleich, wenn ihre Werte paarweise
-     *         mit {@link Objects#equals(Object, Object)} &uuml;bereinstimmen.
+     *         Structural equality: two {@code Record2} instances are equal if both components are equal.
      *     </p>
      * </div>
      *
-     * @param object das zu vergleichende Objekt
-     * @return {@code true}, wenn das Objekt gleich diesem ist, sonst {@code false}
+     * @param object the object to compare to
+     * @return {@code true} if both components are equal; otherwise {@code false}
      *
      * @since 1.0.0
      */
@@ -483,14 +497,12 @@ public record Record2<A1, A2>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt eine String-Darstellung dieses Datensatzes zur&uuml;ck.
-     *     </p>
-     *     <p>
-     *         Das Format entspricht {@code "Record2[value1=..., value2=...]"}.
+     *         Returns a stable string representation of this record:
+     *         {@code Record2[value1=..., value2=...]}.
      *     </p>
      * </div>
      *
-     * @return eine String-Repr&auml;sentation dieses Datensatzes
+     * @return the string representation of this record
      *
      * @since 1.0.0
      */
@@ -502,5 +514,4 @@ public record Record2<A1, A2>(A1 value1,
                 .add("value2=" + value2)
                 .toString();
     }
-
 }

@@ -29,7 +29,8 @@ class BucketTest {
 
     static final Consumer<List<Object>> NULL_SINK = o -> {};
 
-    static class Sink<A> implements Consumer<List<A>> {
+    static class Sink<A>
+            implements Consumer<List<A>> {
         List<A> elements = new ArrayList<>();
 
         @Override
