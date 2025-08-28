@@ -242,7 +242,7 @@ public final class MutablePair<A1, A2>
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (!(o instanceof MutablePair<?, ?> mutablePair)) return false;
 
         return Objects.equals(value1, mutablePair.value1) && Objects.equals(value2, mutablePair.value2);

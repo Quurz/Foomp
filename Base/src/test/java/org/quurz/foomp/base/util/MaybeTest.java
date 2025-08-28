@@ -369,5 +369,32 @@ class MaybeTest extends TestHelper {
             assertThat(some(SOME_STRING_VALUE).toString())
                 .isEqualTo("Some[value=%s]".formatted(SOME_STRING_VALUE));
         }
+
+        @Test
+        void equals_and_hashCode_compare_by_variant_and_value() {
+            LOGGER.info("Maybe.equals/hashCode should compare None/Some structurally");
+
+            final var none1 = none();
+            final var none2 = none();
+            final var some1a = some("x");
+            final var some1b = some("x");
+            final var some2  = some("y");
+
+            // None == None
+            assertThat(none1).isEqualTo(none2);
+            assertThat(none1.hashCode()).isEqualTo(none2.hashCode());
+
+            // Some(x) == Some(x)
+            assertThat(some1a).isEqualTo(some1b);
+            assertThat(some1a.hashCode()).isEqualTo(some1b.hashCode());
+
+            // Different values / variants
+            assertThat(some1a).isNotEqualTo(some2);
+            assertThat(some1a).isNotEqualTo(none1);
+
+            // Different types / null
+            assertThat(some1a).isNotEqualTo(null);
+            assertThat(some1a).isNotEqualTo("not a maybe");
+        }
     }
 }

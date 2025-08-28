@@ -552,6 +552,20 @@ static <A> Maybe<A> some(final @NonNull A value) {
 
         @Override
         @UnwindingOperation
+        public boolean equals(final Object o) {
+            if (!(o instanceof Some<?> some)) return false;
+
+            return Objects.equals(this.spool.get(), some.spool.get());
+        }
+
+        @Override
+        @UnwindingOperation
+        public int hashCode() {
+            return Objects.hashCode(this.spool.get());
+        }
+
+        @Override
+        @UnwindingOperation
         public String toString() {
             return new StringJoiner(", ", Some.class.getSimpleName() + "[", "]")
                     .add("value=" + this.spool.get())
@@ -577,6 +591,16 @@ static <A> Maybe<A> some(final @NonNull A value) {
             = new None<>();
 
         private None() {}
+
+        @Override
+        public boolean equals(final Object o) {
+            return o instanceof None;
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
 
         @Override
         public String toString() {

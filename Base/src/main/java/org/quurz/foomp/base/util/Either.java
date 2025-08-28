@@ -765,7 +765,7 @@ public sealed interface Either<L, R>
          */
         @Override
         @UnwindingOperation
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (!(o instanceof Left<?, ?> left)) return false;
 
             return spool.get().equals(left.spool.get());
@@ -848,7 +848,7 @@ public sealed interface Either<L, R>
          */
         @UnwindingOperation
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (!(o instanceof Right<?, ?> right)) return false;
 
             return spool.get().equals(right.spool.get());
