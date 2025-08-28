@@ -20,15 +20,26 @@ import static org.quurz.foomp.base.util.Tuple4.tuple4;
 /**
  * <div>
  *     <p>
- *         Repr&auml;sentiert ein Record mit vier Werten, das unver&auml;nderlich ist.
- *         Diese Klasse eignet sich, um vier zusammengeh&ouml;rige Werte kompakt zu speichern und zu verarbeiten.
+ *         A record-based, immutable 4-tuple carrying four non-null values. This type provides
+ *         value accessors, structural updates (with1/with2/with3/with4), mapping utilities
+ *         (map1/map2/map3/map4/mapAll), applicative lifting (lift), conversions (toTuple),
+ *         transmogrification and copying.
+ *     </p>
+ *     <p>
+ *         Semantics:
+ *         <ul>
+ *             <li>Non-null contract: inputs must not be {@code null}, results must not be {@code null}.</li>
+ *             <li>Eager evaluation: mapping and lifting operations evaluate immediately.</li>
+ *             <li>Structural equality: equals/hashCode compare values component-wise.</li>
+ *             <li>Stable string format: {@code Record4[value1=..., value2=..., value3=..., value4=...]}</li>
+ *         </ul>
  *     </p>
  * </div>
  *
- * @param <A1> der Typ des ersten Wertes
- * @param <A2> der Typ des zweiten Wertes
- * @param <A3> der Typ des dritten Wertes
- * @param <A4> der Typ des vierten Wertes
+ * @param <A1> the type of the first value
+ * @param <A2> the type of the second value
+ * @param <A3> the type of the third value
+ * @param <A4> the type of the fourth value
  *
  * @since 1.0.0
  *
@@ -49,7 +60,7 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Der Witness-Typ f&uuml;r {@code Record4}.
+     *         The witness type for {@code Record4}.
      *     </p>
      * </div>
      *
@@ -61,20 +72,20 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wandelt ein {@code Higher4}-Objekt in ein {@code Record4} um.
+     *         Narrows a {@code Higher4} value to a concrete {@code Record4}.
      *     </p>
      *     <p>
-     *         Es wird &uuml;berpr&uuml;ft, ob das &uuml;bergebene Objekt nicht {@code null} ist.
+     *         Contract: {@code wide} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param wide das zu konvertierende {@code Higher4}-Objekt; darf nicht {@code null} sein
-     * @param <A1> der Typ des ersten Wertes
-     * @param <A2> der Typ des zweiten Wertes
-     * @param <A3> der Typ des dritten Wertes
-     * @param <A4> der Typ des vierten Wertes
-     * @return das umgewandelte {@code Record4}
-     * @throws NullPointerException falls {@code wide} {@code null} ist
+     * @param wide the higher-kinded value to narrow; must not be {@code null}
+     * @param <A1> the first component type
+     * @param <A2> the second component type
+     * @param <A3> the third component type
+     * @param <A4> the fourth component type
+     * @return the narrowed {@code Record4}
+     * @throws NullPointerException if {@code wide} is {@code null}
      *
      * @since 1.0.0
      */
@@ -86,20 +97,23 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt ein Record mit vier Werten.
+     *         Creates a new {@code Record4} with the given values (convenience factory).
+     *     </p>
+     *     <p>
+     *         Contract: all values must be non-null.
      *     </p>
      * </div>
      *
-     * @param value1 der erste Wert des Records; darf nicht {@code null} sein
-     * @param value2 der zweite Wert des Records; darf nicht {@code null} sein
-     * @param value3 der dritte Wert des Records; darf nicht {@code null} sein
-     * @param value4 der vierte Wert des Records; darf nicht {@code null} sein
-     * @param <A1> der Typ des ersten Wertes
-     * @param <A2> der Typ des zweiten Wertes
-     * @param <A3> der Typ des dritten Wertes
-     * @param <A4> der Typ des vierten Wertes
-     * @return ein neues {@code Record4}-Objekt, das die angegebenen Werte enth&auml;lt
-     * @throws NullPointerException falls einer der Werte {@code null} ist
+     * @param value1 the first value; must not be {@code null}
+     * @param value2 the second value; must not be {@code null}
+     * @param value3 the third value; must not be {@code null}
+     * @param value4 the fourth value; must not be {@code null}
+     * @param <A1> the first component type
+     * @param <A2> the second component type
+     * @param <A3> the third component type
+     * @param <A4> the fourth component type
+     * @return a new {@code Record4} containing the values
+     * @throws NullPointerException if any value is {@code null}
      *
      * @since 1.0.0
      */
@@ -117,15 +131,15 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Konstruktor, der dieses {@code Record4} mit den angegebenen Werten initialisiert.
+     *         Canonical constructor validating non-null components.
      *     </p>
      * </div>
      *
-     * @param value1 der erste Wert; darf nicht {@code null} sein
-     * @param value2 der zweite Wert; darf nicht {@code null} sein
-     * @param value3 der dritte Wert; darf nicht {@code null} sein
-     * @param value4 der vierte Wert; darf nicht {@code null} sein
-     * @throws NullPointerException falls einer der Werte {@code null} ist
+     * @param value1 the first value; must not be {@code null}
+     * @param value2 the second value; must not be {@code null}
+     * @param value3 the third value; must not be {@code null}
+     * @param value4 the fourth value; must not be {@code null}
+     * @throws NullPointerException if any value is {@code null}
      *
      * @since 1.0.0
      */
@@ -142,11 +156,12 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der erste Wert pr&auml;sent ist.
+     *         Indicates presence of values (always {@code true} for records).
+     *         Alias for {@link #is1()}.
      *     </p>
      * </div>
      *
-     * @return immer {@code true}
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -158,11 +173,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der erste Wert pr&auml;sent ist.
+     *         Indicates whether the first value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return immer {@code true}
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -174,11 +189,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der zweite Wert pr&auml;sent ist.
+     *         Indicates whether the second value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return immer {@code true}
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -190,11 +205,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der dritte Wert pr&auml;sent ist.
+     *         Indicates whether the third value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return immer {@code true}
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -206,11 +221,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der vierte Wert pr&auml;sent ist.
+     *         Indicates whether the fourth value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return immer {@code true}
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -222,12 +237,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den ersten Wert dieses Records zur&uuml;ck.
-     *         Entspricht dem Aufruf von {@code get1()}.
+     *         Returns the first value (alias for {@link #get1()}).
      *     </p>
      * </div>
      *
-     * @return der erste Wert, niemals {@code null}
+     * @return the first value
      *
      * @since 1.0.0
      */
@@ -239,11 +253,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den ersten Wert dieses Records zur&uuml;ck.
+     *         Returns the first value.
      *     </p>
      * </div>
      *
-     * @return der erste Wert, niemals {@code null}
+     * @return the first value
      *
      * @since 1.0.0
      */
@@ -255,11 +269,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den zweiten Wert dieses Records zur&uuml;ck.
+     *         Returns the second value.
      *     </p>
      * </div>
      *
-     * @return der zweite Wert, niemals {@code null}
+     * @return the second value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -271,11 +285,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den dritten Wert dieses Records zur&uuml;ck.
+     *         Returns the third value.
      *     </p>
      * </div>
      *
-     * @return der dritte Wert, niemals {@code null}
+     * @return the third value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -287,11 +301,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt den vierten Wert dieses Records zur&uuml;ck.
+     *         Returns the fourth value.
      *     </p>
      * </div>
      *
-     * @return der dritte Wert, niemals {@code null}
+     * @return the fourth value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -303,14 +317,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz dieses Records mit einem ge&auml;nderten ersten Wert.
+     *         Returns a new {@code Record4} with a replaced first value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der neue erste Wert; darf nicht {@code null} sein
-     * @param <B1> der Typ des neuen ersten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem ge&auml;nderten ersten Wert und den unver&auml;nderten Werten der anderen Elemente
-     * @throws NullPointerException falls {@code value} {@code null} ist
+     * @param value the new first value; must not be {@code null}
+     * @param <B1> the new first component type
+     * @return a new {@code Record4} with the updated first value
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -322,14 +339,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz dieses Records mit einem ge&auml;nderten zweiten Wert.
+     *         Returns a new {@code Record4} with a replaced second value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der neue zweite Wert; darf nicht {@code null} sein
-     * @param <B2> der Typ des neuen zweiten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem ge&auml;nderten zweiten Wert und den unver&auml;nderten Werten der anderen Elemente
-     * @throws NullPointerException falls {@code value} {@code null} ist
+     * @param value the new second value; must not be {@code null}
+     * @param <B2> the new second component type
+     * @return a new {@code Record4} with the updated second value
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -341,14 +361,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz dieses Records mit einem ge&auml;nderten dritten Wert.
+     *         Returns a new {@code Record4} with a replaced third value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der neue dritte Wert; darf nicht {@code null} sein
-     * @param <B3> der Typ des neuen dritten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem ge&auml;nderten dritten Wert und den unver&auml;nderten Werten der anderen Elemente
-     * @throws NullPointerException falls {@code value} {@code null} ist
+     * @param value the new third value; must not be {@code null}
+     * @param <B3> the new third component type
+     * @return a new {@code Record4} with the updated third value
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -360,14 +383,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz dieses Records mit einem ge&auml;nderten vierten Wert.
+     *         Returns a new {@code Record4} with a replaced fourth value.
+     *     </p>
+     *     <p>
+     *         Contract: {@code value} must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param value der neue vierte Wert; darf nicht {@code null} sein
-     * @param <B4> der Typ des neuen vierten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem ge&auml;nderten vierten Wert und den unver&auml;nderten Werten der anderen Elemente
-     * @throws NullPointerException falls {@code value} {@code null} ist
+     * @param value the new fourth value; must not be {@code null}
+     * @param <B4> the new fourth component type
+     * @return a new {@code Record4} with the updated fourth value
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -379,15 +405,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet die angegebene Abbildungsfunktion auf den ersten Wert dieses Records an und gibt ein neues Tupel
-     *         mit dem transformierten ersten Wert zur&uuml;ck. Die anderen Werte bleiben unver&auml;ndert.
+     *         Maps the first value using the provided transformation. The other values remain unchanged.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die Abbildungsfunktion f&uuml;r den ersten Wert
-     * @param <B1> der Typ des neuen ersten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem transformierten ersten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis von {@code fMap} {@code null} ist
+     * @param transformation function to transform the first value
+     * @param <B1> the transformed first component type
+     * @return a new {@code Record4} with the transformed first value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -400,15 +428,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet die angegebene Abbildungsfunktion auf den zweiten Wert dieses Records an und gibt ein neues Tupel
-     *         mit dem transformierten zweiten Wert zur&uuml;ck. Die anderen Werte bleiben unver&auml;ndert.
+     *         Maps the second value using the provided transformation. The other values remain unchanged.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die Abbildungsfunktion f&uuml;r den zweiten Wert
-     * @param <B2> der Typ des neuen zweiten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem transformierten zweiten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis von {@code fMap} {@code null} ist
+     * @param transformation function to transform the second value
+     * @param <B2> the transformed second component type
+     * @return a new {@code Record4} with the transformed second value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -421,15 +451,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet die angegebene Abbildungsfunktion auf den dritten Wert dieses Records an und gibt ein neues Tupel
-     *         mit dem transformierten dritten Wert zur&uuml;ck. Die anderen Werte bleiben unver&auml;ndert.
+     *         Maps the third value using the provided transformation. The other values remain unchanged.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die Abbildungsfunktion f&uuml;r den dritten Wert
-     * @param <B3> der Typ des neuen dritten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem transformierten dritten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis von {@code fMap} {@code null} ist
+     * @param transformation function to transform the third value
+     * @param <B3> the transformed third component type
+     * @return a new {@code Record4} with the transformed third value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -442,15 +474,17 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet die angegebene Abbildungsfunktion auf den vierten Wert dieses Records an und gibt ein neues Tupel
-     *         mit dem transformierten vierten Wert zur&uuml;ck. Die anderen Werte bleiben unver&auml;ndert.
+     *         Maps the fourth value using the provided transformation. The other values remain unchanged.
+     *     </p>
+     *     <p>
+     *         Contract: {@code transformation} must not be {@code null} and must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation die Abbildungsfunktion f&uuml;r den vierten Wert
-     * @param <B4> der Typ des neuen vierten Wertes
-     * @return ein neues {@code Record4}-Tupel mit dem transformierten vierten Wert
-     * @throws NullPointerException falls {@code fMap} oder das Ergebnis von {@code fMap} {@code null} ist
+     * @param transformation function to transform the fourth value
+     * @param <B4> the transformed fourth component type
+     * @return a new {@code Record4} with the transformed fourth value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -463,21 +497,23 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wendet die angegebenen Abbildungsfunktionen auf alle Werte dieses Records an und gibt ein neues Tupel
-     *         mit den transformierten Werten zur&uuml;ck.
+     *         Maps all four values using the provided transformations.
+     *     </p>
+     *     <p>
+     *         Contract: no transformation may be {@code null}, and no result may be {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation1 die Abbildungsfunktion f&uuml;r den ersten Wert
-     * @param transformation2 die Abbildungsfunktion f&uuml;r den zweiten Wert
-     * @param transformation3 die Abbildungsfunktion f&uuml;r den dritten Wert
-     * @param transformation4 die Abbildungsfunktion f&uuml;r den vierten Wert
-     * @param <B1> der Typ des neuen ersten Wertes
-     * @param <B2> der Typ des neuen zweiten Wertes
-     * @param <B3> der Typ des neuen dritten Wertes
-     * @param <B4> der Typ des neuen vierten Wertes
-     * @return ein neues {@code Record4}-Tupel mit den transformierten Werten
-     * @throws NullPointerException falls eine der Abbildungsfunktionen oder deren Ergebnisse {@code null} sind
+     * @param transformation1 function to transform the first value; must not be {@code null} and must not return {@code null}
+     * @param transformation2 function to transform the second value; must not be {@code null} and must not return {@code null}
+     * @param transformation3 function to transform the third value; must not be {@code null} and must not return {@code null}
+     * @param transformation4 function to transform the fourth value; must not be {@code null} and must not return {@code null}
+     * @param <B1> the transformed first component type
+     * @param <B2> the transformed second component type
+     * @param <B3> the transformed third component type
+     * @param <B4> the transformed fourth component type
+     * @return a new {@code Record4} with transformed values
+     * @throws NullPointerException if any transformation is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -501,21 +537,20 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Hebt eine Funktion in den Kontext dieses Records an und wendet sie auf die jeweiligen Werte an.
+     *         Lifts four functions from a higher-kinded value and applies them to the respective components.
      *     </p>
      *     <p>
-     *         Es wird eine h&ouml;here Struktur &uuml;bergeben, die Abbildungsfunktionen f&uuml;r jeden der vier Werte enth&auml;lt.
-     *         Anschlie&szlig;end werden diese Funktionen extrahiert und auf die entsprechenden Werte angewendet.
+     *         Contract: {@code transformation} must not be {@code null}; contained functions/results must not be {@code null}.
      *     </p>
      * </div>
      *
-     * @param transformation eine h&ouml;here Struktur, die Abbildungsfunktionen f&uuml;r jeden Wert enth&auml;lt
-     * @param <B1> der Typ des transformierten ersten Wertes
-     * @param <B2> der Typ des transformierten zweiten Wertes
-     * @param <B3> der Typ des transformierten dritten Wertes
-     * @param <B4> der Typ des transformierten vierten Wertes
-     * @return ein neues {@code Higher4}-Objekt mit den transformierten Werten
-     * @throws NullPointerException falls {@code liftA} oder die enthaltenen Funktionen {@code null} sind
+     * @param transformation the higher-kinded value carrying functions for all components
+     * @param <B1> the transformed first component type
+     * @param <B2> the transformed second component type
+     * @param <B3> the transformed third component type
+     * @param <B4> the transformed fourth component type
+     * @return a new {@code Record4} with transformed values
+     * @throws NullPointerException if {@code transformation} is {@code null} or any function/result is {@code null}
      *
      * @since 1.0.0
      */
@@ -530,11 +565,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt dieses Record als {@code Tuple4} zur&uuml;ck.
+     *         Converts this record to a {@link Tuple4} carrying the same values.
      *     </p>
      * </div>
      *
-     * @return das Tupel als {@code Tuple4}
+     * @return a {@code Tuple4} containing {@code value1}, {@code value2}, {@code value3} and {@code value4}
      *
      * @since 1.0.0
      */
@@ -545,17 +580,15 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Wandelt dieses {@code Record4} in einen anderen Typ um, indem die gegebene Transformationsfunktion angewendet wird.
-     *     </p>
-     *     <p>
-     *         Die Transformation erfolgt eager und das Ergebnis darf nicht {@code null} sein.
+     *         Transmogrifies this record into another type using the given function.
+     *         The transformation is eager and must not yield {@code null}.
      *     </p>
      * </div>
      *
-     * @param transmogrifier die Funktion, die dieses {@code Record4} in einen anderen Typ umwandelt
-     * @param <T>            der Zieltyp der Transformation
-     * @return das transformierte Objekt
-     * @throws NullPointerException falls {@code transmogrifier} oder das Transformationsergebnis {@code null} ist
+     * @param transmogrifier the transforming function; must not be {@code null} and must not return {@code null}
+     * @param <T> the target type
+     * @return the transformed value
+     * @throws NullPointerException if {@code transmogrifier} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -568,14 +601,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Erstellt eine Kopie dieses {@code Record4}-Tupels.
-     *     </p>
-     *     <p>
-     *         Die Kopie enth&auml;lt die gleichen Werte wie das Original und ist strukturell identisch.
+     *         Returns a structural copy of this record (values are identical; identity is not preserved).
      *     </p>
      * </div>
      *
-     * @return eine Kopie dieses {@code Record4}
+     * @return a copy of this {@code Record4}
      *
      * @since 1.0.0
      */
@@ -587,14 +617,11 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Berechnet den Hashcode dieses Records anhand der enthaltenen Werte.
-     *     </p>
-     *     <p>
-     *         Der Hashcode wird f&uuml;r jeden der vier Werte unter Verwendung von {@link Objects#hashCode(Object)} ermittelt.
+     *         Computes the hash code based on all contained values using {@link Objects#hashCode(Object)}.
      *     </p>
      * </div>
      *
-     * @return der Hashcode dieses Tupels
+     * @return the hash code of this record
      *
      * @since 1.0.0
      */
@@ -610,12 +637,12 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Vergleicht dieses Record mit einem anderen Objekt auf Gleichheit.
+     *         Structural equality: two {@code Record4} instances are equal if all components are equal.
      *     </p>
      * </div>
      *
-     * @param object das zu vergleichende Objekt
-     * @return {@code true}, wenn das Objekt ein {@code Record4} mit denselben Werten ist, sonst {@code false}
+     * @param object the object to compare to
+     * @return {@code true} if all components are equal; otherwise {@code false}
      *
      * @since 1.0.0
      */
@@ -632,11 +659,12 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     /**
      * <div>
      *     <p>
-     *         Gibt eine String-Repr&auml;sentation dieses Tupels zur&uuml;ck.
+     *         Returns a stable string representation in the format
+     *         {@code Record4[value1=..., value2=..., value3=..., value4=...]}.
      *     </p>
      * </div>
      *
-     * @return eine String-Darstellung im Format {@code Record4[value1=..., value2=..., value3=..., value4=...]}
+     * @return the string representation of this record
      *
      * @since 1.0.0
      */
