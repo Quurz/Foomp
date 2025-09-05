@@ -8,26 +8,25 @@ import java.util.function.Supplier;
 
 /**
  * <div>
- *     Eine H&uuml;pfburg!
+ *     A bouncy castle!
+ *     <br/>
+ *     (A playful nod: this “trampoline” lets your recursion bounce safely without blowing the stack.)
  * </div>
  *
  * <div>
  *     <p>
- *         Wandelt eine Rekursion in eine stack-sichere Iteration
+ *         Turns (potentially deep) recursion into a stack‑safe iteration.
  *     </p>
  *     <p>
- *         <cite>To iterate is human, to recurse divine</cite>
+ *         <cite>To iterate is human, to recurse divine.</cite>
  *     </p>
  *     <p>
- *         Ein Beispiel sagt vielleicht mehr dar&uuml;ber aus, was das Dingen eigentlich macht:
+ *         Example usage illustrating how it works:
  *     </p>
  *     <pre>{@code
- *          private void play()
- *              throws Exception {
- *              final var param
- *                  = BigInteger.valueOf(100000);
- *              final var result
- *                  = this.factorial(param);
+ *          private void play() throws Exception {
+ *              final var param = BigInteger.valueOf(100000);
+ *              final var result = this.factorial(param);
  *              LOGGER.info("factorial({}) = {}", param, result);
  *          }
  *
@@ -45,11 +44,19 @@ import java.util.function.Supplier;
  *          }
  *     }</pre>
  *     <div>
- *         H&auml;tte man das einfach rekursiv versucht, w&auml;re einem ein StackOverflowError um die Ohren geflogen... &#128539;
+ *         A naive recursive implementation would easily end in a StackOverflowError… 😉
  *     </div>
+ *     <p>
+ *         Performance note:
+ *         <ul>
+ *           <li>Each intermediate step typically allocates a {@code More} instance and a {@code Supplier} capturing the next step.</li>
+ *           <li>Very long runs can create many small objects and put considerable pressure on the heap and GC.</li>
+ *           <li>If a hotspot is performance‑critical and predictable, consider an explicit iterative version.</li>
+ *         </ul>
+ *     </p>
  * </div>
  *
- * @param <T> der Typ des Ergebnisses, das vom Trampolin erzeugt wird
+ * @param <T> the result type produced by the trampoline
  *
  * @since 1.0.0
  *
@@ -63,15 +70,19 @@ public sealed interface Trampoline<T>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz eines Trampolins, das eine Berechnung
-     *         repr&auml;sentiert, die noch l&auml;uft. Dieses Trampolin liefert weitere
-     *         Trampoline, bis ein endg&uuml;ltiges Ergebnis erzielt wird.
+     *         Creates a trampoline representing a pending computation. Calling {@link #get()}
+     *         will repeatedly evaluate the supplied next steps until a {@link Done} is reached.
+     *     </p>
+     *     <p>
+     *         Performance note: each “bounce” usually allocates at least one object
+     *         (this {@code More} plus its {@code Supplier}). Extremely deep computations may increase
+     *         heap usage and GC activity compared to a hand‑written loop.
      *     </p>
      * </div>
      *
-     * @param trampoline ein Supplier, der das n&auml;chste Trampolin zur Auswertung bereitstellt
-     * @param <T> der Typ des Ergebnisses, das vom Trampolin erzeugt wird
-     * @return ein {@link Trampoline}, das eine laufende Berechnung darstellt
+     * @param trampoline a supplier providing the next trampoline step; must not be {@code null}
+     * @param <T>        the result type
+     * @return a {@link Trampoline} representing a running computation
      *
      * @since 1.0.0
      */
@@ -82,14 +93,13 @@ public sealed interface Trampoline<T>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz eines Trampolins, das eine abgeschlossene Berechnung
-     *         mit einem Ergebnis repr&auml;sentiert.
+     *         Creates a trampoline representing a completed computation yielding a result.
      *     </p>
      * </div>
      *
-     * @param result das Ergebnis der Berechnung
-     * @param <T> der Typ des Ergebnisses, das vom Trampolin erzeugt wird
-     * @return ein {@link Trampoline}, das eine abgeschlossene Berechnung darstellt
+     * @param result the final result; must not be {@code null}
+     * @param <T>    the result type
+     * @return a {@link Trampoline} representing a finished computation
      *
      * @since 1.0.0
      */
@@ -100,12 +110,12 @@ public sealed interface Trampoline<T>
     /**
      * <div>
      *     <p>
-     *         &Uuml;berprüft, ob das Trampolin einen Wert enth&auml;lt. Diese Methode gibt true zur&uuml;ck,
-     *         wenn das Trampolin eine {@link Done}-Instanz ist.
+     *         Indicates whether a result is present. Returns {@code true} for {@link Done}
+     *         and {@code false} for {@link More}.
      *     </p>
      * </div>
      *
-     * @return true, wenn das Trampolin einen vorhandenen Wert hat, andernfalls false
+     * @return {@code true} if this is a {@link Done}, otherwise {@code false}
      *
      * @since 1.0.0
      */
@@ -117,13 +127,11 @@ public sealed interface Trampoline<T>
     /**
      * <div>
      *     <p>
-     *         Repr&auml;sentiert eine laufende Berechnung im Trampolinmechanismus.
-     *         Diese Klasse bietet eine M&ouml;glichkeit, die Berechnung fortzusetzen,
-     *         indem ein Supplier für das n&auml;chste Trampolin zur Ausf&uuml;hrung bereitgestellt wird.
+     *         Represents a running computation. Holds a supplier for the next trampoline step.
      *     </p>
      * </div>
      *
-     * @param <T> der Typ des Ergebnisses, das vom Trampolin erzeugt wird
+     * @param <T> the result type
      *
      * @since 1.0.0
      */
@@ -140,22 +148,21 @@ public sealed interface Trampoline<T>
         /**
          * <div>
          *     <p>
-         *         Holt das endg&uuml;ltige Ergebnis des Trampolins, indem die Berechnung ausgewertet wird.
-         *         Es wird fortgefahren, die bereitgestellten Trampoline auszuwerten, bis ein
-         *         abgeschlossenes Trampolin erreicht wird.
+         *         Evaluates the trampoline until a {@link Done} is reached and returns its result.
+         *         The evaluation proceeds iteratively to avoid stack growth.
          *     </p>
          * </div>
          *
-         * @return das Ergebnis der abgeschlossenen Berechnung
+         * @return the final result
          *
          * @since 1.0.0
          */
         @Override
         public @NonNull T get() {
             var current
-                = this.trampoline.get();
+                = Objects.requireNonNull(this.trampoline.get(), "trampoline.get() returned null");
             while (current instanceof Trampoline.More<T> more) {
-                current = more.trampoline.get();
+                current = Objects.requireNonNull(more.trampoline.get(), "trampoline.get() returned null");
             }
             return current.get();
         }
@@ -165,12 +172,11 @@ public sealed interface Trampoline<T>
     /**
      * <div>
      *     <p>
-     *         Repr&auml;sentiert eine abgeschlossene Berechnung im Trampolinmechanismus,
-     *         die das endg&uuml;ltige Ergebnis kapselt.
+     *         Represents a completed computation that holds the final result.
      *     </p>
      * </div>
      *
-     * @param <T> der Typ des Ergebnisses, das vom Trampolin erzeugt wird
+     * @param <T> the result type
      *
      * @since 1.0.0
      */
@@ -187,12 +193,11 @@ public sealed interface Trampoline<T>
         /**
          * <div>
          *     <p>
-         *         &Uuml;berpr&uuml;ft, ob das Trampolin einen Wert enth&auml;lt. Im Fall von
-         *         {@link Done} gibt diese Methode true zurück.
+         *         Indicates that a value is present for this {@link Done}.
          *     </p>
          * </div>
          *
-         * @return true, was anzeigt, dass das Trampolin einen vorhandenen Wert hat
+         * @return always {@code true}
          *
          * @since 1.0.0
          */
@@ -204,11 +209,11 @@ public sealed interface Trampoline<T>
         /**
          * <div>
          *     <p>
-         *         Holt das Ergebnis der abgeschlossenen Berechnung.
+         *         Returns the final result of the computation.
          *     </p>
          * </div>
          *
-         * @return das Ergebnis der Berechnung
+         * @return the result; never {@code null}
          */
         @Override
         public @NonNull T get() {

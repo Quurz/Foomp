@@ -115,8 +115,9 @@ public sealed interface Either<L, R>
      *
      * @since 1.0.0
      */
+    // TODO: Das sollte ich mir noch mal anschauen
     @SuppressWarnings("unchecked")
-    static <L, R> Either<L, R> unwrap(final @NonNull Either<?, ? extends Higher1<? extends µ, R>> wrapped) {
+    static <L, R> Either<L, R> unwrap(final @NonNull Higher2<µ, ?, ? extends Higher1<? extends µ, R>> wrapped) {
         Objects.requireNonNull(wrapped, nullValue("wrapped"));
         final var narrowed
             = narrow(wrapped);

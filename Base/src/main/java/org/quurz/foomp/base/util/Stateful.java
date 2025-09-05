@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
@@ -39,6 +40,11 @@ public class Stateful<A, S>
     public static <A, S> Stateful<A, S> narrow(final Higher2<? extends Stateful.µ, A, S> higher) {
         return (Stateful<A, S>) higher;
     }
+
+//    public static <A, S> Stateful<A, S> unwrap(final @NonNull Higher2<? extends Stateful.µ, ? extends A, ? extends > wrapped) {
+//        Objects.requireNonNull(wrapped, nullValue("wrapped"));
+//        return null;
+//    }
 
     /**
      * <div>
@@ -158,42 +164,18 @@ public class Stateful<A, S>
                 = this.runState.apply(state);
             final var result
                 = resultAndState.get();
-            return tuple2(Objects.requireNonNull(transformation.apply(result), nullResult()), state);
+            final var newState
+                = resultAndState.get2();
+            return tuple2(Objects.requireNonNull(transformation.apply(result), nullResultFrom("transformation")), newState);
         });
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         Wendet eine Funktion, die in einem anderen {@code Stateful}-Objekt enthalten ist, auf das Ergebnis an.
-     *     </p>
-     * </div>
-     *
-     * @param transformation Ein {@code Stateful}-Objekt, das die Funktion zum Anwenden enth&auml;lt
-     * @param <B> Typ des Ergebnisses nach der Anwendung der Funktion
-     * @return Ein {@code Stateful}-Objekt mit dem transformierten Ergebnis
-     *
-     * @since 1.0.0
-     */
     @Override
     public @NonNull <B> Stateful<B, S> lift(final @NonNull Higher2<? extends µ, Function<A, B>, S> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         return new Stateful<>(state -> this.runState(state).map(narrow(transformation).execValue(state)).with2(state));
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         Verkettet eine Berechnung, die eine neue {@code Stateful}-Instanz zur&uuml;ckgibt, und verarbeitet das Ergebnis.
-     *     </p>
-     * </div>
-     *
-     * @param transformation Funktion, die das Ergebnis transformiert und eine neue {@code Stateful}-Instanz liefert
-     * @param <B> Typ des neuen Ergebnisses
-     * @return Ein {@code Stateful}-Objekt, das die verkn&uuml;pfte Berechnung repr&auml;sentiert
-     *
-     * @since 1.0.0
-     */
     @Override
     public @NonNull <B> Stateful<B, S> bind(final @NonNull Function<A, ? extends Higher2<? extends µ, B, S>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));

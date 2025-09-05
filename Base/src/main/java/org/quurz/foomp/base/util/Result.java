@@ -313,7 +313,7 @@ public sealed interface Result<A>
          * @since 1.0.0
          */
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (!(o instanceof Success<?> success)) return false;
 
             return value.equals(success.value);
@@ -389,7 +389,7 @@ public sealed interface Result<A>
          * @since 1.0.0
          */
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (!(o instanceof Failure<?> failure)) return false;
 
             return exception.equals(failure.exception);
