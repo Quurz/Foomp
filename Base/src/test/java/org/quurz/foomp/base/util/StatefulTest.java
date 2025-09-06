@@ -1,5 +1,9 @@
 package org.quurz.foomp.base.util;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -17,6 +21,8 @@ import static org.quurz.foomp.base.util.Stateful.stateful;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@DisplayName("Stateful")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class StatefulTest {
 
     private static final Logger LOGGER
@@ -25,168 +31,204 @@ class StatefulTest {
     private static final Function<Integer, Tuple2<Boolean, Integer>> RUN_STATE
         = state -> tuple2((state % 2) == 0, state + 1);
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testState() {
-        LOGGER.info("Test Stateful.stateful");
+    @Nested
+    @DisplayName("Factory")
+    class Factory {
 
-        assertThatThrownBy(() -> stateful(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> stateful(_$ -> null).runState("<STATE>"))
-            .isInstanceOf(NullPointerException.class);
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void stateful_null_runner_throws_npe_and_non_null_is_ok() {
+            LOGGER.info("Stateful.stateful: null runState should throw, non-null should pass");
 
-        assertThatNoException()
-            .isThrownBy(() -> stateful(obj -> tuple2(obj, 0)));
+            assertThatThrownBy(() -> stateful(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("runState");
+
+            assertThatThrownBy(() -> stateful(_$ -> null).runState("<STATE>"))
+                .isInstanceOf(NullPointerException.class);
+
+            assertThatNoException()
+                .isThrownBy(() -> stateful(obj -> tuple2(obj, 0)));
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void stateOf_null_value_throws_npe_and_non_null_is_ok() {
+            LOGGER.info("Stateful.stateOf: null value should throw, non-null should pass");
+
+            assertThatThrownBy(() -> stateOf(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("value");
+
+            assertThat(stateOf(5).runState("<STATE>").get2())
+                .isEqualTo("<STATE>");
+            assertThatNoException()
+                .isThrownBy(() -> stateOf(5));
+            assertThat(stateOf(5).execValue("<STATE>"))
+                .isEqualTo(5);
+            assertThat(stateOf(5).execState("<STATE>"))
+                .isEqualTo("<STATE>");
+        }
+
+        @SuppressWarnings("ResultOfMethodCallIgnored")
+        @Test
+        void getState_putState_and_modifyState_behave_and_enforce_contracts() {
+            LOGGER.info("Stateful.getState / putState / modifyState: behaviour and contracts");
+
+            // getState
+            assertThatNoException().isThrownBy(Stateful::getState);
+            assertThat(getState().runState("<STATE>").get1()).isEqualTo("<STATE>");
+            assertThat(getState().runState("<STATE>").get2()).isEqualTo("<STATE>");
+            assertThat(getState().execValue("<STATE>")).isEqualTo("<STATE>");
+            assertThat(getState().execState("<STATE>")).isEqualTo("<STATE>");
+
+            // putState
+            //noinspection DataFlowIssue
+            assertThatThrownBy(() -> putState(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("state");
+            assertThat(putState("<STATE>").execValue("?")).isEqualTo(nothing);
+            assertThat(putState("<STATE>").execState("?")).isEqualTo("<STATE>");
+
+            // modifyState
+            //noinspection DataFlowIssue
+            assertThatThrownBy(() -> modifyState(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("modifier");
+            assertThatThrownBy(() -> modifyState(_$ -> null).runState("<STATE>"))
+                .isInstanceOf(NullPointerException.class);
+            assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).execState(4)).isEqualTo(5);
+            assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).execValue(4)).isEqualTo(nothing);
+            assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).runState(10).get1()).isEqualTo(nothing);
+            assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).runState(10).get2()).isEqualTo(11);
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testStateOf() {
-        LOGGER.info("Test Stateful.stateOf");
+    @Nested
+    @DisplayName("Behaviour")
+    class Behaviour {
 
-        assertThatThrownBy(() -> stateOf(null))
-            .isInstanceOf(NullPointerException.class);
+        @Nested
+        @DisplayName("map")
+        class Map_ {
 
-        assertThat(stateOf(5).runState("<STATE>").get2())
-            .isEqualTo("<STATE>");
-        assertThatNoException()
-            .isThrownBy(() -> stateOf(5));
-        assertThat(stateOf(5).execValue("<STATE>"))
-            .isEqualTo(5);
-        assertThat(stateOf(5).execState("<STATE>"))
-            .isEqualTo("<STATE>");
-    }
+            @SuppressWarnings({"DataFlowIssue", "unused"})
+            @Test
+            void map_transforms_value_and_enforces_null_contracts() {
+                LOGGER.info("Stateful.map should transform value and fail on nulls");
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    @Test
-    void testGetState() {
-        LOGGER.info("Test Stateful.getState");
+                assertThatThrownBy(() -> stateful(RUN_STATE).map(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("transformation");
+                assertThatThrownBy(() -> stateful(RUN_STATE).map(_$ -> null).runState(1))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("transformation");
 
-        assertThatNoException()
-            .isThrownBy(Stateful::getState);
-        assertThat(getState().runState("<STATE>").get1())
-            .isEqualTo("<STATE>");
-        assertThat(getState().runState("<STATE>").get2())
-            .isEqualTo("<STATE>");
-        assertThat(getState().execValue("<STATE>"))
-            .isEqualTo("<STATE>");
-        assertThat(getState().execState("<STATE>"))
-            .isEqualTo("<STATE>");
-    }
+                final var mapped = stateful(RUN_STATE).map(String::valueOf);
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testModifyState() {
-        LOGGER.info("Test Stateful.modifyState");
+                assertThat(mapped.execValue(1)).isEqualTo("false");
+                // State is threaded through: 1 -> 2
+                assertThat(mapped.execState(1)).isEqualTo(2);
+                assertThat(mapped.runState(1).get1()).isEqualTo("false");
+                assertThat(mapped.runState(1).get2()).isEqualTo(2);
+            }
+        }
 
-        assertThatThrownBy(() -> modifyState(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> modifyState(_$ -> null)
-            .runState("<STATE>")).isInstanceOf(NullPointerException.class);
+        @Nested
+        @DisplayName("lift (applicative)")
+        class Lift_ {
 
-        assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).execState(4))
-            .isEqualTo(5);
-        assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).execValue(4))
-            .isEqualTo(nothing);
-        assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).runState(10).get1())
-            .isEqualTo(nothing);
-        assertThat(modifyState((Function<Integer, Integer>) i -> i + 1).runState(10).get2())
-            .isEqualTo(11);
-    }
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void lift_applies_function_stateful_and_enforces_null_contracts() {
+                LOGGER.info("Stateful.lift should apply function-in-stateful to current value");
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testPutState() {
-        LOGGER.info("Test Stateful.putState");
+                final Stateful<String, Integer> lifted =
+                    stateful(RUN_STATE).lift(stateful(state -> tuple2(String::valueOf, state)));
 
-        assertThatThrownBy(() -> putState(null))
-            .isInstanceOf(NullPointerException.class);
+                assertThatThrownBy(() -> stateful(RUN_STATE).lift(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("transformation");
+                assertThatThrownBy(() -> stateful(RUN_STATE).lift(stateful(_$ -> null)).runState(1))
+                    .isInstanceOf(NullPointerException.class);
 
-        assertThat(putState("<STATE>").execValue("?"))
-            .isEqualTo(nothing);
-        assertThat(putState("<STATE>").execState("?"))
-            .isEqualTo("<STATE>");
-    }
+                // Applicative threading: tf uses s0, then value uses s1 -> increments to 2
+                assertThat(lifted.execValue(1)).isEqualTo("false");
+                assertThat(lifted.execState(1)).isEqualTo(2);
+                assertThat(lifted.runState(1)).isEqualTo(tuple2("false", 2));
+            }
+        }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testMap() {
-        LOGGER.info("Test Stateful.map");
+        @Nested
+        @DisplayName("bind (flatMap)")
+        class Bind_ {
 
-        assertThatThrownBy(() -> stateful(RUN_STATE).map(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> stateful(RUN_STATE).map(_$ -> null).runState(1))
-            .isInstanceOf(NullPointerException.class);
+            @SuppressWarnings({"DataFlowIssue", "unused"})
+            @Test
+            void bind_sequences_and_enforces_null_contracts() {
+                LOGGER.info("Stateful.bind should sequence computations (flatMap) and enforce null contracts");
 
-        assertThat(stateful(RUN_STATE).map(String::valueOf).execValue(1))
-            .isEqualTo("false");
-        assertThat(stateful(RUN_STATE).map(String::valueOf).execState(1))
-            .isEqualTo(1);
-        assertThat(stateful(RUN_STATE).map(String::valueOf).runState(1).get1())
-            .isEqualTo("false");
-        assertThat(stateful(RUN_STATE).map(String::valueOf).runState(1).get2())
-            .isEqualTo(1);
-    }
+                assertThatThrownBy(() -> stateful(RUN_STATE).bind(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("transformation");
+                assertThatThrownBy(() -> stateful(RUN_STATE).bind(_$ -> null).runState(1))
+                    .isInstanceOf(NullPointerException.class);
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testLift() {
-        LOGGER.info("Test stateful.lift");
+                // First step increments to 2, second step preserves the state it receives
+                final var bound = stateful(RUN_STATE)
+                    .bind(result -> stateful(state -> tuple2(String.valueOf(result), state)));
 
-        final Stateful<String, Integer> lifted
-            = stateful(RUN_STATE).lift(stateful(state -> tuple2(String::valueOf, state)));
+                assertThat(bound.execValue(1)).isEqualTo("false");
+                assertThat(bound.execState(1)).isEqualTo(2);
+                assertThat(bound.runState(1)).isEqualTo(tuple2("false", 2));
+            }
+        }
 
-        assertThatThrownBy(() -> stateful(RUN_STATE).lift(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> stateful(RUN_STATE).lift(stateful(_$ -> null)).runState(1))
-            .isInstanceOf(NullPointerException.class);
+        @Nested
+        @DisplayName("run and helpers")
+        class Run_ {
 
-        assertThat(lifted.execValue(1))
-            .isEqualTo("false");
-        assertThat(lifted.execState(1))
-            .isEqualTo(1);
-        assertThat(lifted.runState(1))
-            .isEqualTo(tuple2("false", 1));
-    }
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void runState_execValue_execState_and_runStateTuple() {
+                LOGGER.info("Stateful.runState/execValue/execState/runStateTuple should behave");
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testBind() {
-        LOGGER.info("Test stateful.bind");
+                final var st = stateful(RUN_STATE);
 
-        assertThatThrownBy(() -> stateful(RUN_STATE).bind(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> stateful(RUN_STATE).bind(_$ -> null).runState(1))
-            .isInstanceOf(NullPointerException.class);
+                assertThat(st.execValue(1)).isFalse();
+                assertThat(st.execState(1)).isEqualTo(2);
+                assertThat(st.runState(1)).isEqualTo(tuple2(false, 2));
 
-        assertThat(stateful(RUN_STATE).bind(result -> stateful(state -> tuple2(String.valueOf(result), state))).execValue(1))
-            .isEqualTo("false");
-        assertThat(stateful(RUN_STATE).bind(result -> stateful(state -> tuple2(String.valueOf(result), state))).execState(1))
-            .isEqualTo(1);
-        assertThat(stateful(RUN_STATE).bind(result -> stateful(state -> tuple2(String.valueOf(result), state))).runState(1))
-            .isEqualTo(tuple2("false", 1));
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRunStateTuple() {
-        LOGGER.info("Test stateful.runStateTuple");
-
-        final var stateful
-            = stateful(RUN_STATE);
-
-        assertThatThrownBy(() -> stateful.runStateTuple(null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var tuple
-                    = stateful.runState(1);
-                assertThat(tuple)
-                    .isEqualTo(tuple2(false, 2));
-                assertThat(stateful.runStateTuple(tuple))
+                // runStateTuple uses the state from the tuple
+                assertThat(st.runStateTuple(tuple2(false, 2)))
                     .isEqualTo(tuple2(true, 3));
-            });
-    }
 
+                //noinspection DataFlowIssue
+                assertThatThrownBy(() -> st.runStateTuple(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("tuple");
+            }
+        }
+
+        @Nested
+        @DisplayName("unwrap (join)")
+        class Unwrap_ {
+
+            @Test
+            void unwrap_flattens_nested_state_and_threads_state_correctly() {
+                LOGGER.info("Stateful.unwrap should flatten nested stateful and thread state");
+
+                // Outer increments once, returns inner that increments once more
+                final var outer = stateful((Integer s0) -> tuple2(
+                    stateful((Integer s1) -> tuple2("ok", s1 + 1)),
+                    s0 + 1
+                ));
+
+                final var unwrapped = Stateful.unwrap(outer);
+
+                assertThat(unwrapped.runState(10))
+                    .isEqualTo(tuple2("ok", 12)); // 10 -> 11 (outer), then 11 -> 12 (inner)
+            }
+        }
+    }
 }

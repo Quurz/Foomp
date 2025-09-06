@@ -62,6 +62,7 @@ import java.util.function.Supplier;
  *
  * @author Alexander Schell
  */
+// TODO: Messages
 public sealed interface Trampoline<T>
         extends Value<T>
         permits Trampoline.More,

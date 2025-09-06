@@ -339,4 +339,78 @@ class UtilTest {
             .isThrownBy(() -> mustBeConcrete(String.class, () -> new IllegalArgumentException("Test")));
     }
 
+    // Ergänzungen
+
+    @Test
+    void testIsSubset_equal_non_empty_sets_is_false() {
+        LOGGER.info("Test Util.isSubSet equal non-empty sets should be false");
+
+        final var a = new java.util.HashSet<>(java.util.List.of(1, 2));
+        final var b = new java.util.HashSet<>(java.util.List.of(1, 2));
+
+        // equal, non-empty -> not a proper subset
+        assertThat(isSubSet(a, b)).isFalse();
+        assertThat(isSubSet(b, a)).isFalse();
+    }
+
+    @Test
+    void testMustBeSubSet_returns_same_instance() {
+        LOGGER.info("Test Util.mustBeSubSet returns the same subset instance (identity)");
+
+        final var superSet = new java.util.HashSet<>(java.util.List.of(1, 2, 3));
+        final var subSet   = new java.util.HashSet<>(java.util.List.of(1, 2));
+
+        // Should return the very same reference (no copy/view)
+        assertThat(mustBeSubSet(superSet, subSet, "should be proper subset"))
+            .isSameAs(subSet);
+    }
+
+    @SuppressWarnings({"DataFlowIssue", "ConstantConditions"})
+    @Test
+    void testRequiresNonNullResult1_decorator() {
+        LOGGER.info("Test Util.requiresNonNullResult1");
+
+        // null arguments
+        assertThatThrownBy(() -> Util.requiresNonNullResult1(null, "f"))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("function");
+        assertThatThrownBy(() -> Util.requiresNonNullResult1(x -> x, null))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("functionName");
+
+        // wrapped function returns null -> NPE mit passender Message
+        final var nullReturning = Util.requiresNonNullResult1((java.util.function.Function<String, String>) x -> null, "fNull");
+        assertThatThrownBy(() -> nullReturning.apply("x"))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("fNull");
+
+        // happy path
+        final var lengthFun = Util.requiresNonNullResult1(String::length, "len");
+        assertThat(lengthFun.apply("abc")).isEqualTo(3);
+    }
+
+    @SuppressWarnings({"ConstantConditions"})
+    @Test
+    void testRequiresNonNullResult2_decorator() {
+        LOGGER.info("Test Util.requiresNonNullResult2");
+
+        // null arguments
+        assertThatThrownBy(() -> Util.requiresNonNullResult2(null, "f2"))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("function");
+        assertThatThrownBy(() -> Util.requiresNonNullResult2((a, b) -> b, null))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("functionName");
+
+        // wrapped bi-function returns null -> NPE mit passender Message
+        final var nullReturning2 = Util.requiresNonNullResult2((java.util.function.BiFunction<Integer, Integer, Integer>) (a, b) -> null, "f2Null");
+        assertThatThrownBy(() -> nullReturning2.apply(1, 2))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("f2Null");
+
+        // happy path
+        final var adder = Util.requiresNonNullResult2(Integer::sum, "sum");
+        assertThat(adder.apply(2, 5)).isEqualTo(7);
+    }
+
 }

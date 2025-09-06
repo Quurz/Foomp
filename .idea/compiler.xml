@@ -10,7 +10,9 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
+        <module name="plugins-runtime" />
         <module name="automata" />
+        <module name="plugins-test" />
         <module name="Plugins-Runtime" />
         <module name="Plugins-Test" />
         <module name="base" />

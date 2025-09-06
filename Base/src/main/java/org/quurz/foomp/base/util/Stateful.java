@@ -17,13 +17,53 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
 
 /**
  * <div>
- *     <p>
- *         Eine State-Monade, die eine Berechnung mit einem inneren Zustand <i>S</i> und einem Ergebnis <i>A</i> repr&auml;sentiert.
- *     </p>
+ *   <p>
+ *     Models a classic State monad carrying a state {@code S} and producing a value {@code A}.
+ *     Internally this is a function of shape {@code S -> (A, S)}.
+ *   </p>
+ *   <p>
+ *     Semantics:
+ *     <ul>
+ *       <li><b>map</b>: transforms the produced value, threading the state through unchanged.</li>
+ *       <li><b>lift</b> (applicative): threads state from the function value to this value:
+ *           {@code s0 -> (f, s1) <- tf(s0); (a, s2) <- this(s1); result = (f(a), s2)}.</li>
+ *       <li><b>bind</b> (flatMap): sequences computations, passing the new state to the next step:
+ *           {@code s0 -> (a, s1) <- this(s0); next = f(a); result <- next(s1)}.</li>
+ *     </ul>
+ *   </p>
+ *   <p>
+ *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
+ *     Null‑checks are enforced to keep usage safe and predictable.
+ *   </p>
+ *   <p>
+ *     Examples:
+ *   </p>
+ *   <pre>{@code
+ *   // A simple state: an Integer "tick" that increments on each step
+ *   Function<Integer, Tuple2<Boolean, Integer>> run = s -> tuple2((s % 2) == 0, s + 1);
+ *   Stateful<Boolean, Integer> st = Stateful.stateful(run);
+ *
+ *   // map: transform the value; state is preserved
+ *   var mapped = st.map(Object::toString);
+ *   mapped.runState(1);   // -> ("false", 2)
+ *
+ *   // lift: function-in-stateful applied to current value, threading state correctly
+ *   var tf = Stateful.stateful((Integer s) -> tuple2((Function<Boolean, String>) Object::toString, s));
+ *   var lifted = st.lift(tf);
+ *   lifted.runState(1);   // -> ("false", 2)
+ *
+ *   // bind: sequence and pass along the new state
+ *   var bound = st.bind(b -> Stateful.stateOf(b ? "even" : "odd"));
+ *   bound.runState(1);    // -> ("odd", 2)
+ *
+ *   // Utilities:
+ *   Stateful.putState(42).execState(0); // -> 42
+ *   Stateful.getState().execValue(5);   // -> 5
+ *   }</pre>
  * </div>
  *
- * @param <S> Typ des Zustands
- * @param <A> Typ des Werts
+ * @param <A> the produced value type
+ * @param <S> the state type
  *
  * @since 1.0.0
  *
@@ -34,29 +74,80 @@ public class Stateful<A, S>
         implements H2Monadic<Stateful.µ, A, S>,
                    Higher2<Stateful.µ, A, S> {
 
+    /**
+     * <div>
+     *   <p>
+     *     Witness type for {@code Stateful} in the higher‑kinded encoding.
+     *   </p>
+     * </div>
+     *
+     * @since 1.0.0
+     */
     public static final class µ implements WitnessType { private µ() {} }
 
+    /**
+     * <div>
+     *   <p>
+     *     Narrows a {@link Higher2} value to a concrete {@code Stateful}.
+     *   </p>
+     * </div>
+     *
+     * @param higher the higher‑kinded value; must not be {@code null}
+     * @param <A>    the produced value type
+     * @param <S>    the state type
+     * @return the same instance, viewed as {@code Stateful}
+     * @throws NullPointerException if {@code higher} is {@code null}
+     *
+     * @since 1.0.0
+     */
     @SuppressWarnings("unchecked")
     public static <A, S> Stateful<A, S> narrow(final Higher2<? extends Stateful.µ, A, S> higher) {
         return (Stateful<A, S>) higher;
     }
 
-//    public static <A, S> Stateful<A, S> unwrap(final @NonNull Higher2<? extends Stateful.µ, ? extends A, ? extends > wrapped) {
-//        Objects.requireNonNull(wrapped, nullValue("wrapped"));
-//        return null;
-//    }
+    /**
+     * <div>
+     *   <p>
+     *     Unwraps a nested {@code Stateful} by one level (monadic join).
+     *     Threads the intermediate state produced by the outer computation into the inner one.
+     *   </p>
+     * </div>
+     *
+     * @param wrapped the nested stateful computation; must not be {@code null}
+     * @param <A>     the produced value type
+     * @param <S>     the state type
+     * @return a flattened {@code Stateful<A,S>}
+     * @throws NullPointerException if {@code wrapped} is {@code null} or any intermediate result is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static <A, S> Stateful<A, S> unwrap(final @NonNull Higher2<? extends Stateful.µ, ? extends Higher2<? extends Stateful.µ, A, S>, S> wrapped) {
+        Objects.requireNonNull(wrapped, nullValue("wrapped"));
+        final var outer
+            = narrow(wrapped);
+        return new Stateful<>(state -> {
+            final Tuple2<? extends Higher2<? extends µ, A, S>, S> innerAndState
+                = outer.runState(state);
+            final var inner
+                = narrow(innerAndState.get());
+            final var state1
+                = innerAndState.get2();
+            return inner.runState(state1);
+        });
+    }
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein neues {@code Stateful}-Objekt mit der gegebenen Zustandsfunktion.
-     *     </p>
+     *   <p>
+     *     Creates a {@code Stateful} from a state transition function.
+     *   </p>
      * </div>
      *
-     * @param runState Die Funktion, die den Zustand verarbeitet und ein Ergebnis mit einem neuen Zustand liefert
-     * @param <S> Typ des Zustands
-     * @param <A> Typ des Ergebnisses
-     * @return Ein neues {@code Stateful}-Objekt
+     * @param runState the state function {@code S -> (A,S)}; must not be {@code null}
+     * @param <S>      the state type
+     * @param <A>      the produced value type
+     * @return a new {@code Stateful}
+     * @throws NullPointerException if {@code runState} is {@code null}
      *
      * @since 1.0.0
      */
@@ -67,15 +158,16 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt eine {@code Stateful}-Instanz mit einem festen Wert und unver&auml;ndertem Zustand.
-     *     </p>
+     *   <p>
+     *     Lifts a plain value into {@code Stateful}: {@code a ↦ (s -> (a, s))}.
+     *   </p>
      * </div>
      *
-     * @param value Der festgelegte Wert
-     * @param <S> Typ des Zustands
-     * @param <A> Typ des Werts
-     * @return Ein {@code Stateful}-Objekt, das den gegebenen Wert zur&uuml;ckgibt, ohne den Zustand zu &auml;ndern
+     * @param value the value; must not be {@code null}
+     * @param <S>   the state type
+     * @param <A>   the produced value type
+     * @return a {@code Stateful} that returns {@code value} without changing the state
+     * @throws NullPointerException if {@code value} is {@code null}
      *
      * @since 1.0.0
      */
@@ -86,13 +178,13 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt den aktuellen Zustand als Ergebnis zur&uuml;ck, ohne ihn zu &auml;ndern.
-     *     </p>
+     *   <p>
+     *     Returns a {@code Stateful} that yields the current state as value, without changing it.
+     *   </p>
      * </div>
      *
-     * @param <S> Typ des Zustands
-     * @return Ein {@code Stateful}-Objekt, das den aktuellen Zustand als Ergebnis liefert
+     * @param <S> the state type
+     * @return a {@code Stateful<S,S>} returning the current state
      *
      * @since 1.0.0
      */
@@ -102,14 +194,16 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein {@code Stateful}-Objekt, das den Zustand gem&auml;&szlig; einer &uuml;bergebenen Funktion modifiziert.
-     *     </p>
+     *   <p>
+     *     Returns a {@code Stateful} that updates the state using the given modifier.
+     *     The produced value is {@link Nothing#nothing}.
+     *   </p>
      * </div>
      *
-     * @param modifier Funktion, die den Zustand transformiert
-     * @param <S> Typ des Zustands
-     * @return Ein {@code Stateful}-Objekt, das den modifizierten Zustand zur&uuml;ckgibt
+     * @param modifier state transformation; must not be {@code null} and must not return {@code null}
+     * @param <S>      the state type
+     * @return a {@code Stateful<Nothing,S>} with the modified state
+     * @throws NullPointerException if {@code modifier} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -120,14 +214,16 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         Setzt den Zustand auf einen festen Wert und gibt ihn zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns a {@code Stateful} that sets the state to a fixed value.
+     *     The produced value is {@link Nothing#nothing}.
+     *   </p>
      * </div>
      *
-     * @param state Der neue Zustand
-     * @param <S> Typ des Zustands
-     * @return Ein {@code Stateful}-Objekt, das den neuen Zustand speichert und zurückgibt
+     * @param state the new state; must not be {@code null}
+     * @param <S>   the state type
+     * @return a {@code Stateful<Nothing,S>} that stores {@code state}
+     * @throws NullPointerException if {@code state} is {@code null}
      *
      * @since 1.0.0
      */
@@ -146,19 +242,20 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf das Ergebnis an, ohne den Zustand zu ver&auml;ndern.
-     *     </p>
+     *   <p>
+     *     Functor map: transforms the produced value, threading the state through unchanged.
+     *   </p>
      * </div>
      *
-     * @param transformation Funktion zur Transformation des Ergebnisses
-     * @param <B> Typ des neuen Ergebnisses
-     * @return Ein {@code Stateful}-Objekt mit dem transformierten Ergebnis
+     * @param transformation value transformation; must not be {@code null} and must not return {@code null}
+     * @param <B>            the new value type
+     * @return a {@code Stateful<B,S>} with transformed value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
     public @NonNull <B> Stateful<B, S> map(final @NonNull Function<? super A, ? extends B> transformation) {
-        Objects.requireNonNull(transformation, nullValue("fMap"));
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         return new Stateful<>(state -> {
             final Tuple2<A, S> resultAndState
                 = this.runState.apply(state);
@@ -170,27 +267,58 @@ public class Stateful<A, S>
         });
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Applicative application: applies a function carried in {@code transformation} to
+     *     the value of this stateful, threading state left‑to‑right.
+     *   </p>
+     * </div>
+     *
+     * @param transformation a stateful function; must not be {@code null}
+     * @param <B>            the resulting value type
+     * @return a {@code Stateful<B,S>} after applying the function
+     * @throws NullPointerException if {@code transformation} is {@code null} or contains {@code null} function/result
+     *
+     * @since 1.0.0
+     */
     @Override
     public @NonNull <B> Stateful<B, S> lift(final @NonNull Higher2<? extends µ, Function<A, B>, S> transformation) {
-        Objects.requireNonNull(transformation, nullValue("liftA"));
-        return new Stateful<>(state -> this.runState(state).map(narrow(transformation).execValue(state)).with2(state));
-    }
-
-    @Override
-    public @NonNull <B> Stateful<B, S> bind(final @NonNull Function<A, ? extends Higher2<? extends µ, B, S>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return new Stateful<>(state -> narrow(this.map(transformation).runState(state).get1()).runState(state));
+        return narrow(transformation).bind(f -> this.map(f));
     }
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;hrt die Zustandstransformation aus und gibt das Ergebnis und den neuen Zustand zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Monadic bind (flatMap): sequences two stateful computations, passing the updated state
+     *     from the left to the right computation.
+     *   </p>
      * </div>
      *
-     * @param state Der Anfangszustand
-     * @return Ein {@code Tuple} mit dem Ergebnis und dem neuen Zustand
+     * @param transformation function producing the next stateful; must not be {@code null} and must not return {@code null}
+     * @param <B>            the resulting value type
+     * @return a {@code Stateful<B,S>} representing the sequenced computation
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull <B> Stateful<B, S> bind(final @NonNull Function<A, ? extends Higher2<? extends µ, B, S>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        return unwrap(this.map(transformation));
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Runs the state transition and returns both the value and the new state.
+     *   </p>
+     * </div>
+     *
+     * @param state the initial state; must not be {@code null}
+     * @return a {@code Tuple2} containing the value and the new state; never {@code null}
+     * @throws NullPointerException if {@code state} is {@code null} or the transition returns {@code null}
      *
      * @since 1.0.0
      */
@@ -202,21 +330,15 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;hrt den Zustand mit einem gegebenen Tuple aus und gibt das Ergebnis zur&uuml;ck.
-     *     </p>
-     *     <p>
-     *         Diese Methode wendet die `runState`-Funktion auf den Zustand des &uuml;bergebenen Tuples an
-     *         und gibt das Ergebnis als neues Tuple zur&uuml;ck. Der erste Wert des zur&uuml;ckgegebenen Tuples
-     *         ist das Ergebnis der Zustandstransformation, w&auml;hrend der zweite Wert der neue Zustand ist.</p>
-     *     </p>
+     *   <p>
+     *     Runs this stateful computation using the state contained in the given tuple.
+     *     The first component of the input tuple is ignored.
+     *   </p>
      * </div>
      *
-     * @param Tuple2 Das Tuple, das den aktuellen Zustand und den Eingabewert enth&auml;lt.
-     *              Es darf nicht null sein.
-     * @return Ein neues Tuple, das das Ergebnis der Zustandstransformation und den neuen Zustand enth&auml;lt.
-     *
-     * @throws NullPointerException Wenn <code>tuple</code> oder das Ergebnis von `runState` null ist.
+     * @param Tuple2 a tuple whose second component is used as input state; must not be {@code null}
+     * @return a {@code Tuple2} containing the produced value and the new state; never {@code null}
+     * @throws NullPointerException if the input tuple is {@code null} or the transition returns {@code null}
      *
      * @since 1.0.0
      */
@@ -228,13 +350,14 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;hrt die Berechnung aus und gibt nur das Ergebnis zur&uuml;ck, ohne den Zustand.
-     *     </p>
+     *   <p>
+     *     Runs the computation and returns only the produced value.
+     *   </p>
      * </div>
      *
-     * @param state Der Anfangszustand
-     * @return Das Ergebnis der Berechnung
+     * @param state the initial state; must not be {@code null}
+     * @return the produced value; never {@code null}
+     * @throws NullPointerException if {@code state} is {@code null} or the transition returns {@code null}
      *
      * @since 1.0.0
      */
@@ -246,13 +369,14 @@ public class Stateful<A, S>
 
     /**
      * <div>
-     *     <p>
-     *         F&uuml;hrt die Berechnung aus und gibt nur den neuen Zustand zur&uuml;ck, ohne das Ergebnis.
-     *     </p>
+     *   <p>
+     *     Runs the computation and returns only the new state.
+     *   </p>
      * </div>
      *
-     * @param state Der Anfangszustand
-     * @return Der neue Zustand nach der Berechnung
+     * @param state the initial state; must not be {@code null}
+     * @return the new state; never {@code null}
+     * @throws NullPointerException if {@code state} is {@code null} or the transition returns {@code null}
      *
      * @since 1.0.0
      */

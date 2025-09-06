@@ -22,16 +22,15 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *     <p>
- *         Eine unver&auml;nderliche, funktionale Datenstruktur, die vier Werte speichert.
- *         Diese Klasse unterst&uuml;tzt verschiedene funktionale Operationen wie Abbildungen,
- *         Hebungen, Kopierfunktionen und verz&ouml;gerte Auswertungen.
+ *         An immutable, functional data structure that stores four values.
+ *         This class supports functional operations such as mapping, lifting, copying, and lazy evaluation.
  *     </p>
  * </div>
  *
- * @param <A1> Der Typ des ersten Werts.
- * @param <A2> Der Typ des zweiten Werts.
- * @param <A3> Der Typ des dritten Werts.
- * @param <A4> Der Typ des vierten Werts.
+ * @param <A1> the type of the first value
+ * @param <A2> the type of the second value
+ * @param <A3> the type of the third value
+ * @param <A4> the type of the fourth value
  *
  * @since 1.0.0
  *
@@ -49,7 +48,7 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Der Witness-Typ f&uuml;r {@link Tuple4}, um diesen in generischen Kontexten zu unterscheiden.
+     *         The witness type for {@link Tuple4}, used in higher‑kinded encodings.
      *     </p>
      * </div>
      *
@@ -60,41 +59,41 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Konvertiert ein {@link Higher4}-Objekt in eine konkrete Instanz von {@code Tuple4}.
+     *         Narrows a {@link Higher4} value into a concrete {@code Tuple4} instance.
      *     </p>
      * </div>
      *
-     * @param unfixed Das {@link Higher4}-Objekt, das fixiert werden soll.
-     * @param <A1> Der Typ des ersten Elements.
-     * @param <A2> Der Typ des zweiten Elements.
-     * @param <A3> Der Typ des dritten Elements.
-     * @param <A4> Der Typ des vierten Elements.
-     * @return Eine fixierte Instanz von {@code Tuple4}.
-     * @throws NullPointerException wenn {@code unfixed} {@code null} ist.
+     * @param unfixed the {@link Higher4} value to narrow
+     * @param <A1> type of the first element
+     * @param <A2> type of the second element
+     * @param <A3> type of the third element
+     * @param <A4> type of the fourth element
+     * @return the narrowed {@code Tuple4} instance
+     * @throws NullPointerException if {@code unfixed} is {@code null}
      *
      * @since 1.0.0
      */
-    public static <A1, A2, A3, A4> Tuple4<A1, A2, A3, A4> fix(@NonNull final Higher4<Tuple4.µ, A1, A2, A3, A4> unfixed) {
+    public static <A1, A2, A3, A4> Tuple4<A1, A2, A3, A4> narrow(@NonNull final Higher4<Tuple4.µ, A1, A2, A3, A4> unfixed) {
         return (Tuple4<A1, A2, A3, A4>) Objects.requireNonNull(unfixed, nullValue("unfixed"));
     }
 
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue Instanz von {@link Tuple4} mit den angegebenen Werten.
+     *         Creates a new instance of {@link Tuple4} with the given values.
      *     </p>
      * </div>
      *
-     * @param value1 Der erste Wert. Darf nicht {@code null} sein.
-     * @param value2 Der zweite Wert. Darf nicht {@code null} sein.
-     * @param value3 Der dritte Wert. Darf nicht {@code null} sein.
-     * @param value4 Der vierte Wert. Darf nicht {@code null} sein.
-     * @param <A1> Der Typ des ersten Elements.
-     * @param <A2> Der Typ des zweiten Elements.
-     * @param <A3> Der Typ des dritten Elements.
-     * @param <A4> Der Typ des vierten Elements.
-     * @return Eine neue {@link Tuple4}-Instanz mit den angegebenen Werten.
-     * @throws NullPointerException wenn einer der Werte {@code null} ist.
+     * @param value1 the first value; must not be {@code null}
+     * @param value2 the second value; must not be {@code null}
+     * @param value3 the third value; must not be {@code null}
+     * @param value4 the fourth value; must not be {@code null}
+     * @param <A1> type of the first element
+     * @param <A2> type of the second element
+     * @param <A3> type of the third element
+     * @param <A4> type of the fourth element
+     * @return a new {@link Tuple4} instance with the given values
+     * @throws NullPointerException if any value is {@code null}
      *
      * @since 1.0.0
      */
@@ -187,14 +186,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt zur&uuml;ck, ob der erste Wert vorhanden ist.
-     *     </p>
-     *     <p>
-     *         Da ein {@code Tuple4} immer vier Werte enth&auml;lt, ist dieser Wert stets vorhanden.
+     *         Indicates whether the first value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der erste Wert immer vorhanden ist.
+     * @return {@code true}
      *
      * @since 1.0.0
      */
@@ -206,11 +202,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Alias f&uuml;r {@link #is1()}.
+     *         Alias for {@link #is1()}.
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der erste Wert immer vorhanden ist
+     * @return {@code true}
      *
      * @since 1.0.0
      */
@@ -222,14 +218,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt zur&uuml;ck, ob der zweite Wert vorhanden ist.
-     *     </p>
-     *     <p>
-     *         <p>Da ein {@code Tuple4} immer vier Werte enth&auml;lt, ist dieser Wert stets vorhanden.</p>
+     *         Indicates whether the second value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der zweite Wert immer vorhanden ist.
+     * @return {@code true}
      *
      * @since 1.0.0
      */
@@ -241,14 +234,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt zur&uuml;ck, ob der dritte Wert vorhanden ist.
-     *     </p>
-     *     <p>
-     *         Da ein {@code Tuple4} immer vier Werte enth&auml;lt, ist dieser Wert stets vorhanden.
+     *         Indicates whether the third value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der dritte Wert immer vorhanden ist.
+     * @return {@code true}
      *
      * @since 1.0.0
      */
@@ -260,14 +250,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt zur&uuml;ck, ob der vierte Wert vorhanden ist.
-     *     </p>
-     *     <p>
-     *         Da ein {@code Tuple4} immer vier Werte enth&auml;lt, ist dieser Wert stets vorhanden.
+     *         Indicates whether the fourth value is present (always {@code true}).
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der vierte Wert immer vorhanden ist.
+     * @return {@code true}
      */
     @Override
     public boolean is4() {
@@ -277,11 +264,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt den ersten gespeicherten Wert zur&uuml;ck.
+     *         Returns the first value.
      *     </p>
      * </div>
      *
-     * @return Der erste Wert.
+     * @return the first value
      *
      * @since 1.0.0
      */
@@ -295,11 +282,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Alias f&uuml;r {@link #get1()}.
+     *         Alias for {@link #get1()}.
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der erste Wert immer vorhanden ist
+     * @return the first value
      */
     @UnwindingOperation
     @NonNull
@@ -310,11 +297,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt den zweiten gespeicherten Wert zur&uuml;ck.
+     *         Returns the second value.
      *     </p>
      * </div>
      *
-     * @return Der zweite Wert.
+     * @return the second value
      */
     @UnwindingOperation
     @Override
@@ -326,11 +313,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt den dritten gespeicherten Wert zur&uuml;ck.
+     *         Returns the third value.
      *     </p>
      * </div>
      *
-     * @return Der dritte Wert.
+     * @return the third value
      *
      * @since 1.0.0
      */
@@ -344,11 +331,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt den vierten gespeicherten Wert zur&uuml;ck.
+     *         Returns the fourth value.
      *     </p>
      * </div>
      *
-     * @return Der vierte Wert.
+     * @return the fourth value
      *
      * @since 1.0.0
      */
@@ -362,16 +349,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, wobei das erste Element durch den angegebenen Wert ersetzt wird.
-     *     </p>
-     *     <p>
-     *         Die &uuml;brigen Werte bleiben unver&auml;ndert.
+     *         Returns a new {@code Tuple4} with the first element replaced by the given value.
+     *         Remaining values are preserved (lazy).
      *     </p>
      * </div>
      *
-     * @param value1 Der neue Wert f&uuml;r das erste Element. Darf nicht {@code null} sein.
-     * @return Ein neues {@code Tuple4} mit dem aktualisierten ersten Element.
-     * @throws NullPointerException wenn {@code value1} {@code null} ist.
+     * @param value1 the new first value; must not be {@code null}
+     * @return a new {@code Tuple4} with the updated first element
+     * @throws NullPointerException if {@code value1} is {@code null}
      *
      * @since 1.0.0
      */
@@ -383,16 +368,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, wobei das zweite Element durch den angegebenen Wert ersetzt wird.
-     *     </p>
-     *     <p>
-     *         Die &uuml;brigen Werte bleiben unver&auml;ndert.
+     *         Returns a new {@code Tuple4} with the second element replaced by the given value.
+     *         Remaining values are preserved (lazy).
      *     </p>
      * </div>
      *
-     * @param value2 Der neue Wert f&uuml;r das zweite Element. Darf nicht {@code null} sein.
-     * @return Ein neues {@code Tuple4} mit dem aktualisierten zweiten Element.
-     * @throws NullPointerException wenn {@code value2} {@code null} ist.
+     * @param value2 the new second value; must not be {@code null}
+     * @return a new {@code Tuple4} with the updated second element
+     * @throws NullPointerException if {@code value2} is {@code null}
      *
      * @since 1.0.0
      */
@@ -404,16 +387,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, wobei das dritte Element durch den angegebenen Wert ersetzt wird.
-     *     </p>
-     *     <p>
-     *         Die &uuml;brigen Werte bleiben unver&auml;ndert.
+     *         Returns a new {@code Tuple4} with the third element replaced by the given value.
+     *         Remaining values are preserved (lazy).
      *     </p>
      * </div>
      *
-     * @param value3 Der neue Wert f&uuml;r das dritte Element. Darf nicht {@code null} sein.
-     * @return Ein neues {@code Tuple4} mit dem aktualisierten dritten Element.
-     * @throws NullPointerException wenn {@code value3} {@code null} ist.
+     * @param value3 the new third value; must not be {@code null}
+     * @return a new {@code Tuple4} with the updated third element
+     * @throws NullPointerException if {@code value3} is {@code null}
      *
      * @since 1.0.0
      */
@@ -425,16 +406,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, wobei das vierte Element durch den angegebenen Wert ersetzt wird.
-     *     </p>
-     *     <p>
-     *         Die &uuml;brigen Werte bleiben unver&auml;ndert.
+     *         Returns a new {@code Tuple4} with the fourth element replaced by the given value.
+     *         Remaining values are preserved (lazy).
      *     </p>
      * </div>
      *
-     * @param value4 Der neue Wert f&uuml;r das vierte Element. Darf nicht {@code null} sein.
-     * @return Ein neues {@code Tuple4} mit dem aktualisierten vierten Element.
-     * @throws NullPointerException wenn {@code value4} {@code null} ist.
+     * @param value4 the new fourth value; must not be {@code null}
+     * @return a new {@code Tuple4} with the updated fourth element
+     * @throws NullPointerException if {@code value4} is {@code null}
      *
      * @since 1.0.0
      */
@@ -446,14 +425,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, indem die gegebene Abbildungsfunktion auf das erste Element angewendet wird.
+     *         Transforms the first element using the given function and returns a new {@code Tuple4}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation des ersten Elements. Darf nicht {@code null} sein.
-     * @param <B1> Der Zieltyp des transformierten ersten Elements.
-     * @return Ein neues {@code Tuple4} mit dem transformierten ersten Element, w&auml;hrend die &uuml;brigen Werte unver&auml;ndert bleiben.
-     * @throws NullPointerException wenn {@code fMap} {@code null} ist oder die Anwendung von {@code fMap} {@code null} zur&uuml;ckliefert.
+     * @param transformation the transformation function for the first element; must not be {@code null}
+     * @param <B1> the new first element type
+     * @return a new {@code Tuple4} with the transformed first element; other elements remain unchanged
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -471,14 +450,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, indem die gegebene Abbildungsfunktion auf das zweite Element angewendet wird.
+     *         Transforms the second element using the given function and returns a new {@code Tuple4}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation des zweiten Elements. Darf nicht {@code null} sein.
-     * @param <B2> Der Zieltyp des transformierten zweiten Elements.
-     * @return Ein neues {@code Tuple4} mit dem transformierten zweiten Element, w&auml;hrend die &uuml;brigen Werte unver&auml;ndert bleiben.
-     * @throws NullPointerException wenn {@code fMap} {@code null} ist oder die Anwendung von {@code fMap} {@code null} zur&uuml;ckliefert.
+     * @param transformation the transformation function for the second element; must not be {@code null}
+     * @param <B2> the new second element type
+     * @return a new {@code Tuple4} with the transformed second element; other elements remain unchanged
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -496,14 +475,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, indem die gegebene Abbildungsfunktion auf das dritte Element angewendet wird.
+     *         Transforms the third element using the given function and returns a new {@code Tuple4}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation des dritten Elements. Darf nicht {@code null} sein.
-     * @param <B3> Der Zieltyp des transformierten dritten Elements.
-     * @return Ein neues {@code Tuple4} mit dem transformierten dritten Element, w&auml;hrend die &uuml;brigen Werte unver&auml;ndert bleiben.
-     * @throws NullPointerException wenn {@code fMap} {@code null} ist oder die Anwendung von {@code fMap} {@code null} zur&uuml;ckliefert.
+     * @param transformation the transformation function for the third element; must not be {@code null}
+     * @param <B3> the new third element type
+     * @return a new {@code Tuple4} with the transformed third element; other elements remain unchanged
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      */
     @Override
     public @NonNull <B3> Tuple4<A1, A2, B3, A4> map3(@NonNull Function<? super A3, ? extends B3> transformation) {
@@ -519,14 +498,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, indem die gegebene Abbildungsfunktion auf das vierte Element angewendet wird.
+     *         Transforms the fourth element using the given function and returns a new {@code Tuple4}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation des vierten Elements. Darf nicht {@code null} sein.
-     * @param <B4> Der Zieltyp des transformierten vierten Elements.
-     * @return Ein neues {@code Tuple4} mit dem transformierten vierten Element, w&auml;hrend die &uuml;brigen Werte unver&auml;ndert bleiben.
-     * @throws NullPointerException wenn {@code fMap} {@code null} ist oder die Anwendung von {@code fMap} {@code null} zur&uuml;ckliefert.
+     * @param transformation the transformation function for the fourth element; must not be {@code null}
+     * @param <B4> the new fourth element type
+     * @return a new {@code Tuple4} with the transformed fourth element; other elements remain unchanged
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -544,20 +523,20 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple4}, indem die gegebenen Abbildungsfunktionen auf jedes Element angewendet werden.
+     *         Transforms all four elements using the provided functions and returns a new {@code Tuple4}.
      *     </p>
      * </div>
      *
-     * @param transformation1 Die Funktion zur Transformation des ersten Elements. Darf nicht {@code null} sein.
-     * @param transformation2 Die Funktion zur Transformation des zweiten Elements. Darf nicht {@code null} sein.
-     * @param transformation3 Die Funktion zur Transformation des dritten Elements. Darf nicht {@code null} sein.
-     * @param transformation4 Die Funktion zur Transformation des vierten Elements. Darf nicht {@code null} sein.
-     * @param <B1> Der Zieltyp des transformierten ersten Elements.
-     * @param <B2> Der Zieltyp des transformierten zweiten Elements.
-     * @param <B3> Der Zieltyp des transformierten dritten Elements.
-     * @param <B4> Der Zieltyp des transformierten vierten Elements.
-     * @return Ein neues {@code Tuple4} mit allen transformierten Elementen.
-     * @throws NullPointerException wenn eine der Funktionen {@code null} ist oder die Anwendung einer Funktion {@code null} zur&uuml;ckliefert.
+     * @param transformation1 transformation for the first element; must not be {@code null} and must not return {@code null}
+     * @param transformation2 transformation for the second element; must not be {@code null} and must not return {@code null}
+     * @param transformation3 transformation for the third element; must not be {@code null} and must not return {@code null}
+     * @param transformation4 transformation for the fourth element; must not be {@code null} and must not return {@code null}
+     * @param <B1> the new first element type
+     * @param <B2> the new second element type
+     * @param <B3> the new third element type
+     * @param <B4> the new fourth element type
+     * @return a new {@code Tuple4} with all elements transformed
+     * @throws NullPointerException if any function is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -581,17 +560,17 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Hebt die enthaltenen Funktionen an und wendet sie auf die aktuellen Werte an.
+     *         Applies lifted functions carried in {@link Higher4} to the current values (component‑wise).
      *     </p>
      * </div>
      *
-     * @param transformation Das {@code Higher4}-Objekt, das die Funktionen enth&auml;lt. Darf nicht {@code null} sein.
-     * @param <B1> Der Zieltyp des transformierten ersten Elements.
-     * @param <B2> Der Zieltyp des transformierten zweiten Elements.
-     * @param <B3> Der Zieltyp des transformierten dritten Elements.
-     * @param <B4> Der Zieltyp des transformierten vierten Elements.
-     * @return Ein neues {@code Tuple4} mit allen transformierten Elementen.
-     * @throws NullPointerException wenn {@code liftA} oder eine der darin enthaltenen Funktionen oder deren Anwendung {@code null} ist.
+     * @param transformation the {@link Higher4} carrying the functions; must not be {@code null}
+     * @param <B1> the new first element type
+     * @param <B2> the new second element type
+     * @param <B3> the new third element type
+     * @param <B4> the new fourth element type
+     * @return a new {@code Tuple4} with transformed elements
+     * @throws NullPointerException if {@code transformation} is {@code null}, any function is {@code null}, or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -599,7 +578,7 @@ public final class Tuple4<A1, A2, A3, A4>
     public @NonNull <B1, B2, B3, B4> Tuple4<B1, B2, B3, B4> lift(@NonNull Higher4<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>, ? extends Function<? super A4, ? extends B4>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final var fixed
-            = fix(transformation);
+            = narrow(transformation);
         return new Tuple4<>(
             () -> Objects.requireNonNull(fixed.value1Supplier.get().apply(this.value1Supplier.get()), nullResult()),
             () -> Objects.requireNonNull(fixed.value2Supplier.get().apply(this.value2Supplier.get()), nullResult()),
@@ -611,14 +590,14 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Kombiniert die vier Werte dieses {@code Tuple4} mithilfe der angegebenen Funktion.
+     *         Combines the four values of this {@code Tuple4} using the given function and returns a single result.
      *     </p>
      * </div>
      *
-     * @param meld Die Funktion, die die vier Werte zu einem einzigen Ergebnis zusammenf&uuml;hrt. Darf nicht {@code null} sein.
-     * @param <B> Der R&uuml;ckgabetyp der kombinierten Werte.
-     * @return Das Ergebnis der Anwendung von {@code meld} auf die vier Werte.
-     * @throws NullPointerException wenn {@code meld} oder die Anwendung der Funktion {@code null} ergibt.
+     * @param meld function combining the four values; must not be {@code null} and must not return {@code null}
+     * @param <B>  the result type
+     * @return the result of combining the four values
+     * @throws NullPointerException if {@code meld} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -631,11 +610,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt eine Kopie dieses {@code Tuple4} mit denselben Werten.
+     *         Creates a copy of this {@code Tuple4} with the same values.
      *     </p>
      * </div>
      *
-     * @return Eine neue Instanz von {@code Tuple4}, die dieselben Lieferantenreferenzen wie dieses Tupel verwendet.
+     * @return a new instance of {@code Tuple4} backed by the same suppliers
      *
      * @since 1.0.0
      */
@@ -647,12 +626,12 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein {@code Record4}-Objekt aus diesem {@code Tuple4}.
+     *         Creates a {@code Record4} from this {@code Tuple4}, evaluating any deferred values.
      *     </p>
      * </div>
      *
-     * @return Ein {@code Record4}, das die aktuellen Werte dieses Tupels enth&auml;lt.
-     * @throws NullPointerException wenn einer der gespeicherten Werte {@code null} ist.
+     * @return a {@code Record4} containing the current values of this tuple
+     * @throws NullPointerException if any stored value is {@code null}
      * @see Record4
      *
      * @since 1.0.0
@@ -665,12 +644,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         L&ouml;st das erste Element dieses {@code Tuple4} auf und gibt ein neues {@code Tuple4} zur&uuml;ck,
-     *         bei dem das erste Element eager evaluiert wurde.
+     *         Returns a new {@code Tuple4} where only the first value is evaluated; others remain deferred.
      *     </p>
      * </div>
      *
-     * @return Ein neues {@code Tuple4} mit dem ersten Wert als aufgel&ouml;stem Wert.
+     * @return a {@code Tuple4} with the first value realized and the rest deferred
      *
      * @since 1.0.0
      */
@@ -681,12 +659,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         L&ouml;st das zweite Element dieses {@code Tuple4} auf und gibt ein neues {@code Tuple4} zur&uuml;ck,
-     *         bei dem das zweite Element eager evaluiert wurde.
+     *         Returns a new {@code Tuple4} where only the second value is evaluated; others remain deferred.
      *     </p>
      * </div>
      *
-     * @return Ein neues {@code Tuple4} mit dem zweiten Wert als aufgel&ouml;stem Wert.
+     * @return a {@code Tuple4} with the second value realized and the rest deferred
      *
      * @since 1.0.0
      */
@@ -697,12 +674,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         L&ouml;st das dritte Element dieses {@code Tuple4} auf und gibt ein neues {@code Tuple4} zur&uuml;ck,
-     *         bei dem das dritte Element eager evaluiert wurde.
+     *         Returns a new {@code Tuple4} where only the third value is evaluated; others remain deferred.
      *     </p>
      * </div>
      *
-     * @return Ein neues {@code Tuple4} mit dem dritten Wert als aufgel&ouml;stem Wert.
+     * @return a {@code Tuple4} with the third value realized and the rest deferred
      *
      * @since 1.0.0
      */
@@ -713,12 +689,11 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         L&ouml;st das vierte Element dieses {@code Tuple4} auf und gibt ein neues {@code Tuple4} zur&uuml;ck,
-     *         bei dem das vierte Element eager evaluiert wurde.
+     *         Returns a new {@code Tuple4} where only the fourth value is evaluated; others remain deferred.
      *     </p>
      * </div>
      *
-     * @return Ein neues {@code Tuple4} mit dem vierten Wert als aufgel&ouml;stem Wert.
+     * @return a {@code Tuple4} with the fourth value realized and the rest deferred
      *
      * @since 1.0.0
      */
@@ -729,13 +704,12 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         L&ouml;st alle Elemente dieses {@code Tuple4} auf und gibt ein neues {@code Tuple4} zur&uuml;ck,
-     *         bei dem alle Elemente eager evaluiert wurden.
+     *         Realizes all deferred values and returns a new {@code Tuple4} with evaluated values.
      *     </p>
      * </div>
      *
-     * @return Ein neues {@code Tuple4} mit allen aufgel&ouml;sten Werten.
-     * @throws NullPointerException wenn eines der Elemente {@code null} ist.
+     * @return a new {@code Tuple4} with realized values
+     * @throws NullPointerException if any evaluated value is {@code null}
      *
      * @since 1.0.0
      */
@@ -748,16 +722,13 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob dieses {@code Tuple4} gleich einem anderen Objekt ist.
-     *         Zwei Tupel gelten als gleich, wenn sie vom selben Typ sind und alle vier Werte &uuml;bereinstimmen.
-     *         Dabei werden die Werte mittels {@link Objects#equals(Object, Object)} verglichen.
+     *         Compares this {@code Tuple4} to another object for equality (component‑wise structural equality).
      *     </p>
      * </div>
      *
-     * @param other Das Objekt, mit dem dieses Tupel verglichen wird.
-     * @return {@code true}, wenn das &uuml;bergebene Objekt ebenfalls ein {@code Tuple4} ist
-     *         und alle vier Werte mit denen dieses Tupels &uuml;bereinstimmen, sonst {@code false}.
-     * @throws NullPointerException wenn einer der gespeicherten Werte {@code null} ist.
+     * @param other the object to compare against
+     * @return {@code true} if the other object is a {@code Tuple4} with equal components; otherwise {@code false}
+     * @throws NullPointerException if any stored value is {@code null}
      *
      * @since 1.0.0
      */
@@ -766,7 +737,6 @@ public final class Tuple4<A1, A2, A3, A4>
     public boolean equals(final Object other) {
         if (this == other) return true;
         if (other == null || getClass() != other.getClass()) return false;
-
         Tuple4<?, ?, ?, ?> tuple4 = (Tuple4<?, ?, ?, ?>) other;
         return Objects.equals(this.value1Supplier.get(), tuple4.value1Supplier.get())
             && Objects.equals(value2Supplier.get(), tuple4.value2Supplier.get())
@@ -777,13 +747,12 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Berechnet den Hash-Code dieses {@code Tuple4}.
-     *         Der Hash-Code wird basierend auf den vier gespeicherten Werten berechnet.
+     *         Computes the hash code of this {@code Tuple4} based on all four stored values.
      *     </p>
      * </div>
      *
-     * @return Der berechnete Hash-Code f&uuml;r dieses Tupel.
-     * @throws NullPointerException wenn einer der gespeicherten Werte {@code null} ist.
+     * @return the computed hash code
+     * @throws NullPointerException if any stored value is {@code null}
      *
      * @since 1.0.0
      */
@@ -800,13 +769,13 @@ public final class Tuple4<A1, A2, A3, A4>
     /**
      * <div>
      *     <p>
-     *         Gibt eine String-Darstellung dieses {@code Tuple4} zur&uuml;ck.
-     *         Das Format ist {@code "Tuple4{value1, value2, value3, value4}"}.
+     *         Returns a string representation of this {@code Tuple4} in the form
+     *         {@code Tuple4[value1=..., value2=..., value3=..., value4=...]}.
      *     </p>
      * </div>
      *
-     * @return Eine String-Darstellung dieses Tupels mit allen vier Werten.
-     * @throws NullPointerException wenn einer der gespeicherten Werte {@code null} ist.
+     * @return the string representation of this tuple including all four values
+     * @throws NullPointerException if any stored value is {@code null}
      *
      * @since 1.0.0
      */

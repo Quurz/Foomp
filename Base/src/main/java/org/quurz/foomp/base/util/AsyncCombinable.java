@@ -51,6 +51,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *
  * @author Alexander Schell
  */
+// TODO: Das muss ich *komplett* überarbeiten
 @SuppressWarnings("NonAsciiCharacters")
 public final class AsyncCombinable<A>
         implements Monadic<AsyncCombinable.µ, A>,

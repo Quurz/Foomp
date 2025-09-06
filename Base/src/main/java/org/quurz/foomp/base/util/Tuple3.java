@@ -23,14 +23,14 @@ import static org.quurz.foomp.base.util.Record3.record3;
 /**
  * <div>
  *     <p>
- *         Ein unver&auml;nderliches Tupel mit drei Werten, das funktionale Operationen wie Mapping, Kopieren und Lazy Evaluation unterst&uuml;tzt.
- *         {@code Tuple3} verwendet {@link Supplier}-Objekte, um eine verz&ouml;gerte Berechnung seiner Werte zu erm&ouml;glichen.
+ *         An immutable tuple with three values that supports functional operations such as mapping, copying, and lazy evaluation.
+ *         {@code Tuple3} uses {@link Supplier} instances to enable deferred evaluation of its values.
  *     </p>
  * </div>
  *
- * @param <A1> Typ des ersten Wertes
- * @param <A2> Typ des zweiten Wertes
- * @param <A3> Typ des dritten Wertes
+ * @param <A1> type of the first value
+ * @param <A2> type of the second value
+ * @param <A3> type of the third value
  *
  * @since 1.0.0
  *
@@ -48,7 +48,7 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Markerklasse f&uuml;r das WitnessType-Pattern.
+     *         Marker class for the WitnessType pattern.
      *     </p>
      * </div>
      *
@@ -59,30 +59,30 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Wandelt ein {@link Higher3} in eine {@code Tuple3}-Instanz um.
+     *         Narrows a {@link Higher3} value into a concrete {@code Tuple3} instance.
      *     </p>
      * </div>
      *
-     * @param unfixed Ein {@link Higher3}-Objekt, das fixiert werden soll
-     * @return Eine fixierte {@code Tuple3}-Instanz
-     * @throws NullPointerException falls {@code unfixed} {@code null} ist
+     * @param unfixed the higher‑kinded value to narrow
+     * @return the narrowed {@code Tuple3} instance
+     * @throws NullPointerException if {@code unfixed} is {@code null}
      */
-    public static <A1, A2, A3> Tuple3<A1, A2, A3> fix(@NonNull final Higher3<Tuple3.µ, A1, A2, A3> unfixed) {
+    public static <A1, A2, A3> Tuple3<A1, A2, A3> narrow(@NonNull final Higher3<Tuple3.µ, A1, A2, A3> unfixed) {
         return (Tuple3<A1, A2, A3>) Objects.requireNonNull(unfixed, nullValue("unfixed"));
     }
 
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple3} mit den gegebenen Werten.
+     *         Creates a new {@code Tuple3} with the given values.
      *     </p>
      * </div>
      *
-     * @param value1 Der erste Wert
-     * @param value2 Der zweite Wert
-     * @param value3 Der dritte Wert
-     * @return Ein neues {@code Tuple3}
-     * @throws NullPointerException falls einer der Werte {@code null} ist
+     * @param value1 the first value
+     * @param value2 the second value
+     * @param value3 the third value
+     * @return a new {@code Tuple3}
+     * @throws NullPointerException if any value is {@code null}
      */
     public static <A1, A2, A3> Tuple3<A1, A2, A3> tuple3(final @NonNull A1 value1,
                                                          final @NonNull A2 value2,
@@ -144,11 +144,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der erste Wert vorhanden ist.
+     *         Indicates whether the first value is present.
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der erste Wert immer vorhanden ist
+     * @return {@code true}, since the first value is always present
      *
      * @since 1.0.0
      */
@@ -160,11 +160,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Alias f&uuml;r {@link #is1()}.
+     *         Alias for {@link #is1()}.
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der erste Wert immer vorhanden ist
+     * @return {@code true}, since the first value is always present
      *
      * @since 1.0.0
      */
@@ -176,11 +176,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der zweite Wert vorhanden ist.
+     *         Indicates whether the second value is present.
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der erste Wert immer vorhanden ist
+     * @return {@code true}, since the second value is always present
      *
      * @since 1.0.0
      */
@@ -192,11 +192,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob der dritte Wert vorhanden ist.
+     *         Indicates whether the third value is present.
      *     </p>
      * </div>
      *
-     * @return {@code true}, da der erste Wert immer vorhanden ist
+     * @return {@code true}, since the third value is always present
      *
      * @since 1.0.0
      */
@@ -208,11 +208,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt den ersten Wert des Tupels zur&uuml;ck.
+     *         Returns the first value of the tuple.
      *     </p>
      * </div>
      *
-     * @return Der erste Wert
+     * @return the first value
      *
      * @since 1.0.0
      */
@@ -226,11 +226,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Alias f&uuml;r {@link #get1()}.
+     *         Alias for {@link #get1()}.
      *     </p>
      * </div>
      *
-     * @return Der erste Wert
+     * @return the first value
      *
      * @since 1.0.0
      */
@@ -244,11 +244,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt den zweiten Wert des Tupels zur&uuml;ck.
+     *         Returns the second value of the tuple.
      *     </p>
      * </div>
      *
-     * @return Der zweite Wert
+     * @return the second value
      *
      * @since 1.0.0
      */
@@ -262,11 +262,11 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt den dritten Wert des Tupels zur&uuml;ck.
+     *         Returns the third value of the tuple.
      *     </p>
      * </div>
      *
-     * @return Der dritte Wert
+     * @return the third value
      *
      * @since 1.0.0
      */
@@ -280,14 +280,14 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple3}, bei dem das erste Element durch den gegebenen Wert ersetzt wird.
-     *         Die verbleibenden Elemente bleiben unver&auml;ndert und behalten ihre urspr&uuml;nglichen {@link Supplier}.
+     *         Creates a new {@code Tuple3} with the first element replaced by the given value.
+     *         The remaining elements are preserved and keep their original {@link Supplier}s.
      *     </p>
      * </div>
      *
-     * @param value1 Der neue erste Wert des Tupels
-     * @return Ein neues {@code Tuple3} mit dem aktualisierten ersten Element
-     * @throws NullPointerException falls {@code value1} {@code null} ist
+     * @param value1 the new first value of the tuple
+     * @return a new {@code Tuple3} with the updated first element
+     * @throws NullPointerException if {@code value1} is {@code null}
      *
      * @since 1.0.0
      */
@@ -299,14 +299,14 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple3}, bei dem das zweite Element durch den gegebenen Wert ersetzt wird.
-     *         Die verbleibenden Elemente bleiben unverändert und behalten ihre urspr&uuml;nglichen {@link Supplier}.
+     *         Creates a new {@code Tuple3} with the second element replaced by the given value.
+     *         The remaining elements are preserved and keep their original {@link Supplier}s.
      *     </p>
      * </div>
      *
-     * @param value2 Der neue zweite Wert des Tupels
-     * @return Ein neues {@code Tuple3} mit dem aktualisierten zweiten Element
-     * @throws NullPointerException falls {@code value1} {@code null} ist
+     * @param value2 the new second value of the tuple
+     * @return a new {@code Tuple3} with the updated second element
+     * @throws NullPointerException if {@code value2} is {@code null}
      *
      * @since 1.0.0
      */
@@ -318,14 +318,14 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Erstellt ein neues {@code Tuple3}, bei dem das dritte Element durch den gegebenen Wert ersetzt wird.
-     *         Die verbleibenden Elemente bleiben unverändert und behalten ihre urspr&uuml;nglichen {@link Supplier}.
+     *         Creates a new {@code Tuple3} with the third element replaced by the given value.
+     *         The remaining elements are preserved and keep their original {@link Supplier}s.
      *     </p>
      * </div>
      *
-     * @param value3 Der neue dritte Wert des Tupels
-     * @return Ein neues {@code Tuple3} mit dem aktualisierten dritten Element
-     * @throws NullPointerException falls {@code value1} {@code null} ist
+     * @param value3 the new third value of the tuple
+     * @return a new {@code Tuple3} with the updated third element
+     * @throws NullPointerException if {@code value3} is {@code null}
      *
      * @since 1.0.0
      */
@@ -337,12 +337,12 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Transformiert den ersten Wert des Tupels mithilfe der gegebenen Funktion und gibt ein neues {@code Tuple3} zur&uuml;ck.
+     *         Transforms the first value using the given function and returns a new {@code Tuple3}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation
-     * @return Ein neues {@code Tuple3} mit transformiertem ersten Wert
+     * @param transformation the transformation function
+     * @return a new {@code Tuple3} with the transformed first value
      *
      * @since 1.0.0
      */
@@ -359,12 +359,12 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Transformiert den zweiten Wert des Tupels mithilfe der gegebenen Funktion und gibt ein neues {@code Tuple3} zur&uuml;ck.
+     *         Transforms the second value using the given function and returns a new {@code Tuple3}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation
-     * @return Ein neues {@code Tuple3} mit transformiertem zweiten Wert
+     * @param transformation the transformation function
+     * @return a new {@code Tuple3} with the transformed second value
      *
      * @since 1.0.0
      */
@@ -381,12 +381,12 @@ public final class Tuple3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Transformiert den dritten Wert des Tupels mithilfe der gegebenen Funktion und gibt ein neues {@code Tuple3} zur&uuml;ck.
+     *         Transforms the third value using the given function and returns a new {@code Tuple3}.
      *     </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation
-     * @return Ein neues {@code Tuple3} mit transformiertem dritten Wert
+     * @param transformation the transformation function
+     * @return a new {@code Tuple3} with the transformed third value
      *
      * @since 1.0.0
      */
@@ -449,7 +449,7 @@ public final class Tuple3<A1, A2, A3>
     public @NonNull <B1, B2, B3> Tuple3<B1, B2, B3> lift(final @NonNull Higher3<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final var fixed
-            = fix(transformation);
+            = narrow(transformation);
         return new Tuple3<>(
             () -> Objects.requireNonNull(fixed.value1Supplier.get().apply(this.value1Supplier.get()), nullResult()),
             () -> Objects.requireNonNull(fixed.value2Supplier.get().apply(this.value2Supplier.get()), nullResult()),

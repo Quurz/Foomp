@@ -1,6 +1,9 @@
 package org.quurz.foomp.base.util;
 
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.quurz.foomp.base.TestHelper;
 import org.quurz.foomp.base.functions.Fun;
@@ -17,411 +20,386 @@ import static org.quurz.foomp.base.util.Tuple3.tuple3;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @SuppressWarnings("unused")
+@DisplayName("Tuple3")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class Tuple3Test
         extends TestHelper {
 
     private static final Logger LOGGER
             = getLogger(Tuple3Test.class);
 
-    @Test
-    void dummy() {
-        LOGGER.info("Dummy test");
+    @Nested
+    @DisplayName("Factory")
+    class Factory {
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void tuple3_enforces_non_null_and_exposes_accessors() {
+            LOGGER.info("Tuple3.tuple3 should enforce non-null and expose accessors");
+
+            final var t = tuple3(1, 2, 3);
+
+            assertThatThrownBy(() -> tuple3(null, 2, 3)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> tuple3(1, null, 3)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> tuple3(1, 2, null)).isInstanceOf(NullPointerException.class);
+
+            assertThat(t.isPresent()).isTrue();
+            assertThat(t.is1()).isTrue();
+            assertThat(t.is2()).isTrue();
+            assertThat(t.is3()).isTrue();
+
+            assertThat(t.get()).isEqualTo(t.get1()).isEqualTo(1);
+            assertThat(t.get2()).isEqualTo(2);
+            assertThat(t.get3()).isEqualTo(3);
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testTuple3() {
-        LOGGER.info("Test Tuple3.tuple3");
+    @Nested
+    @DisplayName("Structure")
+    class Structure {
 
-        final var tuple3
-            = tuple3(1, 2, 3);
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void with_replaces_components_and_enforces_non_null() {
+            LOGGER.info("Tuple3.with* should replace component and enforce non-null");
 
-        assertThatThrownBy(() -> tuple3(null, 2, 3))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3(1, null, 3))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3(1, 2, null))
-            .isInstanceOf(NullPointerException.class);
+            final var t = tuple3(1, 2, 3);
 
-        Assertions.assertThat(tuple3.isPresent())
-            .isTrue();
-        Assertions.assertThat(tuple3.is1())
-            .isTrue();
-        Assertions.assertThat(tuple3.is2())
-            .isTrue();
-        Assertions.assertThat(tuple3.is3())
-            .isTrue();
+            assertThatThrownBy(() -> t.with1(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.with2(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.with3(null)).isInstanceOf(NullPointerException.class);
 
-        assertThat(tuple3.get())
-            .isEqualTo(tuple3.get1())
-            .isEqualTo(1);
-        assertThat(tuple3.get2())
-            .isEqualTo(2);
-        assertThat(tuple3.get3())
-            .isEqualTo(3);
+            assertThat(t.with1(4)).isEqualTo(tuple3(4, 2, 3));
+            assertThat(t.with2(5)).isEqualTo(tuple3(1, 5, 3));
+            assertThat(t.with3(6)).isEqualTo(tuple3(1, 2, 6));
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testWith() {
-        LOGGER.info("Test Tuple3.with");
+    @Nested
+    @DisplayName("Functional (map)")
+    class Functional_Map {
 
-        final var tuple3
-            = tuple3(1, 2, 3);
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void map1_transforms_first_and_enforces_null_contracts() {
+            LOGGER.info("Tuple3.map1 should transform first and fail on nulls");
 
-        assertThatThrownBy(() -> tuple3.with1(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.with2(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.with3(null))
-            .isInstanceOf(NullPointerException.class);
+            final var t = tuple3("Hello", 17, 2.0D);
 
-        assertThat(tuple3.with1(4))
-            .isEqualTo(tuple3(4, 2, 3));
-        assertThat(tuple3.with2(5))
-            .isEqualTo(tuple3(1, 5, 3));
-        assertThat(tuple3.with3(6))
-            .isEqualTo(tuple3(1, 2, 6));
+            assertThatThrownBy(() -> t.map1(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.map1(_$ -> null).get1()).isInstanceOf(NullPointerException.class);
+            assertThat(t.map1(s -> s + " World").get1()).isEqualTo("Hello World");
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void map2_transforms_second_and_enforces_null_contracts() {
+            LOGGER.info("Tuple3.map2 should transform second and fail on nulls");
+
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThatThrownBy(() -> t.map2(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.map2(_$ -> null).get2()).isInstanceOf(NullPointerException.class);
+            assertThat(t.map2(i -> i + 1).get2()).isEqualTo(18);
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void map3_transforms_third_and_enforces_null_contracts() {
+            LOGGER.info("Tuple3.map3 should transform third and fail on nulls");
+
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThatThrownBy(() -> t.map3(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.map3(_$ -> null).get3()).isInstanceOf(NullPointerException.class);
+            assertThat(t.map3(d -> d + 1.0D).get3()).isEqualTo(3.0D);
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void mapAll_transforms_all_and_enforces_null_contracts() {
+            LOGGER.info("Tuple3.mapAll should transform all and fail on nulls");
+
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThatThrownBy(() -> t.mapAll(Function.identity(), Fun.identity(), null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.mapAll(Function.identity(), null, Function.identity())).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.mapAll(null, Fun.identity(), Function.identity())).isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> t.mapAll(_$ -> null, _$ -> null, _$ -> null).get1()).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.mapAll(_$ -> null, _$ -> null, _$ -> null).get2()).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.mapAll(_$ -> null, _$ -> null, _$ -> null).get3()).isInstanceOf(NullPointerException.class);
+
+            assertThat(t.mapAll(s -> s + " World", i -> i + 1, d -> d + 1.0D).get1()).isEqualTo("Hello World");
+            assertThat(t.mapAll(s -> s + " World", i -> i + 1, d -> d + 1.0D).get2()).isEqualTo(18);
+            assertThat(t.mapAll(s -> s + " World", i -> i + 1, d -> d + 1.0D).get3()).isEqualTo(3.0D);
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "unused", "preview"})
-    @Test
-    void testMap1() {
-        LOGGER.info("Test tuple3.map1");
+    @Nested
+    @DisplayName("Applicative (lift)")
+    class Applicative_Lift {
 
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
+        @SuppressWarnings({"DataFlowIssue"})
+        @Test
+        void lift_applies_functions_and_enforces_null_contracts() {
+            LOGGER.info("Tuple3.lift should apply functions and enforce null contracts");
 
-        assertThatThrownBy(() -> tuple3.map1(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.map1(_$ -> null).get1())
-            .isInstanceOf(NullPointerException.class);
-        assertThat(tuple3.map1(s -> s + " World").get1())
-            .isEqualTo("Hello World");
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThatThrownBy(() -> t.lift(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.lift(tuple3(_$ -> null, Fun.identity(), Fun.identity())).unwind())
+                .isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.lift(tuple3(Function.identity(), _$ -> null, Fun.identity())).unwind())
+                .isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.lift(tuple3(Function.identity(), Fun.identity(), _$ -> null)).unwind())
+                .isInstanceOf(NullPointerException.class);
+
+            assertThat(t.lift(tuple3(s -> s + " World", i -> i + 1, d -> d + 1.0D)).unwind())
+                .isEqualTo(tuple3("Hello World", 18, 3.0D));
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testMap2() {
-        LOGGER.info("Test tuple3.map2");
+    @Nested
+    @DisplayName("Conversions and misc")
+    class Conversions_And_Misc {
 
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
+        @SuppressWarnings({"DataFlowIssue"})
+        @Test
+        void meld_combines_values_and_enforces_null_contracts() {
+            LOGGER.info("Tuple3.meld should combine values and enforce null contracts");
 
-        assertThatThrownBy(() -> tuple3.map2(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.map2(_$ -> null).get2())
-            .isInstanceOf(NullPointerException.class);
-        assertThat(tuple3.map2(i -> i + 1).get2())
-            .isEqualTo(18);
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThatThrownBy(() -> t.meld(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.meld((_1, _2, _3) -> null)).isInstanceOf(NullPointerException.class);
+
+            final Fun3<String, Integer, Double, String> melding
+                = (s, i, d) -> s + " " + i + " " + d;
+
+            assertThat(t.meld(melding)).isEqualTo("Hello 17 2.0");
+        }
+
+        @Test
+        void copy_preserves_semantics() {
+            LOGGER.info("Tuple3.copy should keep values");
+
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThat(t.copy()).isEqualTo(tuple3("Hello", 17, 2.0D));
+        }
+
+        @Test
+        void toRecord_converts_values() {
+            LOGGER.info("Tuple3.toRecord should convert values");
+
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThat(t.toRecord()).isEqualTo(record3("Hello", 17, 2.0D));
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "unused"})
-    @Test
-    void testMap3() {
-        LOGGER.info("Test tuple3.map3");
+    @Nested
+    @DisplayName("Unwind")
+    class Unwind_ {
 
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
+        @Test
+        void unwind1_evaluates_first_only() {
+            LOGGER.info("Test tuple3.unwind1");
 
-        assertThatThrownBy(() -> tuple3.map3(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.map3(_$ -> null).get3())
-            .isInstanceOf(NullPointerException.class);
-        assertThat(tuple3.map3(d -> d + 1.0D).get3())
-            .isEqualTo(3.0D);
-    }
+            final var t = tuple3("Hello", 17, 2.0D);
 
-    @SuppressWarnings({"DataFlowIssue", "unused", "preview"})
-    @Test
-    void testMapAll() {
-        LOGGER.info("Test tuple3.mapAll");
+            final var invocationCountingToString
+                = invocationCountingFun(Objects::toString);
+            final var invocationCountingIdentity
+                = invocationCountingFun(Fun.identity());
 
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
-
-        assertThatThrownBy(() -> tuple3.mapAll(Function.identity(), Fun.identity(), null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.mapAll(Function.identity(), null, Function.identity()))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.mapAll(null, Fun.identity(), Function.identity()))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.mapAll(_$ -> null, _$ -> null, _$ -> null).get1())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.mapAll(_$ -> null, _$ -> null, _$ -> null).get2())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.mapAll(_$ -> null, _$ -> null, _$ -> null).get3())
-            .isInstanceOf(NullPointerException.class);
-        assertThat(tuple3.mapAll(s -> s + " World", i -> i + 1, d -> d + 1.0D).get1())
-            .isEqualTo("Hello World");
-        assertThat(tuple3.mapAll(s -> s + " World", i -> i + 1, d -> d + 1.0D).get2())
-            .isEqualTo(18);
-        assertThat(tuple3.mapAll(s -> s + " World", i -> i + 1, d -> d + 1.0D).get3())
-            .isEqualTo(3.0D);
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "preview"})
-    @Test
-    void testLift() {
-        LOGGER.info("test tuple3.lift");
-
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
-
-        assertThatThrownBy(() -> tuple3.lift(null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> tuple3.lift(tuple3(_$ -> null, Fun.identity(), Fun.identity())).unwind())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.lift(tuple3(Function.identity(), _$ -> null, Fun.identity())).unwind())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple3.lift(tuple3(Function.identity(), Fun.identity(), _$ -> null)).unwind())
-            .isInstanceOf(NullPointerException.class);
-
-        assertThat(tuple3.lift(tuple3(s -> s + " World", i -> i + 1, d -> d + 1.0D)).unwind())
-            .isEqualTo(tuple3("Hello World", 18, 3.0D));
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "preview"})
-    @Test
-    void testMeld() {
-        LOGGER.info("Test tuple3.meld");
-
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
-
-        assertThatThrownBy(() -> tuple3.meld(null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> tuple3.meld((_1, _2, _3) -> null))
-            .isInstanceOf(NullPointerException.class);
-
-        final Fun3<String, Integer, Double, String> melding
-            = (s, i, d) -> s + " " + i + " " + d;
-
-        assertThat(tuple3.meld(melding))
-            .isEqualTo("Hello 17 2.0");
-    }
-
-    @Test
-    void testCopy() {
-        LOGGER.info("Test tuple3.copy");
-
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
-
-        assertThat(tuple3.copy())
-            .isEqualTo(tuple3("Hello", 17, 2.0D));
-    }
-
-    @Test
-    void testToRecord() {
-        LOGGER.info("Test tuple3.record");
-
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
-
-        assertThat(tuple3.toRecord())
-            .isEqualTo(record3("Hello", 17, 2.0D));
-    }
-
-    @Test
-    void testUnwind1() {
-        LOGGER.info("Test tuple3.unwind1");
-
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
-
-        final var invocationCountingToString
-            = invocationCountingFun(Objects::toString);
-        final var invocationCountingIdentity
-            = invocationCountingFun(Fun.identity());
-
-        final var spooled
-            = tuple3
-                .map1(invocationCountingToString)
-                .map2(invocationCountingIdentity)
-                .map3(invocationCountingIdentity)
-                .mapAll(
-                    invocationCountingToString,
-                    invocationCountingIdentity,
-                    invocationCountingIdentity
-                )
-                .lift(
-                    tuple3(
+            final var spooled
+                = t
+                    .map1(invocationCountingToString)
+                    .map2(invocationCountingIdentity)
+                    .map3(invocationCountingIdentity)
+                    .mapAll(
                         invocationCountingToString,
                         invocationCountingIdentity,
                         invocationCountingIdentity
                     )
-                );
+                    .lift(
+                        tuple3(
+                            invocationCountingToString,
+                            invocationCountingIdentity,
+                            invocationCountingIdentity
+                        )
+                    );
 
-        assertThat(invocationCountingToString.getInvocationCount())
-            .isZero();
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isZero();
+            assertThat(invocationCountingToString.getInvocationCount())
+                .isZero();
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isZero();
 
-        spooled.unwind1();
+            spooled.unwind1();
 
-        assertThat(invocationCountingToString.getInvocationCount())
-            .isEqualTo(3);
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isZero();
-    }
+            assertThat(invocationCountingToString.getInvocationCount())
+                .isEqualTo(3);
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isZero();
+        }
 
-    @Test
-    void testUnwind2() {
-        LOGGER.info("Test tuple3.unwind2");
+        @Test
+        void unwind2_evaluates_second_only() {
+            LOGGER.info("Test tuple3.unwind2");
 
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
+            final var t = tuple3("Hello", 17, 2.0D);
 
-        final var invocationCountingToString
-            = invocationCountingFun(Objects::toString);
-        final var invocationCountingIdentity
-            = invocationCountingFun(Fun.identity());
+            final var invocationCountingToString
+                = invocationCountingFun(Objects::toString);
+            final var invocationCountingIdentity
+                = invocationCountingFun(Fun.identity());
 
-        final var spooled
-            = tuple3
-                .map1(invocationCountingIdentity)
-                .map2(invocationCountingToString)
-                .map3(invocationCountingIdentity)
-                .mapAll(
-                    invocationCountingIdentity,
-                    invocationCountingToString,
-                    invocationCountingIdentity
-                )
-                .lift(
-                    tuple3(
+            final var spooled
+                = t
+                    .map1(invocationCountingIdentity)
+                    .map2(invocationCountingToString)
+                    .map3(invocationCountingIdentity)
+                    .mapAll(
                         invocationCountingIdentity,
                         invocationCountingToString,
                         invocationCountingIdentity
                     )
-                );
+                    .lift(
+                        tuple3(
+                            invocationCountingIdentity,
+                            invocationCountingToString,
+                            invocationCountingIdentity
+                        )
+                    );
 
-        assertThat(invocationCountingToString.getInvocationCount())
-            .isZero();
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isZero();
+            assertThat(invocationCountingToString.getInvocationCount())
+                .isZero();
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isZero();
 
-        spooled.unwind2();
+            spooled.unwind2();
 
-        assertThat(invocationCountingToString.getInvocationCount())
-            .isEqualTo(3);
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isZero();
-    }
+            assertThat(invocationCountingToString.getInvocationCount())
+                .isEqualTo(3);
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isZero();
+        }
 
-    @Test
-    void testUnwind3() {
-        LOGGER.info("Test tuple3.unwind3");
+        @Test
+        void unwind3_evaluates_third_only() {
+            LOGGER.info("Test tuple3.unwind3");
 
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
+            final var t = tuple3("Hello", 17, 2.0D);
 
-        final var invocationCountingToString
-            = invocationCountingFun(Objects::toString);
-        final var invocationCountingIdentity
-            = invocationCountingFun(Fun.identity());
+            final var invocationCountingToString
+                = invocationCountingFun(Objects::toString);
+            final var invocationCountingIdentity
+                = invocationCountingFun(Fun.identity());
 
-        final var spooled
-            = tuple3
-                .map1(invocationCountingIdentity)
-                .map2(invocationCountingIdentity)
-                .map3(invocationCountingToString)
-                .mapAll(
-                    invocationCountingIdentity,
-                    invocationCountingIdentity,
-                    invocationCountingToString
-                )
-                .lift(
-                    tuple3(
+            final var spooled
+                = t
+                    .map1(invocationCountingIdentity)
+                    .map2(invocationCountingIdentity)
+                    .map3(invocationCountingToString)
+                    .mapAll(
                         invocationCountingIdentity,
                         invocationCountingIdentity,
                         invocationCountingToString
                     )
-                );
+                    .lift(
+                        tuple3(
+                            invocationCountingIdentity,
+                            invocationCountingIdentity,
+                            invocationCountingToString
+                        )
+                    );
 
-        assertThat(invocationCountingToString.getInvocationCount())
-            .isZero();
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isZero();
+            assertThat(invocationCountingToString.getInvocationCount())
+                .isZero();
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isZero();
 
-        spooled.unwind3();
+            spooled.unwind3();
 
-        assertThat(invocationCountingToString.getInvocationCount())
-            .isEqualTo(3);
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isZero();
-    }
+            assertThat(invocationCountingToString.getInvocationCount())
+                .isEqualTo(3);
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isZero();
+        }
 
-    @Test
-    void testUnwind() {
-        LOGGER.info("Test tuple3.unwind");
+        @Test
+        void unwind_evaluates_all() {
+            LOGGER.info("Test tuple3.unwind");
 
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
+            final var t = tuple3("Hello", 17, 2.0D);
 
-        final var invocationCountingIdentity
-            = invocationCountingFun(Fun.identity());
+            final var invocationCountingIdentity
+                = invocationCountingFun(Fun.identity());
 
-        final var spooled
-            = tuple3
-                .map1(invocationCountingIdentity)
-                .map2(invocationCountingIdentity)
-                .map3(invocationCountingIdentity)
-                .mapAll(
-                    invocationCountingIdentity,
-                    invocationCountingIdentity,
-                    invocationCountingIdentity
-                )
-                .lift(
-                    tuple3(
+            final var spooled
+                = t
+                    .map1(invocationCountingIdentity)
+                    .map2(invocationCountingIdentity)
+                    .map3(invocationCountingIdentity)
+                    .mapAll(
                         invocationCountingIdentity,
                         invocationCountingIdentity,
                         invocationCountingIdentity
                     )
-                );
+                    .lift(
+                        tuple3(
+                            invocationCountingIdentity,
+                            invocationCountingIdentity,
+                            invocationCountingIdentity
+                        )
+                    );
 
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isZero();
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isZero();
 
-        spooled.unwind();
+            spooled.unwind();
 
-        assertThat(invocationCountingIdentity.getInvocationCount())
-            .isEqualTo(9);
+            assertThat(invocationCountingIdentity.getInvocationCount())
+                .isEqualTo(9);
+        }
     }
 
-    @Test
-    void testEqualsAndHashcode() {
-        LOGGER.info("Test tuple3.equals and tuple3.hashCode");
+    @Nested
+    @DisplayName("Equality and formatting")
+    class Equality_And_Formatting {
 
-        final var firstTuple3
-            = tuple3("Hello", 17, 2.0D);
-        final var secondTuple3
-            = tuple3("Hello", 17, 2.0D);
-        final var thirdTuple3
-            = tuple3("World", 23, 3.0D);
+        @Test
+        void equals_and_hashCode_compare_componentwise() {
+            LOGGER.info("Test tuple3.equals and tuple3.hashCode");
 
-        assertThat(firstTuple3)
-            .isEqualTo(firstTuple3)
-            .isEqualTo(secondTuple3)
-            .isNotEqualTo(thirdTuple3);
+            final var firstTuple3
+                = tuple3("Hello", 17, 2.0D);
+            final var secondTuple3
+                = tuple3("Hello", 17, 2.0D);
+            final var thirdTuple3
+                = tuple3("World", 23, 3.0D);
 
-        assertThat(firstTuple3)
-            .hasSameHashCodeAs(firstTuple3)
-            .hasSameHashCodeAs(secondTuple3)
-            .doesNotHaveSameHashCodeAs(thirdTuple3);
+            assertThat(firstTuple3)
+                .isEqualTo(firstTuple3)
+                .isEqualTo(secondTuple3)
+                .isNotEqualTo(thirdTuple3);
+
+            assertThat(firstTuple3)
+                .hasSameHashCodeAs(firstTuple3)
+                .hasSameHashCodeAs(secondTuple3)
+                .doesNotHaveSameHashCodeAs(thirdTuple3);
+        }
+
+        @Test
+        void toString_formats_values() {
+            LOGGER.info("Test tuple3.toString");
+
+            final var t = tuple3("Hello", 17, 2.0D);
+
+            assertThat(t)
+                .hasToString("Tuple3[value1=%s, value2=%s, value3=%s]", "Hello", 17, 2.0D);
+        }
     }
-
-    @Test
-    void testToString() {
-        LOGGER.info("Test tuple3.toString");
-
-        final var tuple3
-            = tuple3("Hello", 17, 2.0D);
-
-        assertThat(tuple3)
-            .hasToString("Tuple3[value1=%s, value2=%s, value3=%s]", "Hello", 17, 2.0D);
-    }
-
 }

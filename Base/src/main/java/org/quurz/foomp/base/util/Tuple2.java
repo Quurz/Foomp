@@ -23,15 +23,46 @@ import static org.quurz.foomp.base.util.MutablePair.mutablePair;
 
 /**
  * <div>
- *     <p>
- *         Ein unver&auml;nderliches Tupel aus zwei Werten, das verschiedene Funktionalit&auml;ten bietet,
- *         einschlie&szlig;lich der Abbildung und Manipulation der enthaltenen Werte.
- *         Diese Klasse unterst&uuml;tzt Lazy Evaluation, d.h., die Werte werden nur bei Bedarf abgerufen.
- *     </p>
+ *   <p>
+ *     An immutable, lazy 2‑tuple that holds two non‑null values {@code (A1, A2)}.
+ *     Both components are stored via {@link java.util.function.Supplier} to allow lazy retrieval,
+ *     i.e., values are evaluated only when accessed.
+ *   </p>
+ *   <p>
+ *     Semantics:
+ *     <ul>
+ *       <li><b>Lazy access</b>: values are retrieved on demand using suppliers (see {@code get1()}/{@code get2()}).</li>
+ *       <li><b>Mapping</b>: {@code map}/{@code map1}/{@code map2}/{@code mapAll} transform components eagerly at call site.</li>
+ *       <li><b>Applicative</b>: {@code lift} applies functions carried by another {@code Tuple2} to the respective values.</li>
+ *       <li><b>Structure</b>: {@code swap}, {@code with1}/{@code with2}, {@code copy}, {@code toRecord} provide structural utilities.</li>
+ *     </ul>
+ *   </p>
+ *   <p>
+ *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
+ *     Methods enforce null‑checks to provide predictable behavior with lazy values.
+ *   </p>
+ *   <p>
+ *     Examples:
+ *   </p>
+ *   <pre>{@code
+ *   var t = Tuple2.tuple2(21, "x");
+ *   t.get1();                    // 21
+ *   t.get2();                    // "x"
+ *   t.map1(i -> i * 2);          // (42, "x")
+ *   t.map2(s -> s + "!");        // (21, "x!")
+ *   t.mapAll(Object::toString, String::length);  // ("21", 1)
+ *
+ *   var tf = Tuple2.tuple2((Function<Integer, String>) Object::toString,
+ *                          (Function<String, Integer>) String::length);
+ *   t.lift(tf);                  // applies both functions component-wise: ("21", 1)
+ *
+ *   t.swap();                    // ("x", 21)
+ *   t.toRecord();                // Record2[value1=21, value2=x]
+ *   }</pre>
  * </div>
  *
- * @param <A1> Der Typ des ersten Wertes
- * @param <A2> Der Typ des zweiten Wertes
+ * @param <A1> type of the first value
+ * @param <A2> type of the second value
  *
  * @since 1.0.0
  *
@@ -49,9 +80,9 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Innere Kennzeichenklasse f&uuml;r das WitnessType-Pattern.
-     *     </p>
+     *   <p>
+     *     Internal marker class for the WitnessType pattern.
+     *   </p>
      * </div>
      *
      * @since 1.0.0
@@ -60,32 +91,32 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wandelt eine Instanz von {@code Higher2<µ, A1, A2>} in {@code Tuple2<A1, A2>} um.
-     *     </p>
+     *   <p>
+     *     Narrows a {@code Higher2<µ, A1, A2>} to a concrete {@code Tuple2<A1, A2>}.
+     *   </p>
      * </div>
      *
-     * @param unfixed Das umgewandelte Objekt
-     * @return Eine Instanz von {@code Tuple2}
-     * @throws NullPointerException Wenn das &uuml;bergebene Objekt {@code null} ist
+     * @param unfixed the higher‑kinded value; must not be {@code null}
+     * @return the same instance, viewed as {@code Tuple2}
+     * @throws NullPointerException if {@code unfixed} is {@code null}
      *
      * @since 1.0.0
      */
-    public static <A1, A2> Tuple2<A1, A2> fix(@NonNull final Higher2<µ, A1, A2> unfixed) {
+    public static <A1, A2> Tuple2<A1, A2> narrow(@NonNull final Higher2<µ, A1, A2> unfixed) {
         return (Tuple2<A1, A2>) Objects.requireNonNull(unfixed, nullValue("unfixed"));
     }
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein neues Tupel aus zwei Werten.
-     *     </p>
+     *   <p>
+     *     Creates a tuple from two values. Values are stored lazily via suppliers.
+     *   </p>
      * </div>
      *
-     * @param value1 Der erste Wert
-     * @param value2 Der zweite Wert
-     * @return Ein neues Tuple2 mit den angegebenen Werten
-     * @throws NullPointerException Wenn einer der Werte {@code null} ist
+     * @param value1 the first value; must not be {@code null}
+     * @param value2 the second value; must not be {@code null}
+     * @return a new {@code Tuple2}
+     * @throws NullPointerException if any value is {@code null}
      *
      * @since 1.0.0
      */
@@ -119,12 +150,13 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt an, ob das erste Element vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Indicates whether the first component is present.
+     *     Always {@code true} because {@code Tuple2} is total for both components.
+     *   </p>
      * </div>
      *
-     * @return {@code true}, da das erste Element immer vorhanden ist
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -135,12 +167,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Alias f&uuml;r {@link #is1()}.
-     *     </p>
+     *   <p>
+     *     Alias for {@link #is1()}.
+     *   </p>
      * </div>
      *
-     * @return {@code true}, da das erste Element immer vorhanden ist
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -151,12 +183,13 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt an, ob das zweite Element vorhanden ist.
-     *     </p>
+     *   <p>
+     *     Indicates whether the second component is present.
+     *     Always {@code true} because {@code Tuple2} is total for both components.
+     *   </p>
      * </div>
      *
-     * @return {@code true}, da das zweite Element immer vorhanden ist
+     * @return always {@code true}
      *
      * @since 1.0.0
      */
@@ -167,12 +200,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt das erste Element zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns the first value (evaluates its supplier).
+     *   </p>
      * </div>
      *
-     * @return Der erste Wert im Tupel
+     * @return the first value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -183,13 +216,13 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt das erste Element zur&uuml;ck.
-     *         Alias f&uuml;r {@link #get1()}.
-     *     </p>
+     *   <p>
+     *     Returns the first value.
+     *     Alias for {@link #get1()}.
+     *   </p>
      * </div>
      *
-     * @return Der erste Wert im Tupel
+     * @return the first value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -200,12 +233,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt das zweite Element zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns the second value (evaluates its supplier).
+     *   </p>
      * </div>
      *
-     * @return Der zweite Wert im Tupel
+     * @return the second value; never {@code null}
      *
      * @since 1.0.0
      */
@@ -217,14 +250,15 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein neues Tupel mit einem neuen ersten Wert und dem aktuellen zweiten Wert.
-     *     </p>
+     *   <p>
+     *     Returns a new tuple with a replaced first value; the second value is kept (lazy).
+     *   </p>
      * </div>
      *
-     * @param newFirst Der neue erste Wert
-     * @return Ein neues Tuple2 mit dem neuen ersten Wert
-     * @throws NullPointerException Wenn der neue erste Wert {@code null} ist
+     * @param newFirst the new first value; must not be {@code null}
+     * @param <B1>     the new first type
+     * @return a new {@code Tuple2} with updated first value
+     * @throws NullPointerException if {@code newFirst} is {@code null}
      *
      * @since 1.0.0
      */
@@ -235,14 +269,15 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Erzeugt ein neues Tupel mit einem neuen zweiten Wert und dem aktuellen ersten Wert.
-     *     </p>
+     *   <p>
+     *     Returns a new tuple with a replaced second value; the first value is kept (lazy).
+     *   </p>
      * </div>
      *
-     * @param newSecond Der neue zweite Wert
-     * @return Ein neues Tuple2 mit dem neuen zweiten Wert
-     * @throws NullPointerException Wenn der neue zweite Wert {@code null} ist
+     * @param newSecond the new second value; must not be {@code null}
+     * @param <B2>      the new second type
+     * @return a new {@code Tuple2} with updated second value
+     * @throws NullPointerException if {@code newSecond} is {@code null}
      *
      * @since 1.0.0
      */
@@ -253,15 +288,16 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Verarbeitet beide Werte im Tupel mit der angegebenen Funktion und gibt das Ergebnis zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Melds both values using the given function, returning a single result.
+     *     Both values are evaluated.
+     *   </p>
      * </div>
      *
-     * @param meld Die Funktion zur Verarbeitung beider Werte
-     * @param <B>  Der Typ des Ergebnisses der Funktion
-     * @return Das Ergebnis der Funktion
-     * @throws NullPointerException Wenn {@code meld} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param meld combining function; must not be {@code null} and must not return {@code null}
+     * @param <B>  the result type
+     * @return the meld result; never {@code null}
+     * @throws NullPointerException if {@code meld} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -273,15 +309,16 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf beide Elemente an, um den ersten Wert zu transformieren.
-     *     </p>
+     *   <p>
+     *     Transforms the first value using both values {@code (A1, A2) -> B1}.
+     *     The second value is preserved (lazy).
+     *   </p>
      * </div>
      *
-     * @param mapper Die Funktion, die den ersten Wert unter Ber&uuml;cksichtigung des zweiten Werts transformiert
-     * @param <B1>   Der Typ des neuen ersten Werts
-     * @return Ein neues {@code Tuple2} mit dem transformierten ersten Wert und dem unver&auml;nderten zweiten Wert
-     * @throws NullPointerException Wenn {@code mapper} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param mapper function using both values to produce a new first value; must not be {@code null} and must not return {@code null}
+     * @param <B1>   the new first type
+     * @return a new {@code Tuple2} with transformed first value
+     * @throws NullPointerException if {@code mapper} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -295,15 +332,16 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den zweiten Wert an, um den ersten Wert zu transformieren.
-     *     </p>
+     *   <p>
+     *     Transforms the first value using the second value {@code A2 -> B1}.
+     *     The second value is preserved (lazy).
+     *   </p>
      * </div>
      *
-     * @param mapper Die Funktion, die den zweiten Wert verwendet, um den ersten Wert zu transformieren
-     * @param <B1>   Der Typ des neuen ersten Werts
-     * @return Ein neues {@code Tuple2} mit dem transformierten ersten Wert und dem unver&auml;nderten zweiten Wert
-     * @throws NullPointerException Wenn {@code mapper} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param mapper function using {@code A2} to produce a new first value; must not be {@code null} and must not return {@code null}
+     * @param <B1>   the new first type
+     * @return a new {@code Tuple2} with transformed first value
+     * @throws NullPointerException if {@code mapper} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -317,15 +355,16 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf beide Elemente an, um den zweiten Wert zu transformieren.
-     *     </p>
+     *   <p>
+     *     Transforms the second value using both values {@code (A1, A2) -> B2}.
+     *     The first value is preserved (lazy).
+     *   </p>
      * </div>
      *
-     * @param mapper Die Funktion, die den zweiten Wert unter Ber&uuml;cksichtigung des ersten Werts transformiert
-     * @param <B2>   Der Typ des neuen zweiten Werts
-     * @return Ein neues {@code Tuple2} mit dem unver&auml;nderten ersten Wert und dem transformierten zweiten Wert
-     * @throws NullPointerException Wenn {@code mapper} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param mapper function using both values to produce a new second value; must not be {@code null} and must not return {@code null}
+     * @param <B2>   the new second type
+     * @return a new {@code Tuple2} with transformed second value
+     * @throws NullPointerException if {@code mapper} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -339,15 +378,16 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den ersten Wert an, um den zweiten Wert zu transformieren.
-     *     </p>
+     *   <p>
+     *     Transforms the second value using the first value {@code A1 -> B2}.
+     *     The first value is preserved (lazy).
+     *   </p>
      * </div>
      *
-     * @param mapper Die Funktion, die den ersten Wert verwendet, um den zweiten Wert zu transformieren
-     * @param <B2>   Der Typ des neuen zweiten Werts
-     * @return Ein neues {@code Tuple2} mit dem unver&auml;nderten ersten Wert und dem transformierten zweiten Wert
-     * @throws NullPointerException Wenn {@code mapper} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param mapper function using {@code A1} to produce a new second value; must not be {@code null} and must not return {@code null}
+     * @param <B2>   the new second type
+     * @return a new {@code Tuple2} with transformed second value
+     * @throws NullPointerException if {@code mapper} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -361,15 +401,16 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Alias f&uuml;r {@link #map1(Function)}.
-     *     </p>
+     *   <p>
+     *     Functor map (alias for {@link #map1(Function)}): transforms the first value.
+     *     The second value is preserved.
+     *   </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation des ersten Werts
-     * @param <B1> Der Typ des neuen ersten Werts
-     * @return Ein neues {@code Tuple2} mit dem unver&auml;nderten zweiten Wert und dem transformierten ersten Wert
-     * @throws NullPointerException Wenn {@code fMap} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param transformation the function for the first value; must not be {@code null} and must not return {@code null}
+     * @param <B1>           the new first type
+     * @return a new {@code Tuple2} with transformed first value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -381,15 +422,15 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den ersten Wert an und gibt ein neues {@code Tuple2} mit dem transformierten ersten Wert zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Transforms the first value and preserves the second.
+     *   </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation des ersten Werts
-     * @param <B1> Der Typ des neuen ersten Werts
-     * @return Ein neues {@code Tuple2} mit dem unver&auml;nderten zweiten Wert und dem transformierten ersten Wert
-     * @throws NullPointerException Wenn {@code fMap} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param transformation the function for the first value; must not be {@code null} and must not return {@code null}
+     * @param <B1>           the new first type
+     * @return a new {@code Tuple2} with transformed first value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -400,15 +441,15 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet eine Funktion auf den zweiten Wert an und gibt ein neues {@code Tuple2} mit dem transformierten zweiten Wert zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Transforms the second value and preserves the first.
+     *   </p>
      * </div>
      *
-     * @param transformation Die Funktion zur Transformation des zweiten Werts
-     * @param <B2> Der Typ des neuen zweiten Werts
-     * @return Ein neues {@code Tuple2} mit dem unver&auml;nderten ersten Wert und dem transformierten zweiten Wert
-     * @throws NullPointerException Wenn {@code fMap} {@code null} ist oder das Ergebnis {@code null} ist
+     * @param transformation the function for the second value; must not be {@code null} and must not return {@code null}
+     * @param <B2>           the new second type
+     * @return a new {@code Tuple2} with transformed second value
+     * @throws NullPointerException if {@code transformation} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -419,17 +460,17 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet separate Funktionen auf beide Werte an und gibt ein neues {@code Tuple2} mit den transformierten Werten zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Transforms both values using the provided functions.
+     *   </p>
      * </div>
      *
-     * @param transformation1 Die Funktion zur Transformation des ersten Werts
-     * @param transformation2 Die Funktion zur Transformation des zweiten Werts
-     * @param <B1>  Der Typ des neuen ersten Werts
-     * @param <B2>  Der Typ des neuen zweiten Werts
-     * @return Ein neues {@code Tuple2} mit den transformierten Werten
-     * @throws NullPointerException Wenn {@code fMap1} oder {@code fMap2} {@code null} ist oder ein Ergebnis {@code null} ist
+     * @param transformation1 function for the first value; must not be {@code null} and must not return {@code null}
+     * @param transformation2 function for the second value; must not be {@code null} and must not return {@code null}
+     * @param <B1>            the new first type
+     * @param <B2>            the new second type
+     * @return a new {@code Tuple2} with transformed values
+     * @throws NullPointerException if any function is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
@@ -446,16 +487,16 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet die Funktionen von {@link Higher2} auf dieses {@code Tuple2} an.
-     *     </p>
+     *   <p>
+     *     Applies functions carried by the given {@link Higher2} to this {@code Tuple2} component-wise.
+     *   </p>
      * </div>
      *
-     * @param transformation Die zu hebenden Funktionen als {@link Higher2}
-     * @param <B1>  Der Typ des neuen ersten Werts
-     * @param <B2>  Der Typ des neuen zweiten Werts
-     * @return Ein neues {@code Tuple2} mit den transformierten Werten
-     * @throws NullPointerException Wenn {@code liftA} {@code null} ist
+     * @param transformation the lifted functions as {@link Higher2}
+     * @param <B1> type of the new first value
+     * @param <B2> type of the new second value
+     * @return a new {@code Tuple2} with transformed values
+     * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
      */
@@ -465,7 +506,7 @@ public final class Tuple2<A1, A2>
     ) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final var fixed
-            = fix(transformation);
+            = narrow(transformation);
         return new Tuple2<>(
             () -> Objects.requireNonNull(fixed.value1Supplier.get().apply(this.value1Supplier.get()), nullResult()),
             () -> Objects.requireNonNull(fixed.value2Supplier.get().apply(this.value2Supplier.get()), nullResult())
@@ -474,12 +515,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Vertauscht die Positionen der beiden Werte in diesem {@code Tuple2}.
-     *     </p>
+     *   <p>
+     *     Swaps the positions of the two values in this {@code Tuple2}.
+     *   </p>
      * </div>
      *
-     * @return Ein neues {@code Tuple2} mit vertauschten Werten
+     * @return a new {@code Tuple2} with swapped values
      *
      * @since 1.0.0
      */
@@ -490,12 +531,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Erstellt eine Kopie dieses {@code Tuple2}.
-     *     </p>
+     *   <p>
+     *     Creates a copy of this {@code Tuple2}.
+     *   </p>
      * </div>
      *
-     * @return Eine neue Instanz von {@code Tuple2} mit denselben Werten
+     * @return a new instance of {@code Tuple2} with the same values
      *
      * @since 1.0.0
      */
@@ -506,13 +547,13 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Erstellt ein {@link Record2}, das die gespeicherten Werte dieses {@code Tuple2} enth&auml;lt.
-     *         Dabei werden eventuell vorhandene {@code Supplier}-basierte Werte direkt abgerufen.
-     *     </p>
+     *   <p>
+     *     Creates a {@link Record2} that contains the stored values of this {@code Tuple2}.
+     *     Any supplier-based values are evaluated during extraction.
+     *   </p>
      * </div>
      *
-     * @return Ein {@link Record2} mit den extrahierten Werten
+     * @return a {@link Record2} with the extracted values
      * @see Record2
      *
      * @since 1.0.0
@@ -522,7 +563,26 @@ public final class Tuple2<A1, A2>
         return Record2.record2(this.get1(), this.get2());
     }
 
-    // TODO: Test & JavaDoc
+    /**
+     * <div>
+     *   <p>
+     *     Converts this tuple to a {@link MutablePair} by evaluating both component suppliers.
+     *   </p>
+     *   <p>
+     *     Semantics:
+     *     <ul>
+     *       <li>Evaluation: calls {@link #get1()} and {@link #get2()} to obtain the current values.</li>
+     *       <li>Mutability: the returned {@code MutablePair} is a separate, mutable container.</li>
+     *       <li>Nullability: this tuple holds non-null values by contract; {@code MutablePair} can represent nulls,
+     *           but this method will populate it with non-null values.</li>
+     *     </ul>
+     *   </p>
+     * </div>
+     *
+     * @return a {@link MutablePair} containing the evaluated values of this tuple
+     *
+     * @since 1.0.0
+     */
     @UnwindingOperation
     public MutablePair<A1, A2> toPair() {
         return mutablePair(this.get1(), this.get2());
@@ -530,13 +590,13 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Erstellt ein neues {@code Tuple2}, bei dem nur der zweite Wert weiterhin als {@code Supplier} gespeichert wird,
-     *         w&auml;hrend der erste Wert bereits abgerufen wird.
-     *     </p>
+     *   <p>
+     *     Creates a new {@code Tuple2} where only the second value remains stored as a {@code Supplier},
+     *     while the first value is already evaluated.
+     *   </p>
      * </div>
      *
-     * @return Ein {@link Tuple2}, bei dem der erste Wert realisiert und der zweite verz&ouml;gert bleibt
+     * @return a {@link Tuple2} with the first value realized and the second still deferred
      *
      * @since 1.0.0
      */
@@ -547,13 +607,13 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Erstellt ein neues {@code Tuple2}, bei dem nur der erste Wert weiterhin als {@code Supplier} gespeichert wird,
-     *         w&auml;hrend der zweite Wert bereits abgerufen wird.
-     *     </p>
+     *   <p>
+     *     Creates a new {@code Tuple2} where only the first value remains stored as a {@code Supplier},
+     *     while the second value is already evaluated.
+     *   </p>
      * </div>
      *
-     * @return Ein {@link Tuple2}, bei dem der zweite Wert realisiert und der erste verz&ouml;gert bleibt
+     * @return a {@link Tuple2} with the second value realized and the first still deferred
      *
      * @since 1.0.0
      */
@@ -564,12 +624,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Wendet die gespeicherten Operationen in diesem {@code Tuple2} an, indem die {@code Supplier}-Werte abgerufen werden.
-     *     </p>
+     *   <p>
+     *     Realizes the stored operations by evaluating the {@code Supplier}-backed values of this {@code Tuple2}.
+     *   </p>
      * </div>
      *
-     * @return Ein {@code Tuple2} mit realisierten Werten
+     * @return a {@code Tuple2} with realized values
      *
      * @since 1.0.0
      */
@@ -581,13 +641,13 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Vergleicht dieses {@code Tuple2} mit einem anderen Objekt auf Gleichheit.
-     *     </p>
+     *   <p>
+     *     Compares this {@code Tuple2} for equality with another object.
+     *   </p>
      * </div>
      *
-     * @param other Das zu vergleichende Objekt
-     * @return {@code true}, wenn das andere Objekt gleich ist; andernfalls {@code false}
+     * @param other the object to compare with
+     * @return {@code true} if the other object is equal; {@code false} otherwise
      *
      * @since 1.0.0
      */
@@ -604,12 +664,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Berechnet den Hash-Code f&uuml;r dieses {@code Tuple2}.
-     *     </p>
+     *   <p>
+     *     Computes the hash code for this {@code Tuple2}.
+     *   </p>
      * </div>
      *
-     * @return Der Hash-Code des {@code Tuple2}
+     * @return the hash code of this {@code Tuple2}
      *
      * @since 1.0.0
      */
@@ -623,12 +683,12 @@ public final class Tuple2<A1, A2>
 
     /**
      * <div>
-     *     <p>
-     *         Gibt eine String-Darstellung dieses {@code Tuple2} zur&uuml;ck.
-     *     </p>
+     *   <p>
+     *     Returns a string representation of this {@code Tuple2}.
+     *   </p>
      * </div>
      *
-     * @return Die String-Darstellung des {@code Tuple2}
+     * @return the string representation of this {@code Tuple2}
      *
      * @since 1.0.0
      */
@@ -640,4 +700,5 @@ public final class Tuple2<A1, A2>
                 .add("value2=" + this.value2Supplier.get())
                 .toString();
     }
+    
 }
