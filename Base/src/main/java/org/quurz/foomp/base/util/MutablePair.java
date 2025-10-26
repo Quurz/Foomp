@@ -30,6 +30,7 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *
  * @author Alexander Schell
  */
+// TODO: Sollte mir einen anderen Namen überlegen
 @Mutable
 public final class MutablePair<A1, A2>
         implements Value2<A1, A2> {

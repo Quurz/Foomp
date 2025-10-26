@@ -3,8 +3,6 @@ package org.quurz.foomp.automata;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.util.Result;
 
-
-
 /**
  * <div>
  *     <p>
@@ -38,46 +36,5 @@ public interface FiniteStateMachine<S, IA, OA> {
      */
     @NonNull
     Result<OA> read(final @NonNull IA input);
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns the current state of the automaton.
-     *     </p>
-     * </div>
-     *
-     * @return the current state
-     *
-     * @since 1.0.0
-     */
-    S getCurrentState();
-
-    /**
-     * <div>
-     *     <p>
-     *         Sets the current state of the automaton.
-     *     </p>
-     * </div>
-     *
-     * @param newCurrentState the new state
-     * @throws NullPointerException     if {@code newCurrentState} is null
-     * @throws IllegalArgumentException if the state is not contained in the state space
-     *
-     * @since 1.0.0
-     */
-    void setCurrentState(final @NonNull S newCurrentState);
-
-    /**
-     * <div>
-     *     <p>
-     *         Indicates whether the automaton is currently in a final state.
-     *     </p>
-     * </div>
-     *
-     * @return {@code true} if the current state is a final state
-     *
-     * @since 1.0.0
-     */
-    boolean isInFinalState();
 
 }

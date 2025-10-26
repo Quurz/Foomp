@@ -60,8 +60,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <C extends Collection<A>, A> C requiresNonEmpty(final @NonNull C collection,
-                                                                  final @NonNull String message) {
+    public static <C extends Collection<A>, A> C requireNonEmpty(final @NonNull C collection,
+                                                                 final @NonNull String message) {
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(message, nullValue("message"));
 
@@ -98,8 +98,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <C extends Collection<A>, A, E extends Exception> C requiresNonEmpty(final @NonNull C collection,
-                                                                                       final @NonNull Supplier<E> exceptionSupplier)
+    public static <C extends Collection<A>, A, E extends Exception> C requireNonEmpty(final @NonNull C collection,
+                                                                                      final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -133,8 +133,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <M extends Map<K, V>, K, V> M requiresNonEmpty(final @NonNull M map,
-                                                                 final @NonNull String message) {
+    public static <M extends Map<K, V>, K, V> M requireNonEmpty(final @NonNull M map,
+                                                                final @NonNull String message) {
         Objects.requireNonNull(map, nullValue("map"));
         Objects.requireNonNull(message, nullValue("message"));
 
@@ -172,8 +172,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <M extends Map<K, V>, K, V, E extends Exception> M requiresNonEmpty(final @NonNull M map,
-                                                                                       final @NonNull Supplier<E> exceptionSupplier)
+    public static <M extends Map<K, V>, K, V, E extends Exception> M requireNonEmpty(final @NonNull M map,
+                                                                                     final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(map, nullValue("map"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -213,9 +213,9 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, C extends Collection<A>, E extends Exception> C requiresNonNullElements(final @NonNull C collection,
-                                                                                              final @NonNull String collectionName,
-                                                                                              final @NonNull Fun<String, E> exceptionConstructor)
+    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElements(final @NonNull C collection,
+                                                                                             final @NonNull String collectionName,
+                                                                                             final @NonNull Fun<String, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(collectionName, nullValue("collectionName"));
@@ -323,9 +323,9 @@ public final class Util {
      * @since 1.0.0
      */
     @SuppressWarnings("ConstantConditions")
-    public static <A, E extends Exception> A[] requiresNonNullElements(final @NonNull A[] array,
-                                                                       final @NonNull String arrayName,
-                                                                       final @NonNull Fun<String, E> exceptionConstructor)
+    public static <A, E extends Exception> A[] requireNonNullElements(final @NonNull A[] array,
+                                                                      final @NonNull String arrayName,
+                                                                      final @NonNull Fun<String, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(array, nullValue("array"));
         Objects.requireNonNull(arrayName, nullValue("arrayName"));

@@ -4,8 +4,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.quurz.foomp.base.util.Maybe;
 import org.quurz.foomp.base.util.Tuple2;
+import org.quurz.foomp.base.util.Util;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -14,26 +14,26 @@ import java.util.stream.Stream;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
-import static org.quurz.foomp.base.util.Util.requiresNonNullElements;
+import static org.quurz.foomp.base.util.Util.requireNonNullElements;
 
 /**
  * <div>
  *     <p>
- *         Ein typisierter Argument-Wrapper, der sowohl einen Wert als auch dessen expliziten Typ kapselt.
+ *         A typed argument wrapper that encapsulates both a value and its explicit runtime type.
  *     </p>
  *     <p>
- *         Diese Klasse eignet sich besonders für reflektierende Konstruktionen, bei denen {@code null}-Werte
- *         übergeben werden müssen und die Typinformation zur Laufzeit erhalten bleiben soll.
+ *         This class is particularly useful for reflective invocations where {@code null} values need to be
+ *         passed while preserving the parameter's type at runtime.
  *     </p>
  *     <p>
- *         Beispiel:
+ *         Example:
  *         <pre>
  *             {@code Argument<String> arg = Argument.argument(String.class, null);}
  *         </pre>
  *     </p>
  * </div>
  *
- * @param <A> Der zur Compile-Zeit abgeleitete Typ des Argumentwerts
+ * @param <A> the compile-time type of the argument's value
  *
  * @since 1.0.0
  *
@@ -45,18 +45,18 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue {@link Argument}-Instanz mit explizitem Typ und ohne Wert.
+     *         Creates a new {@link Argument} instance with an explicit type and without a value.
      *     </p>
      *     <p>
-     *         Praktisch, wenn lediglich der Parameter-Typ für einen reflektiven Aufruf angegeben werden soll
-     *         und der Wert später gesetzt wird oder {@code null} übergeben werden muss.
+     *         Useful when only the parameter type should be provided for a reflective call and the value
+     *         is set later or must be passed as {@code null}.
      *     </p>
      * </div>
      *
-     * @param type der explizite, nicht-nullbare Typ des Arguments
-     * @param <A>  der generische Typ des Werts
-     * @return eine neue {@link Argument}-Instanz mit gesetztem Typ und ohne Wert
-     * @throws NullPointerException wenn {@code type} {@code null} ist
+     * @param type the explicit, non-nullable type of the argument
+     * @param <A>  the generic type of the value
+     * @return a new {@link Argument} with the given type and no value
+     * @throws NullPointerException if {@code type} is {@code null}
      *
      * @since 1.0.0
      */
@@ -68,19 +68,19 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue {@link Argument}-Instanz mit explizitem Typ und optionalem Wert.
+     *         Creates a new {@link Argument} with an explicit type and an optional value.
      *     </p>
      *     <p>
-     *         Diese Fabrikmethode ist die universelle Variante, um sowohl Typ als auch Wert zu setzen.
-     *         Der Typ darf nicht {@code null} sein; der Wert darf {@code null} sein.
+     *         This factory method is the general-purpose variant to set both type and value.
+     *         The type must not be {@code null}; the value may be {@code null}.
      *     </p>
      * </div>
      *
-     * @param type  der explizite, nicht-nullbare Typ des Arguments
-     * @param value der Argumentwert, darf {@code null} sein
-     * @param <A>   der generische Typ des Werts
-     * @return eine neue {@link Argument}-Instanz mit Wert und Typ
-     * @throws NullPointerException wenn {@code type} {@code null} ist
+     * @param type  the explicit, non-nullable type of the argument
+     * @param value the argument value; may be {@code null}
+     * @param <A>   the generic type of the value
+     * @return a new {@link Argument} with the given type and value
+     * @throws NullPointerException if {@code type} is {@code null}
      *
      * @since 1.0.0
      */
@@ -93,38 +93,37 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Extrahiert die Typen und Werte aus einem Array von {@link Argument}-Objekten.
+     *         Extracts types and values from an array of {@link Argument} objects.
      *     </p>
      *     <p>
-     *         Das Ergebnis ist ein {@link Tuple2}, bei dem das erste Element ein Array der Typen
-     *         und das zweite Element ein Array der entsprechenden Werte ist.
+     *         The result is a {@link Tuple2} whose first element is an array of types and
+     *         whose second element is an array of the corresponding values.
      *     </p>
      *     <p>
-     *         Diese Methode eignet sich zur Vorbereitung reflektiver Konstruktoraufrufe.
-     *         Die Reihenfolge der Elemente bleibt erhalten.
+     *         The method is suitable for preparing reflective constructor calls.
+     *         The order of elements is preserved.
      *     </p>
      * </div>
      *
-     * @param arguments ein nicht-nullbares Array von {@code Argument}-Objekten; darf keine {@code null}-Elemente enthalten
-     * @return ein Tupel mit zwei Arrays: einem der Typen und einem der Werte
-     * @throws NullPointerException wenn {@code arguments} {@code null} ist
-     * @throws IllegalArgumentException wenn ein Element des Arrays {@code null} ist
+     * @param arguments a non-null array of {@code Argument} objects; must not contain {@code null} elements
+     * @return a tuple containing two arrays: one of types and one of values
+     * @throws NullPointerException if {@code arguments} is {@code null}
+     * @throws IllegalArgumentException if any element of the array is {@code null}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("rawtypes")
     public static Tuple2<Class<?>[], Object[]> extractTypesAndValues(final @NonNull Argument[] arguments) {
         Objects.requireNonNull(arguments, nullValue("arguments"));
-        requiresNonNullElements(arguments,"arguments", IllegalArgumentException::new);
+        requireNonNullElements(arguments, "arguments", IllegalArgumentException::new);
 
-        final var types
-            = Arrays.stream(arguments)
-                .map(Argument::getType)
-                .toArray(Class<?>[]::new);
-        final var values
-            = Arrays.stream(arguments)
-                .map(Argument::getValue)
-                .toArray(Object[]::new);
+        final var types = new Class<?>[arguments.length];
+        final var values = new Object[arguments.length];
+        for (int i = 0; i < arguments.length; i++) {
+            final Argument<?> arg = arguments[i];
+            types[i] = arg.getType();
+            values[i] = arg.getValue();
+        }
 
         return tuple2(types, values);
     }
@@ -132,29 +131,29 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Extrahiert die Typen und Werte aus einer {@link java.util.List} von {@link Argument}-Objekten.
+     *         Extracts types and values from a {@link java.util.List} of {@link Argument} objects.
      *     </p>
      *     <p>
-     *         Das Ergebnis ist ein {@link Tuple2}, bei dem das erste Element ein Array der Typen
-     *         und das zweite Element ein Array der entsprechenden Werte ist.
+     *         The result is a {@link Tuple2} whose first element is an array of types and
+     *         whose second element is an array of the corresponding values.
      *     </p>
      *     <p>
-     *         Diese Methode eignet sich zur Vorbereitung reflektiver Aufrufe (z. B. von Konstruktoren
-     *         oder Methoden). Die Reihenfolge der Elemente bleibt erhalten.
+     *         The method is suitable for preparing reflective calls (e.g., constructors or methods).
+     *         The order of elements is preserved.
      *     </p>
      * </div>
      *
-     * @param arguments eine nicht-nullbare Liste von {@code Argument}-Objekten; darf keine {@code null}-Elemente enthalten
-     * @return ein Tupel mit zwei Arrays: einem der Typen und einem der Werte
-     * @throws NullPointerException wenn {@code arguments} {@code null} ist
-     * @throws IllegalArgumentException wenn ein Element der Liste {@code null} ist
+     * @param arguments a non-null list of {@code Argument} objects; must not contain {@code null} elements
+     * @return a tuple containing two arrays: one of types and one of values
+     * @throws NullPointerException if {@code arguments} is {@code null}
+     * @throws IllegalArgumentException if any element of the list is {@code null}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("rawtypes")
     public static Tuple2<Class<?>[], Object[]> extractTypesAndValues(final @NonNull List<Argument> arguments) {
         Objects.requireNonNull(arguments, nullValue("arguments"));
-        requiresNonNullElements(arguments,"arguments", IllegalArgumentException::new);
+        Util.requireNonNullElements(arguments,"arguments", IllegalArgumentException::new);
 
         final var types
             = arguments.stream()
@@ -171,29 +170,24 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Extrahiert die Typen und Werte aus einem {@link java.util.stream.Stream} von {@link Argument}-Objekten.
+     *         Extracts types and values from a {@link java.util.stream.Stream} of {@link Argument} objects.
      *     </p>
      *     <p>
-     *         Das Ergebnis ist ein {@link Tuple2}, bei dem das erste Element ein Array der Typen
-     *         und das zweite Element ein Array der entsprechenden Werte ist.
+     *         The result is a {@link Tuple2} whose first element is an array of types and
+     *         whose second element is an array of the corresponding values.
      *     </p>
      *     <p>
-     *         Der übergebene Stream wird vollständig konsumiert.
-     *         <b>
-     *             Achtung:
-     *         </b>
-     *         Zur Vermeidung von
-     *         Reihenfolge-Problemen wird die Verarbeitung explizit sequentiell ausgeführt
-     *         (unabhängig davon, ob der Stream parallel ist). Die Reihenfolge entspricht
-     *         der Encounter-Order des Streams. Bei nicht geordneten Quellen (z. B. HashSet)
-     *         ist die Reihenfolge nicht definiert.
+     *         The provided stream is consumed fully.
+     *         <b>Note:</b> To avoid ordering issues, processing is forced to be sequential
+     *         (regardless of whether the stream is parallel). The order corresponds to the stream's encounter order.
+     *         For non-ordered sources (e.g., {@code HashSet}), the order is not defined.
      *     </p>
      * </div>
      *
-     * @param arguments ein nicht-nullbarer Stream von {@code Argument}-Objekten; darf keine {@code null}-Elemente enthalten
-     * @return ein Tupel mit zwei Arrays: einem der Typen und einem der Werte
-     * @throws NullPointerException wenn {@code arguments} {@code null} ist
-     * @throws IllegalArgumentException wenn ein Element des Streams {@code null} ist
+     * @param arguments a non-null stream of {@code Argument} objects; must not contain {@code null} elements
+     * @return a tuple containing two arrays: one of types and one of values
+     * @throws NullPointerException if {@code arguments} is {@code null}
+     * @throws IllegalArgumentException if any element of the stream is {@code null}
      *
      * @since 1.0.0
      */
@@ -202,7 +196,7 @@ public final class Argument<A> {
         Objects.requireNonNull(arguments, nullValue("arguments"));
         final var argumentsList
             = arguments.sequential().toList();
-        requiresNonNullElements(argumentsList, "arguments", IllegalArgumentException::new);
+        Util.requireNonNullElements(argumentsList, "arguments", IllegalArgumentException::new);
         return extractTypesAndValues(argumentsList);
     }
 
@@ -220,11 +214,11 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Gibt den explizit angegebenen Typ des Arguments zurück.
+     *         Returns the explicitly provided type of this argument.
      *     </p>
      * </div>
      *
-     * @return der nicht-nullbare Typ des Arguments
+     * @return the non-nullable type of the argument
      *
      * @since 1.0.0
      */
@@ -236,11 +230,11 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob ein Wert gesetzt ist.
+     *         Returns whether a value is present.
      *     </p>
      * </div>
      *
-     * @return {@code true}, wenn ein Wert vorhanden ist; andernfalls {@code false}
+     * @return {@code true} if a value is present; otherwise {@code false}
      *
      * @since 1.0.0
      */
@@ -251,11 +245,11 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Gibt an, ob kein Wert gesetzt ist.
+     *         Returns whether no value is present.
      *     </p>
      * </div>
      *
-     * @return {@code true}, wenn kein Wert vorhanden ist; andernfalls {@code false}
+     * @return {@code true} if no value is present; otherwise {@code false}
      *
      * @since 1.0.0
      */
@@ -266,11 +260,11 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Gibt den Argumentwert zurück. Dieser kann {@code null} sein.
+     *         Returns the argument's value. This may be {@code null}.
      *     </p>
      * </div>
      *
-     * @return der gespeicherte Wert (kann {@code null} sein)
+     * @return the stored value (may be {@code null})
      *
      * @since 1.0.0
      */
@@ -282,16 +276,15 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Liefert den Argumentwert als {@link Maybe}.
+     *         Returns the argument's value as a {@link Maybe}.
      *     </p>
      *     <p>
-     *         Ist kein Wert gesetzt, wird ein leeres {@code Maybe} zurückgegeben. Diese Methode ist
-     *         null-sicher und modelliert die Abwesenheit eines Werts explizit, sodass auf
-     *         {@code null}-Prüfungen verzichtet werden kann.
+     *         If no value is set, an empty {@code Maybe} is returned. This method is null-safe and explicitly
+     *         models the absence of a value so that manual {@code null} checks can be avoided.
      *     </p>
      * </div>
      *
-     * @return ein {@code Maybe} mit dem gesetzten Wert oder leer, wenn kein Wert vorhanden ist
+     * @return a {@code Maybe} containing the value, or empty if no value is present
      *
      * @since 1.0.0
      */
@@ -302,20 +295,21 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Vergleicht dieses {@code Argument} mit einem anderen Objekt auf Gleichheit.
+     *         Compares this {@code Argument} with another object for equality.
      *     </p>
      *     <p>
-     *         Zwei {@code Argument}-Instanzen gelten als gleich, wenn sowohl ihr Typ als auch ihr Wert gleich sind.
+     *         Two {@code Argument} instances are equal if both their types and their values are equal.
      *     </p>
      * </div>
      *
-     * @param o das zu vergleichende Objekt
-     * @return {@code true}, wenn das angegebene Objekt ein gleiches {@code Argument} ist; sonst {@code false}
+     * @param o the object to compare with
+     * @return {@code true} if the given object is an equal {@code Argument}; otherwise {@code false}
      *
      * @since 1.0.0
      */
     @Override
     public final boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof Argument<?> argument)) return false;
 
         return Objects.equals(value, argument.value) && type.equals(argument.type);
@@ -324,14 +318,14 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Gibt einen Hashcode für dieses {@code Argument} zurück.
+     *         Returns a hash code for this {@code Argument}.
      *     </p>
      *     <p>
-     *         Der Hashcode basiert auf dem Typ und dem Wert des Arguments.
+     *         The hash code is based on the argument's type and value.
      *     </p>
      * </div>
      *
-     * @return der berechnete Hashcode
+     * @return the computed hash code
      *
      * @since 1.0.0
      */
@@ -345,14 +339,14 @@ public final class Argument<A> {
     /**
      * <div>
      *     <p>
-     *         Gibt eine String-Repräsentation dieses {@code Argument} zurück.
+     *         Returns a string representation of this {@code Argument}.
      *     </p>
      *     <p>
-     *         Das Format ist {@code Argument[type=..., value=...]}.
+     *         The format is {@code Argument[type=..., value=...]}.
      *     </p>
      * </div>
      *
-     * @return eine lesbare Beschreibung dieses {@code Argument}-Objekts
+     * @return a human-readable description of this {@code Argument} instance
      *
      * @since 1.0.0
      */
