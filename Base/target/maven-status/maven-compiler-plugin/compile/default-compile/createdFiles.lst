@@ -4,6 +4,7 @@ org/quurz/foomp/base/types/Visitor.class
 org/quurz/foomp/base/util/Continuation$µ.class
 org/quurz/foomp/base/types/H2Liftable.class
 org/quurz/foomp/base/types/Value4.class
+org/quurz/foomp/base/util/AsyncCombinableComputation.class
 org/quurz/foomp/base/functions/Applicable.class
 org/quurz/foomp/base/types/Executable.class
 org/quurz/foomp/base/types/Mappable.class
@@ -16,9 +17,9 @@ org/quurz/foomp/base/localisation/package-info.class
 org/quurz/foomp/base/types/Assoc.class
 org/quurz/foomp/base/types/Deferrable4.class
 org/quurz/foomp/base/functions/Fun.class
+org/quurz/foomp/base/util/AsyncCombinableComputation$µ.class
 org/quurz/foomp/base/util/Trampoline$Done.class
 org/quurz/foomp/base/util/package-info.class
-org/quurz/foomp/base/util/AsyncCombinable$AsyncCombiner.class
 org/quurz/foomp/base/types/Streamable.class
 org/quurz/foomp/base/functions/Applicable$2.class
 org/quurz/foomp/base/util/Nothing.class
@@ -52,13 +53,11 @@ org/quurz/foomp/base/functions/Fun2.class
 org/quurz/foomp/base/types/Unwindable.class
 org/quurz/foomp/base/types/H2Mappable.class
 org/quurz/foomp/base/util/Either$µ.class
-org/quurz/foomp/base/util/AsyncCombinable$µ.class
 org/quurz/foomp/base/types/Seq$µ.class
 org/quurz/foomp/base/util/Eval$Later.class
 org/quurz/foomp/base/types/FoldableLeft.class
 org/quurz/foomp/base/util/Maybe$Some.class
 org/quurz/foomp/base/types/Copyable.class
-org/quurz/foomp/base/util/AsyncCombinable$AsyncCombinerImpl.class
 org/quurz/foomp/base/types/Liftable2.class
 org/quurz/foomp/base/functions/MemoisingApplicable.class
 org/quurz/foomp/base/types/SafeExecutable.class
@@ -101,8 +100,6 @@ org/quurz/foomp/base/types/Mutable.class
 org/quurz/foomp/base/functions/Provider$µ.class
 org/quurz/foomp/base/types/Container.class
 org/quurz/foomp/base/types/Executable$1.class
-org/quurz/foomp/base/util/AsyncExecutionException.class
-org/quurz/foomp/base/util/AsyncCombinable.class
 org/quurz/foomp/base/types/Mappable3.class
 org/quurz/foomp/base/util/Bucket.class
 org/quurz/foomp/base/types/Value2.class

@@ -14,45 +14,45 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.quurz.foomp.plugins.Argument.argument;
-import static org.quurz.foomp.plugins.Argument.extractTypesAndValues;
+import static org.quurz.foomp.plugins.TypedValue.typedValue;
+import static org.quurz.foomp.plugins.TypedValue.extractTypesAndValues;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@DisplayName("Argument")
+@DisplayName("TypedValue")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class ArgumentTest {
+class TypedValueTest {
 
     private static final Logger LOGGER
-        = getLogger(ArgumentTest.class);
+        = getLogger(TypedValueTest.class);
 
     @SuppressWarnings("rawtypes")
-    private static final Argument[] INVALID_ARGUMENTS_ARRAY
-        = new Argument<?>[] {
-            argument(String.class),
+    private static final TypedValue[] INVALID_ARGUMENTS_ARRAY
+        = new TypedValue<?>[] {
+            TypedValue.typedValue(String.class),
             null
         };
 
     @SuppressWarnings("rawtypes")
-    private static final Argument[] VALID_ARGUMENTS_ARRAY
-        = new Argument<?>[] {
-            argument(String.class),
-            argument(Integer.class, 123)
+    private static final TypedValue[] VALID_ARGUMENTS_ARRAY
+        = new TypedValue<?>[] {
+            TypedValue.typedValue(String.class),
+            typedValue(Integer.class, 123)
         };
 
     @SuppressWarnings("rawtypes")
-    private static final List<Argument> INVALID_ARGUMENTS_LIST
+    private static final List<TypedValue> INVALID_ARGUMENTS_LIST
         = Arrays.stream(INVALID_ARGUMENTS_ARRAY)
             .toList();
 
     @SuppressWarnings("rawtypes")
-    private static final List<Argument> VALID_ARGUMENTS_LIST
+    private static final List<TypedValue> VALID_ARGUMENTS_LIST
         = Arrays.stream(VALID_ARGUMENTS_ARRAY)
             .toList();
 
-    private static final Argument<String> ARGUMENT_WITH_VALUE
-        = argument(String.class, "<TEST>");
-    private static final Argument<Integer> ARGUMENT_WITHOUT_VALUE
-        = argument(Integer.class);
+    private static final TypedValue<String> ARGUMENT_WITH_VALUE
+        = typedValue(String.class, "<TEST>");
+    private static final TypedValue<Integer> ARGUMENT_WITHOUT_VALUE
+        = TypedValue.typedValue(Integer.class);
 
     @Nested
     class Factory {
@@ -60,9 +60,9 @@ class ArgumentTest {
         @SuppressWarnings("DataFlowIssue")
         @Test
         void argument_without_value_rejects_null_type() {
-            LOGGER.info("Test Argument.argument(Class): rejects null type");
+            LOGGER.info("Test TypedValue.typedValue(Class): rejects null type");
 
-            assertThatThrownBy(() -> argument(null))
+            assertThatThrownBy(() -> TypedValue.typedValue(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("type");
         }
@@ -70,38 +70,38 @@ class ArgumentTest {
         @SuppressWarnings("DataFlowIssue")
         @Test
         void argument_with_value_rejects_null_type() {
-            LOGGER.info("Test Argument.argument(Class, A): rejects null type");
+            LOGGER.info("Test TypedValue.typedValue(Class, A): rejects null type");
 
-            assertThatThrownBy(() -> argument(null, null))
+            assertThatThrownBy(() -> typedValue(null, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("type");
-            assertThatThrownBy(() -> argument(null, new Object()))
+            assertThatThrownBy(() -> typedValue(null, new Object()))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("type");
         }
 
         @Test
         void argument_without_value_accepts_valid_type() {
-            LOGGER.info("Test Argument.argument(Class): accepts valid type");
+            LOGGER.info("Test TypedValue.typedValue(Class): accepts valid type");
 
             assertThatNoException()
-                .isThrownBy(() -> argument(String.class));
+                .isThrownBy(() -> TypedValue.typedValue(String.class));
         }
 
         @Test
         void argument_with_value_accepts_valid_type() {
-            LOGGER.info("Test Argument.argument(Class, A): accepts valid type and non-null value");
+            LOGGER.info("Test TypedValue.typedValue(Class, A): accepts valid type and non-null value");
 
             assertThatNoException()
-                .isThrownBy(() -> argument(String.class, "<TEST>"));
+                .isThrownBy(() -> typedValue(String.class, "<TEST>"));
         }
 
         @Test
         void argument_with_value_accepts_null_value() {
-            LOGGER.info("Test Argument.argument(Class, A): accepts null value");
+            LOGGER.info("Test TypedValue.typedValue(Class, A): accepts null value");
 
             assertThatNoException()
-                .isThrownBy(() -> argument(String.class, null));
+                .isThrownBy(() -> typedValue(String.class, null));
         }
 
     }
@@ -111,9 +111,9 @@ class ArgumentTest {
 
         @Test
         void extractTypesAndValues_validates_inputs_and_succeeds_otherwise_for_arrays() {
-            LOGGER.info("Test Argument.extractTypesAndValues(Argument<?>[])");
+            LOGGER.info("Test TypedValue.extractTypesAndValues(TypedValue<?>[])");
 
-            assertThatThrownBy(() -> extractTypesAndValues((Argument<?>[]) null))
+            assertThatThrownBy(() -> extractTypesAndValues((TypedValue<?>[]) null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("arguments");
             assertThatThrownBy(() -> extractTypesAndValues(INVALID_ARGUMENTS_ARRAY))
@@ -127,9 +127,9 @@ class ArgumentTest {
         @SuppressWarnings({"rawtypes", "DataFlowIssue"})
         @Test
         void extractTypesAndValues_validates_inputs_and_succeeds_otherwise_for_lists() {
-            LOGGER.info("Test Argument.extractTypesAndValues(Collection<Argument<?>>)");
+            LOGGER.info("Test TypedValue.extractTypesAndValues(Collection<TypedValue<?>>)");
 
-            assertThatThrownBy(() -> extractTypesAndValues((List<Argument>) null))
+            assertThatThrownBy(() -> extractTypesAndValues((List<TypedValue>) null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("arguments");
             assertThatThrownBy(() -> extractTypesAndValues(INVALID_ARGUMENTS_LIST))
@@ -144,9 +144,9 @@ class ArgumentTest {
         @SuppressWarnings({"rawtypes", "DataFlowIssue"})
         @Test
         void extractTypesAndValues_validates_inputs_and_succeeds_otherwise_for_streams() {
-            LOGGER.info("Test Argument.extractTypesAndValues(Stream<Argument<?>>)");
+            LOGGER.info("Test TypedValue.extractTypesAndValues(Stream<TypedValue<?>>)");
 
-            assertThatThrownBy(() -> extractTypesAndValues((Stream<Argument>) null))
+            assertThatThrownBy(() -> extractTypesAndValues((Stream<TypedValue>) null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("arguments");
             assertThatThrownBy(() -> extractTypesAndValues(INVALID_ARGUMENTS_LIST.stream()))
@@ -164,7 +164,7 @@ class ArgumentTest {
 
         @Test
         void hasValue_and_hasNoValue_behave_consistently() {
-            LOGGER.info("Test argument.hasValue() and argument.hasNoValue()");
+            LOGGER.info("Test typedValue.hasValue() and typedValue.hasNoValue()");
 
             assertThat(ARGUMENT_WITH_VALUE.hasValue())
                 .isTrue();
@@ -182,7 +182,7 @@ class ArgumentTest {
 
         @Test
         void getType_returns_explicit_type() {
-            LOGGER.info("Test argument.getType()");
+            LOGGER.info("Test typedValue.getType()");
 
             assertThat(ARGUMENT_WITH_VALUE.getType())
                 .isEqualTo(String.class);
@@ -192,7 +192,7 @@ class ArgumentTest {
 
         @Test
         void getValue_returns_value_or_null() {
-            LOGGER.info("Test argument.getValue()");
+            LOGGER.info("Test typedValue.getValue()");
 
             assertThat(ARGUMENT_WITH_VALUE.getValue())
                 .isEqualTo("<TEST>");
@@ -202,7 +202,7 @@ class ArgumentTest {
 
         @Test
         void getValueSafe_returns_some_or_none() {
-            LOGGER.info("Test argument.getValueSafe()");
+            LOGGER.info("Test typedValue.getValueSafe()");
 
             assertThat(ARGUMENT_WITH_VALUE.getValueSafe().isSome())
                 .isTrue();
@@ -216,20 +216,20 @@ class ArgumentTest {
 
         @Test
         void equals_is_reflexive() {
-            LOGGER.info("Test argument.equals(Object): reflexivity");
+            LOGGER.info("Test typedValue.equals(Object): reflexivity");
             final var a
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             assertThat(a)
                 .isEqualTo(a);
         }
 
         @Test
         void equals_is_symmetric() {
-            LOGGER.info("Test argument.equals(Object): symmetry");
+            LOGGER.info("Test typedValue.equals(Object): symmetry");
             final var a
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             final var b
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             assertThat(a)
                 .isEqualTo(b);
             assertThat(b)
@@ -238,13 +238,13 @@ class ArgumentTest {
 
         @Test
         void equals_is_transitive() {
-            LOGGER.info("Test argument.equals(Object): transitivity");
+            LOGGER.info("Test typedValue.equals(Object): transitivity");
             final var a
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             final var b
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             final var c
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             assertThat(a)
                 .isEqualTo(b);
             assertThat(b)
@@ -255,11 +255,11 @@ class ArgumentTest {
 
         @Test
         void equals_is_consistent() {
-            LOGGER.info("Test argument.equals(Object): consistency");
+            LOGGER.info("Test typedValue.equals(Object): consistency");
             final var a1
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             final var a2
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             assertThat(a1)
                 .isEqualTo(a2);
             assertThat(a1)
@@ -268,42 +268,42 @@ class ArgumentTest {
 
         @Test
         void equals_handles_null() {
-            LOGGER.info("Test argument.equals(Object): null handling");
-            final var a = argument(String.class, "<TEST>");
+            LOGGER.info("Test typedValue.equals(Object): null handling");
+            final var a = typedValue(String.class, "<TEST>");
             assertThat(a).isNotEqualTo(null);
         }
 
         @Test
         void equals_differs_on_different_value_with_same_type() {
-            LOGGER.info("Test argument.equals(Object): different value, same type");
+            LOGGER.info("Test typedValue.equals(Object): different value, same type");
             final var a
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             final var b
-                = argument(String.class, "OTHER");
+                = typedValue(String.class, "OTHER");
             assertThat(a)
                 .isNotEqualTo(b);
         }
 
         @Test
         void equals_differs_on_different_type_even_if_values_match_semantically() {
-            LOGGER.info("Test argument.equals(Object): different type");
+            LOGGER.info("Test typedValue.equals(Object): different type");
             final var a
-                = argument(String.class, "<123>");
+                = typedValue(String.class, "<123>");
             final var c
-                = argument(Integer.class, 123);
+                = typedValue(Integer.class, 123);
             assertThat(a)
                 .isNotEqualTo(c);
         }
 
         @Test
         void equals_with_null_values_respects_type() {
-            LOGGER.info("Test argument.equals(Object): null values and type");
+            LOGGER.info("Test typedValue.equals(Object): null values and type");
             final var n1
-                = argument(String.class, null);
+                = typedValue(String.class, null);
             final var n2
-                = argument(String.class, null);
+                = typedValue(String.class, null);
             final var n3
-                = argument(Integer.class, null);
+                = typedValue(Integer.class, null);
 
             assertThat(n1)
                 .isEqualTo(n2);    // same type + both null -> equal
@@ -313,11 +313,11 @@ class ArgumentTest {
 
         @Test
         void hashCode_equal_objects_have_same_hash() {
-            LOGGER.info("Test argument.equals(Object): equal objects must have the same hash code");
+            LOGGER.info("Test typedValue.equals(Object): equal objects must have the same hash code");
             final var a1
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             final var a2
-                = argument(String.class, "<TEST>");
+                = typedValue(String.class, "<TEST>");
             assertThat(a1)
                 .isEqualTo(a2);
             assertThat(a1.hashCode())
@@ -326,8 +326,8 @@ class ArgumentTest {
 
         @Test
         void hashCode_is_consistent() {
-            LOGGER.info("Test argument.hashCode: consistency");
-            final var a = argument(String.class, "<TEST>");
+            LOGGER.info("Test typedValue.hashCode: consistency");
+            final var a = typedValue(String.class, "<TEST>");
             assertThat(a.hashCode()).isEqualTo(a.hashCode());
         }
 
@@ -338,12 +338,12 @@ class ArgumentTest {
 
         @Test
         void format_is_stable() {
-            LOGGER.info("Test argument.toString()");
+            LOGGER.info("Test typedValue.toString()");
 
             assertThat(ARGUMENT_WITH_VALUE.toString())
-                .isEqualTo("Argument[type=class java.lang.String, value=<TEST>]");
+                .isEqualTo("TypedValue[type=class java.lang.String, value=<TEST>]");
             assertThat(ARGUMENT_WITHOUT_VALUE.toString())
-                .isEqualTo("Argument[type=class java.lang.Integer, value=null]");
+                .isEqualTo("TypedValue[type=class java.lang.Integer, value=null]");
         }
 
     }

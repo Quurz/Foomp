@@ -8,5 +8,4 @@ module foomp.base {
 
     requires static org.checkerframework.checker.qual;
     requires static lombok;
-    requires foomp.base;
 }

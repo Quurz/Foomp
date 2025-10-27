@@ -67,7 +67,6 @@
             --add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED
         </jvm.test.args>
 
-
         <!-- Logging -->
         <slf4j-api.version>2.0.16</slf4j-api.version>
         <logback-classic.version>1.5.18</logback-classic.version>
@@ -78,8 +77,8 @@
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Reports -->

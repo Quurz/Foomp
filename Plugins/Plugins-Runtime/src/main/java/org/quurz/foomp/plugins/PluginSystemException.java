@@ -5,11 +5,11 @@ import java.io.Serial;
 /**
  * <div>
  *     <p>
- *         Basislaufzeit-Exception für das Plugin-System.
+ *         Base runtime exception for the plugin system.
  *     </p>
  *     <p>
- *         Diese Ausnahme dient als Oberklasse für spezifischere Plugin-bezogene Fehler zur Laufzeit,
- *         z. B. für Lade-, Initialisierungs-, Ausführungs- oder Shutdown-Probleme von Plugins.
+ *         This exception serves as the superclass for more specific plugin-related runtime errors,
+ *         e.g., loading, initialization, execution, or shutdown issues of plugins.
  *     </p>
  * </div>
  *
@@ -27,11 +27,11 @@ public class PluginSystemException
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue {@code PluginSystemException} mit einer Detailnachricht.
+     *         Creates a new {@code PluginSystemException} with a detail message.
      *     </p>
      * </div>
      *
-     * @param message die Detailnachricht; sollte das Fehlerbild präzise beschreiben
+     * @param message the detail message; should describe the error precisely
      * @since 1.0.0
      */
     public PluginSystemException(final String message) {
@@ -41,16 +41,16 @@ public class PluginSystemException
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue {@code PluginSystemException} mit Detailnachricht und Ursache.
+     *         Creates a new {@code PluginSystemException} with a detail message and a cause.
      *     </p>
      *     <p>
-     *         Verwende diesen Konstruktor, um die ursprüngliche Ursache zu verketten
-     *         (Exception Chaining), sodass die Fehlerursache nachvollziehbar bleibt.
+     *         Use this constructor to chain the original cause (exception chaining) so that the
+     *         underlying reason remains traceable.
      *     </p>
      * </div>
      *
-     * @param message die Detailnachricht
-     * @param cause   die auslösende Ursache (kann {@code null} sein)
+     * @param message the detail message
+     * @param cause   the cause of the failure (may be {@code null})
      *
      * @since 1.0.0
      */
@@ -62,15 +62,15 @@ public class PluginSystemException
     /**
      * <div>
      *     <p>
-     *         Erstellt eine neue {@code PluginSystemException} mit der angegebenen Ursache.
+     *         Creates a new {@code PluginSystemException} with the specified cause.
      *     </p>
      *     <p>
-     *         Praktisch, wenn keine zusätzliche Nachricht erforderlich ist und die Ursache
-     *         die Fehlersituation ausreichend beschreibt.
+     *         Useful when no additional message is needed and the cause sufficiently
+     *         describes the failure condition.
      *     </p>
      * </div>
      *
-     * @param cause die auslösende Ursache (kann {@code null} sein)
+     * @param cause the cause of the failure (may be {@code null})
      *
      * @since 1.0.0
      */

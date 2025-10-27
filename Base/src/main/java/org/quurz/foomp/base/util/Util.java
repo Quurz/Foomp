@@ -365,7 +365,7 @@ public final class Util {
         Objects.requireNonNull(superSet, nullValue("superSet"));
         Objects.requireNonNull(subSet, nullValue("subSet"));
 
-        return (subSet.size() < superSet.size()) && superSet.containsAll(subSet);
+        return (subSet.size() <= superSet.size()) && superSet.containsAll(subSet);
     }
 
     /**
