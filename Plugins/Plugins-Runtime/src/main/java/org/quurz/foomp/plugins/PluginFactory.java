@@ -8,6 +8,7 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -16,13 +17,13 @@ import static org.quurz.foomp.base.util.Util.mustBeInterface;
 import static org.quurz.foomp.plugins.TypedValue.extractTypesAndValues;
 
 @FunctionalInterface
-public interface ProxyFactory<A> {
+public interface PluginFactory<A> {
 
     @SuppressWarnings({"unchecked", "resource"})
-    public static <A> ProxyFactory<A> proxyFactory(final @NonNull Class<A> contract,
-                                                   final @NonNull Class<? extends A> implementation,
-                                                   final @NonNull String fullyQualifiedName,
-                                                   final @NonNull ClassLoader classLoader) {
+    public static <A> PluginFactory<A> pluginFactory(final @NonNull Class<A> contract,
+                                                     final @NonNull Class<? extends A> implementation,
+                                                     final @NonNull String fullyQualifiedName,
+                                                     final @NonNull ClassLoader classLoader) {
         mustBeInterface(
             Objects.requireNonNull(contract, nullValue("contract")),
             () -> new IllegalArgumentException("The contract class must be an interface.")    // TODO: Localise
@@ -36,7 +37,7 @@ public interface ProxyFactory<A> {
 
         final var builder
             = new ByteBuddy()
-                .subclass(Proxy.class)
+                .subclass(Plugin.class)
                 .implement(contract)
                 .method(net.bytebuddy.matcher.ElementMatchers.isDeclaredBy(contract))
                 .intercept(net.bytebuddy.implementation.MethodDelegation.to(LockedDelegator.class))
@@ -57,7 +58,7 @@ public interface ProxyFactory<A> {
                     = pluginConstructor.newInstance(typesAndValues.get2());
                 final var proxy
                     = loadedType.getDeclaredConstructor().newInstance();
-                proxy.$__set_plugin(plugin);
+                proxy.$__set_implementation(plugin);
                 return (A) proxy;
             } catch (final NoSuchMethodException
                          | InstantiationException
@@ -75,15 +76,16 @@ public interface ProxyFactory<A> {
     // Nested interceptor class for locked delegation
     class LockedDelegator {
         @RuntimeType
-        public static Object intercept(@This Proxy<?> proxy,
-                                      @Origin java.lang.reflect.Method method,
-                                      @AllArguments Object[] args) throws Throwable {
-            proxy.$__access_lock.writeLock().lock();
+        public static Object intercept(@This Plugin<?> plugin,
+                                       @Origin Method method,
+                                       @AllArguments Object[] args) throws Throwable {
+            plugin.$__access_lock.writeLock().lock();
             try {
-                final var plugin = proxy.$__get_plugin();
-                return method.invoke(plugin, args);
+                final var implementation
+                    = plugin.$__get_implementation();
+                return method.invoke(implementation, args);
             } finally {
-                proxy.$__access_lock.writeLock().unlock();
+                plugin.$__access_lock.writeLock().unlock();
             }
         }
     }

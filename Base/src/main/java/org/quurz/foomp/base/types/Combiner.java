@@ -6,6 +6,7 @@ import org.quurz.foomp.higher.WitnessType;
 
 import java.time.Duration;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 
 /**
@@ -68,55 +69,27 @@ public interface Combiner<WT extends WitnessType, A> {
     /**
      * <div>
      *     <p>
-     *         Materializes the combined result with sequential semantics.
-     *         Default implementation delegates to {@link #finish()}.
+     *         Materializes the combined result with asynchronous/parallel execution support.
+     *     </p>
+     *     <p>
+     *         This variant allows implementations to execute combinations concurrently using
+     *         the provided {@link ExecutorService}. The {@code timeout} parameter defines
+     *         the maximum duration to wait for completion.
+     *     </p>
+     *     <p>
+     *         Implementations should document their specific timeout behavior (e.g., whether
+     *         they throw an exception or return partial results on timeout).
      *     </p>
      * </div>
      *
+     * @param executorService the executor service to use for concurrent execution; must not be {@code null}
+     * @param timeout         the maximum time to wait for completion; must not be {@code null}
      * @return the final combined result as {@code Higher1<WT, A>}
+     * @throws NullPointerException if {@code executorService} or {@code timeout} is {@code null}
      *
      * @since 1.0.0
      */
-    default @NonNull Higher1<WT, A> finishSequential() {
-        return finish();
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Materializes the combined result using parallel execution (common pool).
-     *         Default implementation throws {@link UnsupportedOperationException} as a placeholder.
-     *     </p>
-     * </div>
-     *
-     * @return the final combined result as {@code Higher1<WT, A>}
-     *
-     * @since 1.0.0
-     */
-    default @NonNull Higher1<WT, A> finishParallel() {
-        throw new UnsupportedOperationException("finishParallel() not implemented");
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Materializes the combined result using the given {@link Executor} and a time budget.
-     *         Default implementation throws {@link UnsupportedOperationException} as a placeholder.
-     *     </p>
-     *     <p>
-     *         Implementations should document timeout and cancellation policy (fail‑fast, soft‑cancel, etc.).
-     *     </p>
-     * </div>
-     *
-     * @param executor the executor used to schedule/execute the sources
-     * @param timeout  the maximum duration for materialization
-     * @return the final combined result as {@code Higher1<WT, A>}
-     *
-     * @since 1.0.0
-     */
-    default @NonNull Higher1<WT, A> finishParallel(final @NonNull Executor executor,
-                                                   final @NonNull Duration timeout) {
-        throw new UnsupportedOperationException("finishParallel(executor, timeout) not implemented");
-    }
+    Higher1<WT, A> finish(final @NonNull ExecutorService executorService,
+                          final @NonNull Duration timeout);
 
 }

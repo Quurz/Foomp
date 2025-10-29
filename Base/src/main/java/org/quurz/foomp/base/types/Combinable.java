@@ -43,49 +43,4 @@ public interface Combinable<WT extends WitnessType, A> {
      */
     @NonNull Combiner<WT, A> combine();
 
-    /**
-     * <div>
-     *     <p>
-     *         Convenience: zips this value with another combinable into a {@code Tuple2}.
-     *     </p>
-     *     <p>
-     *         Default implementation is a placeholder and throws {@link UnsupportedOperationException}.
-     *         Implementations should provide an efficient zip if applicable.
-     *     </p>
-     * </div>
-     *
-     * @param other the other combinable value
-     * @param <B>   the other value type
-     * @return a new {@code Combinable} carrying {@code Tuple2<A,B>}
-     *
-     * @since 1.0.0
-     */
-    default <B> @NonNull Combinable<WT, Tuple2<A, B>> zip(final @NonNull Combinable<WT, B> other) {
-        throw new UnsupportedOperationException("zip not implemented");
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Convenience: zips this value with another combinable using a zipper function.
-     *     </p>
-     *     <p>
-     *         Default implementation is a placeholder and throws {@link UnsupportedOperationException}.
-     *         Implementations should provide an efficient zipWith if applicable.
-     *     </p>
-     * </div>
-     *
-     * @param other    the other combinable value
-     * @param zipper   the function combining both values; must not return {@code null}
-     * @param <B>      the other value type
-     * @param <R>      the resulting combined type
-     * @return a new {@code Combinable} carrying the combined value
-     *
-     * @since 1.0.0
-     */
-    default <B, R> @NonNull Combinable<WT, R> zipWith(final @NonNull Combinable<WT, B> other,
-                                                      final @NonNull BiFunction<? super A, ? super B, ? extends R> zipper) {
-        throw new UnsupportedOperationException("zipWith not implemented");
-    }
-
 }
