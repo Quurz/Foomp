@@ -37,8 +37,6 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  */
 public final class Util {
 
-    private Util() {}
-
     /**
      * <div>
      *     <p>
@@ -482,5 +480,7 @@ public final class Util {
         }
         return clazz;
     }
+
+    private Util() {}
 
 }

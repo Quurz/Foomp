@@ -14,12 +14,12 @@ public class Plugin<A> {
     final ReadWriteLock $__access_lock
         = new ReentrantReadWriteLock(true);
 
-    public void $__set_implementation(final @NonNull A plugin) {
-        Objects.requireNonNull(plugin, nullValue("plugin"));
+    public void $__set_implementation(final @NonNull A implementation) {
+        Objects.requireNonNull(implementation, nullValue("implementation"));
         $__access_lock.writeLock().lock();
         try {
             $__implementation
-                = plugin;
+                = implementation;
         } finally {
             $__access_lock.writeLock().unlock();
         }

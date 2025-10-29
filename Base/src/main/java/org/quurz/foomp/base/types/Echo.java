@@ -5,8 +5,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.localisation.BaseMessages.*;
 
 /**
  * <div>
@@ -61,7 +60,7 @@ public interface Echo {
     @NonNull
     default String echo(final @NonNull Function<? super Echo, String> transformer) {
         Objects.requireNonNull(transformer, nullValue("transformer"));
-        return Objects.requireNonNull(transformer.apply(this), nullResult());
+        return Objects.requireNonNull(transformer.apply(this), nullResultFrom("transformer"));
     }
 
 }
