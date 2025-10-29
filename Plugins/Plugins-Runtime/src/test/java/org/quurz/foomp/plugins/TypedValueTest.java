@@ -131,10 +131,10 @@ class TypedValueTest {
 
             assertThatThrownBy(() -> extractTypesAndValues((List<TypedValue>) null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("arguments");
+                .hasMessageContaining("typedValues");
             assertThatThrownBy(() -> extractTypesAndValues(INVALID_ARGUMENTS_LIST))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("arguments")
+                .hasMessageContaining("typedValues")
                 .hasMessageContaining("1");
 
             assertThatNoException()
@@ -148,10 +148,10 @@ class TypedValueTest {
 
             assertThatThrownBy(() -> extractTypesAndValues((Stream<TypedValue>) null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("arguments");
+                .hasMessageContaining("typedValues");
             assertThatThrownBy(() -> extractTypesAndValues(INVALID_ARGUMENTS_LIST.stream()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("arguments")
+                .hasMessageContaining("typedValues")
                 .hasMessageContaining("1");
 
             assertThatNoException()
