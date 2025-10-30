@@ -5,5 +5,4 @@ module foomp.plugins.runtime {
     requires net.bytebuddy;
 
     requires static org.checkerframework.checker.qual;
-    requires static lombok;
 }

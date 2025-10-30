@@ -90,7 +90,7 @@ public interface Executable<A>
                     @Override
                     public @NonNull Exception getLeft()
                             throws NoSuchElementException {
-                        return new NoSuchElementException(noValuePresent());
+                        throw new NoSuchElementException(noValuePresent());
                     }
 
                     @Override
