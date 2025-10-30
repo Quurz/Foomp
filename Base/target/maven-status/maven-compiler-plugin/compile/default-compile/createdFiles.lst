@@ -23,13 +23,16 @@ org/quurz/foomp/base/util/package-info.class
 org/quurz/foomp/base/types/Streamable.class
 org/quurz/foomp/base/functions/Applicable$2.class
 org/quurz/foomp/base/util/Nothing.class
+org/quurz/foomp/base/misc/SemVer$SemVerBuilder.class
 org/quurz/foomp/base/functions/MemoisingFun.class
 org/quurz/foomp/base/util/Result.class
+org/quurz/foomp/base/util/Zipper.class
 org/quurz/foomp/base/types/Eq.class
 org/quurz/foomp/base/types/MutatingOperation.class
 org/quurz/foomp/base/util/Trampoline.class
 org/quurz/foomp/base/types/ThreadSafe.class
 org/quurz/foomp/base/util/Either.class
+org/quurz/foomp/base/misc/SemVer.class
 org/quurz/foomp/base/types/Swappable.class
 org/quurz/foomp/base/util/Eval$µ.class
 org/quurz/foomp/base/util/Record3.class
@@ -110,6 +113,7 @@ org/quurz/foomp/base/util/MutablePair.class
 org/quurz/foomp/base/types/Liftable.class
 org/quurz/foomp/base/util/Result$Success.class
 org/quurz/foomp/base/functions/Pred2.class
+org/quurz/foomp/base/misc/LogAdapter$DelegatingLogAdapter.class
 org/quurz/foomp/base/types/Deferrable.class
 org/quurz/foomp/base/types/Mappable4.class
 org/quurz/foomp/base/util/Constraint.class
@@ -122,7 +126,9 @@ org/quurz/foomp/base/util/Tuple2$µ.class
 org/quurz/foomp/base/util/Stateful$µ.class
 org/quurz/foomp/base/localisation/BaseMessages.class
 org/quurz/foomp/base/util/Tuple4.class
+org/quurz/foomp/base/misc/LogAdapter$NoOpLogAdapter.class
 org/quurz/foomp/base/types/FoldableRight.class
 org/quurz/foomp/base/util/Util.class
+org/quurz/foomp/base/misc/LogAdapter.class
 org/quurz/foomp/base/util/Trampoline$More.class
 org/quurz/foomp/base/util/Eval.class

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
+import org.quurz.foomp.base.misc.SemVer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,7 @@
 package org.quurz.foomp.plugins;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.quurz.foomp.base.misc.SemVer;
 
 import java.util.Objects;
 import java.util.StringJoiner;

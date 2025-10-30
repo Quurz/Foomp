@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.quurz.foomp.plugins.PluginCoordinate.pluginCoordinate;
-import static org.quurz.foomp.plugins.SemVer.semVer;
-import static org.quurz.foomp.plugins.SemVer.semVerBuilder;
+import static org.quurz.foomp.base.misc.SemVer.semVer;
+import static org.quurz.foomp.base.misc.SemVer.semVerBuilder;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @DisplayName("PluginCoordinate")
