@@ -82,15 +82,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Reports -->
-        <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
         <!-- Documentation -->
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
-        <maven-javadoc-plugin.version>3.10.1</maven-javadoc-plugin.version>
-        <umldoclet.version>2.2.0</umldoclet.version>
-        <asciidoctorj-diagram.version>2.3.1</asciidoctorj-diagram.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+        <umldoclet.version>2.2.3</umldoclet.version>
+        <asciidoctorj-diagram.version>3.0.1</asciidoctorj-diagram.version>
 
         <!-- Basics -->
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
