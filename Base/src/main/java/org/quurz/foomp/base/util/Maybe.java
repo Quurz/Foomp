@@ -304,6 +304,24 @@ static <A> Maybe<A> some(final @NonNull A value) {
         return this;
     }
 
+    // TODO: JavaDoc & Test
+    default Maybe<A> ifSome(final @NonNull Runnable runnable) {
+        Objects.requireNonNull(runnable, nullValue("runnable"));
+        if (this instanceof Maybe.Some<A>) {
+            runnable.run();
+        }
+        return this;
+    }
+
+    // TODO: JavaDoc & Test
+    default Maybe<A> ifNone(final @NonNull Runnable runnable) {
+        Objects.requireNonNull(runnable, nullValue("runnable"));
+        if (this instanceof Maybe.None<A>) {
+            runnable.run();
+        }
+        return this;
+    }
+
     /**
      * <div>
      *   <p>

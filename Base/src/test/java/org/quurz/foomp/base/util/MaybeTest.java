@@ -154,7 +154,7 @@ class MaybeTest extends TestHelper {
         @Test
         void ifSome_behaviour_and_contracts() {
             LOGGER.info("Maybe.ifSome should enforce null contracts and behave as peek");
-            assertThatThrownBy(() -> none().ifSome(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> none().ifSome((Consumer<Object>) null)).isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
                 final var m = none();
