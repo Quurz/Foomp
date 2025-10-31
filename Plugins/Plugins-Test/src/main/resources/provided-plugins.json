@@ -1,0 +1,18 @@
+{
+  "plugins": [
+    {
+      "name": "TestPlugin",
+      "contract": "org.quurz.foomp.plugins.test.TestContract",
+      "implementations": [
+        {
+          "class": "org.quurz.foomp.plugins.test.TestImplementation1",
+          "version": "1.0.0"
+        },
+        {
+          "class": "org.quurz.foomp.plugins.test.TestImplementation2",
+          "version": "2.0.0"
+        }
+      ]
+    }
+  ]
+}

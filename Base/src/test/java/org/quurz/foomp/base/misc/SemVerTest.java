@@ -29,24 +29,24 @@ class SemVerTest {
         void semVer_rejects_negative_major() {
             LOGGER.info("SemVer.semVer(...) should reject negative major version");
             assertThatThrownBy(() -> semVer(-1, 0, 0))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("major");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("major");
         }
 
         @Test
         void semVer_rejects_negative_minor() {
             LOGGER.info("SemVer.semVer(...) should reject negative minor version");
             assertThatThrownBy(() -> semVer(0, -1, 0))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("minor");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("minor");
         }
 
         @Test
         void semVer_rejects_negative_patch() {
             LOGGER.info("SemVer.semVer(...) should reject negative patch version");
             assertThatThrownBy(() -> semVer(0, 0, -1))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("patch");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("patch");
         }
 
         @Test
@@ -66,6 +66,191 @@ class SemVerTest {
             assertThat(version.getPatch()).isEqualTo(3);
             assertThat(version.getPreRelease().isNone()).isTrue();
             assertThat(version.getBuildMetadata().isNone()).isTrue();
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Parser")
+    class Parser {
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void parseSemVer_rejects_null() {
+            LOGGER.info("parseSemVer() should reject null input");
+            assertThatThrownBy(() -> SemVer.parseSemVer(null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void parseSemVer_parses_basic_version() {
+            LOGGER.info("parseSemVer() should parse basic version format");
+            var version = SemVer.parseSemVer("1.2.3");
+
+            assertThat(version.getMajor()).isEqualTo(1);
+            assertThat(version.getMinor()).isEqualTo(2);
+            assertThat(version.getPatch()).isEqualTo(3);
+            assertThat(version.getPreRelease().isNone()).isTrue();
+            assertThat(version.getBuildMetadata().isNone()).isTrue();
+        }
+
+        @Test
+        void parseSemVer_parses_version_with_prerelease() {
+            LOGGER.info("parseSemVer() should parse version with pre-release");
+            var version = SemVer.parseSemVer("1.2.3-alpha");
+
+            assertThat(version.getMajor()).isEqualTo(1);
+            assertThat(version.getMinor()).isEqualTo(2);
+            assertThat(version.getPatch()).isEqualTo(3);
+            assertThat(version.getPreRelease().isSome()).isTrue();
+            assertThat(version.getPreRelease().get()).isEqualTo("alpha");
+            assertThat(version.getBuildMetadata().isNone()).isTrue();
+        }
+
+        @Test
+        void parseSemVer_parses_version_with_build_metadata() {
+            LOGGER.info("parseSemVer() should parse version with build metadata");
+            var version = SemVer.parseSemVer("1.2.3+build.456");
+
+            assertThat(version.getMajor()).isEqualTo(1);
+            assertThat(version.getMinor()).isEqualTo(2);
+            assertThat(version.getPatch()).isEqualTo(3);
+            assertThat(version.getPreRelease().isNone()).isTrue();
+            assertThat(version.getBuildMetadata().isSome()).isTrue();
+            assertThat(version.getBuildMetadata().get()).isEqualTo("build.456");
+        }
+
+        @Test
+        void parseSemVer_parses_version_with_prerelease_and_build_metadata() {
+            LOGGER.info("parseSemVer() should parse version with both pre-release and build metadata");
+            var version = SemVer.parseSemVer("1.2.3-beta.1+build.789");
+
+            assertThat(version.getMajor()).isEqualTo(1);
+            assertThat(version.getMinor()).isEqualTo(2);
+            assertThat(version.getPatch()).isEqualTo(3);
+            assertThat(version.getPreRelease().isSome()).isTrue();
+            assertThat(version.getPreRelease().get()).isEqualTo("beta.1");
+            assertThat(version.getBuildMetadata().isSome()).isTrue();
+            assertThat(version.getBuildMetadata().get()).isEqualTo("build.789");
+        }
+
+        @Test
+        void parseSemVer_handles_leading_and_trailing_whitespace() {
+            LOGGER.info("parseSemVer() should handle leading and trailing whitespace");
+            var version = SemVer.parseSemVer("  1.2.3  ");
+
+            assertThat(version.getMajor()).isEqualTo(1);
+            assertThat(version.getMinor()).isEqualTo(2);
+            assertThat(version.getPatch()).isEqualTo(3);
+        }
+
+        @Test
+        void parseSemVer_parses_zero_version() {
+            LOGGER.info("parseSemVer() should parse 0.0.0");
+            var version = SemVer.parseSemVer("0.0.0");
+
+            assertThat(version.getMajor()).isEqualTo(0);
+            assertThat(version.getMinor()).isEqualTo(0);
+            assertThat(version.getPatch()).isEqualTo(0);
+        }
+
+        @Test
+        void parseSemVer_parses_large_version_numbers() {
+            LOGGER.info("parseSemVer() should parse large version numbers");
+            var version = SemVer.parseSemVer("123.456.789");
+
+            assertThat(version.getMajor()).isEqualTo(123);
+            assertThat(version.getMinor()).isEqualTo(456);
+            assertThat(version.getPatch()).isEqualTo(789);
+        }
+
+        @Test
+        void parseSemVer_parses_complex_prerelease() {
+            LOGGER.info("parseSemVer() should parse complex pre-release identifiers");
+            var version = SemVer.parseSemVer("1.0.0-alpha.1.beta.2");
+
+            assertThat(version.getPreRelease().get()).isEqualTo("alpha.1.beta.2");
+        }
+
+        @Test
+        void parseSemVer_parses_complex_build_metadata() {
+            LOGGER.info("parseSemVer() should parse complex build metadata");
+            var version = SemVer.parseSemVer("1.0.0+20130313144700.sha.5114f85");
+
+            assertThat(version.getBuildMetadata().get()).isEqualTo("20130313144700.sha.5114f85");
+        }
+
+        @Test
+        void parseSemVer_rejects_invalid_format_missing_components() {
+            LOGGER.info("parseSemVer() should reject version with missing components");
+            assertThatThrownBy(() -> SemVer.parseSemVer("1.2"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+        }
+
+        @Test
+        void parseSemVer_rejects_invalid_format_with_v_prefix() {
+            LOGGER.info("parseSemVer() should reject version with 'v' prefix");
+            assertThatThrownBy(() -> SemVer.parseSemVer("v1.2.3"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+        }
+
+        @Test
+        void parseSemVer_rejects_negative_numbers() {
+            LOGGER.info("parseSemVer() should reject negative version numbers");
+            assertThatThrownBy(() -> SemVer.parseSemVer("-1.2.3"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+        }
+
+        @Test
+        void parseSemVer_rejects_leading_zeros() {
+            LOGGER.info("parseSemVer() should reject leading zeros in version numbers");
+            assertThatThrownBy(() -> SemVer.parseSemVer("01.2.3"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+            assertThatThrownBy(() -> SemVer.parseSemVer("1.02.3"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+            assertThatThrownBy(() -> SemVer.parseSemVer("1.2.03"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+        }
+
+        @Test
+        void parseSemVer_rejects_non_numeric_components() {
+            LOGGER.info("parseSemVer() should reject non-numeric version components");
+            assertThatThrownBy(() -> SemVer.parseSemVer("a.b.c"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+        }
+
+        @Test
+        void parseSemVer_rejects_empty_string() {
+            LOGGER.info("parseSemVer() should reject empty string");
+            assertThatThrownBy(() -> SemVer.parseSemVer(""))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+        }
+
+        @Test
+        void parseSemVer_rejects_whitespace_only() {
+            LOGGER.info("parseSemVer() should reject whitespace-only string");
+            assertThatThrownBy(() -> SemVer.parseSemVer("   "))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Invalid SemVer format");
+        }
+
+        @Test
+        void parseSemVer_roundtrip_with_echo() {
+            LOGGER.info("parseSemVer() and echo() should be inverse operations");
+            var original = semVer(2, 5, 7)
+                    .withPreRelease("rc.1")
+                    .withBuildMetadata("build.123");
+            var roundtrip = SemVer.parseSemVer(original.echo());
+
+            assertThat(roundtrip).isEqualTo(original);
         }
 
     }

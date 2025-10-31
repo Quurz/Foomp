@@ -6,9 +6,10 @@ import org.quurz.foomp.base.util.Maybe;
 
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
-import static org.quurz.foomp.base.util.Maybe.*;
+import static org.quurz.foomp.base.util.Maybe.none;
 
 /**
  * <div>
@@ -71,6 +72,15 @@ import static org.quurz.foomp.base.util.Maybe.*;
 public class SemVer
         implements Comparable<SemVer>,
                    Echo {
+
+    // Regex for SemVer 2.0.0: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILDMETADATA]
+    private static final String SEM_VER_PATTERN
+        = "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)" // MAJOR.MINOR.PATCH+
+            + "(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)" // Pre-release
+            + "(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+            + "(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$";      // Build metadata
+    private static final Pattern SEM_VER_PATTERN_REGEX
+        = Pattern.compile(SEM_VER_PATTERN);
 
     /**
      * <div>
@@ -170,6 +180,59 @@ public class SemVer
 
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Parses a semantic version string into a {@link SemVer} instance.
+     *   </p>
+     *   <p>
+     *     The parser accepts standard SemVer 2.0.0 format: {@code MAJOR.MINOR.PATCH[-PRERELEASE][+BUILDMETADATA]}
+     *   </p>
+     *   <p>
+     *     Examples of valid inputs:
+     *   </p>
+     *   <ul>
+     *     <li>{@code "1.0.0"}</li>
+     *     <li>{@code "1.2.3-alpha"}</li>
+     *     <li>{@code "2.0.0-beta.1"}</li>
+     *     <li>{@code "1.0.0+build.123"}</li>
+     *     <li>{@code "1.2.3-rc.1+build.456"}</li>
+     *   </ul>
+     * </div>
+     *
+     * @param version the version string to parse; must not be {@code null}
+     * @return a new {@link SemVer} instance; never {@code null}
+     * @throws NullPointerException if {@code version} is {@code null}
+     * @throws IllegalArgumentException if the version string is not valid SemVer format
+     *
+     * @since 1.0.0
+     */
+    public static SemVer parseSemVer(final @NonNull String version) {
+        Objects.requireNonNull(version, nullValue("version"));
+        final var matcher
+            = SEM_VER_PATTERN_REGEX.matcher(version.trim());
+        
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException(
+                "Invalid SemVer format: '" + version + "'. " +
+                "Expected format: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILDMETADATA]"
+            );
+        }
+        
+        try {
+            final int major = Integer.parseInt(matcher.group(1));
+            final int minor = Integer.parseInt(matcher.group(2));
+            final int patch = Integer.parseInt(matcher.group(3));
+            final String preRelease = matcher.group(4);        // May be null
+            final String buildMetadata = matcher.group(5);     // May be null
+            
+            return new SemVer(major, minor, patch, preRelease, buildMetadata);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                "Invalid numeric component in version: '" + version + "'", e
+            );
+        }
+    }
     /**
      * <div>
      *   <p>
@@ -322,10 +385,10 @@ public class SemVer
     public boolean equals(Object o) {
         if (!(o instanceof SemVer that)) return false;
         return major == that.major
-                && minor == that.minor
-                && patch == that.patch
-                && Objects.equals(preRelease, that.preRelease)
-                && Objects.equals(buildMetadata, that.buildMetadata);
+            && minor == that.minor
+            && patch == that.patch
+            && Objects.equals(preRelease, that.preRelease)
+            && Objects.equals(buildMetadata, that.buildMetadata);
     }
 
     @Override
@@ -337,11 +400,11 @@ public class SemVer
     @NonNull
     public String echo() {
         final var sb = new StringBuilder()
-                .append(this.major)
-                .append('.')
-                .append(this.minor)
-                .append('.')
-                .append(this.patch);
+            .append(this.major)
+            .append('.')
+            .append(this.minor)
+            .append('.')
+            .append(this.patch);
         if (this.preRelease.isSome()) {
             sb.append('-').append(this.preRelease.get());
         }

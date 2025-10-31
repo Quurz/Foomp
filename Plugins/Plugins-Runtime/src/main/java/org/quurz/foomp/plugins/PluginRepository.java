@@ -1,39 +1,62 @@
-
 package org.quurz.foomp.plugins;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.Objects;
+
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>
  *   <p>
- *     Repository for persisting and retrieving plugin artifacts.
+ *     File system-based Maven-style repository for storing plugin JAR files.
  *   </p>
  *   <p>
- *     This interface defines the contract for a plugin storage backend that manages
- *     plugin JAR files. Implementations are responsible for organizing plugins by
- *     coordinate (name and version) and ensuring data integrity.
+ *     This repository stores plugin JAR files in a Maven-style directory structure:
+ *     {@code baseDirectory/plugin-name/version/plugin.jar}. Plugins are uniquely
+ *     identified by their {@link PluginCoordinate} (name + version).
  *   </p>
  *   <p>
- *     Operations:
+ *     Features:
  *     <ul>
- *       <li><b>save</b>: persists a plugin JAR to the repository</li>
- *       <li><b>load</b>: retrieves a plugin JAR as an input stream</li>
- *       <li><b>remove</b>: deletes a plugin JAR from the repository</li>
+ *       <li><b>SHA-1 verification</b>: saves are idempotent if content is identical</li>
+ *       <li><b>Atomic operations</b>: uses temporary files and atomic moves</li>
+ *       <li><b>Maven-style structure</b>: organizes plugins hierarchically by name and version</li>
+ *       <li><b>Proper cleanup</b>: removes temporary files on failure</li>
  *     </ul>
  *   </p>
  *   <p>
- *     Contract: all methods enforce non-null parameters and throw specific exceptions
- *     for different failure scenarios. Implementations should be thread-safe where possible.
+ *     Directory structure example:
+ *   </p>
+ *   <pre>
+ *   /var/plugins/
+ *     my-plugin/
+ *       1.0.0/
+ *         plugin.jar
+ *       1.2.3/
+ *         plugin.jar
+ *     database-connector/
+ *       2.0.0-beta/
+ *         plugin.jar
+ *   </pre>
+ *   <p>
+ *     Thread-safety: operations on the same plugin coordinate are safe due to atomic
+ *     file operations, but concurrent saves to the same coordinate from different processes
+ *     may result in race conditions (last writer wins for identical content, exception otherwise).
  *   </p>
  *   <p>
  *     Example usage:
  *   </p>
  *   <pre>{@code
- *   PluginRepository repo = DefaultPluginRepository.defaultPluginRepository(
- *       Paths.get("/var/plugins")
- *   );
+ *   PluginRepository repo = PluginRepository.pluginRepository(Paths.get("/var/plugins"));
  *
  *   // Save a plugin
  *   var coordinate = PluginCoordinate.pluginCoordinate("my-plugin", SemVer.semVer(1, 0, 0));
@@ -43,7 +66,7 @@ import java.io.InputStream;
  *
  *   // Load it back
  *   try (InputStream in = repo.load(coordinate)) {
- *       // process plugin
+ *       // process plugin JAR
  *   }
  *
  *   // Remove it
@@ -55,88 +78,277 @@ import java.io.InputStream;
  *
  * @author Alexander Schell
  *
- * @see DefaultPluginRepository
  * @see PluginCoordinate
  */
-public interface PluginRepository {
+public class PluginRepository {
 
     /**
      * <div>
      *   <p>
-     *     Persists a plugin JAR file to the repository.
+     *     Creates a new plugin repository using the specified base directory.
      *   </p>
      *   <p>
-     *     This method reads the plugin data from the provided input stream and stores
-     *     it under the specified coordinate. If a plugin with the same coordinate already
-     *     exists and has identical content (verified by hash), the operation is idempotent
-     *     and completes successfully. If the content differs, an exception is thrown.
-     *   </p>
-     *   <p>
-     *     The input stream is fully consumed during this operation but is not closed
-     *     by this method; the caller remains responsible for closing it.
+     *     The base directory must exist and must be a directory. All plugin subdirectories
+     *     will be created as needed during save operations. The repository uses a Maven-style
+     *     hierarchical directory structure for organizing plugins.
      *   </p>
      * </div>
      *
-     * @param coordinate  the plugin coordinate (name and version); must not be {@code null}
-     * @param inputStream the input stream providing the plugin JAR data; must not be {@code null}
+     * @param baseDirectory the root directory for plugin storage; must not be {@code null}
+     *                      and must be an existing directory
+     * @return a new {@code PluginRepository} instance; never {@code null}
      *
-     * @throws NullPointerException         if {@code coordinate} or {@code inputStream} is {@code null}
-     * @throws PluginSaveException          if an IO error or other failure occurs during save
-     * @throws PluginAlreadyExistsException if a plugin with the same coordinate exists but
-     *                                      has different content
+     * @throws NullPointerException     if {@code baseDirectory} is {@code null}
+     * @throws IllegalArgumentException if {@code baseDirectory} does not exist or is not a directory
      *
      * @since 1.0.0
      */
-    void save(final @NonNull PluginCoordinate coordinate,
-              final @NonNull InputStream inputStream)
+    public static PluginRepository pluginRepository(final @NonNull Path baseDirectory) {
+        Objects.requireNonNull(baseDirectory, nullValue("baseDirectory"));
+    
+        if (!Files.isDirectory(baseDirectory)) {  // ← Jimfs-kompatibel!
+            throw new IllegalArgumentException("Not a directory: " + baseDirectory);
+        }
+    
+        // TODO: Zugriffsrechte auf Verzeichnis prüfen. Und zwar jedesmal.   =P
+        return new PluginRepository(baseDirectory);
+    }
+
+    private final Path baseDirectory;
+
+    private PluginRepository(final Path baseDirectory) {
+        this.baseDirectory
+            = baseDirectory;
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Persists a plugin JAR to the file system with idempotent behavior.
+     *   </p>
+     *   <p>
+     *     Implementation details:
+     *     <ol>
+     *       <li>Creates version subdirectories if needed</li>
+     *       <li>Writes plugin data to a temporary file</li>
+     *       <li>Computes SHA-1 hash of the new data</li>
+     *       <li>If plugin already exists:
+     *         <ul>
+     *           <li>Computes hash of existing plugin</li>
+     *           <li>If hashes match: cleans up temp file and returns (idempotent)</li>
+     *           <li>If hashes differ: throws {@link PluginAlreadyExistsException}</li>
+     *         </ul>
+     *       </li>
+     *       <li>If plugin doesn't exist: atomically moves temp file to target location</li>
+     *     </ol>
+     *   </p>
+     *   <p>
+     *     This ensures that duplicate saves with identical content succeed, while
+     *     attempts to overwrite with different content are rejected.
+     *   </p>
+     * </div>
+     *
+     * @param coordinate  the plugin coordinate; must not be {@code null}
+     * @param inputStream the plugin JAR data; must not be {@code null}
+     *
+     * @throws NullPointerException         if any parameter is {@code null}
+     * @throws PluginSaveException          if IO errors occur during save
+     * @throws PluginAlreadyExistsException if plugin exists with different content
+     *
+     * @since 1.0.0
+     */
+    public void save(final @NonNull PluginCoordinate coordinate,
+                     final @NonNull InputStream inputStream)
             throws PluginSaveException,
-                   PluginAlreadyExistsException;
+                   PluginAlreadyExistsException {
+        Objects.requireNonNull(coordinate, nullValue("coordinate"));
+        Objects.requireNonNull(inputStream, nullValue("inputStream"));
+
+        final Path targetPath
+            = buildJarFilePath(coordinate);
+        final Path tempPath
+            = targetPath.resolveSibling("plugin.jar.tmp");
+
+        try {
+            // 1. Verzeichnis erstellen
+            Files.createDirectories(targetPath.getParent());
+
+            // 2. Temp-File schreiben
+            Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 3. Hash des neuen Files
+            String newHash
+                = this.calculateSha1(tempPath);
+
+            // 4. Existiert schon ein plugin.jar?
+            if (Files.exists(targetPath)) {
+                String existingHash
+                    = this.calculateSha1(targetPath);
+
+                if (existingHash.equals(newHash)) {
+                    // Identisch → einfach temp-file löschen, fertig
+                    Files.delete(tempPath);
+                    return; // Idempotent!
+                } else {
+                    // Unterschiedlich → Fehler!
+                    Files.delete(tempPath);
+                    throw new PluginAlreadyExistsException(
+                        "Plugin " + coordinate + " already exists with different content"    // TODO: Lokalisierte Meldung
+                    );
+                }
+            }
+
+            // 5. Noch nicht vorhanden → atomar umbenennen
+            Files.move(tempPath, targetPath, StandardCopyOption.ATOMIC_MOVE);
+        } catch (  IOException
+                 | NoSuchAlgorithmException exception) {
+            // Cleanup
+            try {
+                Files.deleteIfExists(tempPath);
+            } catch (IOException ignored) {}
+            throw new PluginSaveException("Failed to save plugin " + coordinate, exception);
+        }
+    }
 
     /**
      * <div>
      *   <p>
-     *     Retrieves a plugin JAR file from the repository as an input stream.
+     *     Retrieves a plugin JAR as an input stream from the file system.
      *   </p>
      *   <p>
-     *     The returned input stream must be closed by the caller after use. The stream
-     *     provides read access to the plugin JAR data as it was stored during the save operation.
+     *     The caller is responsible for closing the returned stream. The stream provides
+     *     direct read access to the plugin JAR file on disk. This method is typically used
+     *     by plugin loaders to create class loaders from the stored JAR files.
      *   </p>
      * </div>
      *
-     * @param coordinate the plugin coordinate (name and version); must not be {@code null}
-     * @return an input stream providing the plugin JAR data; never {@code null}
+     * @param coordinate the plugin coordinate; must not be {@code null}
+     * @return an input stream for reading the plugin JAR; never {@code null}
      *
-     * @throws NullPointerException     if {@code coordinate} is {@code null}
-     * @throws PluginNotFoundException  if no plugin with the specified coordinate exists
-     * @throws PluginLoadException      if an IO error or other failure occurs during load
+     * @throws NullPointerException    if {@code coordinate} is {@code null}
+     * @throws PluginNotFoundException if no plugin with the specified coordinate exists
+     * @throws PluginLoadException     if IO errors occur while opening the file
      *
      * @since 1.0.0
      */
-    InputStream load(final @NonNull PluginCoordinate coordinate)
+    public InputStream load(final @NonNull PluginCoordinate coordinate)
             throws PluginNotFoundException,
-                   PluginLoadException;
+                   PluginLoadException {
+        Objects.requireNonNull(coordinate, nullValue("coordinate"));
+        final var jarFilePath
+            = this.buildJarFilePath(coordinate);
+
+        // Prüfen ob Plugin existiert
+        if (!Files.exists(jarFilePath)) {
+            throw new PluginNotFoundException("Plugin not found: " + coordinate);  // TODO: Lokalisierung
+        }
+
+        try {
+            return Files.newInputStream(jarFilePath);
+        } catch (IOException e) {
+            throw new PluginLoadException("Failed to load plugin " + coordinate, e);  // TODO: Lokalisierung
+        }
+    }
 
     /**
      * <div>
      *   <p>
-     *     Removes a plugin JAR file from the repository.
+     *     Permanently deletes a plugin JAR from the file system.
      *   </p>
      *   <p>
-     *     This operation permanently deletes the plugin data. If the plugin does not exist,
-     *     an exception is thrown.
+     *     This operation only removes the plugin.jar file itself. Parent directories
+     *     (plugin name and version folders) are not automatically removed even if empty.
+     *     This allows for easier debugging and prevents accidental deletion of directory structures.
      *   </p>
      * </div>
      *
-     * @param coordinate the plugin coordinate (name and version); must not be {@code null}
+     * @param coordinate the plugin coordinate; must not be {@code null}
      *
-     * @throws NullPointerException     if {@code coordinate} is {@code null}
-     * @throws PluginNotFoundException  if no plugin with the specified coordinate exists
-     * @throws PluginRemoveException    if an IO error or other failure occurs during removal
+     * @throws NullPointerException    if {@code coordinate} is {@code null}
+     * @throws PluginNotFoundException if no plugin with the specified coordinate exists
+     * @throws PluginRemoveException   if IO errors occur during deletion
      *
      * @since 1.0.0
      */
-    void remove(final @NonNull PluginCoordinate coordinate)
+    public void remove(final @NonNull PluginCoordinate coordinate)
             throws PluginNotFoundException,
-                   PluginRemoveException;
+                   PluginRemoveException {
+        Objects.requireNonNull(coordinate, nullValue("coordinate"));
+        final var jarFilePath = this.buildJarFilePath(coordinate);
+
+        // Prüfen ob Plugin existiert
+        if (!Files.exists(jarFilePath)) {
+            throw new PluginNotFoundException("Plugin not found: " + coordinate);  // TODO: Lokalisierung
+        }
+
+        try {
+            Files.delete(jarFilePath);
+        } catch (IOException e) {
+            throw new PluginRemoveException("Failed to remove plugin " + coordinate, e);  // TODO: Lokalisierung
+        }
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Builds the file system path for a plugin JAR based on its coordinate.
+     *   </p>
+     *   <p>
+     *     Structure: {@code baseDirectory/plugin-name/version/plugin.jar}
+     *   </p>
+     *   <p>
+     *     Spaces in plugin names and version strings are replaced with underscores
+     *     to ensure file system compatibility across different operating systems.
+     *   </p>
+     * </div>
+     *
+     * @param coordinate the plugin coordinate; must not be {@code null}
+     * @return the absolute path to the plugin JAR file; never {@code null}
+     *
+     * @since 1.0.0
+     */
+    private Path buildJarFilePath(final @NonNull PluginCoordinate coordinate) {
+        final var pluginDirectory
+            = this.baseDirectory.resolve(coordinate.getName().replace(' ', '_'));
+        final var versionDirectory
+            = pluginDirectory.resolve(coordinate.getVersion().echo().replace(' ', '_'));
+        return versionDirectory.resolve("plugin.jar");
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Computes the SHA-1 hash of a file for content verification.
+     *   </p>
+     *   <p>
+     *     The hash is computed by reading the file in 8KB chunks and is returned
+     *     as a lowercase hexadecimal string. This is used to detect duplicate content
+     *     and ensure idempotent save operations.
+     *   </p>
+     * </div>
+     *
+     * @param file the file to hash; must not be {@code null}
+     * @return the SHA-1 hash as a hex string; never {@code null}
+     *
+     * @throws NoSuchAlgorithmException if SHA-1 algorithm is not available (should never happen)
+     * @throws IOException              if an error occurs reading the file
+     *
+     * @since 1.0.0
+     */
+    private String calculateSha1(final Path file)
+            throws NoSuchAlgorithmException,
+                   IOException {
+        final var digest
+            = MessageDigest.getInstance("SHA-1");
+        try (final InputStream fis = Files.newInputStream(file)) {
+            final var buffer
+                    = new byte[8192];
+            int read;
+            while ((read = fis.read(buffer)) != -1) {
+                digest.update(buffer, 0, read);
+            }
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
 
 }

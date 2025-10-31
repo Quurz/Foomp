@@ -26,11 +26,11 @@ public interface PluginFactory<A> {
                                                      final @NonNull ClassLoader classLoader) {
         mustBeInterface(
             Objects.requireNonNull(contract, nullValue("contract")),
-            () -> new IllegalArgumentException("The contract class must be an interface.")    // TODO: Localise
+            () -> new IllegalArgumentException("The contract class must be an interface.")    // TODO: Lokalisierung
         );
         mustBeConcrete(
             Objects.requireNonNull(implementation, nullValue("implementation")),
-            () -> new IllegalArgumentException("The implementation class must be concrete.")    // TODO: Localise
+            () -> new IllegalArgumentException("The implementation class must be concrete.")    // TODO: Lokalisierung
         );
         Objects.requireNonNull(fullyQualifiedName, nullValue("fullyQualifiedName"));
         Objects.requireNonNull(classLoader, nullValue("classLoader"));
@@ -76,9 +76,9 @@ public interface PluginFactory<A> {
     // Nested interceptor class for locked delegation
     class LockedDelegator {
         @RuntimeType
-        public static Object intercept(@This Plugin<?> plugin,
-                                       @Origin Method method,
-                                       @AllArguments Object[] args) throws Throwable {
+        public static Object intercept(final @This Plugin<?> plugin,
+                                       final @Origin Method method,
+                                       final @AllArguments Object[] args) throws Throwable {
             plugin.$__access_lock.writeLock().lock();
             try {
                 final var implementation
