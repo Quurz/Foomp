@@ -177,14 +177,14 @@ class MaybeTest extends TestHelper {
         @Test
         void ifPresentOrElse_behaviour_and_contracts() {
             LOGGER.info("Maybe.ifPresentOrElse should enforce null contracts and run correct branch");
-            assertThatThrownBy(() -> none().ifPresentOrElse(_$ -> {}, null))
+            assertThatThrownBy(() -> none().ifSomeOrElse(_$ -> {}, null))
                 .isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
                 final var m = none();
                 final var consumer = mockLambda(Consumer.class, _$ -> {});
                 final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifPresentOrElse(consumer, runnable);
+                final var cont = m.ifSomeOrElse(consumer, runnable);
                 assertThat(cont).isEqualTo(m);
                 verify(consumer, times(0)).accept(any());
                 verify(runnable, times(1)).run();
@@ -194,7 +194,7 @@ class MaybeTest extends TestHelper {
                 final var m = some(SOME_STRING_VALUE);
                 final var consumer = mockLambda(Consumer.class, _$ -> {});
                 final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifPresentOrElse(consumer, runnable);
+                final var cont = m.ifSomeOrElse(consumer, runnable);
                 assertThat(cont).isEqualTo(m);
                 verify(consumer, times(1)).accept(any());
                 verify(runnable, times(0)).run();

@@ -282,6 +282,24 @@ static <A> Maybe<A> some(final @NonNull A value) {
         };
     }
 
+    // TODO: JavaDoc & Test
+//    @UnwindingOperation
+//    @NonNull
+//    default Maybe<A> filter(final @NonNull Predicate<A> predicate) {
+//        Objects.requireNonNull(predicate, nullValue("predicate"));
+//        final Maybe<A> maybe;
+//        if (this instanceof Maybe.Some<A> some) {
+//            maybe
+//                = predicate.test(some.get())
+//                    ? some
+//                    : none();
+//        } else {
+//            maybe
+//                = none();
+//        }
+//        return maybe;
+//    }
+
     /**
      * <div>
      *   <p>
@@ -335,10 +353,11 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *
      * @since 1.0.0
      */
+    // TODO: JavaDoc neu generieren lassen
     @UnwindingOperation
     @NonNull
-    default Maybe<A> ifPresentOrElse(final @NonNull Consumer<A> consumer,
-                                     final @NonNull Runnable orElse) {
+    default Maybe<A> ifSomeOrElse(final @NonNull Consumer<A> consumer,
+                                  final @NonNull Runnable orElse) {
         Objects.requireNonNull(consumer, nullValue("consumer"));
         Objects.requireNonNull(orElse, nullValue("orElse"));
         if (this.isSome()) {

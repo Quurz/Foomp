@@ -106,6 +106,36 @@ public class CommandQueue {
     /**
      * <div>
      *     <p>
+     *         Retrieves, but does not remove, the head of this queue.
+     *     </p>
+     *     <p>
+     *         Unlike {@link #poll()}, this method does not modify the queue or remove
+     *         the command from internal tracking. The returned command may be cancelled
+     *         or active, and subsequent calls to this method will return the same command
+     *         until it is removed via {@link #poll()}.
+     *     </p>
+     *     <p>
+     *         This method is thread-safe and blocks until the lock is acquired.
+     *     </p>
+     * </div>
+     *
+     * @return a {@link Maybe} containing the head command if the queue is not empty,
+     *         or an empty {@code Maybe} if the queue is empty
+     *
+     * @since 1.0.0
+     */
+    public Maybe<Command> peek() {
+        this.accessLock.lock();
+        try {
+            return maybeOfNullable(this.queue.peek());
+        } finally {
+            this.accessLock.unlock();
+        }
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Retrieves and removes the head of this queue.
      *     </p>
      *     <p>

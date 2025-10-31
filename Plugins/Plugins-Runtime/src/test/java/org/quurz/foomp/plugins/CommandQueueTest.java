@@ -209,6 +209,144 @@ class CommandQueueTest {
     }
 
     @Nested
+    @DisplayName("peek() tests")
+    class PeekTests {
+
+        @Test
+        @DisplayName("peek() returns empty Maybe on empty queue")
+        void peekReturnsEmptyMaybeOnEmptyQueue() {
+            final var result = queue.peek();
+
+            assertThat(result.isPresent()).isFalse();
+        }
+
+        @Test
+        @DisplayName("peek() returns command without removing it")
+        void peekReturnsCommandWithoutRemovingIt() {
+            final var command = loadPlugin(pluginA);
+            queue.offer(command);
+
+            final var peeked = queue.peek();
+
+            assertThat(peeked.isPresent()).isTrue();
+            assertThat(peeked.get()).isSameAs(command);
+
+            // Verify command is still in queue
+            final var polled = queue.poll();
+            assertThat(polled.isPresent()).isTrue();
+            assertThat(polled.get()).isSameAs(command);
+        }
+
+        @Test
+        @DisplayName("peek() returns same command on multiple calls")
+        void peekReturnsSameCommandOnMultipleCalls() {
+            final var command = loadPlugin(pluginA);
+            queue.offer(command);
+
+            final var peek1 = queue.peek();
+            final var peek2 = queue.peek();
+            final var peek3 = queue.peek();
+
+            assertThat(peek1.get()).isSameAs(command);
+            assertThat(peek2.get()).isSameAs(command);
+            assertThat(peek3.get()).isSameAs(command);
+
+            // Queue should still have one element
+            assertThat(queue.poll().isPresent()).isTrue();
+            assertThat(queue.poll().isPresent()).isFalse();
+        }
+
+        @Test
+        @DisplayName("peek() returns head command in FIFO order")
+        void peekReturnsHeadCommandInFifoOrder() {
+            final var command1 = loadPlugin(pluginA);
+            final var command2 = loadPlugin(pluginB);
+
+            queue.offer(command1);
+            queue.offer(command2);
+
+            final var peeked = queue.peek();
+            assertThat(peeked.get()).isSameAs(command1);
+        }
+
+        @Test
+        @DisplayName("peek() returns cancelled commands")
+        void peekReturnsCancelledCommands() {
+            final var command1 = loadPlugin(pluginA);
+            final var command2 = unloadPlugin(pluginA);
+
+            queue.offer(command1);
+            queue.offer(command2);
+
+            final var peeked = queue.peek();
+            assertThat(peeked.isPresent()).isTrue();
+            assertThat(peeked.get()).isSameAs(command1);
+            assertThat(peeked.get().isCancelled()).isTrue();
+        }
+
+        @Test
+        @DisplayName("peek() followed by poll() returns same command")
+        void peekFollowedByPollReturnsSameCommand() {
+            final var command = loadPlugin(pluginA);
+            queue.offer(command);
+
+            final var peeked = queue.peek();
+            final var polled = queue.poll();
+
+            assertThat(peeked.get()).isSameAs(polled.get());
+        }
+
+        @Test
+        @DisplayName("peek() on empty queue after poll returns empty Maybe")
+        void peekOnEmptyQueueAfterPollReturnsEmptyMaybe() {
+            final var command = loadPlugin(pluginA);
+            queue.offer(command);
+            queue.poll();
+
+            final var peeked = queue.peek();
+            assertThat(peeked.isPresent()).isFalse();
+        }
+
+        @Test
+        @DisplayName("peek() is thread-safe")
+        void peekIsThreadSafe() throws InterruptedException {
+            final var command = loadPlugin(pluginA);
+            queue.offer(command);
+
+            final var threadCount = 10;
+            final var executor = Executors.newFixedThreadPool(threadCount);
+            final var latch = new CountDownLatch(threadCount);
+            final List<Command> peekedCommands = new ArrayList<>();
+
+            for (int i = 0; i < threadCount; i++) {
+                executor.submit(() -> {
+                    try {
+                        final var peeked = queue.peek();
+                        if (peeked.isPresent()) {
+                            synchronized (peekedCommands) {
+                                peekedCommands.add(peeked.get());
+                            }
+                        }
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+
+            latch.await(5, TimeUnit.SECONDS);
+            executor.shutdown();
+
+            // All threads should have peeked the same command
+            assertThat(peekedCommands).hasSize(threadCount);
+            assertThat(peekedCommands).allMatch(cmd -> cmd == command);
+
+            // Command should still be in queue
+            assertThat(queue.poll().isPresent()).isTrue();
+        }
+
+    }
+
+    @Nested
     @DisplayName("Cancellation behavior tests")
     class CancellationBehaviorTests {
 

@@ -111,6 +111,11 @@ public abstract sealed class Command
         return this.cancelled;
     }
 
+    // TODO: Test und JavaDoc
+    public boolean isPending() {
+        return !this.cancelled;
+    }
+
     /**
      * <div>
      *     <p>
