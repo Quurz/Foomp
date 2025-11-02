@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Base/base.iml" filepath="$PROJECT_DIR$/Base/base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/Plugins-Runtime/plugins-runtime.iml" filepath="$PROJECT_DIR$/Plugins/Plugins-Runtime/plugins-runtime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Plugins/Plugins-Test-Implementation2/plugins-test-implementation2.iml" filepath="$PROJECT_DIR$/Plugins/Plugins-Test-Implementation2/plugins-test-implementation2.iml" />
     </modules>
   </component>
 </project>

@@ -21,6 +21,7 @@
 /home/Foomp/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/localisation/package-info.java
 /home/Foomp/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/misc/LogAdapter.java
 /home/Foomp/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/misc/SemVer.java
+/home/Foomp/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/misc/ShutdownHookRegistry.java
 /home/Foomp/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/types/Assoc.java
 /home/Foomp/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/types/Bindable.java
 /home/Foomp/Entwicklung/Projekte/Foomp/Base/src/main/java/org/quurz/foomp/base/types/Combinable.java

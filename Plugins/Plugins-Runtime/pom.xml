@@ -41,7 +41,9 @@
         <!-- Test -->
         <dependency>
             <groupId>org.quurz.foomp</groupId>
-            <artifactId>plugins-test</artifactId>
+            <artifactId>plugins-test-shared</artifactId>
+            <version>1.0.0-u0-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.jimfs</groupId>

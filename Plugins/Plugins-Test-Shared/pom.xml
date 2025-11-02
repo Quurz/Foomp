@@ -7,19 +7,12 @@
 
     <parent>
         <groupId>org.quurz.foomp</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>plugins</artifactId>
         <version>1.0.0-u0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>plugins</artifactId>
-    <name>Foomp-Plugins</name>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>Plugins-Runtime</module>
-        <module>Plugins-Test-Shared</module>
-        <module>Plugins-Test-Implementation1</module>
-        <module>Plugins-Test-Implementation2</module>
-    </modules>
+    <artifactId>plugins-test-shared</artifactId>
+    <name>Foomp-Plugins-Test (Shared)</name>
+    <packaging>jar</packaging>
 
 </project>
