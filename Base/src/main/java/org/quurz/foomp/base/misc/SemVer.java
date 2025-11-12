@@ -233,6 +233,7 @@ public class SemVer
             );
         }
     }
+
     /**
      * <div>
      *   <p>
@@ -424,4 +425,5 @@ public class SemVer
                 .add("buildMetadata=" + buildMetadata)
                 .toString();
     }
+
 }

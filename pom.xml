@@ -7,7 +7,7 @@
 
     <groupId>org.quurz.foomp</groupId>
     <artifactId>parent</artifactId>
-    <version>1.0.0-u0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Foomp</name>
@@ -46,6 +46,10 @@
     </modules>
 
     <properties>
+        <!-- TODO: Mal überlegen, ob das was taugt -->
+        <!-- Project-Version -->
+        <revision>1.0.0-u0-SNAPSHOT</revision>
+
         <!-- Documentation -->
         <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>

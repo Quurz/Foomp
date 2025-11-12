@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.quurz.foomp</groupId>
         <artifactId>plugins</artifactId>
-        <version>1.0.0-u0-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>plugins-test-implementation1</artifactId>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.quurz.foomp</groupId>
             <artifactId>plugins-test-shared</artifactId>
-            <version>1.0.0-u0-SNAPSHOT</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -56,11 +56,6 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>tahrir.TrMain</mainClass>
-                        </manifest>
-                    </archive>
                 </configuration>
                 <executions>
                     <execution>
