@@ -5,14 +5,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 /**
  * <div>
  *     <p>
- *         Repräsentiert eine Berechnung, die entweder erfolgreich einen Wert vom Typ {@code A} liefert
- *         oder mit einer {@link Exception} fehlschlägt.
+ *         Represents a computation that either successfully produces a value of type {@code A}
+ *         or fails with an {@link Exception}.
  *     </p>
  *     <p>
- *         Das {@code Triable}-Interface dient als funktionale Schnittstelle für lazy oder wiederholbare
- *         Berechnungen, deren Ausgang ungewiss ist. Es lässt sich etwa zur Modellierung fehlertoleranter
- *         oder ausnahmebehafteter Prozesse einsetzen – ähnlich wie ein Supplier, jedoch mit expliziter
- *         Fehlerbehandlung über {@link XorValue}.
+ *         The {@code Triable} interface acts as a functional abstraction for lazy or repeatable
+ *         computations whose outcome is uncertain. It can be used to model fault-tolerant or
+ *         exception-prone processes – similar to a {@code Supplier}, but with explicit error
+ *         handling via {@link XorValue}.
  *     </p>
  *     <p>
  *         Contract:
@@ -36,8 +36,8 @@ public interface Triable<A> {
     /**
      * <div>
      *     <p>
-     *         Executes the computation and returns either the exception (failure) or the computed result (success).
-     *         This method must not throw.
+     *         Executes the computation and returns either the exception (failure) or the computed
+     *         result (success). This method must not throw.
      *     </p>
      * </div>
      *

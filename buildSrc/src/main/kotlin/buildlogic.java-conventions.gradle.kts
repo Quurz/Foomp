@@ -22,6 +22,9 @@ java {
     withSourcesJar()
 }
 
+// Eigene Configuration für das UMLDoclet
+val umlDoclet: Configuration by configurations.creating
+
 // Gemeinsame Test-Konfiguration für alle Projekte, die dieses Plugin anwenden
 dependencies {
     // JUnit 5 (Jupiter) – feste Version, nach Bedarf anpassen
@@ -34,12 +37,14 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.26.0")
     testImplementation("org.mockito:mockito-core:5.14.1")
     testImplementation("org.mockito:mockito-junit-jupiter:5.14.1")
+
+    // UMLDoclet-Dependency für die umlDoclet-Configuration
+    umlDoclet("nl.talsmasoftware:umldoclet:2.2.4")
 }
 
 tasks.withType<Test> {
     // JUnit 5 aktivieren
     useJUnitPlatform()
-
     testLogging {
         events("PASSED", "FAILED", "SKIPPED")
     }
@@ -55,8 +60,35 @@ tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
+// Basis-Javadoc-Einstellungen
 tasks.withType<Javadoc>() {
     options.encoding = "UTF-8"
     // TODO: Später wieder scharf schalten
     (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
+}
+
+// UMLDoclet für alle Javadoc-Tasks verwenden
+tasks.withType<Javadoc>().configureEach {
+    val docletOptions = options as StandardJavadocDocletOptions
+
+    // Source-Set explizit setzen (wie im Beispiel)
+    source = project.extensions.getByType<SourceSetContainer>()["main"].allJava
+
+    docletOptions.docletpath = umlDoclet.files.toList()
+    docletOptions.doclet = "nl.talsmasoftware.umldoclet.UMLDoclet"
+
+    // Falls du später noch spezielle UMLDoclet-Optionen brauchst:
+    // docletOptions.addStringOption("additionalParamName", "additionalParamValue")
+
+    // Optional: Ressourcen aus src/main/javadoc übernehmen
+    val javadocResources = project.file("src/main/javadoc")
+    if (javadocResources.exists()) {
+        inputs.dir(javadocResources)
+        doLast {
+            copy {
+                from(javadocResources)
+                into(destinationDir!!)
+            }
+        }
+    }
 }
