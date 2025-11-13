@@ -27,6 +27,20 @@ public class AutomataMessages {
     /**
      * <div>
      *     <p>
+     *         Private constructor to prevent instantiation of this utility class.
+     *         This class only provides static factory methods and should not be instantiated.
+     *     </p>
+     * </div>
+     *
+     * @since 1.0.0
+     */
+    private AutomataMessages() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Creates a localized message for an unknown start state error.
      *     </p>
      * </div>

@@ -13,21 +13,18 @@
         <module name="Plugins-Runtime" />
         <module name="Plugins-Test" />
       </profile>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="plugins-runtime" />
-        <module name="plugins-test-implementation1" />
-        <module name="plugins-test-implementation2" />
-        <module name="plugins-test-shared" />
-        <module name="automata" />
-        <module name="base" />
-        <module name="higher" />
-      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="25">
+      <module name="automata" target="25" />
+      <module name="base" target="25" />
+      <module name="foomp" target="25" />
+      <module name="higher" target="25" />
+      <module name="plugins" target="25" />
+      <module name="plugins-runtime" target="25" />
       <module name="plugins-test" target="25" />
+      <module name="plugins-test-implementation1" target="25" />
+      <module name="plugins-test-implementation2" target="25" />
+      <module name="plugins-test-shared" target="25" />
       <module name="Proxies" target="21" />
       <module name="report-aggregator" target="21" />
     </bytecodeTargetLevel>
