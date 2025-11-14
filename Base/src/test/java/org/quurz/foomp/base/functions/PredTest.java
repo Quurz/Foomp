@@ -106,7 +106,7 @@ class PredTest {
             .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> Pred.and(null, alwaysTrue()))
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> Pred.and(alwaysTrue(), alwaysTrue(), null))
+        assertThatThrownBy(() -> Pred.and(alwaysTrue(), alwaysTrue(), (Pred<Object>[]) null))
             .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> Pred.and(alwaysTrue(), alwaysTrue(), alwaysTrue()).test(null))
             .isInstanceOf(NullPointerException.class);
@@ -123,7 +123,7 @@ class PredTest {
     @SuppressWarnings({"ConfusingArgumentToVarargsMethod", "DataFlowIssue"})
     @Test
     void testOrStatic() {
-        LOGGER.info("Test Pred.or");
+        LOGGER.info("Test static Pred.or");
 
         assertThatThrownBy(() -> Pred.or(null, null))
             .isInstanceOf(NullPointerException.class);
@@ -131,7 +131,7 @@ class PredTest {
             .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> Pred.or(null, alwaysTrue()))
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> Pred.or(alwaysTrue(), alwaysTrue(), null))
+        assertThatThrownBy(() -> Pred.or(alwaysTrue(), alwaysTrue(), (Pred<Object>[]) null))
             .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> Pred.or(alwaysTrue(), alwaysTrue(), alwaysTrue()).test(null))
             .isInstanceOf(NullPointerException.class);
@@ -148,7 +148,7 @@ class PredTest {
     @SuppressWarnings({"ConfusingArgumentToVarargsMethod", "DataFlowIssue"})
     @Test
     void testXorStatic() {
-        LOGGER.info("Test Pred.xor");
+        LOGGER.info("Test static Pred.xor");
 
         assertThatThrownBy(() -> Pred.xor(null, null))
             .isInstanceOf(NullPointerException.class);
@@ -156,7 +156,7 @@ class PredTest {
             .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> Pred.xor(null, alwaysTrue()))
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> Pred.xor(alwaysTrue(), alwaysTrue(), null))
+        assertThatThrownBy(() -> Pred.xor(alwaysTrue(), alwaysTrue(), (Pred<Object>[]) null))
             .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> Pred.xor(alwaysTrue(), alwaysTrue(), alwaysTrue()).test(null))
             .isInstanceOf(NullPointerException.class);
@@ -409,10 +409,8 @@ class PredTest {
             .isInstanceOf(NullPointerException.class);
 
         assertThatNoException()
-            .isThrownBy(() -> {
-                assertThat(alwaysTrue().defer(() -> 5).call())
-                    .isTrue();
-            });
+            .isThrownBy(() -> assertThat(alwaysTrue().defer(() -> 5).call())
+            .isTrue());
     }
 
 }

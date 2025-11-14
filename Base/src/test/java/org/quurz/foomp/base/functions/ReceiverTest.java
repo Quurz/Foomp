@@ -179,11 +179,11 @@ class ReceiverTest {
         final Receiver<Integer> receiver
             = receiver(basket::add);
 
-        assertThatThrownBy(() -> receiver.acceptAllAndContinue(null, null))
+        assertThatThrownBy(() -> receiver.acceptAllAndContinue(null, (Integer[]) null))
             .isInstanceOf(NullPointerException.class);
         assertThatThrownBy(() -> receiver.acceptAllAndContinue(null, 2, 3))
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> receiver.acceptAllAndContinue(1, null))
+        assertThatThrownBy(() -> receiver.acceptAllAndContinue(1, (Integer[]) null))
             .isInstanceOf(NullPointerException.class);
 
         assertThatNoException()

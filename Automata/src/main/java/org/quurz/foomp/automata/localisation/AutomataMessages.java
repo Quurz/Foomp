@@ -24,19 +24,7 @@ public class AutomataMessages {
     private static final ResourceBundle RESOURCE_BUNDLE
         = ResourceBundle.getBundle("AutomataMessages", Locale.getDefault());
 
-    /**
-     * <div>
-     *     <p>
-     *         Private constructor to prevent instantiation of this utility class.
-     *         This class only provides static factory methods and should not be instantiated.
-     *     </p>
-     * </div>
-     *
-     * @since 1.0.0
-     */
-    private AutomataMessages() {
-        throw new AssertionError("Utility class should not be instantiated");
-    }
+    private AutomataMessages() {}
 
     /**
      * <div>
