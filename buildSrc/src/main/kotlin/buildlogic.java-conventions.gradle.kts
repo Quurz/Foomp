@@ -29,7 +29,7 @@ java {
 }
 
 jacoco {
-    toolVersion = "0.8.12" // oder gewünschte Version
+    toolVersion = "0.8.13" // oder gewünschte Version
 }
 
 // Eigene Configuration für das UMLDoclet
