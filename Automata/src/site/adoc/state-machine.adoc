@@ -19,4 +19,4 @@ public interface StateMachine<S, IA, OA> {
 }
 ----
 
-See implementation: link:finite-state-machine.html[FiniteStateMachine]
+See implementation: xref:finite-state-machine.adoc[FiniteStateMachine]

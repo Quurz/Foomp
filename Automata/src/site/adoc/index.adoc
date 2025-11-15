@@ -8,10 +8,10 @@ The Automata module provides simple finite state machines (FSM). It offers:
 
 More pages:
 
-- Getting Started: link:getting-started.html[]
-- API Concepts: link:state-machine.html[]
-- Implementation: link:finite-state-machine.html[]
-- Localization: link:localisation.html[]
+- xref:getting-started.adoc[Getting Started]
+- xref:state-machine.adoc[API Concepts]
+- xref:finite-state-machine.adoc[Implementation]
+- xref:localisation.adoc[Localization]
 
 == Package overview
 

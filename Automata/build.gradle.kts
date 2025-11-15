@@ -4,6 +4,7 @@
 
 plugins {
     id("buildlogic.java-conventions")
+    id("org.asciidoctor.jvm.convert") version "4.0.5"
 }
 
 dependencies {
@@ -22,4 +23,43 @@ description = "Foomp-Automata"
 
 java {
     withJavadocJar()
+}
+
+// Asciidoctor konfigurieren: Quellen und Ausgabe
+tasks.named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
+    // Deine .adoc-Dateien
+    setSourceDir(file("src/site/adoc"))
+    // Ausgabe nach build/docs/asciidoc
+    setOutputDir(layout.buildDirectory.dir("docs/asciidoc").get().asFile)
+}
+
+// Site-Ausgabeordner dieses Moduls
+val moduleSiteDir = layout.buildDirectory.dir("site")
+
+// Modul-Site: Asciidoc + Javadoc + JaCoCo einsammeln
+tasks.register<Copy>("moduleSite") {
+    group = "documentation"
+    description = "Erzeugt die Modul-Site (Asciidoc, JavaDoc, Coverage)."
+
+    dependsOn(
+        "asciidoctor",
+        "javadoc",
+        "test",
+        "jacocoTestReport"
+    )
+
+    into(moduleSiteDir)
+
+    // Asciidoc-HTML
+    from(layout.buildDirectory.dir("docs/asciidoc")) {
+        into("docs")
+    }
+    // JavaDoc
+    from(layout.buildDirectory.dir("docs/javadoc")) {
+        into("javadoc")
+    }
+    // JaCoCo-HTML
+    from(layout.buildDirectory.dir("reports/jacoco/test/html")) {
+        into("jacoco")
+    }
 }

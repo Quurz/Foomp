@@ -1,7 +1,7 @@
 = FiniteStateMachine (Implementation)
 
 `FiniteStateMachine<S, IA, OA>` is a thread-safe implementation of the
-link:state-machine.html[StateMachine] interface. It supports Moore and Mealy semantics
+xref:state-machine.adoc[StateMachine] interface. It supports Moore and Mealy semantics
 and encapsulates state transitions and output functions.
 
 Key points from the JavaDoc:
@@ -68,7 +68,7 @@ The factory methods validate, among other things:
 - `input` must be part of the input alphabet.
 
 Violations result in `NullPointerException` or `IllegalArgumentException` with localized
-messages (see link:localisation.html[Localization]).
+messages (see xref:localisation.adoc[Localization]).
 
 == Moore vs. Mealy
 
