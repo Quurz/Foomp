@@ -5,10 +5,14 @@ It supports Moore and Mealy semantics via factory methods.
 
 == Installation
 
-The module is part of the Foomp multi-module build. Build the whole project or just the `Automata` submodule:
+This module is part of the Foomp multi‑module build. Build the whole project or just the
+`Automata` submodule with Gradle:
 
-- Maven Site: `mvn -pl Automata site`
-- Build module: `mvn -pl Automata -am install`
+- Build entire project: `./gradlew build`
+- Build Automata only: `./gradlew :Automata:build`
+- Run tests for Automata: `./gradlew :Automata:test`
+- Generate Javadoc: `./gradlew :Automata:javadoc`
+- Optionally publish to local Maven: `./gradlew :Automata:publishToMavenLocal`
 
 == Basics
 

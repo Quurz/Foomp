@@ -1,0 +1,35 @@
+
+= Hkt<WT> (base interface)
+
+`org.quurz.foomp.higher.Hkt<WT>` is the base interface for higher‑kinded types (HKTs)
+in the Foomp project. It identifies an HKT instance via its witness type `WT` and
+provides the common method `arity()`.
+
+== Purpose
+
+- Marker for all concrete HigherN interfaces of the same type family.
+- Common `arity()` method to determine the arity (rank).
+
+== Example
+
+[source,java]
+----
+// Mark the family
+enum OptionWT implements WitnessType {}
+
+// Rank‑1 HKT belongs to the OptionWT family
+final class Option<A> implements Higher1<OptionWT, A> {
+    // ...
+}
+
+int r = ((Higher1<OptionWT, String>) new Option<String>()).arity(); // 1
+----
+
+== Related pages
+
+- xref:witness-type.adoc[WitnessType]
+- xref:higher1.adoc[Higher1]
+- xref:higher2.adoc[Higher2]
+- xref:higher3.adoc[Higher3]
+- xref:higher4.adoc[Higher4]
+- xref:index.adoc[Overview]

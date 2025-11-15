@@ -1,0 +1,35 @@
+
+= WitnessType (marker interface)
+
+`org.quurz.foomp.higher.WitnessType` is a marker interface to encode
+higher‑kinded types (HKTs) in Java. A witness type identifies a type family
+(e.g., Option, Either, List) and is used together with the rank interfaces
+xref:higher1.adoc[Higher1] … xref:higher4.adoc[Higher4].
+
+== Purpose
+
+- Serves as the family identifier for HKTs.
+- Exactly one witness type per type constructor.
+- Typically an empty interface/class without runtime logic.
+
+== Example
+
+[source,java]
+----
+// A witness type for the "Option" family
+enum OptionWT implements WitnessType {}
+
+// A concrete type that belongs to the family and is rank‑1
+final class Option<A> implements Higher1<OptionWT, A> {
+    // ...
+}
+----
+
+== Related pages
+
+- xref:hkt.adoc[Hkt<WT>]
+- xref:higher1.adoc[Higher1]
+- xref:higher2.adoc[Higher2]
+- xref:higher3.adoc[Higher3]
+- xref:higher4.adoc[Higher4]
+- xref:index.adoc[Overview]

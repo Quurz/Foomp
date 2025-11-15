@@ -1,0 +1,43 @@
+
+= Higher4 (rank‑4 HKT)
+
+`org.quurz.foomp.higher.Higher4<WT, A, B, C, D>` describes higher‑kinded types (HKTs)
+with four type parameters. It extends xref:hkt.adoc[Hkt<WT>] and `arity()` always
+returns `4`.
+
+== Purpose
+
+- For type constructors of the form `F<A,B,C,D>`.
+- Together with a xref:witness-type.adoc[WitnessType] it identifies the type family.
+
+== Signature (simplified)
+
+[source,java]
+----
+public interface Higher4<WT extends WitnessType, A, B, C, D> extends Hkt<WT> {
+    @Override default int arity() { return 4; }
+}
+----
+
+== Example
+
+[source,java]
+----
+enum QuadWT implements WitnessType {}
+
+final class Quad<A, B, C, D> implements Higher4<QuadWT, A, B, C, D> {
+    // business logic
+}
+
+int r = ((Higher4<QuadWT, Integer, String, Boolean, Double>)
+          new Quad<Integer, String, Boolean, Double>()).arity(); // 4
+----
+
+== Related pages
+
+- xref:witness-type.adoc[WitnessType]
+- xref:hkt.adoc[Hkt<WT>]
+- xref:higher1.adoc[Higher1]
+- xref:higher2.adoc[Higher2]
+- xref:higher3.adoc[Higher3]
+- xref:index.adoc[Overview]

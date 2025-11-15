@@ -1,0 +1,76 @@
+
+= API Overview (Higher)
+
+The Higher module provides type interfaces and markers to express higher‑kinded types (HKTs)
+in Java. These allow you to model type constructors (e.g., "F<_>") at the type level and
+communicate consistently across libraries.
+
+== Basic concepts
+
+=== WitnessType
+
+xref:witness-type.adoc[`org.quurz.foomp.higher.WitnessType`] is a marker interface. For each data type family
+(e.g., Option, Either, List) you define exactly one witness type that represents the family.
+Examples: `OptionWT`, `EitherWT`.
+
+[source,java]
+----
+// A witness type identifies a type family
+enum OptionWT implements WitnessType {}
+----
+
+=== Hkt<WT>
+
+xref:hkt.adoc[`org.quurz.foomp.higher.Hkt<WT>`] is a marker for all HKT instances of the same family.
+The type parameter `WT` is the witness type mentioned above. Implementing types thereby
+carry their affiliation with the family.
+
+[source,java]
+----
+// Every HKT of the Option family implements Hkt<OptionWT>
+interface OptionHkt extends Hkt<OptionWT> {}
+----
+
+== Rank interfaces
+
+Depending on the arity (rank) of a type constructor, choose the appropriate interface:
+
+- xref:higher1.adoc[`Higher1<WT, A>`] – one type parameter (e.g., Option<A>)
+- xref:higher2.adoc[`Higher2<WT, A, B>`] – two type parameters (e.g., Either<A,B>)
+- xref:higher3.adoc[`Higher3<WT, A, B, C>`] – three type parameters
+- xref:higher4.adoc[`Higher4<WT, A, B, C, D>`] – four type parameters
+
+All HigherN interfaces extend `Hkt<WT>` and provide an `arity()` method that returns
+the rank as an integer.
+
+[source,java]
+----
+import org.quurz.foomp.higher.*;
+
+// Rank‑1 example: Option<A>
+final class Option<A> implements Higher1<OptionWT, A> {
+    // ...
+}
+
+// Rank‑2 example: Either<L, R>
+final class Either<L, R> implements Higher2<EitherWT, L, R> {
+    // ...
+}
+
+void demo() {
+    int r1 = ((Higher1<OptionWT, String>) new Option<String>()).arity(); // 1
+    int r2 = ((Higher2<EitherWT, Integer, String>) new Either<Integer, String>()).arity(); // 2
+}
+----
+
+== Usage in libraries
+
+Libraries can work generically over "F" via the HigherN interfaces without knowing the
+concrete type. The witness type `WT` identifies the concrete family. This makes it possible
+to reproduce type classes such as Functor/Monad/Traversable in Java.
+
+== Further resources
+
+- xref:getting-started.adoc[Getting Started]
+- xref:index.adoc[Overview]
+- Javadoc of the packages under `org.quurz.foomp.higher`

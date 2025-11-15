@@ -1,0 +1,35 @@
+= Getting Started
+
+The "Higher" module provides foundational type interfaces for higher‑kinded types (HKTs).
+It is part of the Foomp multi‑module build.
+
+== Installation
+
+Build the whole project or just the `Higher` submodule with Gradle:
+
+- Build entire project: `./gradlew build`
+- Build Higher only: `./gradlew :Higher:build`
+- Run tests for Higher: `./gradlew :Higher:test`
+- Generate Javadoc: `./gradlew :Higher:javadoc`
+- Optionally publish to local Maven: `./gradlew :Higher:publishToMavenLocal`
+
+== Contents
+
+- Marker interfaces for witness types and HKT kinds.
+- Rank interfaces `Higher1` to `Higher4` to type 1‑ to 4‑ary HKTs.
+
+== Example
+
+[source,java]
+----
+// One witness type per library/data type family
+enum OptionWT implements WitnessType {}
+
+// A rank‑1 HKT (one type parameter)
+final class Option<A> implements Higher1<OptionWT, A> {
+    // ... implementation of an optional structure ...
+}
+
+// Using the arity information
+int r = ((Higher1<OptionWT, String>) new Option<String>()).arity(); // r == 1
+----
