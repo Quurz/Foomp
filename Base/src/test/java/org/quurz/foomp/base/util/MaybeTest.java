@@ -1,10 +1,6 @@
 package org.quurz.foomp.base.util;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quurz.foomp.base.TestHelper;
@@ -15,24 +11,21 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.quurz.foomp.base.util.Maybe.maybeFrom;
-import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
-import static org.quurz.foomp.base.util.Maybe.none;
-import static org.quurz.foomp.base.util.Maybe.some;
+import static org.quurz.foomp.base.util.Maybe.*;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Maybe")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class MaybeTest extends TestHelper {
+class MaybeTest
+        extends TestHelper {
 
     private static final Logger LOGGER = getLogger(MaybeTest.class);
 
@@ -173,6 +166,90 @@ class MaybeTest extends TestHelper {
             });
         }
 
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void ifSome_runnable_behaviour_and_contracts() {
+            LOGGER.info("Maybe.ifSome(Runnable) should enforce null contracts and run only on Some");
+            // null runnable -> NPE
+            assertThatThrownBy(() -> none().ifSome((Runnable) null))
+                .isInstanceOf(NullPointerException.class);
+
+            // None: runnable must not run, and Maybe instance is returned unverändert
+            assertThatNoException().isThrownBy(() -> {
+                final var m = none();
+                final var runnable = mockLambda(Runnable.class, () -> {});
+                final var cont = m.ifSome(runnable);
+                assertThat(cont).isEqualTo(m);
+                verify(runnable, times(0)).run();
+            });
+
+            // Some: runnable must run exactly einmal
+            assertThatNoException().isThrownBy(() -> {
+                final var m = some(SOME_STRING_VALUE);
+                final var runnable = mockLambda(Runnable.class, () -> {});
+                final var cont = m.ifSome(runnable);
+                assertThat(cont).isEqualTo(m);
+                verify(runnable, times(1)).run();
+            });
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused", "unchecked"})
+        @Test
+        void ifNone_supplier_behaviour_and_contracts() {
+            LOGGER.info("Maybe.ifNone(Supplier) should enforce null contracts and supply only on None");
+            // null supplier -> NPE
+            assertThatThrownBy(() -> none().ifNone((Supplier<Object>) null))
+                .isInstanceOf(NullPointerException.class);
+
+            // supplier that returns null -> NPE
+            assertThatThrownBy(() -> none().ifNone(() -> null))
+                .isInstanceOf(NullPointerException.class);
+
+            // None: supplier muss genau einmal aufgerufen werden, Ergebnis wird Some(...)
+            assertThatNoException().isThrownBy(() -> {
+                final var m = Maybe.<String>none();
+                final var result = m.ifNone(() -> SOME_STRING_VALUE);
+                checkIsSomeWithValue(result, SOME_STRING_VALUE);
+            });
+
+            // Some: supplier darf NICHT aufgerufen werden, ursprüngliches Maybe bleibt erhalten
+            assertThatNoException().isThrownBy(() -> {
+                final var m = some(SOME_STRING_VALUE);
+                final var supplier = mockLambda(java.util.function.Supplier.class, () -> SOME_OTHER_STRING_VALUE);
+                final var result = m.ifNone(supplier);
+                assertThat(result).isEqualTo(m);
+                checkIsSomeWithValue(result, SOME_STRING_VALUE);
+                verify(supplier, times(0)).get();
+            });
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void ifNone_runnable_behaviour_and_contracts() {
+            LOGGER.info("Maybe.ifNone(Runnable) should enforce null contracts and run only on None");
+            // null runnable -> NPE
+            assertThatThrownBy(() -> none().ifNone((Runnable) null))
+                .isInstanceOf(NullPointerException.class);
+
+            // None: runnable muss laufen, Maybe wird unverändert zurückgegeben
+            assertThatNoException().isThrownBy(() -> {
+                final var m = none();
+                final var runnable = mockLambda(Runnable.class, () -> {});
+                final var cont = m.ifNone(runnable);
+                assertThat(cont).isEqualTo(m);
+                verify(runnable, times(1)).run();
+            });
+
+            // Some: runnable darf NICHT laufen, Maybe bleibt wie es ist
+            assertThatNoException().isThrownBy(() -> {
+                final var m = some(SOME_STRING_VALUE);
+                final var runnable = mockLambda(Runnable.class, () -> {});
+                final var cont = m.ifNone(runnable);
+                assertThat(cont).isEqualTo(m);
+                verify(runnable, times(0)).run();
+            });
+        }
+
         @SuppressWarnings({"DataFlowIssue", "unused", "unchecked"})
         @Test
         void ifPresentOrElse_behaviour_and_contracts() {
@@ -303,6 +380,102 @@ class MaybeTest extends TestHelper {
     @DisplayName("Conversions and misc")
     class Conversions_And_Misc {
 
+        @Nested
+        @DisplayName("filter")
+        class Filter_ {
+
+            @SuppressWarnings({"DataFlowIssue", "unused"})
+            @Test
+            void filter_contracts_and_behaviour() {
+                LOGGER.info("Maybe.filter should enforce null contracts and filter correctly");
+
+                // null predicate -> NPE
+                assertThatThrownBy(() -> some(SOME_STRING_VALUE).filter(null))
+                    .isInstanceOf(NullPointerException.class);
+                assertThatThrownBy(() -> Maybe.<String>none().filter(null))
+                    .isInstanceOf(NullPointerException.class);
+
+                // None: predicate wird nicht aufgerufen, Ergebnis bleibt None
+                assertThatNoException().isThrownBy(() -> {
+                    final var m = Maybe.<String>none();
+                    final var filtered = m.filter(_$ -> {
+                        throw new AssertionError("predicate must not be called for None");
+                    });
+                    checkIsNone(filtered);
+                });
+
+                // Some + predicate = true -> bleibt Some
+                assertThatNoException().isThrownBy(() -> {
+                    final var m = some(SOME_STRING_VALUE);
+                    final var filtered = m.filter(s -> s.equals(SOME_STRING_VALUE));
+                    checkIsSomeWithValue(filtered, SOME_STRING_VALUE);
+                });
+
+                // Some + predicate = false -> wird None
+                assertThatNoException().isThrownBy(() -> {
+                    final var m = some(SOME_STRING_VALUE);
+                    final var filtered = m.filter(s -> false);
+                    checkIsNone(filtered);
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("zip")
+        class Zip_ {
+
+            @SuppressWarnings({"DataFlowIssue", "unused"})
+            @Test
+            void zip_contracts_and_behaviour() {
+                LOGGER.info("Maybe.zip should enforce null contracts and zip correctly");
+
+                // null other / zipper -> NPE
+                assertThatThrownBy(() -> some(SOME_STRING_VALUE).zip(null, (a, b) -> a + b))
+                    .isInstanceOf(NullPointerException.class);
+                assertThatThrownBy(() -> some(SOME_STRING_VALUE).zip(none(), null))
+                    .isInstanceOf(NullPointerException.class);
+
+                // None zip None -> None
+                assertThatNoException().isThrownBy(() -> {
+                    final var a = Maybe.<String>none();
+                    final var b = Maybe.<Integer>none();
+                    final var zipped = a.zip(b, (s, i) -> s + i);
+                    checkIsNone(zipped);
+                });
+
+                // None zip Some -> None
+                assertThatNoException().isThrownBy(() -> {
+                    final var a = Maybe.<String>none();
+                    final var b = some(42);
+                    final var zipped = a.zip(b, (s, i) -> s + i);
+                    checkIsNone(zipped);
+                });
+
+                // Some zip None -> None
+                assertThatNoException().isThrownBy(() -> {
+                    final var a = some(SOME_STRING_VALUE);
+                    final var b = Maybe.<Integer>none();
+                    final var zipped = a.zip(b, (s, i) -> s + i);
+                    checkIsNone(zipped);
+                });
+
+                // Some zip Some mit gültigem zipper -> Some(result)
+                assertThatNoException().isThrownBy(() -> {
+                    final var a = some(SOME_STRING_VALUE);
+                    final var b = some(3);
+                    final var zipped = a.zip(b, (s, i) -> s + i);
+                    checkIsSomeWithValue(zipped, SOME_STRING_VALUE + 3);
+                });
+
+                // zipper liefert null -> NPE über requiresNonNullResult2(...)
+                assertThatThrownBy(() -> {
+                    final var a = some(SOME_STRING_VALUE);
+                    final var b = some(3);
+                    a.zip(b, (s, i) -> null).unwind();
+                }).isInstanceOf(NullPointerException.class);
+            }
+        }
+
         @Test
         void toOptional_converts_correctly() {
             LOGGER.info("Maybe.toOptional should convert Some/None to Optional");
@@ -339,14 +512,21 @@ class MaybeTest extends TestHelper {
             assertThatNoException().isThrownBy(() -> {
                 final var m = some(SOME_STRING_VALUE);
                 final var fMap = mockLambda(Fun.class, Fun.identity());
-                final var cont = m.map(fMap).lift(some(fMap)).bind(_$ -> some(SOME_STRING_VALUE));
 
+                // map + lift: sollten fMap noch nicht ausführen (nur Supplier-Kette aufbauen)
+                final var mappedAndLifted = m.map(fMap).lift(some(fMap));
                 verify(fMap, times(0)).apply(any());
 
+                // bind ist jetzt strikt bzgl. Struktur und erzwingt die Auswertung der bisherigen Supplier
+                final var cont = mappedAndLifted.bind(_$ -> some(SOME_STRING_VALUE));
+                verify(fMap, times(2)).apply(any());
+
+                // unwind materialisiert nur noch das Ergebnis von bind, ohne fMap erneut aufzurufen
                 final var unwound = cont.unwind();
                 checkIsSomeWithValue(unwound, SOME_STRING_VALUE);
                 verify(fMap, times(2)).apply(any());
 
+                // get() auf dem unwound-Resultat ruft fMap ebenfalls nicht mehr auf
                 unwound.get();
                 verify(fMap, times(2)).apply(any());
             });
@@ -370,6 +550,7 @@ class MaybeTest extends TestHelper {
                 .isEqualTo("Some[value=%s]".formatted(SOME_STRING_VALUE));
         }
 
+        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         @Test
         void equals_and_hashCode_compare_by_variant_and_value() {
             LOGGER.info("Maybe.equals/hashCode should compare None/Some structurally");

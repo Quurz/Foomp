@@ -2,15 +2,7 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun;
-import org.quurz.foomp.base.types.Bindable;
-import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Liftable2;
-import org.quurz.foomp.base.types.Mappable;
-import org.quurz.foomp.base.types.Swappable;
-import org.quurz.foomp.base.types.Transmogrifyable;
-import org.quurz.foomp.base.types.Unwindable;
-import org.quurz.foomp.base.types.UnwindingOperation;
-import org.quurz.foomp.base.types.XorValue;
+import org.quurz.foomp.base.types.*;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.Higher2;
 import org.quurz.foomp.higher.WitnessType;
@@ -22,10 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullSupplied;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.localisation.BaseMessages.*;
 import static org.quurz.foomp.base.util.Maybe.none;
 import static org.quurz.foomp.base.util.Maybe.some;
 
@@ -39,6 +28,22 @@ import static org.quurz.foomp.base.util.Maybe.some;
  *     Commonly used to model alternative outcomes (e.g., error or success) without throwing
  *     exceptions. This implementation is right‑biased: mapping and binding operations act
  *     on the right value, while leaving the left value unchanged.
+ *   </p>
+ *   <p>
+ *     <strong>Evaluation semantics:</strong>
+ *     <ul>
+ *       <li>
+ *         The active side (left vs right) is determined eagerly at construction time or when
+ *         using monadic operations such as {@link #bind(Function)}.
+ *       </li>
+ *       <li>
+ *         The payload stored in {@code Left} and {@code Right} is represented lazily via
+ *         {@link Supplier} and is evaluated when accessors such as {@link #getLeft()},
+ *         {@link #getRight()}, {@link #map(Function)}, {@link #mapLeft(Function)},
+ *         {@link #unwind()}, {@link #equals(Object)}, {@link #hashCode()}, or
+ *         {@link #toString()} are invoked.
+ *       </li>
+ *     </ul>
  *   </p>
  *   <p>
  *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be
@@ -96,7 +101,8 @@ public sealed interface Either<L, R>
      *
      * @since 1.0.0
      */
-    static <L, R> Either<L, R> narrow(final @NonNull Higher2<µ, L, R> wide) {
+    @SuppressWarnings("unchecked")
+    static <L, R> Either<L, R> narrow(final @NonNull Higher2<? extends µ, L, R> wide) {
         return (Either<L, R>) Objects.requireNonNull(wide, nullValue("wide"));
     }
 
@@ -104,6 +110,19 @@ public sealed interface Either<L, R>
      * <div>
      *   <p>
      *     Unwraps a nested {@code Either} by one level when the right side contains a higher‑kinded value.
+     *   </p>
+     *   <p>
+     *     <strong>Semantics:</strong>
+     *     <ul>
+     *       <li>
+     *         If the given value is a {@code Left}, it is returned as a {@code Left} unchanged
+     *         (the right type parameter is adjusted only at the type level).
+     *       </li>
+     *       <li>
+     *         If the given value is a {@code Right} holding a higher‑kinded {@code Either}-value,
+     *         that inner value is narrowed and returned.
+     *       </li>
+     *     </ul>
      *   </p>
      * </div>
      *
@@ -115,13 +134,25 @@ public sealed interface Either<L, R>
      *
      * @since 1.0.0
      */
-    // TODO: Das sollte ich mir noch mal anschauen
     @SuppressWarnings("unchecked")
-    static <L, R> Either<L, R> unwrap(final @NonNull Higher2<µ, ?, ? extends Higher1<? extends µ, R>> wrapped) {
+    static <L, R> Either<L, R> unwrap(final @NonNull Higher2<µ, ? extends Higher2<? extends µ, L, R>, ? extends Higher2<? extends µ, L, R>> wrapped) {
         Objects.requireNonNull(wrapped, nullValue("wrapped"));
-        final var narrowed
+
+        final var outer
             = narrow(wrapped);
-        return narrow((Higher2<µ, L, R>) narrowed.get());
+
+        if (outer instanceof Left<?, ?> left) {
+            final var innerLeft =
+                    Objects.requireNonNull(left.getLeft(), nullSupplied());
+            // innerLeft ist Higher2<? extends µ,L,R>; wir nehmen an, dass es Higher2<µ,L,R> ist.
+            return narrow((Higher2<µ, L, R>) innerLeft);
+        } else if (outer instanceof Right<?, ?> right) {
+            final var innerRight =
+                    Objects.requireNonNull(right.getRight(), nullSupplied());
+            return narrow((Higher2<µ, L, R>) innerRight);
+        } else {
+            throw new IllegalStateException("Unexpected Either variant: " + outer);
+        }
     }
 
     /**
@@ -578,7 +609,6 @@ public sealed interface Either<L, R>
      *
      * @since 1.0.0
      */
-    // TODO: Test
     @SuppressWarnings("unchecked")
     @NonNull
     default <M, S> Either<M, S> mapEither(final @NonNull Fun<? super L, ? extends M> fMapLeft,
@@ -626,6 +656,25 @@ public sealed interface Either<L, R>
      *     Monadic bind (right‑biased): binds the right value with {@code transformation}.
      *     Left values pass through unchanged.
      *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     <ul>
+     *       <li>
+     *         When this is a {@code Left}, {@code bind} returns the same left value without
+     *         evaluating any payload or invoking {@code transformation}.
+     *       </li>
+     *       <li>
+     *         When this is a {@code Right}, {@code bind} eagerly evaluates the current right
+     *         payload and applies {@code transformation} in order to obtain the resulting
+     *         {@code Either}. In other words, the choice of left/right in the result is made
+     *         at {@code bind}-time, not deferred.
+     *       </li>
+     *       <li>
+     *         Any laziness of the resulting payload depends on the implementation of
+     *         {@code transformation}.
+     *       </li>
+     *     </ul>
+     *   </p>
      * </div>
      *
      * @param transformation right‑side binder; must not be {@code null}
@@ -637,11 +686,20 @@ public sealed interface Either<L, R>
     @SuppressWarnings("unchecked")
     @Override
     @NonNull
-    default <S> Either<L, S> bind(final @NonNull Function<? super R, ? extends Higher1<? extends µ, S>> transformation) {
-        Objects.requireNonNull(transformation, nullValue("bindM"));
+    default <S> Either<L, S> bind(
+            final @NonNull Function<? super R, ? extends Higher1<? extends µ, S>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         return switch (this) {
-            case Right<L, R> right -> (Either<L, S>) unwrap(right.map(transformation));
             case Left<L, R> left -> (Either<L, S>) left;
+            case Right<L, R> right -> {
+                // Right-payload auswerten
+                final var r
+                    = Objects.requireNonNull(right.spool.get(), nullSupplied());
+                // transformation anwenden und das Higher1<Either.µ, S> zu einem konkreten Either<L,S> narrown
+                final var innerHK
+                    = Objects.requireNonNull(transformation.apply(r), nullResult());
+                yield narrow((Higher2<µ, L, S>) innerHK);
+            }
         };
     }
 
@@ -709,6 +767,13 @@ public sealed interface Either<L, R>
      * <div>
      *   <p>
      *     Unwinds (materializes) the current value on the active side and returns a strict {@code Either}.
+     *     {@code Left} evaluates its supplier and returns {@code Left(value)}; {@code Right} evaluates
+     *     its supplier and returns {@code Right(value)}.
+     *   </p>
+     *   <p>
+     *     After unwinding, the resulting {@code Either} no longer defers evaluation of its payload:
+     *     subsequent calls to accessors or structural operations will work on already-materialized
+     *     values for both sides.
      *   </p>
      * </div>
      *

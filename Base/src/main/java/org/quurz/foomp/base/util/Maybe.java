@@ -2,12 +2,7 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Monadic;
-import org.quurz.foomp.base.types.Transmogrifyable;
-import org.quurz.foomp.base.types.Unwindable;
-import org.quurz.foomp.base.types.UnwindingOperation;
-import org.quurz.foomp.base.types.Value;
+import org.quurz.foomp.base.types.*;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
@@ -15,24 +10,29 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullSupplied;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
-import static org.quurz.foomp.base.util.Util.requiresNonNullResult2;
+import static org.quurz.foomp.base.localisation.BaseMessages.*;
 
 /**
  * <div>
  *   <p>
  *     A lightweight optional container: either there is a typed value, or there isn't.
- *     Laziness is preserved via suppliers where applicable.
+ *     Laziness is preserved for the contained value via {@link Supplier}-based {@code Some} where applicable.
+ *   </p>
+ *   <p>
+ *     <strong>Evaluation semantics:</strong>
+ *     <ul>
+ *       <li>
+ *         The presence of a value ({@code Some} vs {@code None}) is decided eagerly at construction
+ *         time or when using monadic operations such as {@link #bind(Function)}.
+ *       </li>
+ *       <li>
+ *         The payload of {@code Some} is represented lazily and is only evaluated when methods like
+ *         {@link #get()}, {@link #map(Function)}, {@link #bind(Function)} (on the inner value),
+ *         {@link #unwind()}, {@link #equals(Object)}, {@link #hashCode()}, or {@link #toString()} are invoked.
+ *       </li>
+ *     </ul>
  *   </p>
  *   <p>
  *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
@@ -282,28 +282,16 @@ static <A> Maybe<A> some(final @NonNull A value) {
         };
     }
 
-    // TODO: JavaDoc & Test
-//    @UnwindingOperation
-//    @NonNull
-//    default Maybe<A> filter(final @NonNull Predicate<A> predicate) {
-//        Objects.requireNonNull(predicate, nullValue("predicate"));
-//        final Maybe<A> maybe;
-//        if (this instanceof Maybe.Some<A> some) {
-//            maybe
-//                = predicate.test(some.get())
-//                    ? some
-//                    : none();
-//        } else {
-//            maybe
-//                = none();
-//        }
-//        return maybe;
-//    }
-
     /**
      * <div>
      *   <p>
      *     If a value is present, passes it to the given consumer (peek).
+     *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     The contained payload is evaluated eagerly when this method is invoked and
+     *     {@code this} is {@code Some}. The consumer itself is responsible for any
+     *     additional laziness or side effects.
      *   </p>
      * </div>
      *
@@ -312,38 +300,107 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *
      * @since 1.0.0
      */
-    @UnwindingOperation
-    @NonNull
-    default Maybe<A> ifSome(final @NonNull Consumer<A> consumer) {
-        Objects.requireNonNull(consumer, nullValue("consumer"));
-        if (this instanceof Maybe.Some<A> some) {
-            consumer.accept(some.get());
+        default Maybe<A> ifSome(final @NonNull Consumer<A> consumer) {
+            Objects.requireNonNull(consumer, nullValue("consumer"));
+            if (this instanceof Maybe.Some<A> some) {
+                consumer.accept(some.get());
+            }
+            return this;
         }
-        return this;
-    }
 
-    // TODO: JavaDoc & Test
-    default Maybe<A> ifSome(final @NonNull Runnable runnable) {
-        Objects.requireNonNull(runnable, nullValue("runnable"));
-        if (this instanceof Maybe.Some<A>) {
-            runnable.run();
+    /**
+     * <div>
+     *   <p>
+     *     Executes the given action if a value is present.
+     *     This is a convenience overload of {@link #ifSome(Consumer)} for cases where
+     *     the action does not need access to the contained value.
+     *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     The decision whether to run the action is made eagerly based on whether this
+     *     {@code Maybe} is {@code Some}. The payload is not evaluated unless other
+     *     operations (e.g. {@link #get()}) are invoked.
+     *   </p>
+     * </div>
+     *
+     * @param runnable the action to run when this is {@code Some}; must not be {@code null}
+     * @return this {@code Maybe}
+     *
+     * @since 1.0.0
+     */
+        default Maybe<A> ifSome(final @NonNull Runnable runnable) {
+            Objects.requireNonNull(runnable, nullValue("runnable"));
+            if (this instanceof Maybe.Some<A>) {
+                runnable.run();
+            }
+            return this;
         }
-        return this;
-    }
 
-    // TODO: JavaDoc & Test
-    default Maybe<A> ifNone(final @NonNull Runnable runnable) {
-        Objects.requireNonNull(runnable, nullValue("runnable"));
-        if (this instanceof Maybe.None<A>) {
-            runnable.run();
+    /**
+     * <div>
+     *   <p>
+     *     Returns this {@code Maybe} if a value is present; otherwise supplies a fallback value.
+     *     If this is {@code None}, the supplied value is wrapped in {@code Some} and returned.
+     *     A {@link NullPointerException} is thrown if the supplier is {@code null} or supplies
+     *     {@code null}.
+     *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     The supplier is only invoked eagerly when this {@code Maybe} is {@code None}.
+     *     The fallback value itself is stored lazily inside {@code Some} according to the
+     *     usual payload semantics.
+     *   </p>
+     * </div>
+     *
+     * @param supplier supplies a fallback value when this is {@code None}; must not be {@code null}
+     * @return {@code this} if {@code Some}, otherwise a new {@code Some} with the supplied value
+     *
+     * @since 1.0.0
+     */
+        default Maybe<A> ifNone(final @NonNull Supplier<A> supplier) {
+            Objects.requireNonNull(supplier, nullValue("supplier"));
+            if (this instanceof Maybe.None<A>) {
+                return some(Objects.requireNonNull(supplier.get(), nullSuppliedFrom("supplier")));
+            }
+            return this;
         }
-        return this;
-    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Executes the given action if this {@code Maybe} is empty.
+     *     This is useful for triggering side effects (logging, metrics, fallbacks) when no value
+     *     is present, without changing the {@code Maybe} itself.
+     *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     No payload is evaluated, as {@code None} carries no value. The runnable is invoked
+     *     eagerly if and only if this is {@code None}.
+     *   </p>
+     * </div>
+     *
+     * @param runnable the action to run when this is {@code None}; must not be {@code null}
+     * @return this {@code Maybe}
+     *
+     * @since 1.0.0
+     */
+        default Maybe<A> ifNone(final @NonNull Runnable runnable) {
+            Objects.requireNonNull(runnable, nullValue("runnable"));
+            if (this instanceof Maybe.None<A>) {
+                runnable.run();
+            }
+            return this;
+        }
 
     /**
      * <div>
      *   <p>
      *     If a value is present, passes it to the consumer; otherwise runs {@code orElse}.
+     *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     When this is {@code Some}, the payload is evaluated eagerly to pass it to the consumer.
+     *     When this is {@code None}, the {@code orElse} runnable is invoked eagerly instead.
      *   </p>
      * </div>
      *
@@ -353,26 +410,26 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *
      * @since 1.0.0
      */
-    // TODO: JavaDoc neu generieren lassen
-    @UnwindingOperation
-    @NonNull
-    default Maybe<A> ifSomeOrElse(final @NonNull Consumer<A> consumer,
-                                  final @NonNull Runnable orElse) {
-        Objects.requireNonNull(consumer, nullValue("consumer"));
-        Objects.requireNonNull(orElse, nullValue("orElse"));
-        if (this.isSome()) {
-            consumer.accept(this.get());
-        } else {
-            orElse.run();
+        @UnwindingOperation
+        @NonNull
+        default Maybe<A> ifSomeOrElse(final @NonNull Consumer<A> consumer,
+                                      final @NonNull Runnable orElse) {
+            Objects.requireNonNull(consumer, nullValue("consumer"));
+            Objects.requireNonNull(orElse, nullValue("orElse"));
+            if (this.isSome()) {
+                consumer.accept(this.get());
+            } else {
+                orElse.run();
+            }
+            return this;
         }
-        return this;
-    }
 
     /**
      * <div>
      *   <p>
-     *     Functor map: transforms the contained value while preserving laziness.
-     *     {@code Some} maps to {@code Some(f(value))}; {@code None} remains {@code None}.
+     *     Functor map: transforms the contained value while preserving laziness of the payload.
+     *     {@code Some} maps to a new {@code Some} whose supplier first evaluates the original payload
+     *     and then applies {@code transformation}; {@code None} remains {@code None}.
      *   </p>
      * </div>
      *
@@ -388,12 +445,12 @@ static <A> Maybe<A> some(final @NonNull A value) {
     default <B> Maybe<B> map(final @NonNull Function<? super A, ? extends B> transformation) {
         Objects.requireNonNull(transformation, nullValue("fMap"));
         return switch (this) {
-            case Some<A> some -> (Maybe<B>) new Some<>(() -> {
-                final var v
-                    = Objects.requireNonNull(some.spool.get(), nullSupplied());
-                return Objects.requireNonNull(transformation.apply(v), nullResult());
-            });
-            case None<A> none -> (Maybe<B>) none;
+            case Some<A> some
+                -> (Maybe<B>) new Some<>(
+                    () -> Objects.requireNonNull(transformation.apply(some.get()), nullResultFrom("transformation"))
+                );
+            case None<A> none
+                -> (Maybe<B>) none;
         };
     }
 
@@ -426,7 +483,20 @@ static <A> Maybe<A> some(final @NonNull A value) {
     /**
      * <div>
      *   <p>
-     *     Monadic bind: maps to another {@code Maybe} and flattens the result.
+     *     Monadic bind: maps the contained value to another {@code Maybe} and flattens the result.
+     *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     <ul>
+     *       <li>
+     *         The presence of a value in the result ({@code Some} vs {@code None}) is determined eagerly
+     *         when {@code bind} is invoked.
+     *       </li>
+     *       <li>
+     *         For {@code Some}, the inner payload of the resulting {@code Maybe} may still be lazy,
+     *         depending on the implementation of {@code transformation}.
+     *       </li>
+     *     </ul>
      *   </p>
      * </div>
      *
@@ -436,11 +506,16 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *
      * @since 1.0.0
      */
+    @SuppressWarnings("unused")
+    @UnwindingOperation
     @Override
     @NonNull
     default <B> Maybe<B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
-        Objects.requireNonNull(transformation, nullValue("bindM"));
-        return this.map(a -> narrow(transformation.apply(a)).get());
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        return switch (this) {
+            case None<A> _$ -> none();
+            case Some<A> some -> Objects.requireNonNull(narrow(transformation.apply(some.get())), nullResultFrom("transformation"));
+        };
     }
 
     /**
@@ -505,6 +580,9 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *     Unwinds (materializes) this {@code Maybe} into a strict representation.
      *     {@code Some} evaluates its supplier and returns {@code Some(value)}; {@code None} remains {@code None}.
      *   </p>
+     *   <p>
+     *     After unwinding, the resulting {@code Maybe} no longer defers evaluation of its payload.
+     *   </p>
      * </div>
      *
      * @return a strict {@code Maybe} with the same presence/value
@@ -525,7 +603,21 @@ static <A> Maybe<A> some(final @NonNull A value) {
      * <div>
      *   <p>
      *     Filters the contained value using the given predicate.
-     *     If absent or if the predicate returns {@code false}, returns {@code None}.
+     *     If a value is present and the predicate evaluates to {@code true}, this {@code Maybe} is
+     *     returned unchanged; otherwise {@code None} is returned.
+     *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     <ul>
+     *       <li>
+     *         The decision whether the result is {@code Some} or {@code None} is made eagerly when
+     *         {@code filter} is invoked, based on evaluating the predicate on the current payload.
+     *       </li>
+     *       <li>
+     *         If the result is {@code Some}, the payload may still be lazy according to the original
+     *         {@code Some} implementation.
+     *       </li>
+     *     </ul>
      *   </p>
      * </div>
      *
@@ -534,6 +626,7 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *
      * @since 1.0.0
      */
+    @UnwindingOperation
     @NonNull
     default Maybe<A> filter(final @NonNull Predicate<? super A> predicate) {
         Objects.requireNonNull(predicate, nullValue("predicate"));
@@ -548,6 +641,23 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *     Zips this {@code Maybe} with another using the given {@code zipper}.
      *     If either side is {@code None}, the result is {@code None}.
      *   </p>
+     *   <p>
+     *     <strong>Laziness:</strong>
+     *     <ul>
+     *       <li>
+     *         The decision whether the result is {@code Some} or {@code None} is made eagerly
+     *         when {@code zip} is invoked, based on the presence of values in both operands.
+     *       </li>
+     *       <li>
+     *         When both operands are {@code Some}, their payloads are evaluated eagerly in order
+     *         to compute the combined value via {@code zipper}.
+     *       </li>
+     *       <li>
+     *         The combined value is then stored according to the usual {@code Some} payload
+     *         semantics, which may still be lazy depending on how {@code some} is used.
+     *       </li>
+     *     </ul>
+     *   </p>
      * </div>
      *
      * @param other   the other {@code Maybe}; must not be {@code null}
@@ -558,12 +668,24 @@ static <A> Maybe<A> some(final @NonNull A value) {
      *
      * @since 1.0.0
      */
+    @SuppressWarnings("unused")
     @NonNull
     default <B, C> Maybe<C> zip(final @NonNull Maybe<B> other,
                                 final @NonNull BiFunction<A, B, C> zipper) {
         Objects.requireNonNull(other, nullValue("other"));
         Objects.requireNonNull(zipper, nullValue("zipper"));
-        return this.bind(a -> other.map(b -> requiresNonNullResult2(zipper, "zipper").apply(a, b)));
+
+        return switch (this) {
+            case None<A> _$
+                -> none();
+            case Some<A> some
+                -> switch (other) {
+                    case None<B> _$
+                        -> none();
+                    case Some<B> otherSome
+                        -> Maybe.some(zipper.apply(some.get(), otherSome.get()));
+                };
+        };
     }
 
     /**
