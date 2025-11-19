@@ -160,6 +160,109 @@ class FunTest
         .isInstanceOf(NullPointerException.class);
     }
 
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void testAsyncWithNullSupplier() {
+            LOGGER.info("Test fun.async with null supplier");
+
+            final Fun<Integer, Integer> fun = i -> i + 5;
+            assertThatThrownBy(() -> {
+                final var _$ = fun.async(null);
+            })
+            .isInstanceOf(NullPointerException.class);
+        }
+
+        @SuppressWarnings("unused")
+        @Test
+        void testAsyncWithNullReturningSupplier() throws Exception {
+            LOGGER.info("Test fun.async with null-returning supplier");
+
+            final Fun<Integer, Integer> fun = i -> i + 5;
+            final var future = fun.async(() -> null);
+            
+            assertThatThrownBy(future::get)
+                .hasCauseInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void testAsyncWithValidSupplier() throws Exception {
+            LOGGER.info("Test fun.async with valid supplier");
+
+            final Fun<Integer, Integer> fun = i -> i + 5;
+            assertThatNoException()
+                .isThrownBy(() -> {
+                    final var future = fun.async(() -> 10);
+                    final var result = future.get();
+                    assertThat(result).isEqualTo(15);
+                });
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void testAsyncWithExecutorServiceAndNullSupplier() {
+            LOGGER.info("Test fun.async(supplier, executor) with null supplier");
+
+            final Fun<Integer, Integer> fun = i -> i + 5;
+            final var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+            
+            try {
+                assertThatThrownBy(() -> {
+                    final var _$ = fun.async(null, executor);
+                })
+                .isInstanceOf(NullPointerException.class);
+            } finally {
+                executor.shutdown();
+            }
+        }
+
+        @SuppressWarnings({"DataFlowIssue", "unused"})
+        @Test
+        void testAsyncWithExecutorServiceAndNullExecutor() {
+            LOGGER.info("Test fun.async(supplier, executor) with null executor");
+
+            final Fun<Integer, Integer> fun = i -> i + 5;
+            assertThatThrownBy(() -> {
+                final var _$ = fun.async(() -> 10, null);
+            })
+            .isInstanceOf(NullPointerException.class);
+        }
+
+        @SuppressWarnings("unused")
+        @Test
+        void testAsyncWithExecutorServiceAndNullReturningSupplier() {
+            LOGGER.info("Test fun.async(supplier, executor) with null-returning supplier");
+
+            final Fun<Integer, Integer> fun = i -> i + 5;
+            final var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+            
+            try {
+                final var future = fun.async(() -> null, executor);
+                assertThatThrownBy(future::get)
+                    .hasCauseInstanceOf(NullPointerException.class);
+            } finally {
+                executor.shutdown();
+            }
+        }
+
+        @Test
+        void testAsyncWithExecutorServiceAndValidInputs() throws Exception {
+            LOGGER.info("Test fun.async(supplier, executor) with valid inputs");
+
+            final Fun<Integer, Integer> fun = i -> i + 5;
+            final var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+            
+            try {
+                assertThatNoException()
+                    .isThrownBy(() -> {
+                        final var future = fun.async(() -> 10, executor);
+                        final var result = future.get();
+                        assertThat(result).isEqualTo(15);
+                    });
+            } finally {
+                executor.shutdown();
+            }
+        }
+
     @SuppressWarnings({"DataFlowIssue", "unused"})
     @Test
     void testDeferWithNullSupplier() {
