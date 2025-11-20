@@ -1,416 +1,399 @@
 package org.quurz.foomp.base.util;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.quurz.foomp.base.util.Util.isSubSet;
-import static org.quurz.foomp.base.util.Util.mustBeConcrete;
-import static org.quurz.foomp.base.util.Util.mustBeInterface;
-import static org.quurz.foomp.base.util.Util.mustBeSubSet;
-import static org.quurz.foomp.base.util.Util.requireNonNullElements;
-import static org.slf4j.LoggerFactory.getLogger;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@DisplayName("Util")
 class UtilTest {
 
-    private static final Logger LOGGER
-        = getLogger(UtilTest.class);
+    @Nested
+    @DisplayName("requireNonEmpty(Collection)")
+    class RequireNonEmptyCollection {
 
-    private interface TestInterface {
-        void testMethod();
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NPE if collection is null")
+        void throwsNpeIfCollectionIsNull() {
+            assertThatThrownBy(() -> Util.requireNonEmpty((Collection<Object>) null, "Test"))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("collection");
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NPE if message is null")
+        void throwsNpeIfMessageIsNull() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), (String) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("message");
+        }
+
+        @Test
+        @DisplayName("throws IllegalArgumentException if collection is empty")
+        void throwsIaeIfCollectionIsEmpty() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), "Test"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Test");
+        }
+
+        @Test
+        @DisplayName("returns collection if not empty")
+        void returnsCollectionIfNotEmpty() {
+            final var collection = new HashSet<Integer>();
+            collection.add(1);
+
+            assertThat(Util.requireNonEmpty(collection, "Test"))
+                    .isSameAs(collection);
+        }
     }
 
-    private @interface TestAnnotation {}
+    @Nested
+    @DisplayName("requireNonEmpty(Collection, Supplier)")
+    class RequireNonEmptyCollectionSupplier {
 
-    private abstract static class TestAbstractClass {
-        abstract void testMethod();
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NPE if exception supplier is null")
+        void throwsNpeIfSupplierIsNull() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), (Supplier<Exception>) null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("exceptionSupplier");
+        }
+
+        @Test
+        @DisplayName("throws custom exception if collection is empty")
+        void throwsCustomException() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), () -> new IllegalStateException("Custom")))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("Custom");
+        }
+
+        @Test
+        @DisplayName("returns collection if not empty")
+        void returnsCollectionIfNotEmpty() {
+            final var collection = new HashSet<Integer>();
+            collection.add(1);
+
+            assertThat(Util.requireNonEmpty(collection, () -> new IllegalStateException("Custom")))
+                    .isSameAs(collection);
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRequireNonEmptyForCollectionsWithErrorMessage() {
-        LOGGER.info("Test Util.requiresNonEmpty for collections with error message");
+    @Nested
+    @DisplayName("requireNonEmpty(Map)")
+    class RequireNonEmptyMap {
 
-        final var collection
-            = new HashSet<Integer>();
-        collection.add(1);
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NPE if map is null")
+        void throwsNpeIfMapIsNull() {
+            assertThatThrownBy(() -> Util.requireNonEmpty((Map<?, ?>) null, "Test"))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("map");
+        }
 
-        assertThatThrownBy(() -> Util.requireNonEmpty((Collection<Object>) null, "Test"))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("collection");
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<Integer>(), (String) null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("message");
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<Integer>(), "Test"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
+        @Test
+        @DisplayName("throws IllegalArgumentException if map is empty")
+        void throwsIaeIfMapIsEmpty() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), "Test"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Test");
+        }
 
-        assertThatNoException()
-            .isThrownBy(() -> Util.requireNonEmpty(collection, "Test"));
+        @Test
+        @DisplayName("returns map if not empty")
+        void returnsMapIfNotEmpty() {
+            final var map = new HashMap<Integer, String>();
+            map.put(1, "One");
+
+            assertThat(Util.requireNonEmpty(map, "Test"))
+                    .isSameAs(map);
+        }
     }
 
-    @SuppressWarnings({"DataFlowIssue", "MismatchedQueryAndUpdateOfCollection"})
-    @Test
-    void testRequireNonEmptyForCollectionsWithExceptionSupplier() {
-        LOGGER.info("Test Util.requiresNonEmpty for collections with exception supplier");
+    @Nested
+    @DisplayName("requireNonEmpty(Map, Supplier)")
+    class RequireNonEmptyMapSupplier {
 
-        final var collection
-            = new HashSet<Integer>();
-        collection.add(1);
-
-        assertThatThrownBy(() -> Util.requireNonEmpty((Collection<Object>) null, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("collection");
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<Integer>(), (Supplier<? extends Exception>) null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionSupplier");
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<Integer>(), () -> null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionSupplier");
-
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
-        assertThat(Util.requireNonEmpty(collection, () -> new IllegalArgumentException("Test")))
-            .isEqualTo(collection);
+        @Test
+        @DisplayName("throws custom exception if map is empty")
+        void throwsCustomException() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), () -> new IllegalStateException("Custom")))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("Custom");
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRequireNonEmptyForMapWithErrorMessage() {
-        LOGGER.info("Test Util.requiresNonEmpty for Map with error message");
+    @Nested
+    @DisplayName("requireNonNullElements(Collection)")
+    class RequireNonNullElementsCollection {
 
-        final var map
-            = new HashMap<Integer, String>();
-        map.put(1, "One");
+        @Test
+        @DisplayName("throws exception for null element in Set")
+        void throwsExceptionForSet() {
+            final var set = new HashSet<Integer>();
+            set.add(1);
+            set.add(null);
 
-        assertThatThrownBy(() -> Util.requireNonEmpty((Map<?, ?>) null, "Test"))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("map");
-        assertThatThrownBy(() -> Util.requireNonEmpty(map, (String) null))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("message");
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), "Test"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Test");
+            assertThatThrownBy(() -> Util.requireNonNullElements(set, "testSet", IllegalArgumentException::new))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("testSet");
+        }
 
-        assertThatNoException()
-            .isThrownBy(() -> Util.requireNonEmpty(map, "Test"));
+        @Test
+        @DisplayName("throws exception for null element in List with index")
+        void throwsExceptionForList() {
+            final var list = new ArrayList<Integer>();
+            list.add(1);
+            list.add(null);
+
+            assertThatThrownBy(() -> Util.requireNonNullElements(list, "testList", IllegalArgumentException::new))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("testList")
+                    .hasMessageContaining("1");
+        }
+
+        @Test
+        @DisplayName("returns collection if all elements non-null")
+        void returnsCleanCollection() {
+            final var list = new ArrayList<>();
+            list.add(1);
+            assertThat(Util.requireNonNullElements(list, "list", IllegalArgumentException::new))
+                    .isSameAs(list);
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRequireNonEmptyForMapWithExceptionSupplier() {
-        LOGGER.info("Test Util.requiresNonEmpty for Map with exception supplier");
+    @Nested
+    @DisplayName("requireNonNullElements(Array)")
+    class RequireNonNullElementsArray {
 
-        final var map
-            = new HashMap<Integer, String>();
-        map.put(1, "One");
+        @Test
+        @DisplayName("throws exception for null element in array with index")
+        void throwsExceptionForArray() {
+            final var array = new Integer[]{1, null};
 
-        assertThatThrownBy(() -> Util.requireNonEmpty((Map<?, ?>) null, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("map");
-        assertThatThrownBy(() -> Util.requireNonEmpty(map, (Supplier<? extends Exception>) null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionSupplier");
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), () -> null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionSupplier");
+            assertThatThrownBy(() -> Util.requireNonNullElements(array, "testArray", IllegalArgumentException::new))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("testArray")
+                    .hasMessageContaining("1");
+        }
 
-        assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
-        assertThat(Util.requireNonEmpty(map, () -> new IllegalArgumentException("Test")))
-            .isEqualTo(map);
+        @Test
+        @DisplayName("returns array if all elements non-null")
+        void returnsCleanArray() {
+            final var array = new Integer[]{1, 2};
+            assertThat(Util.requireNonNullElements(array, "array", IllegalArgumentException::new))
+                    .isSameAs(array);
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRequireNonNullElementsForCollections() {
-        LOGGER.info("Test Util.requireNonNullElements for collections");
+    @Nested
+    @DisplayName("Set Subset Checks")
+    class SetSubsetChecks {
 
-        final var setWithoutNullElements
-            = new HashSet<Integer>();
-        setWithoutNullElements.add(1);
-        setWithoutNullElements.add(2);
-        setWithoutNullElements.add(3);
+        @Test
+        @DisplayName("isSubSet returns true for equal sets")
+        void isSubSetForEqualSets() {
+            final var a = Set.of(1, 2);
+            final var b = Set.of(1, 2);
+            assertThat(Util.isSubSet(a, b)).isTrue();
+        }
 
-        final var setWithNullElements
-            = new HashSet<Integer>();
-        setWithNullElements.add(1);
-        setWithNullElements.add(null);
-        setWithNullElements.add(3);
+        @Test
+        @DisplayName("isSubSet returns true for proper subset")
+        void isSubSetForProperSubset() {
+            final var superSet = Set.of(1, 2, 3);
+            final var subSet = Set.of(1, 2);
+            assertThat(Util.isSubSet(superSet, subSet)).isTrue();
+        }
 
-        final var listWithoutNullElements
-            = new ArrayList<Integer>();
-        listWithoutNullElements.add(1);
-        listWithoutNullElements.add(2);
-        listWithoutNullElements.add(3);
+        @Test
+        @DisplayName("isSubSet returns false if candidate is larger")
+        void isSubSetForLargerCandidate() {
+            final var superSet = Set.of(1);
+            final var subSet = Set.of(1, 2);
+            assertThat(Util.isSubSet(superSet, subSet)).isFalse();
+        }
 
-        final var listWithNullElements
-            = new ArrayList<Integer>();
-        listWithNullElements.add(1);
-        listWithNullElements.add(null);
-        listWithNullElements.add(3);
+        @Test
+        @DisplayName("isSubSet returns true for empty sets")
+        void isSubSetForEmptySets() {
+            assertThat(Util.isSubSet(Set.of(), Set.of())).isTrue();
+            assertThat(Util.isSubSet(Set.of(1), Set.of())).isTrue();
+        }
 
-        assertThatThrownBy(() -> Util.requireNonNullElements((Collection<Object>) null, "collection", IllegalArgumentException::new))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("collection");
-        assertThatThrownBy(() -> Util.requireNonNullElements(new HashSet<>(), null, IllegalArgumentException::new))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("collectionName");
-        assertThatThrownBy(() -> Util.requireNonNullElements(new HashSet<>(), "collection", null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionConstructor");
+        @Test
+        @DisplayName("mustBeSubSet throws if not subset")
+        void mustBeSubSetThrows() {
+            final var superSet = Set.of(1);
+            final var subSet = Set.of(1, 2);
 
-        assertThatThrownBy(() -> Util.requireNonNullElements(setWithNullElements, "collection", message -> null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionConstructor");
-
-        assertThatThrownBy(() -> Util.requireNonNullElements(setWithNullElements, "collection", IllegalArgumentException::new))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("collection");
-        assertThat(Util.requireNonNullElements(setWithoutNullElements, "collection", IllegalArgumentException::new))
-            .isEqualTo(setWithoutNullElements);
-
-        assertThatThrownBy(() -> Util.requireNonNullElements(listWithNullElements, "collection", IllegalArgumentException::new))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("collection")
-            .hasMessageContaining("1");
-        assertThat(Util.requireNonNullElements(listWithoutNullElements, "collection", IllegalArgumentException::new))
-            .isEqualTo(listWithoutNullElements);
+            assertThatThrownBy(() -> Util.mustBeSubSet(superSet, subSet, "Error"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Error");
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testRequireNonNullElementsForArrays() {
-        LOGGER.info("Test Util.requireNonNullElements for arrays");
+    @Nested
+    @DisplayName("Class Type Checks")
+    class ClassTypeChecks {
 
-        final var arrayWithoutNullElements
-            = new Integer[]{1, 2, 3};
-        final var arrayWithNullElements
-            = new Integer[]{1, null, 3};
+        private interface TestInterface {}
+        private abstract static class TestAbstractClass {}
 
+        @Test
+        @DisplayName("mustBeInterface throws for concrete class")
+        void mustBeInterfaceThrows() {
+            assertThatThrownBy(() -> Util.mustBeInterface(String.class, () -> new IllegalArgumentException("Bad")))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
 
-        assertThatThrownBy(() -> requireNonNullElements((Object[]) null, "array", IllegalArgumentException::new))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("array");
-        assertThatThrownBy(() -> requireNonNullElements(new Object[]{}, null, IllegalArgumentException::new))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("array");
-        assertThatThrownBy(() -> requireNonNullElements(new Object[]{}, "array", null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionConstructor");
+        @Test
+        @DisplayName("mustBeInterface passes for interface")
+        void mustBeInterfacePasses() {
+            assertThatNoException()
+                    .isThrownBy(() -> Util.mustBeInterface(TestInterface.class, () -> new IllegalArgumentException("Bad")));
+        }
 
-        assertThatThrownBy(() -> requireNonNullElements(arrayWithNullElements, "array", message -> null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionConstructor");
+        @Test
+        @DisplayName("mustBeConcrete throws for abstract class")
+        void mustBeConcreteThrowsForAbstract() {
+            assertThatThrownBy(() -> Util.mustBeConcrete(TestAbstractClass.class, () -> new IllegalArgumentException("Bad")))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
 
-        assertThatThrownBy(() -> requireNonNullElements(arrayWithNullElements, "array", IllegalArgumentException::new))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("array")
-            .hasMessageContaining("1");
-        assertThat(requireNonNullElements(arrayWithoutNullElements, "array", IllegalArgumentException::new))
-            .isEqualTo(arrayWithoutNullElements);
+        @Test
+        @DisplayName("mustBeConcrete passes for String")
+        void mustBeConcretePasses() {
+            assertThatNoException()
+                    .isThrownBy(() -> Util.mustBeConcrete(String.class, () -> new IllegalArgumentException("Bad")));
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testIsSubset() {
-        LOGGER.info("Test Util.isSubset");
+    @Nested
+    @DisplayName("Functional Wrappers")
+    class FunctionalWrappers {
 
-        final var superSet
-            = new HashSet<Integer>();
-        superSet.add(1);
-        superSet.add(2);
-        superSet.add(3);
+        @SuppressWarnings("unused")
+        @Test
+        @DisplayName("requiresNonNullResult1 throws on null result")
+        void functionThrowsOnNull() {
+            final var fun = Util.requiresNonNullResult1((Function<String, String>) s -> null, "fun");
+            assertThatThrownBy(() -> fun.apply("in"))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("fun");
+        }
 
-        final var subSet
-            = new HashSet<Integer>();
-        subSet.add(1);
-        subSet.add(2);
-
-       assertThatThrownBy(() -> isSubSet(null, subSet))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("superSet");
-        assertThatThrownBy(() -> isSubSet(superSet, null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("subSet");
-
-        assertThat(isSubSet(superSet, subSet))
-            .isTrue();
-        assertThat(isSubSet(subSet, superSet))
-            .isFalse();
-        assertThat(isSubSet(superSet, new HashSet<>()))
-            .isTrue();
-        assertThat(isSubSet(new HashSet<>(), new HashSet<>()))
-            .isTrue();   // TODO: Kann die leere Menge Teilmenge einer leeren MEnge sein? Wohl kaum, oder?
+        @SuppressWarnings("unused")
+        @Test
+        @DisplayName("requiresNonNullResult2 throws on null result")
+        void biFunctionThrowsOnNull() {
+            final var fun = Util.requiresNonNullResult2((BiFunction<String, String, String>) (a, b) -> null, "fun");
+            assertThatThrownBy(() -> fun.apply("a", "b"))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("fun");
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testMustBeSubSet() {
-        LOGGER.info("Test Util.mustBeSubset");
+    @Nested
+    @DisplayName("File System Checks")
+    class FileSystemChecks {
 
-        final var superSet
-            = new HashSet<Integer>();
-        superSet.add(1);
-        superSet.add(2);
-        superSet.add(3);
+        @Test
+        @DisplayName("mustBeDirectory throws for file")
+        void mustBeDirectoryThrowsForFile(@TempDir Path tempDir) throws IOException {
+            Path file = tempDir.resolve("file.txt");
+            Files.createFile(file);
 
-        final var subSet
-            = new HashSet<Integer>();
-        subSet.add(1);
-        subSet.add(2);
+            assertThatThrownBy(() -> Util.mustBeDirectory(file, () -> new IOException("Not a dir")))
+                    .isInstanceOf(IOException.class)
+                    .hasMessage("Not a dir");
+        }
 
-        assertThatThrownBy(() -> mustBeSubSet(null, subSet, "Test"))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("superSet");
-        assertThatThrownBy(() -> mustBeSubSet(superSet, null, "Test"))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("subSet");
-        assertThatThrownBy(() -> mustBeSubSet(superSet, new HashSet<>(), null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("message");
+        @Test
+        @DisplayName("mustBeDirectory passes for directory")
+        void mustBeDirectoryPasses(@TempDir Path tempDir) {
+            assertThatNoException()
+                    .isThrownBy(() -> Util.mustBeDirectory(tempDir, () -> new IOException("Fail")));
+        }
 
-        assertThatThrownBy(() -> mustBeSubSet(subSet, superSet, "Test"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
+        @Test
+        @DisplayName("mustBeRegularFile throws for directory")
+        void mustBeRegularFileThrowsForDirectory(@TempDir Path tempDir) {
+            assertThatThrownBy(() -> Util.mustBeRegularFile(tempDir, () -> new IOException("Not a file")))
+                    .isInstanceOf(IOException.class)
+                    .hasMessage("Not a file");
+        }
 
-        assertThatNoException()
-            .isThrownBy(() -> mustBeSubSet(superSet, subSet, "Test"));
+        @Test
+        @DisplayName("mustBeRegularFile passes for file")
+        void mustBeRegularFilePasses(@TempDir Path tempDir) throws IOException {
+            Path file = tempDir.resolve("test.txt");
+            Files.createFile(file);
+
+            assertThatNoException()
+                    .isThrownBy(() -> Util.mustBeRegularFile(file, () -> new IOException("Fail")));
+        }
+
+        @Test
+        @DisplayName("mustBeReadable passes for readable file")
+        void mustBeReadablePasses(@TempDir Path tempDir) throws IOException {
+            Path file = tempDir.resolve("read.txt");
+            Files.createFile(file);
+            // By default created files are readable
+            assertThat(Util.mustBeReadable(file, () -> new IOException("Fail"))).isEqualTo(file);
+        }
+        
+        @Test
+        @DisplayName("mustBeWriteable passes for writeable file")
+        void mustBeWriteablePasses(@TempDir Path tempDir) throws IOException {
+            Path file = tempDir.resolve("write.txt");
+            Files.createFile(file);
+            // By default created files are writeable
+            assertThat(Util.mustBeWriteable(file, () -> new IOException("Fail"))).isEqualTo(file);
+        }
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testMustBeInterfaceWithExceptionSupplier() {
-        LOGGER.info("Test Util.mustBeInterface with execution supplier");
+    @Nested
+    @DisplayName("String Sanitization")
+    class StringSanitization {
 
-        assertThatThrownBy(() -> mustBeInterface(null, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("clazz");
-        assertThatThrownBy(() -> mustBeInterface(String.class, null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionSupplier");
+        @Test
+        @DisplayName("toSafeFileName replaces spaces and removes special chars")
+        void toSafeFileNameSanitizes() {
+            assertThat(Util.toSafeFileName("My Plugin Name!")).isEqualTo("My_Plugin_Name");
+            assertThat(Util.toSafeFileName("v1.0.0-beta+build")).isEqualTo("v1.0.0-betabuild"); // + removed
+            assertThat(Util.toSafeFileName("User/Name\\Here")).isEqualTo("UserNameHere");
+            assertThat(Util.toSafeFileName("..")).isEqualTo("..");
+        }
 
-        assertThatThrownBy(() -> mustBeInterface(String.class, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
-
-        assertThatNoException()
-            .isThrownBy(() -> mustBeInterface(Runnable.class, () -> new IllegalArgumentException("Test")));
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testMustBeConcreteWithExceptionSupplier() {
-        LOGGER.info("Test Util.mustBeConcrete with exception supplier");
-
-        assertThatThrownBy(() -> mustBeConcrete(null, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("clazz");
-        assertThatThrownBy(() -> mustBeConcrete(String.class, null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("exceptionSupplier");
-
-        assertThatThrownBy(() -> mustBeConcrete(TestInterface.class, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
-        assertThatThrownBy(() -> mustBeConcrete(TestAnnotation.class, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
-        assertThatThrownBy(() -> mustBeConcrete(boolean.class, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
-        assertThatThrownBy(() -> mustBeConcrete(TestAbstractClass.class, () -> new IllegalArgumentException("Test")))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Test");
-
-        assertThatNoException()
-            .isThrownBy(() -> mustBeConcrete(String.class, () -> new IllegalArgumentException("Test")));
-    }
-
-    // Ergänzungen
-
-    @Test
-    void testIsSubset_equal_non_empty_sets_is_false() {
-        LOGGER.info("Test Util.isSubSet equal non-empty sets should be false");
-
-        final var a = new java.util.HashSet<>(java.util.List.of(1, 2));
-        final var b = new java.util.HashSet<>(java.util.List.of(1, 2));
-
-        // equal, non-empty -> not a proper subset
-        assertThat(isSubSet(a, b)).isTrue();    // TODO: Das sollten wir auf jeden Fall noch mal profen
-        assertThat(isSubSet(b, a)).isTrue();
-    }
-
-    @Test
-    void testMustBeSubSet_returns_same_instance() {
-        LOGGER.info("Test Util.mustBeSubSet returns the same subset instance (identity)");
-
-        final var superSet = new java.util.HashSet<>(java.util.List.of(1, 2, 3));
-        final var subSet   = new java.util.HashSet<>(java.util.List.of(1, 2));
-
-        // Should return the very same reference (no copy/view)
-        assertThat(mustBeSubSet(superSet, subSet, "should be proper subset"))
-            .isSameAs(subSet);
-    }
-
-    @SuppressWarnings({"DataFlowIssue", "ConstantConditions"})
-    @Test
-    void testRequiresNonNullResult1_decorator() {
-        LOGGER.info("Test Util.requiresNonNullResult1");
-
-        // null arguments
-        assertThatThrownBy(() -> Util.requiresNonNullResult1(null, "f"))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("function");
-        assertThatThrownBy(() -> Util.requiresNonNullResult1(x -> x, null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("functionName");
-
-        // wrapped function returns null -> NPE mit passender Message
-        final var nullReturning = Util.requiresNonNullResult1((java.util.function.Function<String, String>) x -> null, "fNull");
-        assertThatThrownBy(() -> nullReturning.apply("x"))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("fNull");
-
-        // happy path
-        final var lengthFun = Util.requiresNonNullResult1(String::length, "len");
-        assertThat(lengthFun.apply("abc")).isEqualTo(3);
-    }
-
-    @SuppressWarnings({"ConstantConditions"})
-    @Test
-    void testRequiresNonNullResult2_decorator() {
-        LOGGER.info("Test Util.requiresNonNullResult2");
-
-        // null arguments
-        assertThatThrownBy(() -> Util.requiresNonNullResult2(null, "f2"))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("function");
-        assertThatThrownBy(() -> Util.requiresNonNullResult2((a, b) -> b, null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("functionName");
-
-        // wrapped bi-function returns null -> NPE mit passender Message
-        final var nullReturning2 = Util.requiresNonNullResult2((java.util.function.BiFunction<Integer, Integer, Integer>) (a, b) -> null, "f2Null");
-        assertThatThrownBy(() -> nullReturning2.apply(1, 2))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("f2Null");
-
-        // happy path
-        final var adder = Util.requiresNonNullResult2(Integer::sum, "sum");
-        assertThat(adder.apply(2, 5)).isEqualTo(7);
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("toSafeFileName throws NPE on null")
+        void toSafeFileNameThrowsOnNull() {
+            assertThatThrownBy(() -> Util.toSafeFileName(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("name");
+        }
     }
 
 }

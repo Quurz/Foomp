@@ -8,7 +8,8 @@ plugins {
 
 dependencies {
     api(project(":base"))
-    api(libs.tools.jackson.core.jackson.databind)
+    implementation("tools.jackson.core:jackson-databind:3.0.2")
+    implementation("com.networknt:json-schema-validator:2.0.0")
     api(libs.net.bytebuddy.byte.buddy)
     api(libs.org.checkerframework.checker.qual)
     api(libs.org.slf4j.slf4j.api)

@@ -8,8 +8,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
-// TODO:JavaDoc & Tests
-public class Plugin<A> {
+public class Proxy<A> {
 
     private A $__implementation;
     final ReadWriteLock $__access_lock
@@ -35,14 +34,14 @@ public class Plugin<A> {
         }
     }
 
-    A $__replace_implementation(final @NonNull A plugin) {
-        Objects.requireNonNull(plugin, nullValue("plugin"));
+    A $__replace_implementation(final @NonNull A implementation) {
+        Objects.requireNonNull(implementation, nullValue("implementation"));
         $__access_lock.writeLock().lock();
         try {
             final var oldPlugin
                 = this.$__implementation;
             this.$__implementation
-                = plugin;
+                = implementation;
             return oldPlugin;
         } finally {
             $__access_lock.writeLock().unlock();

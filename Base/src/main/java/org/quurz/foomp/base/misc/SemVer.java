@@ -4,6 +4,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.types.Echo;
 import org.quurz.foomp.base.util.Maybe;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -70,8 +72,13 @@ import static org.quurz.foomp.base.util.Maybe.none;
  * @see <a href="https://semver.org/">Semantic Versioning 2.0.0</a>
  */
 public class SemVer
-        implements Comparable<SemVer>,
+        implements Serializable,
+                   Comparable<SemVer>,
                    Echo {
+
+    @Serial
+    private static final long serialVersionUID
+        = 23L;
 
     // Regex for SemVer 2.0.0: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILDMETADATA]
     private static final String SEM_VER_PATTERN

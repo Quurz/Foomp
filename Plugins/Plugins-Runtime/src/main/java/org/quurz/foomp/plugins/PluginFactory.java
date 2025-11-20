@@ -1,6 +1,6 @@
 package org.quurz.foomp.plugins;
 
-import net.bytebuddy.ByteBuddy;
+import  net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -37,7 +37,7 @@ public interface PluginFactory<A> {
 
         final var builder
             = new ByteBuddy()
-                .subclass(Plugin.class)
+                .subclass(Proxy.class)
                 .implement(contract)
                 .method(net.bytebuddy.matcher.ElementMatchers.isDeclaredBy(contract))
                 .intercept(net.bytebuddy.implementation.MethodDelegation.to(LockedDelegator.class))
@@ -76,7 +76,7 @@ public interface PluginFactory<A> {
     // Nested interceptor class for locked delegation
     class LockedDelegator {
         @RuntimeType
-        public static Object intercept(final @This Plugin<?> plugin,
+        public static Object intercept(final @This Proxy<?> plugin,
                                        final @Origin Method method,
                                        final @AllArguments Object[] args) throws Throwable {
             plugin.$__access_lock.writeLock().lock();

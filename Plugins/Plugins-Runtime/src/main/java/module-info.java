@@ -4,5 +4,9 @@ module foomp.plugins.runtime {
     requires foomp.base;
     requires net.bytebuddy;
 
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.core;
+    requires com.networknt.schema;
+
     requires static org.checkerframework.checker.qual;
 }

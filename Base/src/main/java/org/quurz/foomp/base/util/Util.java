@@ -5,6 +5,8 @@ import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.functions.Fun2;
 
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -479,6 +481,174 @@ public final class Util {
             throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
         }
         return clazz;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Ensures that the given path points to a regular file.
+     *     </p>
+     *     <p>
+     *         Returns the same path instance if it is a regular file; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not a regular file
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path mustBeRegularFile(final @NonNull Path path,
+                                                               final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!Files.isRegularFile(path)) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return path;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Ensures that the given path points to an existing directory.
+     *     </p>
+     *     <p>
+     *         Returns the same path instance if it is a directory; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not a directory
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path mustBeDirectory(final @NonNull Path path,
+                                                             final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!Files.isDirectory(path)) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return path;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Ensures that the given path is readable.
+     *     </p>
+     *     <p>
+     *         Returns the same path instance if it is readable; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not readable
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path mustBeReadable(final @NonNull Path path,
+                                                            final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!Files.isReadable(path)) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return path;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Ensures that the given path is writable.
+     *     </p>
+     *     <p>
+     *         Returns the same path instance if it is writable; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not writable
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path mustBeWriteable(final @NonNull Path path,
+                                                             final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!Files.isWritable(path)) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return path;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Converts a string into a safe file name.
+     *     </p>
+     *     <p>
+     *         Replaces all whitespaces with underscores and removes all characters
+     *         that are not alphanumeric, dots, hyphens, or underscores.
+     *     </p>
+     * </div>
+     *
+     * @param name the original name; must not be {@code null}
+     * @return a safe file name string
+     * @throws NullPointerException if {@code name} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String toSafeFileName(final @NonNull String name) {
+        Objects.requireNonNull(name, nullValue("name"));
+        return name
+                .replaceAll("\\s+", "_")
+                .replaceAll("[^a-zA-Z0-9._-]", "");
     }
 
     private Util() {}
