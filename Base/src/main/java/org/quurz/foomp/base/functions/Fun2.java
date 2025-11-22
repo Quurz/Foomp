@@ -87,7 +87,11 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Returns a function that applies {@code this} and then applies {@code next} to the result.
+     *         Returns a function that first applies {@code this} to its arguments, and then applies
+     *         {@code next} to the result.
+     *     </p>
+     *     <p>
+     *         This represents the composition {@code next ∘ this}.
      *     </p>
      *     <p>
      *         Contract: {@code next} must not be {@code null}; both {@code this} and {@code next} must not
@@ -117,6 +121,10 @@ public interface Fun2<X1, X2, Y>
      *     <p>
      *         Defers application by turning this function into a {@link Callable} whose arguments are
      *         supplied lazily via {@link java.util.function.Supplier}s.
+     *     </p>
+     *     <p>
+     *         The supplied arguments are evaluated only when the returned {@code Callable} is invoked.
+     *         This allows for lazy evaluation of arguments.
      *     </p>
      *     <p>
      *         Contract: suppliers and the values they supply must not be {@code null}; the result must not be {@code null}.
@@ -151,6 +159,10 @@ public interface Fun2<X1, X2, Y>
      *         Partially applies this function by supplying the first argument via a {@link java.util.function.Supplier}.
      *     </p>
      *     <p>
+     *         Returns a unary function {@code x2 -> apply(supplier.get(), x2)}.
+     *         The supplier is invoked <em>every time</em> the returned function is applied.
+     *     </p>
+     *     <p>
      *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
      *     </p>
      * </div>
@@ -175,6 +187,10 @@ public interface Fun2<X1, X2, Y>
      * <div>
      *     <p>
      *         Partially applies this function by supplying the second argument via a {@link java.util.function.Supplier}.
+     *     </p>
+     *     <p>
+     *         Returns a unary function {@code x1 -> apply(x1, supplier.get())}.
+     *         The supplier is invoked <em>every time</em> the returned function is applied.
      *     </p>
      *     <p>
      *         Contract: the supplier and its value must not be {@code null}; the result must not be {@code null}.
@@ -202,6 +218,9 @@ public interface Fun2<X1, X2, Y>
      *     <p>
      *         Returns a function that flips the order of arguments before applying {@code this}.
      *     </p>
+     *     <p>
+     *         {@code (x2, x1) -> apply(x1, x2)}
+     *     </p>
      * </div>
      *
      * @return a function with flipped argument order
@@ -220,6 +239,9 @@ public interface Fun2<X1, X2, Y>
      * <div>
      *     <p>
      *         Curries this binary function into a unary function returning another unary function.
+     *     </p>
+     *     <p>
+     *         {@code x1 -> x2 -> apply(x1, x2)}
      *     </p>
      *     <p>
      *         Contract: neither intermediate nor final results may be {@code null}.
@@ -241,14 +263,17 @@ public interface Fun2<X1, X2, Y>
     /**
      * <div>
      *     <p>
-     *         Uncurries a curried function into a binary function.
-     *     </p>
-     *     <p>
-     *         Contract: {@code curried} must not be {@code null}; none of the intermediate results may be {@code null}.
-     *     </p>
-     * </div>
-     *
-     * @param curried the curried function; must not be {@code null}
+         * Uncurries a curried function into a binary function.
+         *     </p>
+         *     <p>
+         *         {@code (x1, x2) -> curried.apply(x1).apply(x2)}
+         *     </p>
+         *     <p>
+         *         Contract: {@code curried} must not be {@code null}; none of the intermediate results may be {@code null}.
+         *     </p>
+         * </div>
+         *
+         * @param curried the curried function; must not be {@code null}
      * @param <X1>    the type of the first argument
      * @param <X2>    the type of the second argument
      * @param <Y>     the result type

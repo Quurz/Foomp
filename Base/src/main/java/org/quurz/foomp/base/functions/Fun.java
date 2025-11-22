@@ -4,10 +4,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -230,96 +230,139 @@ public interface Fun<X, Y>
         };
     }
 
-        /**
-         * <div>
-         *   <p>
-         *     Applies this function asynchronously to a value supplied lazily.
-         *   </p>
-         *   <p>
-         *     Execution is delegated to the current {@link ForkJoinPool} if the calling thread
-         *     is a {@link ForkJoinWorkerThread}; otherwise, {@link ForkJoinPool#commonPool()} is used.
-         *   </p>
-         *   <p>
-         *     This is a <strong>convenience method</strong> for ad-hoc asynchronous application
-         *     of functions. For more control over execution (e.g., custom thread pools, testing with
-         *     synchronous executors), use {@link #async(Supplier, ExecutorService)}.
-         *   </p>
-         *   <p>
-         *     <strong>Use cases:</strong>
-         *     <ul>
-         *       <li>Parallelizing expensive function applications in pipelines.</li>
-         *       <li>Quick async wrapping without explicit executor management.</li>
-         *       <li>Integration with lazy evaluation frameworks (e.g., {@link Eval}).</li>
-         *     </ul>
-         *   </p>
-         * </div>
-         *
-         * @param supplier supplies the input value; must not be {@code null} and must not return {@code null}
-         * @return a {@code Future} representing the asynchronous computation
-         * @throws NullPointerException if {@code supplier} is {@code null} or returns {@code null}
-         *
-         * @see #async(Supplier, ExecutorService)
-         *
-         * @since 1.0.0
-         */
-        @SuppressWarnings("resource")
-        default Future<Y> async(final @NonNull Supplier<X> supplier) {
-            Objects.requireNonNull(supplier, nullValue("supplier"));
+    /**
+     * <div>
+     *   <p>
+     *     Returns a function that applies this function asynchronously to a value supplied lazily.
+     *   </p>
+     *   <p>
+     *     <strong>Execution context:</strong> The returned function automatically selects an appropriate
+     *     {@link ForkJoinPool} for execution when applied. If the calling thread is a {@link ForkJoinWorkerThread},
+     *     the computation is submitted to that thread's associated pool. Otherwise, execution is
+     *     delegated to {@link ForkJoinPool#commonPool()}.
+     *   </p>
+     * </div>
+     *
+     * @return a function that accepts a {@link Supplier} and returns a {@code CompletableFuture}
+     *
+     * @since 1.0.0
+     */
+    @NonNull
+    default Fun<Supplier<X>, CompletableFuture<Y>> async() {
+        return argumentSupplier -> {
+            Objects.requireNonNull(argumentSupplier, nullValue("argumentSupplier"));
+            final var pool
+                = Thread.currentThread() instanceof ForkJoinWorkerThread currentThread
+                    ? currentThread.getPool()
+                    : ForkJoinPool.commonPool();
+            return CompletableFuture.supplyAsync(
+                () -> {
+                    final var x
+                        = Objects.requireNonNull(argumentSupplier.get(), nullSuppliedFrom("argumentSupplier"));
+                    return Objects.requireNonNull(this.apply(x), nullResult());
+                },
+                pool
+            );
+        };
+    }
 
-            final ForkJoinPool pool;
-            if (Thread.currentThread() instanceof ForkJoinWorkerThread forkJoinWorkerThread) {
-                pool = forkJoinWorkerThread.getPool();
-            } else {
-                pool = ForkJoinPool.commonPool();
-            }
+    /**
+     * <div>
+     *   <p>
+     *     Returns a function that applies this function asynchronously using the provided {@link ExecutorService}.
+     *   </p>
+     *   <p>
+     *     This overload provides <strong>explicit control</strong> over the execution context.
+     *   </p>
+     * </div>
+     *
+     * @param executor the executor to use; must not be {@code null}
+     * @return a function that accepts a {@link Supplier} and returns a {@code CompletableFuture}
+     * @throws NullPointerException if {@code executor} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @NonNull
+    default Fun<Supplier<X>, CompletableFuture<Y>> async(final @NonNull ExecutorService executor) {
+        Objects.requireNonNull(executor, nullValue("executor"));
+        return argumentSupplier -> {
+            Objects.requireNonNull(argumentSupplier, nullValue("argumentSupplier"));
+            return CompletableFuture.supplyAsync(
+                () -> {
+                    final var x
+                        = Objects.requireNonNull(argumentSupplier.get(), nullSuppliedFrom("argumentSupplier"));
+                    return Objects.requireNonNull(this.apply(x), nullResult());
+                },
+                executor
+            );
+        };
+    }
 
-            return pool.submit(() -> {
-                final var input = Objects.requireNonNull(supplier.get(), nullSupplied());
-                return this.apply(input);
-            });
-        }
+    /**
+     * <div>
+     *     <p>
+     *         Returns a function that prepares a deferred asynchronous computation.
+     *     </p>
+     *     <p>
+     *         The returned function takes a value supplier and returns a {@link Provider} (a supplier of futures).
+     *         Invoking the provider submits the task for execution.
+     *     </p>
+     *     <p>
+     *         <strong>Execution context:</strong> Uses the same automatic pool selection logic as {@link #async()}.
+     *     </p>
+     * </div>
+     *
+     * @return a function yielding a {@code Provider} for the deferred computation
+     *
+     * @since 1.0.0
+     */
+    @SuppressWarnings("resource")
+    @NonNull
+    default Fun<Supplier<X>, Provider<CompletableFuture<Y>>> deferredAsync() {
+        return argumentSupplier -> {
+            Objects.requireNonNull(argumentSupplier, nullValue("argumentSupplier"));
+            final var pool
+                = Thread.currentThread() instanceof ForkJoinWorkerThread currentThread
+                    ? currentThread.getPool()
+                    : ForkJoinPool.commonPool();
+            return () -> CompletableFuture.supplyAsync(
+                    () -> {
+                        final var x
+                            = Objects.requireNonNull(argumentSupplier.get(), nullSuppliedFrom("argumentSupplier"));
+                        return Objects.requireNonNull(this.apply(x), nullResult());
+                    },
+                    pool
+            );
+        };
+    }
 
-        /**
-         * <div>
-         *   <p>
-         *     Applies this function asynchronously to a value supplied lazily, using the given
-         *     {@link ExecutorService} for execution.
-         *   </p>
-         *   <p>
-         *     This overload provides <strong>explicit control</strong> over the execution context,
-         *     making it suitable for:
-         *     <ul>
-         *       <li>Custom thread pools with specific sizing or behavior.</li>
-         *       <li>Testing with synchronous executors (e.g., {@code MoreExecutors.newDirectExecutorService()})
-         *           to ensure deterministic, non‑concurrent execution.</li>
-         *       <li>Scenarios where {@link ForkJoinPool} semantics are undesirable.</li>
-         *     </ul>
-         *   </p>
-         *   <p>
-         *     Contract: The caller is responsible for managing the lifecycle of the provided
-         *     {@code ExecutorService} (shutdown, error handling, etc.).
-         *   </p>
-         * </div>
-         *
-         * @param supplier        supplies the input value; must not be {@code null} and must not return {@code null}
-         * @param executorService the executor to run the computation; must not be {@code null}
-         * @return a {@code Future} representing the asynchronous computation
-         * @throws NullPointerException if {@code supplier} or {@code executorService} is {@code null},
-         *                              or if {@code supplier} returns {@code null}
-         *
-         * @see #async(Supplier)
-         *
-         * @since 1.0.0
-         */
-        default Future<Y> async(final @NonNull Supplier<X> supplier,
-                                final @NonNull ExecutorService executorService) {
-            Objects.requireNonNull(supplier, nullValue("supplier"));
-            Objects.requireNonNull(executorService, nullValue("executorService"));
-
-            return executorService.submit(() -> {
-                final var input = Objects.requireNonNull(supplier.get(), nullSupplied());
-                return this.apply(input);
-            });
-        }
+    /**
+     * <div>
+     *     <p>
+     *         Returns a function that prepares a deferred asynchronous computation using the provided {@link ExecutorService}.
+     *     </p>
+     *     <p>
+     *         The returned function takes a value supplier and returns a {@link Provider}.
+     *         Invoking the provider submits the task to the specified executor.
+     *     </p>
+     * </div>
+     *
+     * @param executor the executor to use; must not be {@code null}
+     * @return a function yielding a {@code Provider} for the deferred computation
+     * @throws NullPointerException if {@code executor} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    default Fun<Supplier<X>, Provider<CompletableFuture<Y>>> deferredAsync(final @NonNull ExecutorService executor) {
+        Objects.requireNonNull(executor, nullValue("executor"));
+        return argumentSupplier -> {
+            Objects.requireNonNull(argumentSupplier, nullValue("argumentSupplier"));
+            return () -> {
+                final var x
+                    = Objects.requireNonNull(argumentSupplier.get(), nullSuppliedFrom("argumentSupplier"));
+                return CompletableFuture.supplyAsync(() -> Objects.requireNonNull(this.apply(x), nullResult()), executor);
+            };
+        };
+    }
 
 }
