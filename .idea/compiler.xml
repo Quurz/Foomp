@@ -26,7 +26,6 @@
       <module name="plugins-test-implementation2" target="25" />
       <module name="plugins-test-shared" target="25" />
       <module name="Proxies" target="21" />
-      <module name="report-aggregator" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>
