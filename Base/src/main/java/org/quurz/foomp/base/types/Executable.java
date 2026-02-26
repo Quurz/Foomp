@@ -55,7 +55,7 @@ public interface Executable<A>
     @Override
     default A call()
         throws Exception {
-        return execute();
+        return this.execute();
     }
 
     /**
@@ -76,6 +76,7 @@ public interface Executable<A>
             = this;
 
         return () -> {
+            // Executes task; returns success or exception as `XorValue`
             try {
                 final var result
                     = self.execute();
