@@ -144,19 +144,19 @@ class Record3Test {
     }
 
     @Nested
-    @DisplayName("Applicative (lift)")
-    class Applicative_Lift {
+    @DisplayName("Applicative (applyTo)")
+    class Applicative_Apply {
 
         @SuppressWarnings("DataFlowIssue")
         @Test
-        void lift_enforces_contracts_and_applies_functions() {
-            LOGGER.info("Record3.lift null contracts and behaviour");
+        void apply_enforces_contracts_and_applies_functions() {
+            LOGGER.info("Record3.applyTo null contracts and behaviour");
 
             final var r = record3("TEST", 23, 3.0d);
 
-            assertThatThrownBy(() -> r.lift(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.applyTo(null)).isInstanceOf(NullPointerException.class);
 
-            assertThat(r.lift(record3(String::length, i -> i + 1, d -> d + 1)))
+            assertThat(r.applyTo(record3(String::length, i -> i + 1, d -> d + 1)))
                 .isEqualTo(record3(4, 24, 4.0d));
         }
     }

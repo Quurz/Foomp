@@ -119,22 +119,22 @@ class ProviderTest
     @SuppressWarnings("DataFlowIssue")
     @Test
     void testLiftWithNullValue() {
-        LOGGER.info("Test provider.lift with null-Value");
+        LOGGER.info("Test provider.applyTo with null-Value");
 
-        assertThatThrownBy(() -> provider(SOME_STRING_VALUE).lift(null))
+        assertThatThrownBy(() -> provider(SOME_STRING_VALUE).applyTo(null))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testLiftWithValidValue() {
-        LOGGER.info("Test provider.lift with valid value");
+        LOGGER.info("Test provider.applyTo with valid value");
 
         assertThatNoException()
             .isThrownBy(() -> {
                 final var provider
                     = provider(SOME_STRING_VALUE);
 
-                assertThat(provider.lift(provider(String::length)).get())
+                assertThat(provider.applyTo(provider(String::length)).get())
                     .isEqualTo(SOME_STRING_VALUE.length());
             });
     }
@@ -213,7 +213,7 @@ class ProviderTest
                 final var provider
                     = provider(SOME_STRING_VALUE)
                         .map(invocationCountingFun)
-                        .lift(provider(invocationCountingFun))
+                        .applyTo(provider(invocationCountingFun))
                         .bind(obj -> provider(String.valueOf(obj)));
 
                 assertThat(invocationCountingFun.getInvocationCount())

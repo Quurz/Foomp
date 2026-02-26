@@ -96,24 +96,24 @@ class ContinuationTest extends TestHelper {
         }
 
         @Nested
-        @DisplayName("lift (applicative)")
-        class Lift_ {
+        @DisplayName("applyTo (applicative)")
+        class ApplyTo_ {
 
             @SuppressWarnings("DataFlowIssue")
             @Test
-            void lift_applies_function_continuation_and_enforces_null_contracts() {
-                LOGGER.info("Continuation.lift should apply function-in-continuation to current value");
+            void applyTo_applies_function_continuation_and_enforces_null_contracts() {
+                LOGGER.info("Continuation.applyTo should apply function-in-continuation to current value");
 
                 final Function<Function<Integer, Integer>, Integer> runCont = f -> f.apply(21);
                 final Continuation<Integer, Integer> c = continuation(runCont);
                 final Continuation<Function<Integer, String>, Integer> tf =
                     continuation(cont -> cont.apply(i -> Integer.toString(i * 2)));
 
-                assertThatThrownBy(() -> c.lift(null))
+                assertThatThrownBy(() -> c.applyTo(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("transformation");
 
-                assertThat(c.lift(tf).apply(Integer::valueOf))
+                assertThat(c.applyTo(tf).apply(Integer::valueOf))
                     .isEqualTo(42);
             }
         }

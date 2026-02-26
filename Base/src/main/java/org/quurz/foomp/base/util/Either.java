@@ -62,7 +62,7 @@ import static org.quurz.foomp.base.util.Maybe.some;
 @SuppressWarnings("NonAsciiCharacters")
 public sealed interface Either<L, R>
         extends Mappable<Either.µ, R>,
-                Liftable2<Either.µ, L, R>,
+        Appliable2<Either.µ, L, R>,
                 Bindable<Either.µ, R>,
                 Swappable<Either<R, L>, L, R>,
                 Copyable<Either<L, R>>,
@@ -621,7 +621,7 @@ public sealed interface Either<L, R>
     /**
      * <div>
      *   <p>
-     *     Applicative lift: applies functions stored in {@code transformation} to this {@code Either},
+     *     Applicative applyTo: applies functions stored in {@code transformation} to this {@code Either},
      *     respecting sides (left applies to left, right applies to right).
      *   </p>
      * </div>
@@ -636,7 +636,7 @@ public sealed interface Either<L, R>
     @SuppressWarnings("unchecked")
     @Override
     @NonNull
-    default <M, S> Either<M, S> lift(final @NonNull Higher2<µ, ? extends Function<? super L, ? extends M>, ? extends Function<? super R, ? extends S>> transformation) {
+    default <M, S> Either<M, S> applyTo(final @NonNull Higher2<µ, ? extends Function<? super L, ? extends M>, ? extends Function<? super R, ? extends S>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final Either<? extends Function<? super L, ? extends M>, ? extends Function<? super R, ? extends S>> narrowed
             = narrow(transformation);

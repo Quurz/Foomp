@@ -3,7 +3,7 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Eager;
-import org.quurz.foomp.base.types.Liftable3;
+import org.quurz.foomp.base.types.Appliable3;
 import org.quurz.foomp.base.types.Mappable3;
 import org.quurz.foomp.base.types.Transmogrifyable;
 import org.quurz.foomp.base.types.Value3;
@@ -23,13 +23,13 @@ import static org.quurz.foomp.base.util.Tuple3.tuple3;
  *     <p>
  *         A record-based, immutable 3-tuple carrying three non-null values. This type provides
  *         value accessors, structural updates (with1/with2/with3), mapping utilities (map1/map2/map3/mapAll),
- *         applicative lifting (lift), conversions (toTuple), transmogrification and copying.
+ *         applicative application (applyTo), conversions (toTuple), transmogrification and copying.
  *     </p>
  *     <p>
  *         Semantics:
  *         <ul>
  *             <li>Non-null contract: inputs must not be {@code null}, results must not be {@code null}.</li>
- *             <li>Eager evaluation: mapping and lifting operations evaluate immediately.</li>
+ *             <li>Eager evaluation: mapping and applicative application evaluate immediately.</li>
  *             <li>Structural equality: equals/hashCode compare values component-wise.</li>
  *             <li>Stable string format: {@code Record3[value1=..., value2=..., value3=...]}</li>
  *         </ul>
@@ -48,7 +48,7 @@ import static org.quurz.foomp.base.util.Tuple3.tuple3;
 public record Record3<A1, A2, A3>(A1 value1,
                                   A2 value2,
                                   A3 value3)
-        implements Liftable3<Record3.µ, A1, A2, A3>,
+        implements Appliable3<Record3.µ, A1, A2, A3>,
                    Mappable3<Record3.µ, A1, A2, A3>,
                    Transmogrifyable<Record3<A1, A2, A3>>,
                    Copyable<Record3<A1, A2, A3>>,
@@ -466,7 +466,7 @@ public record Record3<A1, A2, A3>(A1 value1,
      */
     @Override
     @Eager
-    public @NonNull <B1, B2, B3> Higher3<µ, B1, B2, B3> lift(@NonNull Higher3<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>> transformation) {
+    public @NonNull <B1, B2, B3> Higher3<µ, B1, B2, B3> applyTo(@NonNull Higher3<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final var narrowedLiftA
             = narrow(transformation);

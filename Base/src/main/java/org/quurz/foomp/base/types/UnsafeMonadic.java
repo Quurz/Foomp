@@ -53,7 +53,7 @@ public interface UnsafeMonadic<WT extends WitnessType, A> {
      *     <p>
      *         Applies a function contained in the monad to the current value; the function itself
      *         may throw a checked exception. This is the exception‑throwing analogue of the
-     *         applicative {@code ap}/lift operation.
+     *         applicative {@code ap}/applyTo operation.
      *     </p>
      * </div>
      *
@@ -64,7 +64,7 @@ public interface UnsafeMonadic<WT extends WitnessType, A> {
      *
      * @since 1.0.0
      */
-    <B> @NonNull Higher1<? extends WT, B> liftUnsafe(final @NonNull Higher1<? extends WT, ? extends Applicable<? super A, ? extends B>> transformation)
+    <B> @NonNull Higher1<? extends WT, B> applyToUnsafe(final @NonNull Higher1<? extends WT, ? extends Applicable<? super A, ? extends B>> transformation)
         throws Exception;
 
     /**

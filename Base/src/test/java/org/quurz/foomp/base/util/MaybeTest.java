@@ -280,7 +280,7 @@ class MaybeTest
     }
 
     @Nested
-    @DisplayName("Functional (map, lift, bind)")
+    @DisplayName("Functional (map, applyTo, bind)")
     class Functional {
 
         @Nested
@@ -311,39 +311,38 @@ class MaybeTest
         }
 
         @Nested
-        @DisplayName("lift")
-        class Lift_ {
+        @DisplayName("applyTo")
+        class ApplyTo_ {
 
-            @SuppressWarnings({"DataFlowIssue", "unused"})
             @Test
-            void lift_contracts_and_behaviour() {
-                LOGGER.info("Maybe.lift should enforce null contracts and apply function only if present");
-                assertThatThrownBy(() -> none().lift(null))
+            void applyTo_contracts_and_behaviour() {
+                LOGGER.info("Maybe.applyTo should enforce null contracts and apply function only if present");
+                assertThatThrownBy(() -> none().applyTo(null))
                     .isInstanceOf(NullPointerException.class);
 
                 assertThatNoException().isThrownBy(() -> {
                     final var m = Maybe.<String>none();
                     final var tf = some((Function<String, Integer>) String::length);
-                    final var lifted = m.lift(tf);
+                    final var lifted = m.applyTo(tf);
                     checkIsNone(lifted);
                 });
 
                 assertThatThrownBy(() -> {
                     final var m = some(SOME_STRING_VALUE);
                     final Fun<String, Integer> fMap = _$ -> null;
-                    m.lift(some(fMap)).unwind();
+                    m.applyTo(some(fMap)).unwind();
                 }).isInstanceOf(NullPointerException.class);
 
                 assertThatNoException().isThrownBy(() -> {
                     final var m = some(SOME_STRING_VALUE);
-                    final var lifted = m.lift(none()).unwind();
+                    final var lifted = m.applyTo(none()).unwind();
                     checkIsNone(lifted);
                 });
 
                 assertThatNoException().isThrownBy(() -> {
                     final var m = some(SOME_STRING_VALUE);
                     final var tf = some(funStringLength);
-                    final var lifted = m.lift(tf).unwind();
+                    final var lifted = m.applyTo(tf).unwind();
                     checkIsSomeWithValue(lifted, lifted.get());
                 });
             }
@@ -505,7 +504,7 @@ class MaybeTest
             assertThatNoException().isThrownBy(() -> {
                 final var m = none();
                 final var fMap = mockLambda(Fun.class, Fun.identity());
-                m.map(fMap).lift(some(fMap)).unwind();
+                m.map(fMap).applyTo(some(fMap)).unwind();
                 verify(fMap, times(0)).apply(any());
             });
 
@@ -513,8 +512,8 @@ class MaybeTest
                 final var m = some(SOME_STRING_VALUE);
                 final var fMap = mockLambda(Fun.class, Fun.identity());
 
-                // map + lift: sollten fMap noch nicht ausführen (nur Supplier-Kette aufbauen)
-                final var mappedAndLifted = m.map(fMap).lift(some(fMap));
+                // map + applyTo: sollten fMap noch nicht ausführen (nur Supplier-Kette aufbauen)
+                final var mappedAndLifted = m.map(fMap).applyTo(some(fMap));
                 verify(fMap, times(0)).apply(any());
 
                 // bind ist jetzt strikt bzgl. Struktur und erzwingt die Auswertung der bisherigen Supplier

@@ -404,54 +404,53 @@ class EitherTest
     }
 
     @Nested
-    @DisplayName("Behaviour (lift)")
-    class Behaviour_Lift {
+    @DisplayName("Behaviour (applyTo)")
+    class Behaviour_ApplyTo {
 
-        @SuppressWarnings("DataFlowIssue")
         @Test
-        void lift_with_null_liftA_throws() {
-            LOGGER.info("either.lift with null-liftA");
-            assertThatThrownBy(() -> left(SOME_STRING_VALUE).lift(null))
+        void applyTo_with_null_tf_throws() {
+            LOGGER.info("either.applyTo with null-TF");
+            assertThatThrownBy(() -> left(SOME_STRING_VALUE).applyTo(null))
                 .isInstanceOf(NullPointerException.class);
         }
 
         @Test
-        void lift_on_left_with_right_function_leaves_left() {
-            LOGGER.info("either.lift on Left with right function");
+        void applyTo_on_left_with_right_function_leaves_left() {
+            LOGGER.info("either.applyTo on Left with right function");
             assertThatNoException().isThrownBy(() -> {
                 final Either<String, Integer> e = left(SOME_STRING_VALUE);
-                final Either<Fun<String, String>, Fun<Integer, Integer>> liftA = right(i -> i + 1);
-                checkIsLeftWithValue(e.lift(liftA), SOME_STRING_VALUE);
+                final Either<Fun<String, String>, Fun<Integer, Integer>> tf = right(i -> i + 1);
+                checkIsLeftWithValue(e.applyTo(tf), SOME_STRING_VALUE);
             });
         }
 
         @Test
-        void lift_on_left_with_left_function_transforms_left() {
-            LOGGER.info("either.lift on Left with left function");
+        void applyTo_on_left_with_left_function_transforms_left() {
+            LOGGER.info("either.applyTo on Left with left function");
             assertThatNoException().isThrownBy(() -> {
                 final Either<String, Integer> e = left(SOME_STRING_VALUE);
-                final Either<Fun<String, Integer>, Fun<Integer, Integer>> liftA = left(String::length);
-                checkIsLeftWithValue(e.lift(liftA), SOME_STRING_VALUE.length());
+                final Either<Fun<String, Integer>, Fun<Integer, Integer>> tf = left(String::length);
+                checkIsLeftWithValue(e.applyTo(tf), SOME_STRING_VALUE.length());
             });
         }
 
         @Test
-        void lift_on_right_with_left_function_leaves_right() {
-            LOGGER.info("either.lift on Right with left function");
+        void applyTo_on_right_with_left_function_leaves_right() {
+            LOGGER.info("either.applyTo on Right with left function");
             assertThatNoException().isThrownBy(() -> {
                 final Either<Integer, String> e = right(SOME_STRING_VALUE);
-                final Either<Fun<Integer, Integer>, Fun<String, Integer>> liftA = left(i -> i + 1);
-                checkIsRightWithValue(e.lift(liftA), SOME_STRING_VALUE);
+                final Either<Fun<Integer, Integer>, Fun<String, Integer>> tf = left(i -> i + 1);
+                checkIsRightWithValue(e.applyTo(tf), SOME_STRING_VALUE);
             });
         }
 
         @Test
-        void lift_on_right_with_right_function_transforms_right() {
-            LOGGER.info("either.lift on Right with right function");
+        void applyTo_on_right_with_right_function_transforms_right() {
+            LOGGER.info("either.applyTo on Right with right function");
             assertThatNoException().isThrownBy(() -> {
                 final Either<Integer, String> e = right(SOME_STRING_VALUE);
-                final Either<Fun<Integer, Integer>, Fun<String, Integer>> liftA = right(String::length);
-                checkIsRightWithValue(e.lift(liftA), SOME_STRING_VALUE.length());
+                final Either<Fun<Integer, Integer>, Fun<String, Integer>> tf = right(String::length);
+                checkIsRightWithValue(e.applyTo(tf), SOME_STRING_VALUE.length());
             });
         }
     }

@@ -210,7 +210,7 @@ class AttemptTest extends TestHelper {
     class Behaviour {
 
         @Nested
-        @DisplayName("Functional (map, lift, bind)")
+        @DisplayName("Functional (map, applyTo, bind)")
         class Functional {
 
             @Nested
@@ -244,18 +244,18 @@ class AttemptTest extends TestHelper {
             }
 
             @Nested
-            @DisplayName("Lift")
-            class Lift_ {
+            @DisplayName("Apply")
+            class ApplyTo_ {
 
                 @Test
-                void lift_container_is_failure_hits_failure_branch() {
-                    LOGGER.info("Attempt.lift(...) should hit failure branch when container is Failure");
+                void applyTo_container_is_failure_hits_failure_branch() {
+                    LOGGER.info("Attempt.applyTo(...) should hit failure branch when container is Failure");
 
                     // Container: Evaluation führt sofort zu Failure (IllegalStateException)
                     Attempt<Function<Integer, Integer>> failingContainer =
                         Attempt.attempt(0).map(_$ -> { throw new IllegalStateException("CONTAINER"); });
 
-                    final var result = Attempt.attempt(5).lift(failingContainer).tryIt();
+                    final var result = Attempt.attempt(5).applyTo(failingContainer).tryIt();
 
                     assertThat(result.isFailure()).isTrue();
                     assertThat(result.getException())
@@ -265,53 +265,53 @@ class AttemptTest extends TestHelper {
 
                 @SuppressWarnings({"DataFlowIssue", "ThrowableNotThrown"})
                 @Test
-                void handles_various_paths() {
-                    LOGGER.info("Attempt.lift(...) should handle nulls, thrown exceptions and success paths correctly");
+                void applyTo_various_paths() {
+                    LOGGER.info("Attempt.applyTo(...) should handle nulls, thrown exceptions and success paths correctly");
 
                     // null HK-value
-                    assertThatThrownBy(() -> attempt(5).lift(null))
+                    assertThatThrownBy(() -> attempt(5).applyTo(null))
                         .isInstanceOf(NullPointerException.class);
 
                     // function container returns null -> NPE
-                    assertThatThrownBy(() -> attempt(5).lift(attempt(_$ -> null)).tryIt().getValue())
+                    assertThatThrownBy(() -> attempt(5).applyTo(attempt(_$ -> null)).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).lift(attempt(_$ -> null)).tryIt().getException())
+                    assertThat(attempt(5).applyTo(attempt(_$ -> null)).tryIt().getException())
                         .isInstanceOf(NullPointerException.class);
 
                     // identity -> exception access
-                    assertThatThrownBy(() -> attempt(5).lift(attempt(Fun.identity())).tryIt().getException())
+                    assertThatThrownBy(() -> attempt(5).applyTo(attempt(Fun.identity())).tryIt().getException())
                         .isInstanceOf(NoSuchElementException.class);
 
                     // function container throws
                     assertThatThrownBy(
-                        () -> attempt(5).lift(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getValue()
+                        () -> attempt(5).applyTo(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getValue()
                     ).isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).lift(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getException())
+                    assertThat(attempt(5).applyTo(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getException())
                         .isInstanceOf(IllegalArgumentException.class);
 
                     // precedence cases
                     final var ex1 = attempt(5)
                         .map(_$ -> { throw new IllegalStateException(); })
-                        .lift(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .applyTo(attempt(_$ -> { throw new IllegalArgumentException(); }))
                         .tryIt().getException();
                     assertThat(ex1).isInstanceOf(IllegalStateException.class);
 
                     final var ex2 = attempt(5)
-                        .lift(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .applyTo(attempt(_$ -> { throw new IllegalArgumentException(); }))
                         .map(_$ -> { throw new IllegalStateException(); })
                         .tryIt().getException();
                     assertThat(ex2).isInstanceOf(IllegalArgumentException.class);
 
                     // happy path
-                    assertThat(attempt(5).lift(attempt(i -> i * 2)).tryIt())
+                    assertThat(attempt(5).applyTo(attempt(i -> i * 2)).tryIt())
                         .isEqualTo(success(10));
                 }
 
                 @Test
-                void lifted_function_returns_null_results_in_npe_failure() {
-                    LOGGER.info("Attempt.lift(...) should fail with NPE when lifted function returns null");
+                void applyTo_function_returns_null_results_in_npe_failure() {
+                    LOGGER.info("Attempt.applyTo(...) should fail with NPE when lifted function returns null");
                     final var liftedNull = attempt((Function<Integer, Integer>) (_$ -> null));
-                    assertThat(attempt(5).lift(liftedNull).tryIt().getException())
+                    assertThat(attempt(5).applyTo(liftedNull).tryIt().getException())
                         .isInstanceOf(NullPointerException.class);
                 }
 
@@ -375,53 +375,53 @@ class AttemptTest extends TestHelper {
 
                 @SuppressWarnings({"DataFlowIssue", "ThrowableNotThrown"})
                 @Test
-                void liftUnsafe_various_paths() {
-                    LOGGER.info("Attempt.liftUnsafe(...) should handle nulls, thrown exceptions and success paths correctly");
+                void applyToUnsafe_various_paths() {
+                    LOGGER.info("Attempt.applyToUnsafe(...) should handle nulls, thrown exceptions and success paths correctly");
 
-                    assertThatThrownBy(() -> attempt(5).liftUnsafe(null))
+                    assertThatThrownBy(() -> attempt(5).applyToUnsafe(null))
                         .isInstanceOf(NullPointerException.class);
 
-                    assertThatThrownBy(() -> attempt(5).liftUnsafe(attempt(_$ -> null)).tryIt().getValue())
+                    assertThatThrownBy(() -> attempt(5).applyToUnsafe(attempt(_$ -> null)).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).liftUnsafe(attempt(_$ -> null)).tryIt().getException())
+                    assertThat(attempt(5).applyToUnsafe(attempt(_$ -> null)).tryIt().getException())
                         .isInstanceOf(NullPointerException.class);
 
-                    assertThatThrownBy(() -> attempt(5).liftUnsafe(attempt(Fun.identity())).tryIt().getException())
+                    assertThatThrownBy(() -> attempt(5).applyToUnsafe(attempt(Fun.identity())).tryIt().getException())
                         .isInstanceOf(NoSuchElementException.class);
 
                     assertThatThrownBy(
                         () -> attempt(5)
-                                .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                                .applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
                                 .tryIt().getValue()
                     ).isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getException())
+                    assertThat(attempt(5).applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getException())
                         .isInstanceOf(IllegalArgumentException.class);
 
                     final var ex1 = attempt(5)
                         .map(_$ -> { throw new IllegalStateException(); })
-                        .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
                         .tryIt().getException();
                     assertThat(ex1).isInstanceOf(IllegalStateException.class);
 
                     final var ex2 = attempt(5)
-                        .liftUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
+                        .applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
                         .map(_$ -> { throw new IllegalStateException(); })
                         .tryIt().getException();
                     assertThat(ex2).isInstanceOf(IllegalArgumentException.class);
 
-                    assertThat(attempt(5).liftUnsafe(attempt(i -> i * 2)).tryIt())
+                    assertThat(attempt(5).applyToUnsafe(attempt(i -> i * 2)).tryIt())
                         .isEqualTo(success(10));
                 }
 
                 @Test
-                void liftUnsafe_container_is_failure_hits_failure_branch() {
-                    LOGGER.info("Attempt.liftUnsafe(...) should hit failure branch when container is Failure");
+                void applyToUnsafe_container_is_failure_hits_failure_branch() {
+                    LOGGER.info("Attempt.applyToUnsafe(...) should hit failure branch when container is Failure");
 
                     // Container: Evaluation führt sofort zu Failure (IllegalStateException)
                     Attempt<Applicable<Integer, Integer>> failingContainer =
                         Attempt.attempt(0).map(_$ -> { throw new IllegalStateException("CONTAINER"); });
 
-                    final var result = Attempt.attempt(5).liftUnsafe(failingContainer).tryIt();
+                    final var result = Attempt.attempt(5).applyToUnsafe(failingContainer).tryIt();
 
                     assertThat(result.isFailure()).isTrue();
                     assertThat(result.getException())
@@ -510,7 +510,7 @@ class AttemptTest extends TestHelper {
                 final var attempt
                     = attempt(5)
                         .map(invocationCountingFun)
-                        .lift(attempt(invocationCountingFun))
+                        .applyTo(attempt(invocationCountingFun))
                         .bind(i -> attempt(invocationCountingFun.apply(i)));
 
                 assertThat(invocationCountingFun.getInvocationCount())

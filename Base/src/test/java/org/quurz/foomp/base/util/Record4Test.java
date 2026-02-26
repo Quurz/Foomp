@@ -14,7 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
 @DisplayName("Record4")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -176,19 +175,19 @@ class Record4Test {
     }
 
     @Nested
-    @DisplayName("Applicative (lift)")
-    class Applicative_Lift {
+    @DisplayName("Applicative (applyTo)")
+    class Applicative_Apply {
 
         @SuppressWarnings("DataFlowIssue")
         @Test
-        void lift_enforces_contracts_and_applies_functions() {
-            LOGGER.info("Record4.lift should enforce non-null and apply functions to components");
+        void apply_enforces_contracts_and_applies_functions() {
+            LOGGER.info("Record4.applyTo should enforce non-null and apply functions to components");
 
             final var r = record4("TEST", 23, 3.0d, 2.0f);
 
-            assertThatThrownBy(() -> r.lift(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.applyTo(null)).isInstanceOf(NullPointerException.class);
 
-            assertThat(r.lift(record4(String::length, i -> i + 1, d -> d + 1.0d, f -> f + 1.0f)))
+            assertThat(r.applyTo(record4(String::length, i -> i + 1, d -> d + 1.0d, f -> f + 1.0f)))
                 .isEqualTo(record4(4, 24, 4.0d, 3.0f));
         }
     }

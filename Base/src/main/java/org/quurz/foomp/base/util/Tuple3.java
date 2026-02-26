@@ -3,7 +3,7 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun3;
 import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Liftable3;
+import org.quurz.foomp.base.types.Appliable3;
 import org.quurz.foomp.base.types.Mappable3;
 import org.quurz.foomp.base.types.Unwindable;
 import org.quurz.foomp.base.types.UnwindingOperation;
@@ -38,7 +38,7 @@ import static org.quurz.foomp.base.util.Record3.record3;
  */
 @SuppressWarnings("NonAsciiCharacters")
 public final class Tuple3<A1, A2, A3>
-        implements Liftable3<Tuple3.µ, A1, A2, A3>,
+        implements Appliable3<Tuple3.µ, A1, A2, A3>,
                    Mappable3<Tuple3.µ, A1, A2, A3>,
                    Copyable<Tuple3<A1, A2, A3>>,
                    Unwindable<Tuple3<A1, A2, A3>>,
@@ -446,7 +446,7 @@ public final class Tuple3<A1, A2, A3>
      * @since 1.0.0
      */
     @Override
-    public @NonNull <B1, B2, B3> Tuple3<B1, B2, B3> lift(final @NonNull Higher3<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>> transformation) {
+    public @NonNull <B1, B2, B3> Tuple3<B1, B2, B3> applyTo(final @NonNull Higher3<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final var fixed
             = narrow(transformation);

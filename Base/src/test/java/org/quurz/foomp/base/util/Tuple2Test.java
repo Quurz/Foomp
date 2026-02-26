@@ -189,25 +189,24 @@ class Tuple2Test
     }
 
     @Nested
-    @DisplayName("Applicative (lift)")
-    class Applicative_Lift {
+    @DisplayName("Applicative (applyTo)")
+    class Applicative_ApplyTo {
 
-        @SuppressWarnings("DataFlowIssue")
         @Test
-        void lift_applies_functions_and_enforces_null_contracts() {
-            LOGGER.info("Tuple2.lift should apply functions and enforce null contracts");
+        void applyTo_applies_functions_and_enforces_null_contracts() {
+            LOGGER.info("Tuple2.applyTo should apply functions and enforce null contracts");
 
             final Fun<Object, Object> nullReturningFun = _$ -> null;
             final Fun<Object, String> toStringFun = Object::toString;
 
-            assertThatThrownBy(() -> tuple2(5, 6).lift(null))
+            assertThatThrownBy(() -> tuple2(5, 6).applyTo(null))
                 .isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> tuple2(5, 6).lift(tuple2(nullReturningFun, nullReturningFun)).get1())
+            assertThatThrownBy(() -> tuple2(5, 6).applyTo(tuple2(nullReturningFun, nullReturningFun)).get1())
                 .isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> tuple2(5, 6).lift(tuple2(nullReturningFun, nullReturningFun)).get2())
+            assertThatThrownBy(() -> tuple2(5, 6).applyTo(tuple2(nullReturningFun, nullReturningFun)).get2())
                 .isInstanceOf(NullPointerException.class);
 
-            final var lifted = tuple2(5, 6).lift(tuple2(toStringFun, i -> i + 5));
+            final var lifted = tuple2(5, 6).applyTo(tuple2(toStringFun, i -> i + 5));
             assertThat(lifted.get1()).isEqualTo("5");
             assertThat(lifted.get2()).isEqualTo(11);
         }
@@ -285,7 +284,7 @@ class Tuple2Test
                 .map(add5)
                 .map2(invToString)
                 .mapAll(add5, invToString)
-                .lift(tuple2(invToString, invToString));
+                .applyTo(tuple2(invToString, invToString));
 
             assertThat(invToString.getInvocationCount()).isZero();
             assertThat(add5.getInvocationCount()).isZero();
@@ -309,7 +308,7 @@ class Tuple2Test
                 .map(add5)
                 .map2(invToString)
                 .mapAll(add5, invToString)
-                .lift(tuple2(invToString, invToString));
+                .applyTo(tuple2(invToString, invToString));
 
             assertThat(invToString.getInvocationCount()).isZero();
             assertThat(add5.getInvocationCount()).isZero();
@@ -333,7 +332,7 @@ class Tuple2Test
                 .map(add5)
                 .map2(invToString)
                 .mapAll(add5, invToString)
-                .lift(tuple2(invToString, invToString));
+                .applyTo(tuple2(invToString, invToString));
 
             assertThat(invToString.getInvocationCount()).isZero();
             assertThat(add5.getInvocationCount()).isZero();

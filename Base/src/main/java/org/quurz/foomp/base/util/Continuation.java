@@ -25,7 +25,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *   </p>
  *   <p>
  *     The type supports the usual functor/applicative/monad operations:
- *     {@code map}, {@code lift} (applicative application), {@code bind} (flatMap), and {@code apply}
+ *     {@code map}, {@code applyTo} (applicative application), {@code bind} (flatMap), and {@code apply}
  *     to run the continuation with a final computation.
  *   </p>
  *   <p>
@@ -138,7 +138,7 @@ public class Continuation<A, R>
      *   </p>
      * </div>
      *
-     * @param value the value to lift; must not be {@code null}
+     * @param value the value to applyTo; must not be {@code null}
      * @param <A>   the produced value type
      * @param <R>   the result type (arbitrary for the literal continuation)
      * @return a continuation that immediately applies {@code value} to the provided continuation
@@ -189,7 +189,7 @@ public class Continuation<A, R>
     /**
      * <div>
      *   <p>
-     *     Applicative application (lift): applies a continuation holding a function to this continuation’s value.
+     *     Applicative application (applyTo): applies a continuation holding a function to this continuation’s value.
      *     Conceptually, {@code ap cf cx = k -> cf.run (t -> cx.map(t).run(k))}.
      *   </p>
      * </div>
@@ -202,7 +202,7 @@ public class Continuation<A, R>
      * @since 1.0.0
      */
     @Override
-    public @NonNull <B> Continuation<B, R> lift(@NonNull Higher2<? extends µ, Function<A, B>, R> transformation) {
+    public @NonNull <B> Continuation<B, R> applyTo(@NonNull Higher2<? extends µ, Function<A, B>, R> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         final var continuation
             = narrow(transformation);

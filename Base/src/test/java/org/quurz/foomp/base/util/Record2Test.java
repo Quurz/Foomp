@@ -126,13 +126,13 @@ class Record2Test {
     }
 
     @Nested
-    @DisplayName("Applicative (lift)")
-    class Applicative_Lift {
+    @DisplayName("Applicative (applyTo)")
+    class Applicative_Apply {
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void lift_enforces_contracts_and_applies_functions() {
-            LOGGER.info("Record2.lift null contracts and behaviour");
+        void apply_enforces_contracts_and_applies_functions() {
+            LOGGER.info("Record2.applyTo null contracts and behaviour");
 
             final var r = record2("TEST", 23);
             final Record2<Function<String, Integer>, Function<Integer, Integer>> nullReturning1liftA
@@ -142,11 +142,11 @@ class Record2Test {
             final Record2<Function<String, Integer>, Function<Integer, Integer>> okLiftA
                 = record2(String::length, i -> i + 1);
 
-            assertThatThrownBy(() -> r.lift(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> r.lift(nullReturning1liftA)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> r.lift(nullReturning2liftA)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.applyTo(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.applyTo(nullReturning1liftA)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> r.applyTo(nullReturning2liftA)).isInstanceOf(NullPointerException.class);
 
-            assertThat(r.lift(okLiftA)).isEqualTo(record2(4, 24));
+            assertThat(r.applyTo(okLiftA)).isEqualTo(record2(4, 24));
         }
     }
 

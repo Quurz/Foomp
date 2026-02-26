@@ -85,125 +85,125 @@ public sealed interface Maybe<A>
         return (Maybe<A>) Objects.requireNonNull(wide, nullValue("wide"));
     }
 
-/**
- * <div>
- *   <p>
- *     Creates a {@code Maybe.Some} with the given value.
- *   </p>
- * </div>
- *
- * @param value the value to store; must not be {@code null}
- * @param <A>   the contained value type
- * @return a non‑empty {@code Maybe}
- * @throws NullPointerException if {@code value} is {@code null}
- *
- * @since 1.0.0
- */
-static <A> Maybe<A> some(final @NonNull A value) {
-    Objects.requireNonNull(value, nullValue("value"));
-    return new Some<>(() -> value);
-}
+    /**
+     * <div>
+     *   <p>
+     *     Creates a {@code Maybe.Some} with the given value.
+     *   </p>
+     * </div>
+     *
+     * @param value the value to store; must not be {@code null}
+     * @param <A>   the contained value type
+     * @return a non‑empty {@code Maybe}
+     * @throws NullPointerException if {@code value} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    static <A> Maybe<A> some(final @NonNull A value) {
+        Objects.requireNonNull(value, nullValue("value"));
+        return new Some<>(() -> value);
+    }
 
-/**
- * <div>
- *   <p>
- *     Creates a {@code Maybe} from a possibly {@code null} value.
- *     Returns {@code Some(value)} if non‑null, otherwise {@code None}.
- *   </p>
- * </div>
- *
- * @param value the possibly {@code null} value
- * @param <A>   the contained value type
- * @return a {@code Maybe} reflecting the presence or absence of {@code value}
- *
- * @since 1.0.0
- */
+    /**
+     * <div>
+     *   <p>
+     *     Creates a {@code Maybe} from a possibly {@code null} value.
+     *     Returns {@code Some(value)} if non‑null, otherwise {@code None}.
+     *   </p>
+     * </div>
+     *
+     * @param value the possibly {@code null} value
+     * @param <A>   the contained value type
+     * @return a {@code Maybe} reflecting the presence or absence of {@code value}
+     *
+     * @since 1.0.0
+     */
     static <A> Maybe<A> maybeOfNullable(@Nullable final A value) {
         return value != null
             ? some(value)
             : none();
     }
 
-/**
- * <div>
- *   <p>
- *     Returns an empty {@code Maybe}.
- *   </p>
- * </div>
- *
- * @param <A> the (phantom) value type
- * @return a {@code None}
- *
- * @since 1.0.0
- */
+    /**
+     * <div>
+     *   <p>
+     *     Returns an empty {@code Maybe}.
+     *   </p>
+     * </div>
+     *
+     * @param <A> the (phantom) value type
+     * @return a {@code None}
+     *
+     * @since 1.0.0
+     */
     @SuppressWarnings("unchecked")
     static <A> Maybe<A> none() {
         return (Maybe<A>) None.NONE;
     }
 
-/**
- * <div>
- *   <p>
- *     Creates a {@code Maybe} from {@link Optional}.
- *     An empty {@code Optional} maps to {@code None}, otherwise {@code Some(value)}.
- *   </p>
- * </div>
- *
- * @param optional the optional to convert; must not be {@code null}
- * @param <A>      the contained value type
- * @return a corresponding {@code Maybe}
- *
- * @since 1.0.0
- */
+    /**
+     * <div>
+     *   <p>
+     *     Creates a {@code Maybe} from {@link Optional}.
+     *     An empty {@code Optional} maps to {@code None}, otherwise {@code Some(value)}.
+     *   </p>
+     * </div>
+     *
+     * @param optional the optional to convert; must not be {@code null}
+     * @param <A>      the contained value type
+     * @return a corresponding {@code Maybe}
+     *
+     * @since 1.0.0
+     */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     static <A> Maybe<A> maybeFrom(@NonNull Optional<A> optional) {
         Objects.requireNonNull(optional, nullValue("optional"));
         return optional.map(Maybe::some).orElseGet(Maybe::none);
     }
 
-/**
- * <div>
- *   <p>
- *     Indicates whether a value is present.
- *   </p>
- * </div>
- *
- * @return {@code true} if this is {@code Some}; {@code false} otherwise
- *
- * @since 1.0.0
- */
+    /**
+     * <div>
+     *   <p>
+     *     Indicates whether a value is present.
+     *   </p>
+     * </div>
+     *
+     * @return {@code true} if this is {@code Some}; {@code false} otherwise
+     *
+     * @since 1.0.0
+     */
     @Override
     default boolean isPresent() {
         return this.isSome();
     }
 
-/**
- * <div>
- *   <p>
- *     Returns whether this is {@code Some}.
- *   </p>
- * </div>
- *
- * @return {@code true} if non‑empty; {@code false} otherwise
- *
- * @since 1.0.0
- */
+    /**
+     * <div>
+     *   <p>
+     *     Returns whether this is {@code Some}.
+     *   </p>
+     * </div>
+     *
+     * @return {@code true} if non‑empty; {@code false} otherwise
+     *
+     * @since 1.0.0
+     */
     @SuppressWarnings("unused")
     default boolean isSome() {
         return (this instanceof Maybe.Some<A>);
     }
 
-/**
- * <div>
- *   <p>
- *     Returns whether this is {@code None}.
- *   </p>
- * </div>
- *
- * @return {@code true} if empty; {@code false} otherwise
- *
- * @since 1.0.0
- */
+    /**
+     * <div>
+     *   <p>
+     *     Returns whether this is {@code None}.
+     *   </p>
+     * </div>
+     *
+     * @return {@code true} if empty; {@code false} otherwise
+     *
+     * @since 1.0.0
+     */
     default boolean isNone() {
         return !this.isSome();
     }
@@ -457,7 +457,7 @@ static <A> Maybe<A> some(final @NonNull A value) {
     /**
      * <div>
      *   <p>
-     *     Applicative lift: applies a function contained in another {@code Maybe} to this value.
+     *     Applicative applyTo: applies a function contained in another {@code Maybe} to this value.
      *     If the function is absent, returns {@code None}.
      *   </p>
      * </div>
@@ -471,7 +471,7 @@ static <A> Maybe<A> some(final @NonNull A value) {
     @SuppressWarnings({"unused"})
     @Override
     @NonNull
-    default <B> Maybe<B> lift(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
+    default <B> Maybe<B> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation);
         final var narrowed
             = narrow(transformation);

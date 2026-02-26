@@ -128,21 +128,20 @@ class EvalTest
     }
 
     @Nested
-    @DisplayName("Behaviour (lift)")
-    class Behaviour_Lift {
+    @DisplayName("Behaviour (applyTo)")
+    class Behaviour_ApplyTo {
 
-        @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void now_lift_is_eager_and_stable() {
-            LOGGER.info("Eval.Now.lift should be eager and stable (function applied once)");
+        void now_applyTo_is_eager_and_stable() {
+            LOGGER.info("Eval.Now.applyTo should be eager and stable (function applied once)");
             final var eval = evalNow(SOME_STRING_VALUE);
             final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
 
-            assertThatThrownBy(() -> eval.lift(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.applyTo(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.applyTo(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
-                final var lifted = eval.lift(evalNow(fun));
+                final var lifted = eval.applyTo(evalNow(fun));
                 assertThat(fun.getInvocationCount()).isEqualTo(1);
                 assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
                 lifted.get();
@@ -153,16 +152,16 @@ class EvalTest
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void later_lift_is_lazy_memoized() {
-            LOGGER.info("Eval.Later.lift should be lazy and memoized (function deferred and applied once)");
+        void later_applyTo_is_lazy_memoized() {
+            LOGGER.info("Eval.Later.applyTo should be lazy and memoized (function deferred and applied once)");
             final var eval = evalLater(SOME_STRING_VALUE);
             final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
 
-            assertThatThrownBy(() -> eval.lift(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.applyTo(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.applyTo(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
-                final var lifted = eval.lift(evalLater(fun));
+                final var lifted = eval.applyTo(evalLater(fun));
                 assertThat(fun.getInvocationCount()).isEqualTo(0);
                 assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
                 lifted.get();
@@ -173,16 +172,16 @@ class EvalTest
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void always_lift_is_lazy_non_memoized() {
-            LOGGER.info("Eval.Always.lift should be lazy and non-memoized (function applied on every access)");
+        void always_applyTo_is_lazy_non_memoized() {
+            LOGGER.info("Eval.Always.applyTo should be lazy and non-memoized (function applied on every access)");
             final var eval = evalAlways(SOME_STRING_VALUE);
             final InvocationCountingFun<String, String> fun = invocationCountingFun(Fun.identity());
 
-            assertThatThrownBy(() -> eval.lift(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> eval.lift(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.applyTo(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.applyTo(evalAlways(_$ -> null)).get()).isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
-                final var lifted = eval.lift(evalAlways(fun));
+                final var lifted = eval.applyTo(evalAlways(fun));
                 assertThat(fun.getInvocationCount()).isEqualTo(0);
                 assertThat(lifted.get()).isEqualTo(SOME_STRING_VALUE);
                 assertThat(fun.getInvocationCount()).isEqualTo(1);

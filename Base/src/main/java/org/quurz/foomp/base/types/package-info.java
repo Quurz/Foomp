@@ -16,7 +16,7 @@
  *         <li>Transmogrifyable – transformation hook for fluent conversion</li>
  *         <li>Copyable – contract for creating value‑level copies</li>
  *         <li>Unwindable – contract for materializing deferred/lazy values</li>
- *         <li>Monadic/Liftable – functional composition contracts</li>
+ *         <li>Monadic/Appliable – functional composition contracts</li>
  *         <li>Marker annotations (e.g., for mutability or unwinding)</li>
  *     </ul>
  *     <p>

@@ -156,29 +156,28 @@ class Tuple4Test
     }
 
     @Nested
-    @DisplayName("Applicative (lift)")
-    class Applicative_Lift {
+    @DisplayName("Applicative (applyTo)")
+    class Applicative_ApplyTo {
 
-        @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void lift_applies_functions_and_enforces_null_contracts() {
-        LOGGER.info("Test tuple4.lift");
+        void applyTo_applies_functions_and_enforces_null_contracts() {
+        LOGGER.info("Test tuple4.applyTo");
 
         final var tuple4
             = tuple4("Hello", 1, 2.0, true);
 
-        assertThatThrownBy(() -> tuple4.lift(null))
+        assertThatThrownBy(() -> tuple4.applyTo(null))
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple4.lift(tuple4(_$ -> null, Fun.identity(), Fun.identity(), Fun.identity())).unwind())
+        assertThatThrownBy(() -> tuple4.applyTo(tuple4(_$ -> null, Fun.identity(), Fun.identity(), Fun.identity())).unwind())
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple4.lift(tuple4(Fun.identity(), _$ -> null, Fun.identity(), Fun.identity())).unwind())
+        assertThatThrownBy(() -> tuple4.applyTo(tuple4(Fun.identity(), _$ -> null, Fun.identity(), Fun.identity())).unwind())
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple4.lift(tuple4(Fun.identity(), Fun.identity(), _$ -> null, Fun.identity())).unwind())
+        assertThatThrownBy(() -> tuple4.applyTo(tuple4(Fun.identity(), Fun.identity(), _$ -> null, Fun.identity())).unwind())
             .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> tuple4.lift(tuple4(Fun.identity(), Fun.identity(), Fun.identity(), _$ -> null)).unwind())
+        assertThatThrownBy(() -> tuple4.applyTo(tuple4(Fun.identity(), Fun.identity(), Fun.identity(), _$ -> null)).unwind())
             .isInstanceOf(NullPointerException.class);
 
-        assertThat(tuple4.lift(tuple4(s -> s + " World", i -> i + 1, d -> d + 1.0d, b -> !b)).unwind())
+        assertThat(tuple4.applyTo(tuple4(s -> s + " World", i -> i + 1, d -> d + 1.0d, b -> !b)).unwind())
             .isEqualTo(tuple4("Hello World", 2, 3.0, false));
         }
     }
@@ -258,7 +257,7 @@ class Tuple4Test
                     invocationCountingIdentity,
                     invocationCountingIdentity
                 )
-                .lift(
+                .applyTo(
                     tuple4(
                         invocationCountingToString,
                         invocationCountingIdentity,
@@ -304,7 +303,7 @@ class Tuple4Test
                     invocationCountingIdentity,
                     invocationCountingIdentity
                 )
-                .lift(
+                .applyTo(
                     tuple4(
                         invocationCountingIdentity,
                         invocationCountingToString,
@@ -350,7 +349,7 @@ class Tuple4Test
                     invocationCountingToString,
                     invocationCountingIdentity
                 )
-                .lift(
+                .applyTo(
                     tuple4(
                         invocationCountingIdentity,
                         invocationCountingIdentity,
@@ -394,7 +393,7 @@ class Tuple4Test
                     invocationCountingIdentity,
                     invocationCountingIdentity
                 )
-                .lift(
+                .applyTo(
                     tuple4(
                         invocationCountingIdentity,
                         invocationCountingIdentity,

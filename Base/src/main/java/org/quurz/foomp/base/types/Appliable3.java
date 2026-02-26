@@ -9,8 +9,11 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Rank‑3 applicative‑like interface: lifts functions inside the context and applies them
+ *         Rank-3 applicative functor interface: applies functions inside the context
  *         to three carried type parameters, producing a value of the same constructor shape.
+ *     </p>
+ *     <p>
+ *         This interface is the rank-3 analog to Haskell's {@code Applicative} functor class.
  *     </p>
  *     <p>
  *         Contract: the provided higher‑kinded value must not be {@code null}, must not contain {@code null}
@@ -27,12 +30,12 @@ import java.util.function.Function;
  *
  * @author Alexander Schell
  */
-public interface Liftable3<WT extends WitnessType, A1, A2, A3> {
+public interface Appliable3<WT extends WitnessType, A1, A2, A3> {
 
     /**
      * <div>
      *     <p>
-     *         Lifts and applies the given functions to the three carried values in this context.
+     *         Applies the given functions to the three carried values in this context.
      *     </p>
      * </div>
      *
@@ -45,7 +48,7 @@ public interface Liftable3<WT extends WitnessType, A1, A2, A3> {
      *
      * @since 1.0.0
      */
-    <B1, B2, B3> @NonNull Higher3<WT, B1, B2, B3> lift(
+    <B1, B2, B3> @NonNull Higher3<WT, B1, B2, B3> applyTo(
             @NonNull final Higher3<
                     WT,
                     ? extends Function<? super A1, ? extends B1>,

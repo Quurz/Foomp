@@ -9,12 +9,13 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Rank‑2 applicative‑like interface: lifts functions inside the context and applies them
+ *         Rank-2 applicative functor interface: applies functions inside the context
  *         to the two carried type parameters, producing a value of the same constructor shape.
  *     </p>
  *     <p>
+ *         This interface is the rank-2 analog to Haskell's {@code Applicative} functor class.
  *         Conceptually, this “applies” {@code (A1 -> B1)} to {@code A1} and {@code (A2 -> B2)} to {@code A2}
- *         within the same {@code Higher2&lt;WT, *, *&gt;} context.
+ *         within the same {@code Higher2<WT, *, *>} context.
  *     </p>
  *     <p>
  *         Contract: the provided higher‑kinded value must not be {@code null}, must not contain {@code null}
@@ -30,12 +31,12 @@ import java.util.function.Function;
  *
  * @author Alexander Schell
  */
-public interface Liftable2<WT extends WitnessType, A1, A2> {
+public interface Appliable2<WT extends WitnessType, A1, A2> {
 
     /**
      * <div>
      *     <p>
-     *         Lifts and applies the given functions to the two carried values in this context.
+     *         Applies the given functions to the two carried values in this context.
      *     </p>
      * </div>
      *
@@ -46,7 +47,7 @@ public interface Liftable2<WT extends WitnessType, A1, A2> {
      *
      * @since 1.0.0
      */
-    <B1, B2> @NonNull Higher2<WT, B1, B2> lift(
+    <B1, B2> @NonNull Higher2<WT, B1, B2> applyTo(
             @NonNull final Higher2<WT,
                     ? extends Function<? super A1, ? extends B1>,
                     ? extends Function<? super A2, ? extends B2>> transformation

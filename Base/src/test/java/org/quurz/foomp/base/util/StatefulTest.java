@@ -135,21 +135,20 @@ class StatefulTest {
         }
 
         @Nested
-        @DisplayName("lift (applicative)")
-        class Lift_ {
+        @DisplayName("applyTo (applicative)")
+        class ApplyTo_ {
 
-            @SuppressWarnings("DataFlowIssue")
             @Test
-            void lift_applies_function_stateful_and_enforces_null_contracts() {
-                LOGGER.info("Stateful.lift should apply function-in-stateful to current value");
+            void applyTo_applies_function_stateful_and_enforces_null_contracts() {
+                LOGGER.info("Stateful.applyTo should apply function-in-stateful to current value");
 
                 final Stateful<String, Integer> lifted =
-                    stateful(RUN_STATE).lift(stateful(state -> tuple2(String::valueOf, state)));
+                    stateful(RUN_STATE).applyTo(stateful(state -> tuple2(String::valueOf, state)));
 
-                assertThatThrownBy(() -> stateful(RUN_STATE).lift(null))
+                assertThatThrownBy(() -> stateful(RUN_STATE).applyTo(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("transformation");
-                assertThatThrownBy(() -> stateful(RUN_STATE).lift(stateful(_$ -> null)).runState(1))
+                assertThatThrownBy(() -> stateful(RUN_STATE).applyTo(stateful(_$ -> null)).runState(1))
                     .isInstanceOf(NullPointerException.class);
 
                 // Applicative threading: tf uses s0, then value uses s1 -> increments to 2

@@ -2,7 +2,7 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Liftable2;
+import org.quurz.foomp.base.types.Appliable2;
 import org.quurz.foomp.base.types.Mappable2;
 import org.quurz.foomp.base.types.Swappable;
 import org.quurz.foomp.base.types.Unwindable;
@@ -33,7 +33,7 @@ import static org.quurz.foomp.base.util.MutablePair.mutablePair;
  *     <ul>
  *       <li><b>Lazy access</b>: values are retrieved on demand using suppliers (see {@code get1()}/{@code get2()}).</li>
  *       <li><b>Mapping</b>: {@code map}/{@code map1}/{@code map2}/{@code mapAll} transform components eagerly at call site.</li>
- *       <li><b>Applicative</b>: {@code lift} applies functions carried by another {@code Tuple2} to the respective values.</li>
+ *       <li><b>Applicative</b>: {@code applyTo} applies functions carried by another {@code Tuple2} to the respective values.</li>
  *       <li><b>Structure</b>: {@code swap}, {@code with1}/{@code with2}, {@code copy}, {@code toRecord} provide structural utilities.</li>
  *     </ul>
  *   </p>
@@ -54,7 +54,7 @@ import static org.quurz.foomp.base.util.MutablePair.mutablePair;
  *
  *   var tf = Tuple2.tuple2((Function<Integer, String>) Object::toString,
  *                          (Function<String, Integer>) String::length);
- *   t.lift(tf);                  // applies both functions component-wise: ("21", 1)
+ *   t.applyTo(tf);                  // applies both functions component-wise: ("21", 1)
  *
  *   t.swap();                    // ("x", 21)
  *   t.toRecord();                // Record2[value1=21, value2=x]
@@ -71,7 +71,7 @@ import static org.quurz.foomp.base.util.MutablePair.mutablePair;
 @SuppressWarnings("NonAsciiCharacters")
 public final class Tuple2<A1, A2>
         implements Mappable2<Tuple2.µ, A1, A2>,
-                   Liftable2<Tuple2.µ, A1, A2>,
+        Appliable2<Tuple2.µ, A1, A2>,
                    Swappable<Tuple2<A2, A1>, A1, A2>,
                    Copyable<Tuple2<A1, A2>>,
                    Unwindable<Tuple2<A1, A2>>,
@@ -502,7 +502,7 @@ public final class Tuple2<A1, A2>
      * @since 1.0.0
      */
     @Override
-    public @NonNull <B1, B2> Tuple2<B1, B2> lift(
+    public @NonNull <B1, B2> Tuple2<B1, B2> applyTo(
         final @NonNull Higher2<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>> transformation
     ) {
         Objects.requireNonNull(transformation, nullValue("liftA"));

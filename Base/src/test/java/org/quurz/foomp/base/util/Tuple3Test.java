@@ -137,25 +137,24 @@ class Tuple3Test
     }
 
     @Nested
-    @DisplayName("Applicative (lift)")
-    class Applicative_Lift {
+    @DisplayName("Applicative (applyTo)")
+    class Applicative_ApplyTo {
 
-        @SuppressWarnings({"DataFlowIssue"})
         @Test
-        void lift_applies_functions_and_enforces_null_contracts() {
-            LOGGER.info("Tuple3.lift should apply functions and enforce null contracts");
+        void applyTo_applies_functions_and_enforces_null_contracts() {
+            LOGGER.info("Tuple3.applyTo should apply functions and enforce null contracts");
 
             final var t = tuple3("Hello", 17, 2.0D);
 
-            assertThatThrownBy(() -> t.lift(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> t.lift(tuple3(_$ -> null, Fun.identity(), Fun.identity())).unwind())
+            assertThatThrownBy(() -> t.applyTo(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.applyTo(tuple3(_$ -> null, Fun.identity(), Fun.identity())).unwind())
                 .isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> t.lift(tuple3(Function.identity(), _$ -> null, Fun.identity())).unwind())
+            assertThatThrownBy(() -> t.applyTo(tuple3(Function.identity(), _$ -> null, Fun.identity())).unwind())
                 .isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> t.lift(tuple3(Function.identity(), Fun.identity(), _$ -> null)).unwind())
+            assertThatThrownBy(() -> t.applyTo(tuple3(Function.identity(), Fun.identity(), _$ -> null)).unwind())
                 .isInstanceOf(NullPointerException.class);
 
-            assertThat(t.lift(tuple3(s -> s + " World", i -> i + 1, d -> d + 1.0D)).unwind())
+            assertThat(t.applyTo(tuple3(s -> s + " World", i -> i + 1, d -> d + 1.0D)).unwind())
                 .isEqualTo(tuple3("Hello World", 18, 3.0D));
         }
     }
@@ -224,7 +223,7 @@ class Tuple3Test
                         invocationCountingIdentity,
                         invocationCountingIdentity
                     )
-                    .lift(
+                    .applyTo(
                         tuple3(
                             invocationCountingToString,
                             invocationCountingIdentity,
@@ -266,7 +265,7 @@ class Tuple3Test
                         invocationCountingToString,
                         invocationCountingIdentity
                     )
-                    .lift(
+                    .applyTo(
                         tuple3(
                             invocationCountingIdentity,
                             invocationCountingToString,
@@ -308,7 +307,7 @@ class Tuple3Test
                         invocationCountingIdentity,
                         invocationCountingToString
                     )
-                    .lift(
+                    .applyTo(
                         tuple3(
                             invocationCountingIdentity,
                             invocationCountingIdentity,
@@ -348,7 +347,7 @@ class Tuple3Test
                         invocationCountingIdentity,
                         invocationCountingIdentity
                     )
-                    .lift(
+                    .applyTo(
                         tuple3(
                             invocationCountingIdentity,
                             invocationCountingIdentity,

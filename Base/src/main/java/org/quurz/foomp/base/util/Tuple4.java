@@ -3,7 +3,7 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun4;
 import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Liftable4;
+import org.quurz.foomp.base.types.Appliable4;
 import org.quurz.foomp.base.types.Mappable4;
 import org.quurz.foomp.base.types.Unwindable;
 import org.quurz.foomp.base.types.UnwindingOperation;
@@ -23,7 +23,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * <div>
  *     <p>
  *         An immutable, functional data structure that stores four values.
- *         This class supports functional operations such as mapping, lifting, copying, and lazy evaluation.
+ *         This class supports functional operations such as mapping, applicative application, copying, and lazy evaluation.
  *     </p>
  * </div>
  *
@@ -38,7 +38,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  */
 @SuppressWarnings("NonAsciiCharacters")
 public final class Tuple4<A1, A2, A3, A4>
-        implements Liftable4<Tuple4.µ, A1, A2, A3, A4>,
+        implements Appliable4<Tuple4.µ, A1, A2, A3, A4>,
                    Mappable4<Tuple4.µ, A1, A2, A3, A4>,
                    Copyable<Tuple4<A1, A2, A3, A4>>,
                    Unwindable<Tuple4<A1, A2, A3, A4>>,
@@ -575,7 +575,7 @@ public final class Tuple4<A1, A2, A3, A4>
      * @since 1.0.0
      */
     @Override
-    public @NonNull <B1, B2, B3, B4> Tuple4<B1, B2, B3, B4> lift(@NonNull Higher4<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>, ? extends Function<? super A4, ? extends B4>> transformation) {
+    public @NonNull <B1, B2, B3, B4> Tuple4<B1, B2, B3, B4> applyTo(@NonNull Higher4<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>, ? extends Function<? super A3, ? extends B3>, ? extends Function<? super A4, ? extends B4>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final var fixed
             = narrow(transformation);

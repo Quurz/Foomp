@@ -9,12 +9,13 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Rank‑2 applicative‑like interface that lifts a function into the context and applies it
+ *         Rank-2 applicative functor interface that applies a function inside the context
  *         to the first type parameter while preserving the second parameter {@code R}.
  *     </p>
  *     <p>
- *         This extends the usual rank‑1 {@code Liftable} idea to types of shape {@code Higher2&lt;WT, A, R&gt;}
- *         where {@code R} (e.g., a result/context type) remains fixed during the operation.
+ *         This interface is an analog to Haskell's {@code Applicative} functor class for types
+ *         of shape {@code Higher2<WT, A, R>} where {@code R} (e.g., a result/context type)
+ *         remains fixed during the operation.
  *     </p>
  *     <p>
  *         Contract: the provided higher‑kinded function must not be {@code null} and must not contain
@@ -23,7 +24,7 @@ import java.util.function.Function;
  * </div>
  *
  * @param <WT> the witness type representing the higher‑kinded constructor
- * @param <A>  the input type consumed by the lifted function
+ * @param <A>  the input type consumed by the function
  * @param <R>  the preserved (second) type parameter, e.g. a result/context type
  *
  * @since 1.0.0
@@ -31,12 +32,12 @@ import java.util.function.Function;
  * @author Alexander Schell
  */
 @FunctionalInterface
-public interface H2Liftable<WT extends WitnessType, A, R> {
+public interface H2Appliable<WT extends WitnessType, A, R> {
 
     /**
      * <div>
      *     <p>
-     *         Lifts a function {@code A -> B} inside the context and applies it to the first type parameter,
+     *         Applies a function {@code A -> B} inside the context to the first type parameter,
      *         preserving {@code R}.
      *     </p>
      * </div>
@@ -47,6 +48,6 @@ public interface H2Liftable<WT extends WitnessType, A, R> {
      *
      * @since 1.0.0
      */
-    <B> @NonNull Higher2<? extends WT, B, R> lift(final @NonNull Higher2<? extends WT, Function<A, B>, R> transformation);
+    <B> @NonNull Higher2<? extends WT, B, R> applyTo(final @NonNull Higher2<? extends WT, Function<A, B>, R> transformation);
 
 }

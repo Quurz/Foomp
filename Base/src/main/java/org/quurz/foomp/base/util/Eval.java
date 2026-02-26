@@ -203,7 +203,7 @@ public sealed interface Eval<A>
     /**
      * <div>
      *   <p>
-     *     Applicative lift: applies a function carried by another {@code Eval} to this value.
+     *     Applicative applyTo: applies a function carried by another {@code Eval} to this value.
      *     The function container is evaluated lazily where possible (Later/Always), preserving mode semantics.
      *   </p>
      * </div>
@@ -217,7 +217,7 @@ public sealed interface Eval<A>
      */
     @Override
     @NonNull
-    default <B> Eval<B> lift(@NonNull final Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
+    default <B> Eval<B> applyTo(@NonNull final Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final Eval<? extends Function<? super A, ? extends B>> funEval = narrow(transformation);
         return switch (this) {

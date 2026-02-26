@@ -105,7 +105,7 @@ public class CombinableTask<A>
     }
 
     @Override
-    public @NonNull <B> CombinableTask<B> lift(@NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
+    public @NonNull <B> CombinableTask<B> applyTo(@NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
         return null;    // TODO
     }
 

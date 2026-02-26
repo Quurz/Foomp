@@ -3,7 +3,7 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Eager;
-import org.quurz.foomp.base.types.Liftable2;
+import org.quurz.foomp.base.types.Appliable2;
 import org.quurz.foomp.base.types.Mappable2;
 import org.quurz.foomp.base.types.Transmogrifyable;
 import org.quurz.foomp.base.types.Value2;
@@ -23,13 +23,13 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *     <p>
  *         A record-based, immutable 2-tuple carrying two non-null values. This type offers
  *         value accessors, structural updates (with1/with2), mapping utilities (map/map1/map2/mapAll),
- *         applicative lifting (lift) and conversions (toTuple), as well as transmogrification and copying.
+ *         applicative application (applyTo) and conversions (toTuple), as well as transmogrification and copying.
  *     </p>
  *     <p>
  *         Semantics:
  *         <ul>
  *             <li>Non-null contract: inputs must not be {@code null}, results must not be {@code null}.</li>
- *             <li>Eager evaluation: mapping and lifting operations evaluate immediately.</li>
+ *             <li>Eager evaluation: mapping and applicative application evaluate immediately.</li>
  *             <li>Structural equality: equals/hashCode compare values component-wise.</li>
  *             <li>Stable string format: {@code Record2[value1=..., value2=...]}</li>
  *         </ul>
@@ -46,7 +46,7 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
 @SuppressWarnings("NonAsciiCharacters")
 public record Record2<A1, A2>(A1 value1,
                               A2 value2)
-        implements Liftable2<Record2.µ, A1, A2>,
+        implements Appliable2<Record2.µ, A1, A2>,
                    Mappable2<Record2.µ, A1, A2>,
                    Transmogrifyable<Record2<A1, A2>>,
                    Copyable<Record2<A1, A2>>,
@@ -395,7 +395,7 @@ public record Record2<A1, A2>(A1 value1,
      */
     @Override
     @Eager
-    public @NonNull <B1, B2> Record2<B1, B2> lift(final @NonNull Higher2<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>> transformation) {
+    public @NonNull <B1, B2> Record2<B1, B2> applyTo(final @NonNull Higher2<µ, ? extends Function<? super A1, ? extends B1>, ? extends Function<? super A2, ? extends B2>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         final var narrowedLiftA
             = narrow(transformation);

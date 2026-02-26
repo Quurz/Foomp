@@ -25,7 +25,7 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *     Semantics:
  *     <ul>
  *       <li><b>map</b>: transforms the produced value, threading the state through unchanged.</li>
- *       <li><b>lift</b> (applicative): threads state from the function value to this value:
+ *       <li><b>applyTo</b> (applicative): threads state from the function value to this value:
  *           {@code s0 -> (f, s1) <- tf(s0); (a, s2) <- this(s1); result = (f(a), s2)}.</li>
  *       <li><b>bind</b> (flatMap): sequences computations, passing the new state to the next step:
  *           {@code s0 -> (a, s1) <- this(s0); next = f(a); result <- next(s1)}.</li>
@@ -47,9 +47,9 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *   var mapped = st.map(Object::toString);
  *   mapped.runState(1);   // -> ("false", 2)
  *
- *   // lift: function-in-stateful applied to current value, threading state correctly
+ *   // applyTo: function-in-stateful applied to current value, threading state correctly
  *   var tf = Stateful.stateful((Integer s) -> tuple2((Function<Boolean, String>) Object::toString, s));
- *   var lifted = st.lift(tf);
+ *   var lifted = st.applyTo(tf);
  *   lifted.runState(1);   // -> ("false", 2)
  *
  *   // bind: sequence and pass along the new state
@@ -283,7 +283,7 @@ public class Stateful<A, S>
      * @since 1.0.0
      */
     @Override
-    public @NonNull <B> Stateful<B, S> lift(final @NonNull Higher2<? extends µ, Function<A, B>, S> transformation) {
+    public @NonNull <B> Stateful<B, S> applyTo(final @NonNull Higher2<? extends µ, Function<A, B>, S> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return narrow(transformation).bind(f -> this.map(f));
     }

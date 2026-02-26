@@ -80,7 +80,7 @@ public final class Attempt<A>
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
-    public static <A> Attempt<A> narrow(final @NonNull  Higher1<? extends Attempt.µ, A> wide) {
+    public static <A> Attempt<A> narrow(final @NonNull Higher1<? extends Attempt.µ, A> wide) {
         return (Attempt<A>) Objects.requireNonNull(wide, nullValue("wide"));
     }
 
@@ -381,7 +381,7 @@ public final class Attempt<A>
      */
     @Override
     @SuppressWarnings("unchecked")
-    public @NonNull <B> Attempt<B> lift(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
+    public @NonNull <B> Attempt<B> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         return new Attempt<>(
             () -> switch (narrow(transformation).spool.get()) {
@@ -412,7 +412,7 @@ public final class Attempt<A>
      */
     @SuppressWarnings("unchecked")
     @Override
-    public @NonNull <B> Attempt<B> liftUnsafe(final @NonNull Higher1<? extends µ, ? extends Applicable<? super A, ? extends B>> transformation) {
+    public @NonNull <B> Attempt<B> applyToUnsafe(final @NonNull Higher1<? extends µ, ? extends Applicable<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("liftA"));
         return new Attempt<>(
             () -> switch (narrow(transformation).spool.get()) {
