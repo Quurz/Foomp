@@ -427,7 +427,7 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Monadic bind (flatMap): applies the function to the success value, flattens the result.
+     *         Monadic flatMap (flatMap): applies the function to the success value, flattens the result.
      *     </p>
      *     <p>
      *         Failures short‑circuit and are propagated unchanged.
@@ -443,15 +443,15 @@ public final class Attempt<A>
      */
     @Override
     @NonNull
-    public <B> Attempt<B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
-        Objects.requireNonNull(transformation, nullValue("bindM"));
-        return this.bindUnsafe(applicable(transformation));
+    public <B> Attempt<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        return this.flatMapUnsafe(applicable(transformation));
     }
 
     /**
      * <div>
      *     <p>
-     *         Unsafe monadic bind: like {@link #bind(Function)} but accepts an {@link Applicable} that may throw.
+     *         Unsafe monadic flatMap: like {@link #flatMap(Function)} but accepts an {@link Applicable} that may throw.
      *     </p>
      *     <p>
      *         Exceptions thrown by the transformation are captured as failures.
@@ -467,8 +467,8 @@ public final class Attempt<A>
      */
     @SuppressWarnings("unchecked")
     @Override
-    public @NonNull <B> Attempt<B> bindUnsafe(@NonNull Applicable<? super A, ? extends Higher1<? extends µ, B>> transformation) {
-        Objects.requireNonNull(transformation, nullValue("bindM"));
+    public @NonNull <B> Attempt<B> flatMapUnsafe(@NonNull Applicable<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         return new Attempt<>(
             () -> switch (this.mapUnsafe(transformation).tryIt()) {
                 case Result.Success<? extends Higher1<? extends µ, B>> success -> narrow(success.getValue()).tryIt();

@@ -25,11 +25,11 @@ import static org.quurz.foomp.base.localisation.BaseMessages.*;
  *     <ul>
  *       <li>
  *         The presence of a value ({@code Some} vs {@code None}) is decided eagerly at construction
- *         time or when using monadic operations such as {@link #bind(Function)}.
+ *         time or when using monadic operations such as {@link #flatMap(Function)}.
  *       </li>
  *       <li>
  *         The payload of {@code Some} is represented lazily and is only evaluated when methods like
- *         {@link #get()}, {@link #map(Function)}, {@link #bind(Function)} (on the inner value),
+ *         {@link #get()}, {@link #map(Function)}, {@link #flatMap(Function)} (on the inner value),
  *         {@link #unwind()}, {@link #equals(Object)}, {@link #hashCode()}, or {@link #toString()} are invoked.
  *       </li>
  *     </ul>
@@ -483,14 +483,14 @@ public sealed interface Maybe<A>
     /**
      * <div>
      *   <p>
-     *     Monadic bind: maps the contained value to another {@code Maybe} and flattens the result.
+     *     Monadic flatMap: maps the contained value to another {@code Maybe} and flattens the result.
      *   </p>
      *   <p>
      *     <strong>Laziness:</strong>
      *     <ul>
      *       <li>
      *         The presence of a value in the result ({@code Some} vs {@code None}) is determined eagerly
-     *         when {@code bind} is invoked.
+     *         when {@code flatMap} is invoked.
      *       </li>
      *       <li>
      *         For {@code Some}, the inner payload of the resulting {@code Maybe} may still be lazy,
@@ -510,7 +510,7 @@ public sealed interface Maybe<A>
     @UnwindingOperation
     @Override
     @NonNull
-    default <B> Maybe<B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+    default <B> Maybe<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return switch (this) {
             case None<A> _$ -> none();
@@ -630,7 +630,7 @@ public sealed interface Maybe<A>
     @NonNull
     default Maybe<A> filter(final @NonNull Predicate<? super A> predicate) {
         Objects.requireNonNull(predicate, nullValue("predicate"));
-        return this.bind(a -> predicate.test(a)
+        return this.flatMap(a -> predicate.test(a)
                 ? some(a)
                 : none());
     }

@@ -110,7 +110,7 @@ public class CombinableTask<A>
     }
 
     @Override
-    public @NonNull <B> CombinableTask<B> bind(@NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+    public @NonNull <B> CombinableTask<B> flatMap(@NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         return null;    // TODO
     }
 

@@ -508,6 +508,7 @@ public record Record2<A1, A2>(A1 value1,
      */
     @Override
     @Eager
+    @NonNull
     public String toString() {
         return new StringJoiner(", ", Record2.class.getSimpleName() + "[", "]")
                 .add("value1=" + value1)

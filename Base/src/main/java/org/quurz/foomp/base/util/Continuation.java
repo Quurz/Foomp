@@ -25,7 +25,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *   </p>
  *   <p>
  *     The type supports the usual functor/applicative/monad operations:
- *     {@code map}, {@code applyTo} (applicative application), {@code bind} (flatMap), and {@code apply}
+ *     {@code map}, {@code applyTo} (applicative application), {@code flatMap} (flatMap), and {@code apply}
  *     to run the continuation with a final computation.
  *   </p>
  *   <p>
@@ -36,11 +36,11 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *     Examples:
  *   </p>
  *   <pre>{@code
- *   // 1) Plain CPS pipeline: map and bind
+ *   // 1) Plain CPS pipeline: map and flatMap
  *   // runCont: (A -> R) -> R, with A = Integer, R = Integer
  *   var cont = Continuation.<Integer, Integer>pureContinuation(5)
  *       .map(i -> i * 2)            // 10
- *       .bind(i -> Continuation.pureContinuation(i + 1)); // 11
+ *       .flatMap(i -> Continuation.pureContinuation(i + 1)); // 11
  *
  *   // Apply the final continuation (A -> R). Here we choose identity to get the produced value:
  *   var result = cont.apply(x -> x); // 11
@@ -48,7 +48,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *   // 2) Early exit with call/cc (call-with-current-continuation)
  *   // If a condition holds, invoke k(...) to short-circuit and return immediately.
  *   var earlyExit = Continuation.<Integer, Integer>pureContinuation(5)
- *       .bind(i -> Continuation.callCurrentCont(
+ *       .flatMap(i -> Continuation.callCurrentCont(
  *           (java.util.function.Function<Integer, Continuation<Integer, Integer>>) k -> {
  *               if (i > 0) {
  *                   // abort the rest of the computation and return 42 now
@@ -212,8 +212,8 @@ public class Continuation<A, R>
     /**
      * <div>
      *   <p>
-     *     Monadic bind (flatMap): sequences CPS computations. Defined as
-     *     {@code bind f = k -> runCont (a -> f(a).runCont(k))}.
+     *     Monadic flatMap (flatMap): sequences CPS computations. Defined as
+     *     {@code flatMap f = k -> runCont (a -> f(a).runCont(k))}.
      *   </p>
      * </div>
      *
@@ -225,7 +225,7 @@ public class Continuation<A, R>
      * @since 1.0.0
      */
     @Override
-    public @NonNull <B> Continuation<B, R> bind(@NonNull Function<A, ? extends Higher2<? extends µ, B, R>> transformation) {
+    public @NonNull <B> Continuation<B, R> flatMap(@NonNull Function<A, ? extends Higher2<? extends µ, B, R>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return new Continuation<>(f -> this.runCont.apply(a -> narrow(transformation.apply(a)).map(Function.identity()).apply(f)));
     }
@@ -253,7 +253,7 @@ public class Continuation<A, R>
      * <div>
      *   <p>
      *     Sequences this continuation and then proceeds with the given continuation, ignoring this value.
-     *     Equivalent to {@code this.bind(_ -> continuation)}.
+     *     Equivalent to {@code this.flatMap(_ -> continuation)}.
      *   </p>
      * </div>
      *
@@ -267,7 +267,7 @@ public class Continuation<A, R>
     @SuppressWarnings("unused")
     public <B> Continuation<B, R> then(final @NonNull Continuation<B, R> continuation) {
         Objects.requireNonNull(continuation, nullValue("continuation"));
-        return this.bind(ignored -> continuation);
+        return this.flatMap(ignored -> continuation);
     }
 
     /**

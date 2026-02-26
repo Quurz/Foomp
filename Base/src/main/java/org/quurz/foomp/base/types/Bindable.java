@@ -9,7 +9,7 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Monad‑like binding contract for rank‑1 higher‑kinded types (HKTs). It enables sequencing
+ *         Monad‑like flatMap (monadic bind) contract for rank‑1 higher‑kinded types (HKTs). It enables sequencing
  *         of operations that produce values of the same HKT shape by applying a transformation to
  *         the carried value and returning a new HKT instance.
  *     </p>
@@ -47,6 +47,6 @@ public interface Bindable<WT extends WitnessType, A> {
      *
      * @since 1.0.0
      */
-    <B> @NonNull Higher1<? extends WT, B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends WT, B>> transformation);
+    <B> @NonNull Higher1<? extends WT, B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends WT, B>> transformation);
 
 }

@@ -236,8 +236,8 @@ public sealed interface Eval<A>
     /**
      * <div>
      *   <p>
-     *     Monadic bind: sequences computation by mapping to another {@code Eval} and flattening.
-     *     Now binds eagerly; Later and Always remain lazy (memoized vs. non‑memoized).
+     *     Monadic flatMap: sequences computation by mapping to another {@code Eval} and flattening.
+     *     Now flatMaps (monadic bind) eagerly; Later and Always remain lazy (memoized vs. non‑memoized).
      *   </p>
      * </div>
      *
@@ -251,8 +251,8 @@ public sealed interface Eval<A>
     @SuppressWarnings("unused")
     @Override
     @NonNull
-    default <B> Eval<B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
-        Objects.requireNonNull(transformation, nullValue("bindM"));
+    default <B> Eval<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         return switch (this) {
             case Eval.Now<A> now -> unwrap(this.map(transformation));
             case Eval.Later<A> later -> new Later<>(() -> narrow(transformation.apply(later.get())).get());

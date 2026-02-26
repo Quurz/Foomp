@@ -39,7 +39,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * <h2>Features</h2>
  * <ul>
  *     <li>Implements {@link Supplier} to provide values.</li>
- *     <li>Supports monadic operations such as {@code map}, {@code applyTo}, and {@code bind}.</li>
+ *     <li>Supports monadic operations such as {@code map}, {@code applyTo}, and {@code flatMap}.</li>
  *     <li>Integrates with {@link Fun}, {@link Value}, and {@link Higher1}.</li>
  *     <li>Provides extras like {@code copy}, {@code unwind}, and {@code transmogrify}.</li>
  * </ul>
@@ -263,8 +263,8 @@ public interface Provider<A>
      */
     @Override
     @NonNull
-    default <B> Provider<B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
-        Objects.requireNonNull(transformation, nullValue("bindM"));
+    default <B> Provider<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         return this.map(a -> narrow(transformation.apply(a)).get());
     }
 

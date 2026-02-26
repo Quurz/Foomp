@@ -280,7 +280,7 @@ class MaybeTest
     }
 
     @Nested
-    @DisplayName("Functional (map, applyTo, bind)")
+    @DisplayName("Functional (map, applyTo, flatMap)")
     class Functional {
 
         @Nested
@@ -349,26 +349,26 @@ class MaybeTest
         }
 
         @Nested
-        @DisplayName("bind")
-        class Bind_ {
+        @DisplayName("flatMap")
+        class FlatMap_ {
 
             @SuppressWarnings({"DataFlowIssue", "unused"})
             @Test
-            void bind_contracts_and_behaviour() {
-                LOGGER.info("Maybe.bind should enforce null contracts and flatten results");
-                assertThatThrownBy(() -> none().bind(null))
+            void flatMap_contracts_and_behaviour() {
+                LOGGER.info("Maybe.flatMap should enforce null contracts and flatten results");
+                assertThatThrownBy(() -> none().flatMap(null))
                     .isInstanceOf(NullPointerException.class);
 
                 assertThatThrownBy(() -> {
                     final var m = some(SOME_STRING_VALUE);
-                    final Fun<String, Maybe<Integer>> bindM = _$ -> null;
-                    m.bind(bindM).unwind();
+                    final Fun<String, Maybe<Integer>> flatMapM = _$ -> null;
+                    m.flatMap(flatMapM).unwind();
                 }).isInstanceOf(NullPointerException.class);
 
                 assertThatNoException().isThrownBy(() -> {
                     final var m = some(SOME_STRING_VALUE);
-                    final Fun<String, Maybe<Integer>> bindM = s -> some(s.length());
-                    final var bound = m.bind(bindM).unwind();
+                    final Fun<String, Maybe<Integer>> flatMapM = s -> some(s.length());
+                    final var bound = m.flatMap(flatMapM).unwind();
                     checkIsSomeWithValue(bound, bound.get());
                 });
             }
@@ -516,11 +516,11 @@ class MaybeTest
                 final var mappedAndLifted = m.map(fMap).applyTo(some(fMap));
                 verify(fMap, times(0)).apply(any());
 
-                // bind ist jetzt strikt bzgl. Struktur und erzwingt die Auswertung der bisherigen Supplier
-                final var cont = mappedAndLifted.bind(_$ -> some(SOME_STRING_VALUE));
+                // flatMap ist jetzt strikt bzgl. Struktur und erzwingt die Auswertung der bisherigen Supplier
+                final var cont = mappedAndLifted.flatMap(_$ -> some(SOME_STRING_VALUE));
                 verify(fMap, times(2)).apply(any());
 
-                // unwind materialisiert nur noch das Ergebnis von bind, ohne fMap erneut aufzurufen
+                // unwind materialisiert nur noch das Ergebnis von flatMap, ohne fMap erneut aufzurufen
                 final var unwound = cont.unwind();
                 checkIsSomeWithValue(unwound, SOME_STRING_VALUE);
                 verify(fMap, times(2)).apply(any());

@@ -70,19 +70,19 @@ public interface UnsafeMonadic<WT extends WitnessType, A> {
     /**
      * <div>
      *     <p>
-     *         Sequences computations by binding with a transformation that returns another monadic value
-     *         and may throw a checked exception. This is the exception‑throwing analogue of {@code flatMap}/{@code bind}.
+     *         Sequences computations by flatMap (monadic bind) with a transformation that returns another monadic value
+     *         and may throw a checked exception. This is the exception‑throwing analogue of {@code flatMap}/{@code flatMap}.
      *     </p>
      * </div>
      *
      * @param transformation a function producing a new monadic value; must not be {@code null}
-     * @param <B>            the resulting value type after binding
+     * @param <B>            the resulting value type after flatMap
      * @return the resulting monadic value (never {@code null})
      * @throws Exception if the transformation fails
      *
      * @since 1.0.0
      */
-    <B> @NonNull Higher1<? extends WT, B> bindUnsafe(final @NonNull Applicable<? super A, ? extends Higher1<? extends WT, B>> transformation)
+    <B> @NonNull Higher1<? extends WT, B> flatMapUnsafe(final @NonNull Applicable<? super A, ? extends Higher1<? extends WT, B>> transformation)
         throws Exception;
 
 }

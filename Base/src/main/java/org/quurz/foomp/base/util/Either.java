@@ -26,7 +26,7 @@ import static org.quurz.foomp.base.util.Maybe.some;
  *   </p>
  *   <p>
  *     Commonly used to model alternative outcomes (e.g., error or success) without throwing
- *     exceptions. This implementation is right‑biased: mapping and binding operations act
+ *     exceptions. This implementation is right‑biased: mapping and flatMap operations act
  *     on the right value, while leaving the left value unchanged.
  *   </p>
  *   <p>
@@ -34,7 +34,7 @@ import static org.quurz.foomp.base.util.Maybe.some;
  *     <ul>
  *       <li>
  *         The active side (left vs right) is determined eagerly at construction time or when
- *         using monadic operations such as {@link #bind(Function)}.
+ *         using monadic operations such as {@link #flatMap(Function)}.
  *       </li>
  *       <li>
  *         The payload stored in {@code Left} and {@code Right} is represented lazily via
@@ -653,21 +653,21 @@ public sealed interface Either<L, R>
     /**
      * <div>
      *   <p>
-     *     Monadic bind (right‑biased): binds the right value with {@code transformation}.
+     *     Monadic flatMap (right‑biased): applies the given transformation (monadic bind) to the right value.
      *     Left values pass through unchanged.
      *   </p>
      *   <p>
      *     <strong>Laziness:</strong>
      *     <ul>
      *       <li>
-     *         When this is a {@code Left}, {@code bind} returns the same left value without
+     *         When this is a {@code Left}, {@code flatMap} returns the same left value without
      *         evaluating any payload or invoking {@code transformation}.
      *       </li>
      *       <li>
-     *         When this is a {@code Right}, {@code bind} eagerly evaluates the current right
+     *         When this is a {@code Right}, {@code flatMap} eagerly evaluates the current right
      *         payload and applies {@code transformation} in order to obtain the resulting
      *         {@code Either}. In other words, the choice of left/right in the result is made
-     *         at {@code bind}-time, not deferred.
+     *         at {@code flatMap}-time, not deferred.
      *       </li>
      *       <li>
      *         Any laziness of the resulting payload depends on the implementation of
@@ -677,7 +677,7 @@ public sealed interface Either<L, R>
      *   </p>
      * </div>
      *
-     * @param transformation right‑side binder; must not be {@code null}
+     * @param transformation right‑side flatMap function; must not be {@code null}
      * @param <S>            the resulting right type
      * @return the bound {@code Either}
      *
@@ -686,7 +686,7 @@ public sealed interface Either<L, R>
     @SuppressWarnings("unchecked")
     @Override
     @NonNull
-    default <S> Either<L, S> bind(
+    default <S> Either<L, S> flatMap(
             final @NonNull Function<? super R, ? extends Higher1<? extends µ, S>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return switch (this) {

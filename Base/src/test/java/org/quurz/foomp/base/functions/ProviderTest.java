@@ -141,23 +141,23 @@ class ProviderTest
 
     @SuppressWarnings("DataFlowIssue")
     @Test
-    void testBindWithNullValue() {
-        LOGGER.info("Test provider.bind with null-value");
+    void testFlatMapWithNullValue() {
+        LOGGER.info("Test provider.flatMap with null-value");
 
-        assertThatThrownBy(() -> provider(SOME_STRING_VALUE).bind(null))
+        assertThatThrownBy(() -> provider(SOME_STRING_VALUE).flatMap(null))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
-    void testBindWithValidValue() {
-        LOGGER.info("Test provider.bind with valid value");
+    void testFlatMapWithValidValue() {
+        LOGGER.info("Test provider.flatMap with valid value");
 
         assertThatNoException()
             .isThrownBy(() -> {
                 final var provider
                     = provider(SOME_STRING_VALUE);
 
-                assertThat(provider.bind(string -> provider(string.length())).get())
+                assertThat(provider.flatMap(string -> provider(string.length())).get())
                     .isEqualTo(SOME_STRING_VALUE.length());
             });
     }
@@ -214,7 +214,7 @@ class ProviderTest
                     = provider(SOME_STRING_VALUE)
                         .map(invocationCountingFun)
                         .applyTo(provider(invocationCountingFun))
-                        .bind(obj -> provider(String.valueOf(obj)));
+                        .flatMap(obj -> provider(String.valueOf(obj)));
 
                 assertThat(invocationCountingFun.getInvocationCount())
                     .isEqualTo(0);

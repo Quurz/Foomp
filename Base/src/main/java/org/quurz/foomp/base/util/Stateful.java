@@ -27,7 +27,7 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *       <li><b>map</b>: transforms the produced value, threading the state through unchanged.</li>
  *       <li><b>applyTo</b> (applicative): threads state from the function value to this value:
  *           {@code s0 -> (f, s1) <- tf(s0); (a, s2) <- this(s1); result = (f(a), s2)}.</li>
- *       <li><b>bind</b> (flatMap): sequences computations, passing the new state to the next step:
+ *       <li><b>flatMap</b> (flatMap): sequences computations, passing the new state to the next step:
  *           {@code s0 -> (a, s1) <- this(s0); next = f(a); result <- next(s1)}.</li>
  *     </ul>
  *   </p>
@@ -52,8 +52,8 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *   var lifted = st.applyTo(tf);
  *   lifted.runState(1);   // -> ("false", 2)
  *
- *   // bind: sequence and pass along the new state
- *   var bound = st.bind(b -> Stateful.stateOf(b ? "even" : "odd"));
+ *   // flatMap: sequence and pass along the new state
+ *   var bound = st.flatMap(b -> Stateful.stateOf(b ? "even" : "odd"));
  *   bound.runState(1);    // -> ("odd", 2)
  *
  *   // Utilities:
@@ -285,13 +285,13 @@ public class Stateful<A, S>
     @Override
     public @NonNull <B> Stateful<B, S> applyTo(final @NonNull Higher2<? extends µ, Function<A, B>, S> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return narrow(transformation).bind(f -> this.map(f));
+        return narrow(transformation).flatMap(f -> this.map(f));
     }
 
     /**
      * <div>
      *   <p>
-     *     Monadic bind (flatMap): sequences two stateful computations, passing the updated state
+     *     Monadic flatMap (flatMap): sequences two stateful computations, passing the updated state
      *     from the left to the right computation.
      *   </p>
      * </div>
@@ -304,7 +304,7 @@ public class Stateful<A, S>
      * @since 1.0.0
      */
     @Override
-    public @NonNull <B> Stateful<B, S> bind(final @NonNull Function<A, ? extends Higher2<? extends µ, B, S>> transformation) {
+    public @NonNull <B> Stateful<B, S> flatMap(final @NonNull Function<A, ? extends Higher2<? extends µ, B, S>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return unwrap(this.map(transformation));
     }

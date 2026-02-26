@@ -6,7 +6,7 @@ import org.quurz.foomp.higher.WitnessType;
  * <div>
  *     <p>
  *         Rank‑2 monad‑like interface: combines the contracts of {@link H2Mappable},
- *         {@link H2Appliable} and {@link H2Bindable}. Operations map/bind over the first
+ *         {@link H2Appliable} and {@link H2Bindable}. Operations map/flatMap over the first
  *         type parameter while preserving the second parameter {@code R} (e.g. result/context).
  *     </p>
  *     <p>

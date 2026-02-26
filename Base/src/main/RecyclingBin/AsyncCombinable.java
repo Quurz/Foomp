@@ -111,8 +111,8 @@ public final class AsyncCombinable<A>
 
     @Override
     @NonNull
-    public <B> AsyncCombinable<B> bind(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
-        Objects.requireNonNull(transformation, nullValue("bindM"));
+    public <B> AsyncCombinable<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         return new AsyncCombinable<>((executorService, timeout)
                 -> ()
                 -> fix(this.map(transformation).execute(executorService, timeout)).execute(executorService, timeout));

@@ -193,21 +193,21 @@ class EvalTest
     }
 
     @Nested
-    @DisplayName("Behaviour (bind)")
-    class Behaviour_Bind {
+    @DisplayName("Behaviour (flatMap)")
+    class Behaviour_FlatMap {
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void now_bind_is_eager_and_stable() {
-            LOGGER.info("Eval.Now.bind should be eager and stable (binding applied once)");
+        void now_flatMap_is_eager_and_stable() {
+            LOGGER.info("Eval.Now.flatMap should be eager and stable (flatMap applied once)");
             final var eval = evalNow(SOME_STRING_VALUE);
             final InvocationCountingFun<String, Eval<Integer>> fun = invocationCountingFun(s -> evalNow(s.length()));
 
-            assertThatThrownBy(() -> eval.bind(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> eval.bind(_$ -> null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.flatMap(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.flatMap(_$ -> null)).isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
-                final var bound = eval.bind(fun);
+                final var bound = eval.flatMap(fun);
                 assertThat(fun.getInvocationCount()).isEqualTo(1);
                 assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
                 bound.get();
@@ -218,16 +218,16 @@ class EvalTest
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void later_bind_is_lazy_memoized() {
-            LOGGER.info("Eval.Later.bind should be lazy and memoized (binding deferred and applied once)");
+        void later_flatMap_is_lazy_memoized() {
+            LOGGER.info("Eval.Later.flatMap should be lazy and memoized (flatMap deferred and applied once)");
             final var eval = evalLater(SOME_STRING_VALUE);
             final InvocationCountingFun<String, Eval<Integer>> fun = invocationCountingFun(s -> evalLater(s.length()));
 
-            assertThatThrownBy(() -> eval.bind(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> eval.bind(_$ -> null).get()).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.flatMap(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.flatMap(_$ -> null).get()).isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
-                final var bound = eval.bind(fun);
+                final var bound = eval.flatMap(fun);
                 assertThat(fun.getInvocationCount()).isEqualTo(0);
                 assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
                 assertThat(fun.getInvocationCount()).isEqualTo(1);
@@ -239,16 +239,16 @@ class EvalTest
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
-        void always_bind_is_lazy_non_memoized() {
-            LOGGER.info("Eval.Always.bind should be lazy and non-memoized (binding applied on every access)");
+        void always_flatMap_is_lazy_non_memoized() {
+            LOGGER.info("Eval.Always.flatMap should be lazy and non-memoized (flatMap applied on every access)");
             final var eval = evalAlways(SOME_STRING_VALUE);
             final InvocationCountingFun<String, Eval<Integer>> fun = invocationCountingFun(s -> evalAlways(s.length()));
 
-            assertThatThrownBy(() -> eval.bind(null)).isInstanceOf(NullPointerException.class);
-            assertThatThrownBy(() -> eval.bind(_$ -> null).get()).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.flatMap(null)).isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> eval.flatMap(_$ -> null).get()).isInstanceOf(NullPointerException.class);
 
             assertThatNoException().isThrownBy(() -> {
-                final var bound = eval.bind(fun);
+                final var bound = eval.flatMap(fun);
                 assertThat(fun.getInvocationCount()).isEqualTo(0);
                 assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
                 assertThat(fun.getInvocationCount()).isEqualTo(1);

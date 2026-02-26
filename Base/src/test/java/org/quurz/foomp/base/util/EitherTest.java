@@ -456,24 +456,24 @@ class EitherTest
     }
 
     @Nested
-    @DisplayName("Behaviour (bind)")
-    class Behaviour_Bind {
+    @DisplayName("Behaviour (flatMap)")
+    class Behaviour_FlatMap {
 
         @SuppressWarnings("DataFlowIssue")
         @Test
-        void bind_with_null_bindM_throws() {
-            LOGGER.info("either.bind with null-bindM");
-            assertThatThrownBy(() -> left(SOME_STRING_VALUE).bind(null))
+        void flatMap_with_null_flatMapM_throws() {
+            LOGGER.info("either.flatMap with null-flatMapM");
+            assertThatThrownBy(() -> left(SOME_STRING_VALUE).flatMap(null))
                 .isInstanceOf(NullPointerException.class);
         }
 
         @Test
-        void bind_on_left_is_noop() {
-            LOGGER.info("either.bind on Left");
+        void flatMap_on_left_is_noop() {
+            LOGGER.info("either.flatMap on Left");
             assertThatNoException().isThrownBy(() -> {
                 final var e = left(SOME_STRING_VALUE);
-                final var boundLeft = e.bind(obj -> left(String.valueOf(obj)));
-                final var boundRight = e.bind(obj -> right(String.valueOf(obj)));
+                final var boundLeft = e.flatMap(obj -> left(String.valueOf(obj)));
+                final var boundRight = e.flatMap(obj -> right(String.valueOf(obj)));
 
                 checkIsLeftWithValue(boundLeft, SOME_STRING_VALUE);
                 checkIsLeftWithValue(boundRight, SOME_STRING_VALUE);
@@ -481,12 +481,12 @@ class EitherTest
         }
 
         @Test
-        void bind_on_right_sequences_to_left_or_right() {
-            LOGGER.info("either.bind on Right");
+        void flatMap_on_right_sequences_to_left_or_right() {
+            LOGGER.info("either.flatMap on Right");
             assertThatNoException().isThrownBy(() -> {
                 final var e = right(SOME_STRING_VALUE);
-                final var toLeft = e.bind(string -> left(funStringLength.apply(string)));
-                final var toRight = e.bind(string -> right(funStringLength.apply(string)));
+                final var toLeft = e.flatMap(string -> left(funStringLength.apply(string)));
+                final var toRight = e.flatMap(string -> right(funStringLength.apply(string)));
 
                 checkIsLeftWithValue(toLeft, SOME_STRING_VALUE.length());
                 checkIsRightWithValue(toRight, SOME_STRING_VALUE.length());
@@ -579,7 +579,7 @@ class EitherTest
                 assertThat(invocationCountingFun.getInvocationCount()).isEqualTo(2);
                 invocationCountingFun.resetInvocationCount();
 
-                final var unwound = either.swap().bind(obj -> left(obj.toString())).unwind();
+                final var unwound = either.swap().flatMap(obj -> left(obj.toString())).unwind();
 
                 assertThat(invocationCountingFun.getInvocationCount()).isEqualTo(2);
                 assertThat(unwound.isLeft()).isTrue();

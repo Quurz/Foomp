@@ -119,22 +119,22 @@ class ContinuationTest extends TestHelper {
         }
 
         @Nested
-        @DisplayName("bind (flatMap)")
-        class Bind_ {
+        @DisplayName("flatMap (flatMap)")
+        class FlatMap_ {
 
             @SuppressWarnings("DataFlowIssue")
             @Test
-            void bind_sequences_and_enforces_null_contracts() {
-                LOGGER.info("Continuation.bind should sequence computations (flatMap) and enforce null contracts");
+            void flatMap_sequences_and_enforces_null_contracts() {
+                LOGGER.info("Continuation.flatMap should sequence computations (flatMap) and enforce null contracts");
 
                 final Function<Function<Integer, Integer>, Integer> runCont = f -> f.apply(21);
                 final Continuation<Integer, Integer> c = continuation(runCont);
 
-                assertThatThrownBy(() -> c.bind(null))
+                assertThatThrownBy(() -> c.flatMap(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("transformation");
 
-                assertThat(c.bind(i -> pureContinuation(i * 2)).apply(Fun.identity()))
+                assertThat(c.flatMap(i -> pureContinuation(i * 2)).apply(Fun.identity()))
                     .isEqualTo(42);
             }
         }
@@ -202,7 +202,7 @@ class ContinuationTest extends TestHelper {
             final var seen = new ArrayList<Integer>();
 
             final Continuation<Integer, Integer> c = pureContinuation(5);
-            c.bind(i -> {
+            c.flatMap(i -> {
                  seen.add(i);
                  return Continuation.<Integer, Integer, Integer>callCurrentCont(k ->
                          k.apply(42).then(pureContinuation(23))

@@ -210,7 +210,7 @@ class AttemptTest extends TestHelper {
     class Behaviour {
 
         @Nested
-        @DisplayName("Functional (map, applyTo, bind)")
+        @DisplayName("Functional (map, applyTo, flatMap)")
         class Functional {
 
             @Nested
@@ -318,35 +318,35 @@ class AttemptTest extends TestHelper {
             }
 
             @Nested
-            @DisplayName("Bind")
-            class Bind_ {
+            @DisplayName("flatMap")
+            class FlatMap_ {
 
                 @SuppressWarnings("DataFlowIssue")
                 @Test
                 void null_function_throws_NullPointerException() {
-                    LOGGER.info("Attempt.bind(...) should throw NullPointerException when transformation is null");
-                    assertThatThrownBy(() -> attempt(5).bind(null))
+                    LOGGER.info("Attempt.flatMap(...) should throw NullPointerException when transformation is null");
+                    assertThatThrownBy(() -> attempt(5).flatMap(null))
                         .isInstanceOf(NullPointerException.class);
                 }
 
                 @Test
                 void transformation_throws_exception_results_in_failure() {
-                    LOGGER.info("Attempt.bind(...) should capture exceptions from transformation as failure");
-                    final var failure = attempt(5).bind(_$ -> { throw new IllegalArgumentException("BIND"); }).tryIt().getException();
+                    LOGGER.info("Attempt.flatMap(...) should capture exceptions from transformation as failure");
+                    final var failure = attempt(5).flatMap(_$ -> { throw new IllegalArgumentException("FLAT_MAP"); }).tryIt().getException();
                     assertThat(failure).isInstanceOf(IllegalArgumentException.class);
                 }
 
                 @Test
                 void null_monadic_result_causes_access_failure() {
-                    LOGGER.info("Attempt.bind(...) should fail when transformation returns null monadic value");
-                    assertThatThrownBy(() -> attempt(5).bind(_$ -> null).tryIt().getValue())
+                    LOGGER.info("Attempt.flatMap(...) should fail when transformation returns null monadic value");
+                    assertThatThrownBy(() -> attempt(5).flatMap(_$ -> null).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
                 }
 
                 @Test
-                void binding_works() {
-                    LOGGER.info("Attempt.bind(...) should bind and flatten the resulting Attempt");
-                    assertThat(attempt(5).bind(i -> attempt(i * 2)).tryIt().getValue())
+                void flatMap_works() {
+                    LOGGER.info("Attempt.flatMap(...) should flatMap and flatten the resulting Attempt");
+                    assertThat(attempt(5).flatMap(i -> attempt(i * 2)).tryIt().getValue())
                         .isEqualTo(10);
                 }
 
@@ -431,23 +431,23 @@ class AttemptTest extends TestHelper {
 
                 @SuppressWarnings("DataFlowIssue")
                 @Test
-                void bindUnsafe_null_applicable_throws_NullPointerException() {
-                    LOGGER.info("Attempt.bindUnsafe(...) should throw NullPointerException when applicable is null");
-                    assertThatThrownBy(() -> attempt(5).bindUnsafe(null))
+                void flatMapUnsafe_null_applicable_throws_NullPointerException() {
+                    LOGGER.info("Attempt.flatMapUnsafe(...) should throw NullPointerException when applicable is null");
+                    assertThatThrownBy(() -> attempt(5).flatMapUnsafe(null))
                         .isInstanceOf(NullPointerException.class);
                 }
 
                 @Test
-                void bindUnsafe_null_monadic_result_causes_access_failure() {
-                    LOGGER.info("Attempt.bindUnsafe(...) should fail when transformation returns null monadic value");
-                    assertThatThrownBy(() -> attempt(5).bindUnsafe(_$ -> null).tryIt().getValue())
+                void flatMapUnsafe_null_monadic_result_causes_access_failure() {
+                    LOGGER.info("Attempt.flatMapUnsafe(...) should fail when transformation returns null monadic value");
+                    assertThatThrownBy(() -> attempt(5).flatMapUnsafe(_$ -> null).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
                 }
 
                 @Test
-                void bindUnsafe_works() {
-                    LOGGER.info("Attempt.bindUnsafe(...) should bind and flatten the resulting Attempt");
-                    assertThat(attempt(5).bindUnsafe(i -> attempt(i * 2)).tryIt().getValue())
+                void flatMapUnsafe_works() {
+                    LOGGER.info("Attempt.flatMapUnsafe(...) should flatMap and flatten the resulting Attempt");
+                    assertThat(attempt(5).flatMapUnsafe(i -> attempt(i * 2)).tryIt().getValue())
                         .isEqualTo(10);
                 }
 
@@ -511,7 +511,7 @@ class AttemptTest extends TestHelper {
                     = attempt(5)
                         .map(invocationCountingFun)
                         .applyTo(attempt(invocationCountingFun))
-                        .bind(i -> attempt(invocationCountingFun.apply(i)));
+                        .flatMap(i -> attempt(invocationCountingFun.apply(i)));
 
                 assertThat(invocationCountingFun.getInvocationCount())
                     .isZero();

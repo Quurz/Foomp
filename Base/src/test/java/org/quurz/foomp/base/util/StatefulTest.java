@@ -159,23 +159,23 @@ class StatefulTest {
         }
 
         @Nested
-        @DisplayName("bind (flatMap)")
-        class Bind_ {
+        @DisplayName("flatMap (flatMap)")
+        class FlatMap_ {
 
             @SuppressWarnings({"DataFlowIssue", "unused"})
             @Test
-            void bind_sequences_and_enforces_null_contracts() {
-                LOGGER.info("Stateful.bind should sequence computations (flatMap) and enforce null contracts");
+            void flatMap_sequences_and_enforces_null_contracts() {
+                LOGGER.info("Stateful.flatMap should sequence computations (flatMap) and enforce null contracts");
 
-                assertThatThrownBy(() -> stateful(RUN_STATE).bind(null))
+                assertThatThrownBy(() -> stateful(RUN_STATE).flatMap(null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("transformation");
-                assertThatThrownBy(() -> stateful(RUN_STATE).bind(_$ -> null).runState(1))
+                assertThatThrownBy(() -> stateful(RUN_STATE).flatMap(_$ -> null).runState(1))
                     .isInstanceOf(NullPointerException.class);
 
                 // First step increments to 2, second step preserves the state it receives
                 final var bound = stateful(RUN_STATE)
-                    .bind(result -> stateful(state -> tuple2(String.valueOf(result), state)));
+                    .flatMap(result -> stateful(state -> tuple2(String.valueOf(result), state)));
 
                 assertThat(bound.execValue(1)).isEqualTo("false");
                 assertThat(bound.execState(1)).isEqualTo(2);

@@ -9,11 +9,11 @@ import java.util.function.Function;
 /**
  * <div>
  *     <p>
- *         Rank‑2 monad‑like interface that sequences computations by binding over the first
+ *         Rank‑2 monad‑like interface that sequences computations by flatMap (monadic bind) over the first
  *         type parameter while preserving the second parameter {@code R}.
  *     </p>
  *     <p>
- *         The {@code bind} operation applies a transformation that returns a new value of the same
+ *         The {@code flatMap} operation applies a transformation that returns a new value of the same
  *         constructor shape {@code Higher2&lt;WT, B, R&gt;} and keeps {@code R} unchanged.
  *     </p>
  *     <p>
@@ -35,7 +35,7 @@ public interface H2Bindable<WT extends WitnessType, A, R> {
     /**
      * <div>
      *     <p>
-     *         Monadic bind over the first type parameter: applies the given transformation and
+     *         Monadic bind (flatMap) over the first type parameter: applies the given transformation and
      *         returns a value of the same constructor shape with {@code R} preserved.
      *     </p>
      * </div>
@@ -46,6 +46,6 @@ public interface H2Bindable<WT extends WitnessType, A, R> {
      *
      * @since 1.0.0
      */
-    <B> @NonNull Higher2<? extends WT, B, R> bind(final @NonNull Function<A, ? extends Higher2<? extends WT, B, R>> transformation);
+    <B> @NonNull Higher2<? extends WT, B, R> flatMap(final @NonNull Function<A, ? extends Higher2<? extends WT, B, R>> transformation);
 
 }

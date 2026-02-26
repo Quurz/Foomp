@@ -7,7 +7,7 @@ import org.quurz.foomp.higher.WitnessType;
  *     <p>
  *         Rank‑1 monad‑like interface that combines the contracts of {@link Mappable},
  *         {@link Appliable} and {@link Bindable}. Implementations support mapping, applicative
- *         application (applying a function inside the context), and monadic binding over the
+ *         application (applying a function inside the context), and monadic flatMap (monadic bind) over the
  *         carried value while preserving the constructor shape.
  *     </p>
  *     <p>
