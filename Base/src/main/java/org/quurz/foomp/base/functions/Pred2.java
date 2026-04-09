@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.dataflow.qual.Pure;
 import org.quurz.foomp.base.types.Deferrable2;
 
 import java.util.Objects;
@@ -102,6 +103,7 @@ public interface Pred2<A1, A2>
      * @since 1.0.0
      */
     @Override
+    @Pure
     boolean test(final @NonNull A1 a1,
                  final @NonNull A2 a2);
 

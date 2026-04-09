@@ -1,7 +1,6 @@
 package org.quurz.foomp.automata;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.util.Result;
 
 /**
  * <div>

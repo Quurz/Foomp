@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.dataflow.qual.Pure;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -121,6 +122,7 @@ public interface Komparator<A>
      *
      * @since 1.0.0
      */
+    @Pure
     @NonNull
     Komparison kompare(final @NonNull A first,
                        final @NonNull A second);
@@ -146,6 +148,7 @@ public interface Komparator<A>
      * @since 1.0.0
      */
     @Override
+    @Pure
     default Komparator.@NonNull Komparison apply(final @NonNull A first,
                                                  final @NonNull A second) {
         Objects.requireNonNull(first, nullValue("first"));

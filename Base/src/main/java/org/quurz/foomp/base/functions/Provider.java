@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.dataflow.qual.Pure;
 import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Monadic;
 import org.quurz.foomp.base.types.Transmogrifyable;
@@ -167,6 +168,7 @@ public interface Provider<A>
      */
     @Override
     @UnwindingOperation
+    @Pure
     @NonNull
     A get();
 
@@ -188,6 +190,7 @@ public interface Provider<A>
      */
     @Override
     @UnwindingOperation
+    @Pure
     @NonNull
     default A apply(final @NonNull Nothing nothing) {
         Objects.requireNonNull(nothing, nullValue("nothing"));

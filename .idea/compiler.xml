@@ -28,4 +28,29 @@
       <module name="Proxies" target="21" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Foomp.automata" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.automata.main" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.automata.test" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.base" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.base.main" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.base.test" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.higher" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.higher.main" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.higher.test" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-runtime" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-runtime.main" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-runtime.test" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-implementation1" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-implementation1.main" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-implementation1.test" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-implementation2" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-implementation2.main" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-implementation2.test" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-shared" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-shared.main" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+      <module name="Foomp.plugins-test-shared.test" options="-Xmaxerrs 10000 -Xmaxwarns 10000" />
+    </option>
+  </component>
 </project>

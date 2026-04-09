@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.dataflow.qual.Pure;
 import org.quurz.foomp.base.types.Deferrable4;
 
 import java.util.Objects;
@@ -55,6 +56,7 @@ public interface Fun4<X1, X2, X3, X4, Y>
      *
      * @since 1.0.0
      */
+    @Pure
     @NonNull Y apply(final @NonNull X1 x1,
                      final @NonNull X2 x2,
                      final @NonNull X3 x3,
