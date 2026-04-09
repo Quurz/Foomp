@@ -108,7 +108,7 @@ public class Stateful<A, S>
     /**
      * <div>
      *   <p>
-     *     Unwraps a nested {@code Stateful} by one level (monadic join).
+     *     Flattens a nested {@code Stateful} by one level (monadic join).
      *     Threads the intermediate state produced by the outer computation into the inner one.
      *   </p>
      * </div>
@@ -121,7 +121,7 @@ public class Stateful<A, S>
      *
      * @since 1.0.0
      */
-    public static <A, S> Stateful<A, S> unwrap(final @NonNull Higher2<? extends Stateful.µ, ? extends Higher2<? extends Stateful.µ, A, S>, S> wrapped) {
+    public static <A, S> Stateful<A, S> flatten(final @NonNull Higher2<? extends Stateful.µ, ? extends Higher2<? extends Stateful.µ, A, S>, S> wrapped) {
         Objects.requireNonNull(wrapped, nullValue("wrapped"));
         final var outer
             = narrow(wrapped);
@@ -285,7 +285,7 @@ public class Stateful<A, S>
     @Override
     public @NonNull <B> Stateful<B, S> applyTo(final @NonNull Higher2<? extends µ, Function<A, B>, S> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return narrow(transformation).flatMap(f -> this.map(f));
+        return narrow(transformation).flatMap(this::map);
     }
 
     /**
@@ -306,7 +306,7 @@ public class Stateful<A, S>
     @Override
     public @NonNull <B> Stateful<B, S> flatMap(final @NonNull Function<A, ? extends Higher2<? extends µ, B, S>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return unwrap(this.map(transformation));
+        return flatten(this.map(transformation));
     }
 
     /**

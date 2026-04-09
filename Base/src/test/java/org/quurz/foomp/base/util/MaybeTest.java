@@ -24,6 +24,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Maybe")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@SuppressWarnings("unused")
 class MaybeTest
         extends TestHelper {
 
@@ -310,6 +311,7 @@ class MaybeTest
             }
         }
 
+        @SuppressWarnings("DataFlowIssue")
         @Nested
         @DisplayName("applyTo")
         class ApplyTo_ {
@@ -373,11 +375,85 @@ class MaybeTest
                 });
             }
         }
+
+        @Nested
+        @DisplayName("flatten (join)")
+        class Flatten_ {
+
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void flatten_contracts_and_behaviour() {
+                LOGGER.info("Maybe.flatten should enforce null contracts and flatten nested structures");
+                assertThatThrownBy(() -> Maybe.flatten(null))
+                    .isInstanceOf(NullPointerException.class);
+
+                assertThatNoException().isThrownBy(() -> {
+                    // None -> None
+                    final var mNone = Maybe.<Maybe<String>>none();
+                    checkIsNone(Maybe.flatten(mNone));
+
+                    // Some(None) -> None
+                    final var mSomeNone = some(Maybe.<String>none());
+                    checkIsNone(Maybe.flatten(mSomeNone));
+
+                    // Some(Some(val)) -> Some(val)
+                    final var mSomeSome = some(some(SOME_STRING_VALUE));
+                    checkIsSomeWithValue(Maybe.flatten(mSomeSome).unwind(), SOME_STRING_VALUE);
+                });
+            }
+        }
     }
 
     @Nested
     @DisplayName("Conversions and misc")
     class Conversions_And_Misc {
+
+        @Nested
+        @DisplayName("with/withNullable")
+        class Withers_ {
+
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void with_contracts_and_behaviour() {
+                LOGGER.info("Maybe.with should enforce NullPointerException and replace value with Some(newValue)");
+
+                // null -> NPE
+                assertThatThrownBy(() -> none().with(null)).isInstanceOf(NullPointerException.class);
+
+                assertThatNoException().isThrownBy(() -> {
+                    // on None -> Some(newValue)
+                    final var replacedFromNone = Maybe.<Integer>none().with("new");
+                    checkIsSomeWithValue(replacedFromNone, "new");
+
+                    // on Some -> Some(newValue)
+                    final var replacedFromSome = some(123).with("abc");
+                    checkIsSomeWithValue(replacedFromSome, "abc");
+                });
+            }
+
+            @Test
+            void withNullable_behaviour() {
+                LOGGER.info("Maybe.withNullable should map null->None and non-null->Some(newValue) regardless of current variant");
+
+                // null -> None (for None and Some)
+                assertThatNoException().isThrownBy(() -> {
+                    final var fromNone = Maybe.<String>none().withNullable(null);
+                    checkIsNone(fromNone);
+
+                    final var fromSome = some("x").withNullable(null);
+                    checkIsNone(fromSome);
+                });
+
+                // non-null -> Some(newValue) (for None and Some)
+                assertThatNoException().isThrownBy(() -> {
+                    final var fromNone = Maybe.<String>none().withNullable("z");
+                    checkIsSomeWithValue(fromNone, "z");
+
+                    final var fromSome = some("x").withNullable("y");
+                    checkIsSomeWithValue(fromSome, "y");
+                });
+            }
+        }
 
         @Nested
         @DisplayName("filter")

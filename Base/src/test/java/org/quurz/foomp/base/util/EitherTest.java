@@ -28,6 +28,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Either")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@SuppressWarnings("unused")
 class EitherTest
         extends TestHelper {
 
@@ -403,6 +404,7 @@ class EitherTest
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Nested
     @DisplayName("Behaviour (applyTo)")
     class Behaviour_ApplyTo {
@@ -490,6 +492,37 @@ class EitherTest
 
                 checkIsLeftWithValue(toLeft, SOME_STRING_VALUE.length());
                 checkIsRightWithValue(toRight, SOME_STRING_VALUE.length());
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("Behaviour (flatten/join)")
+    class Behaviour_Flatten {
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void flatten_contracts_and_behaviour() {
+            LOGGER.info("either.flatten should enforce null contracts and flatten nested structures");
+            assertThatThrownBy(() -> Either.flatten(null))
+                .isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                // Left(Left(v)) -> Left(v)
+                final Either<Either<Integer, String>, Either<Integer, String>> eLL = left(left(1));
+                checkIsLeftWithValue(Either.flatten(eLL), 1);
+
+                // Left(Right(v)) -> Right(v)
+                final Either<Either<Integer, String>, Either<Integer, String>> eLR = left(right("a"));
+                checkIsRightWithValue(Either.flatten(eLR), "a");
+
+                // Right(Left(v)) -> Left(v)
+                final Either<Either<Integer, String>, Either<Integer, String>> eRL = right(left(2));
+                checkIsLeftWithValue(Either.flatten(eRL), 2);
+
+                // Right(Right(v)) -> Right(v)
+                final Either<Either<Integer, String>, Either<Integer, String>> eRR = right(right("b"));
+                checkIsRightWithValue(Either.flatten(eRR), "b");
             });
         }
     }

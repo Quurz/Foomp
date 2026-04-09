@@ -40,8 +40,8 @@ import static org.quurz.foomp.base.util.Maybe.some;
  *         The payload stored in {@code Left} and {@code Right} is represented lazily via
  *         {@link Supplier} and is evaluated when accessors such as {@link #getLeft()},
  *         {@link #getRight()}, {@link #map(Function)}, {@link #mapLeft(Function)},
- *         {@link #unwind()}, {@link #equals(Object)}, {@link #hashCode()}, or
- *         {@link #toString()} are invoked.
+ *         {@link #unwind()}, {@link Object#equals(Object)}, {@link Object#hashCode()}, or
+ *         {@link Object#toString()} are invoked.
  *       </li>
  *     </ul>
  *   </p>
@@ -109,33 +109,33 @@ public sealed interface Either<L, R>
     /**
      * <div>
      *   <p>
-     *     Unwraps a nested {@code Either} by one level when the right side contains a higher‑kinded value.
+     *     Flattens a nested {@code Either} by one level.
      *   </p>
      *   <p>
      *     <strong>Semantics:</strong>
      *     <ul>
      *       <li>
-     *         If the given value is a {@code Left}, it is returned as a {@code Left} unchanged
-     *         (the right type parameter is adjusted only at the type level).
+     *         If the outer {@code Either} is a {@code Left}, its content (an inner higher-kinded
+     *         {@code Either}) is narrowed and returned.
      *       </li>
      *       <li>
-     *         If the given value is a {@code Right} holding a higher‑kinded {@code Either}-value,
-     *         that inner value is narrowed and returned.
+     *         If the outer {@code Either} is a {@code Right}, its content (an inner higher-kinded
+     *         {@code Either}) is narrowed and returned.
      *       </li>
      *     </ul>
      *   </p>
      * </div>
      *
-     * @param wrapped the wrapped {@code Either}; must not be {@code null}
+     * @param wrapped the nested {@code Either}; must not be {@code null}
      * @param <L>     the left value type
      * @param <R>     the right value type
-     * @return the unwrapped {@code Either}
+     * @return the flattened {@code Either}
      * @throws NullPointerException if {@code wrapped} is {@code null}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
-    static <L, R> Either<L, R> unwrap(final @NonNull Higher2<µ, ? extends Higher2<? extends µ, L, R>, ? extends Higher2<? extends µ, L, R>> wrapped) {
+    static <L, R> Either<L, R> flatten(final @NonNull Higher2<µ, ? extends Higher2<? extends µ, L, R>, ? extends Higher2<? extends µ, L, R>> wrapped) {
         Objects.requireNonNull(wrapped, nullValue("wrapped"));
 
         final var outer

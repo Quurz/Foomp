@@ -23,6 +23,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @DisplayName("Stateful")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@SuppressWarnings("unused")
 class StatefulTest {
 
     private static final Logger LOGGER
@@ -134,6 +135,7 @@ class StatefulTest {
             }
         }
 
+        @SuppressWarnings("DataFlowIssue")
         @Nested
         @DisplayName("applyTo (applicative)")
         class ApplyTo_ {
@@ -210,12 +212,12 @@ class StatefulTest {
         }
 
         @Nested
-        @DisplayName("unwrap (join)")
-        class Unwrap_ {
+        @DisplayName("flatten (join)")
+        class Flatten_ {
 
             @Test
             void unwrap_flattens_nested_state_and_threads_state_correctly() {
-                LOGGER.info("Stateful.unwrap should flatten nested stateful and thread state");
+                LOGGER.info("Stateful.flatten should flatten nested stateful and thread state");
 
                 // Outer increments once, returns inner that increments once more
                 final var outer = stateful((Integer s0) -> tuple2(
@@ -223,7 +225,7 @@ class StatefulTest {
                     s0 + 1
                 ));
 
-                final var unwrapped = Stateful.unwrap(outer);
+                final var unwrapped = Stateful.flatten(outer);
 
                 assertThat(unwrapped.runState(10))
                     .isEqualTo(tuple2("ok", 12)); // 10 -> 11 (outer), then 11 -> 12 (inner)

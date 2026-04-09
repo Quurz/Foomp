@@ -30,7 +30,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.*;
  *       <li>
  *         The payload of {@code Some} is represented lazily and is only evaluated when methods like
  *         {@link #get()}, {@link #map(Function)}, {@link #flatMap(Function)} (on the inner value),
- *         {@link #unwind()}, {@link #equals(Object)}, {@link #hashCode()}, or {@link #toString()} are invoked.
+ *         {@link #unwind()}, {@link Object#equals(Object)}, {@link Object#hashCode()}, or {@link Object#toString()} are invoked.
  *       </li>
  *     </ul>
  *   </p>
@@ -83,6 +83,25 @@ public sealed interface Maybe<A>
     @SuppressWarnings("unchecked")
     static <A> Maybe<A> narrow(final @NonNull Higher1<? extends µ, A> wide) {
         return (Maybe<A>) Objects.requireNonNull(wide, nullValue("wide"));
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Flattens a nested {@code Maybe} by one level (monadic join).
+     *   </p>
+     * </div>
+     *
+     * @param wrapped the nested {@code Maybe}; must not be {@code null}
+     * @param <A>     the contained value type
+     * @return a flattened {@code Maybe}
+     * @throws NullPointerException if {@code wrapped} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    static <A> Maybe<A> flatten(final @NonNull Higher1<? extends µ, ? extends Higher1<? extends µ, A>> wrapped) {
+        Objects.requireNonNull(wrapped, nullValue("wrapped"));
+        return narrow(wrapped).flatMap(Function.identity());
     }
 
     /**
@@ -410,19 +429,59 @@ public sealed interface Maybe<A>
      *
      * @since 1.0.0
      */
-        @UnwindingOperation
-        @NonNull
-        default Maybe<A> ifSomeOrElse(final @NonNull Consumer<A> consumer,
-                                      final @NonNull Runnable orElse) {
-            Objects.requireNonNull(consumer, nullValue("consumer"));
-            Objects.requireNonNull(orElse, nullValue("orElse"));
-            if (this.isSome()) {
-                consumer.accept(this.get());
-            } else {
-                orElse.run();
-            }
-            return this;
+    @UnwindingOperation
+    @NonNull
+    default Maybe<A> ifSomeOrElse(final @NonNull Consumer<A> consumer,
+                                  final @NonNull Runnable orElse) {
+        Objects.requireNonNull(consumer, nullValue("consumer"));
+        Objects.requireNonNull(orElse, nullValue("orElse"));
+        if (this.isSome()) {
+            consumer.accept(this.get());
+        } else {
+            orElse.run();
         }
+        return this;
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Returns a new {@code Maybe} that ignores the current value and yields {@code Some(newValue)}.
+     *     This is a convenience "wither" to replace the payload with a new non-null value.
+     *   </p>
+     * </div>
+     *
+     * @param newValue the replacement value; must not be {@code null}
+     * @param <B>      the new value type
+     * @return {@code Some(newValue)}
+     *
+     * @since 1.0.0
+     */
+    default <B> Maybe<B> with(final @NonNull B newValue) {
+        Objects.requireNonNull(newValue, nullValue("newValue"));
+        return some(newValue);
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Returns a new {@code Maybe} by replacing the current value with {@code newValue},
+     *     accepting {@code null}. If {@code newValue} is {@code null}, the result is {@code None};
+     *     otherwise {@code Some(newValue)}.
+     *   </p>
+     * </div>
+     *
+     * @param newValue the possibly {@code null} replacement value
+     * @param <B>      the new value type
+     * @return {@code None} if {@code newValue} is {@code null}; otherwise {@code Some(newValue)}
+     *
+     * @since 1.0.0
+     */
+    default <B> Maybe<B> withNullable(final B newValue) {
+        return newValue == null
+                ? none()
+                : some(newValue);
+    }
 
     /**
      * <div>

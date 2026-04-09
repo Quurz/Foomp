@@ -81,7 +81,7 @@ public sealed interface Eval<A>
     /**
      * <div>
      *   <p>
-     *     Unwraps a nested {@code Eval} by one level.
+     *     Flattens a nested {@code Eval} by one level (monadic join).
      *   </p>
      * </div>
      *
@@ -92,8 +92,8 @@ public sealed interface Eval<A>
      *
      * @since 1.0.0
      */
-    static <A> Eval<A> unwrap(@NonNull final Higher1<? extends µ, ? extends Higher1<? extends µ, A>> wrapped) {
-        Objects.requireNonNull(wrapped, nullValue("toJoin"));
+    static <A> Eval<A> flatten(@NonNull final Higher1<? extends µ, ? extends Higher1<? extends µ, A>> wrapped) {
+        Objects.requireNonNull(wrapped, nullValue("wrapped"));
         final var narrowed
             = narrow(wrapped);
         return narrow(narrowed.get());
@@ -254,7 +254,7 @@ public sealed interface Eval<A>
     default <B> Eval<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return switch (this) {
-            case Eval.Now<A> now -> unwrap(this.map(transformation));
+            case Eval.Now<A> now -> flatten(this.map(transformation));
             case Eval.Later<A> later -> new Later<>(() -> narrow(transformation.apply(later.get())).get());
             case Eval.Always<A> always -> new Always<>(() -> narrow(transformation.apply(always.get())).get());
         };

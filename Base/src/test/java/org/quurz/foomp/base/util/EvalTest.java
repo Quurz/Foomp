@@ -20,6 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @DisplayName("Eval")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@SuppressWarnings("unused")
 class EvalTest
         extends TestHelper {
 
@@ -127,6 +128,7 @@ class EvalTest
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Nested
     @DisplayName("Behaviour (applyTo)")
     class Behaviour_ApplyTo {
@@ -255,6 +257,40 @@ class EvalTest
                 bound.get();
                 assertThat(fun.getInvocationCount()).isEqualTo(2);
                 assertThat(bound.get()).isEqualTo(SOME_STRING_VALUE.length());
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("flatten (join)")
+    class Flatten_ {
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void flatten_contracts_and_behaviour() {
+            LOGGER.info("Eval.flatten should enforce null contracts and flatten nested Eval");
+            assertThatThrownBy(() -> Eval.flatten(null))
+                .isInstanceOf(NullPointerException.class);
+
+            assertThatNoException().isThrownBy(() -> {
+                // Now(Now(v)) -> Now(v) (value accessible)
+                final var nn = evalNow(evalNow(SOME_STRING_VALUE));
+                assertThat(Eval.flatten(nn).get()).isEqualTo(SOME_STRING_VALUE);
+
+                // Later(Later(v)) -> Later(v) (value accessible)
+                final var ll = evalLater(evalLater(SOME_STRING_VALUE));
+                assertThat(Eval.flatten(ll).get()).isEqualTo(SOME_STRING_VALUE);
+
+                // Always(Always(v)) -> Always(v) (value accessible)
+                final var aa = evalAlways(evalAlways(SOME_STRING_VALUE));
+                assertThat(Eval.flatten(aa).get()).isEqualTo(SOME_STRING_VALUE);
+
+                // Mixed: Now(Later(v)) -> Later(v) and Later(Now(v)) -> Now(v)
+                final var nl = evalNow(evalLater(SOME_STRING_VALUE));
+                assertThat(Eval.flatten(nl).get()).isEqualTo(SOME_STRING_VALUE);
+
+                final var ln = evalLater(evalNow(SOME_STRING_VALUE));
+                assertThat(Eval.flatten(ln).get()).isEqualTo(SOME_STRING_VALUE);
             });
         }
     }
