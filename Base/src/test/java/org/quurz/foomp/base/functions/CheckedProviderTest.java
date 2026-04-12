@@ -13,16 +13,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class ThrowingSupplierTest extends TestHelper {
+class CheckedProviderTest extends TestHelper {
 
     private static final Logger LOGGER
-        = getLogger(ThrowingSupplierTest.class);
+        = getLogger(CheckedProviderTest.class);
 
     @Test
     void testGetReturnsValue() {
-        LOGGER.info("Test ThrowingSupplier.get() returns value");
+        LOGGER.info("Test CheckedProvider.get() returns value");
 
-        final ThrowingSupplier<String> supplier = () -> "Hello";
+        final CheckedProvider<String> supplier = () -> "Hello";
 
         assertThatNoException().isThrownBy(() -> {
             final var result = supplier.get();
@@ -32,10 +32,10 @@ class ThrowingSupplierTest extends TestHelper {
 
     @Test
     void testGetThrowsCheckedException() {
-        LOGGER.info("Test ThrowingSupplier.get() throws checked exception");
+        LOGGER.info("Test CheckedProvider.get() throws checked exception");
 
         final var testException = new IOException("Test IO exception");
-        final ThrowingSupplier<String> supplier = () -> {
+        final CheckedProvider<String> supplier = () -> {
             throw testException;
         };
 
@@ -45,10 +45,10 @@ class ThrowingSupplierTest extends TestHelper {
 
     @Test
     void testGetThrowsRuntimeException() {
-        LOGGER.info("Test ThrowingSupplier.get() throws runtime exception");
+        LOGGER.info("Test CheckedProvider.get() throws runtime exception");
 
         final var testException = new IllegalStateException("Test state exception");
-        final ThrowingSupplier<String> supplier = () -> {
+        final CheckedProvider<String> supplier = () -> {
             throw testException;
         };
 
@@ -58,10 +58,10 @@ class ThrowingSupplierTest extends TestHelper {
 
     @Test
     void testGetIsCalledOnEachInvocation() {
-        LOGGER.info("Test ThrowingSupplier.get() is called on each invocation");
+        LOGGER.info("Test CheckedProvider.get() is called on each invocation");
 
         final var invocationCounter = new AtomicInteger(0);
-        final ThrowingSupplier<Integer> supplier = invocationCounter::incrementAndGet;
+        final CheckedProvider<Integer> supplier = invocationCounter::incrementAndGet;
 
         assertThatNoException().isThrownBy(() -> {
             assertThat(supplier.get()).isEqualTo(1);
@@ -73,9 +73,9 @@ class ThrowingSupplierTest extends TestHelper {
     @SuppressWarnings("DataFlowIssue")
     @Test
     void testApplyWithNullNothing() {
-        LOGGER.info("Test ThrowingSupplier.apply() with null Nothing");
+        LOGGER.info("Test CheckedProvider.apply() with null Nothing");
 
-        final ThrowingSupplier<String> supplier = () -> "Hello";
+        final CheckedProvider<String> supplier = () -> "Hello";
 
         assertThatThrownBy(() -> supplier.apply(null))
             .isInstanceOf(NullPointerException.class);
@@ -83,9 +83,9 @@ class ThrowingSupplierTest extends TestHelper {
 
     @Test
     void testApplyWithNothingReturnsValue() {
-        LOGGER.info("Test ThrowingSupplier.apply() with Nothing returns value");
+        LOGGER.info("Test CheckedProvider.apply() with Nothing returns value");
 
-        final ThrowingSupplier<String> supplier = () -> "World";
+        final CheckedProvider<String> supplier = () -> "World";
 
         assertThatNoException().isThrownBy(() -> {
             final var result = supplier.apply(nothing);
@@ -95,10 +95,10 @@ class ThrowingSupplierTest extends TestHelper {
 
     @Test
     void testApplyWithNothingThrowsException() {
-        LOGGER.info("Test ThrowingSupplier.apply() with Nothing throws exception");
+        LOGGER.info("Test CheckedProvider.apply() with Nothing throws exception");
 
         final var testException = new Exception("Test exception");
-        final ThrowingSupplier<String> supplier = () -> {
+        final CheckedProvider<String> supplier = () -> {
             throw testException;
         };
 
@@ -108,10 +108,10 @@ class ThrowingSupplierTest extends TestHelper {
 
     @Test
     void testApplyCallsGet() {
-        LOGGER.info("Test ThrowingSupplier.apply() calls get()");
+        LOGGER.info("Test CheckedProvider.apply() calls get()");
 
         final var invocationCounter = new AtomicInteger(0);
-        final ThrowingSupplier<Integer> supplier = invocationCounter::incrementAndGet;
+        final CheckedProvider<Integer> supplier = invocationCounter::incrementAndGet;
 
         assertThatNoException().isThrownBy(() -> {
             // Call via apply()
@@ -129,9 +129,9 @@ class ThrowingSupplierTest extends TestHelper {
 
     @Test
     void testApplyIgnoresNothingValue() {
-        LOGGER.info("Test ThrowingSupplier.apply() ignores Nothing value (but validates it)");
+        LOGGER.info("Test CheckedProvider.apply() ignores Nothing value (but validates it)");
 
-        final ThrowingSupplier<String> supplier = () -> "Constant";
+        final CheckedProvider<String> supplier = () -> "Constant";
 
         assertThatNoException().isThrownBy(() -> {
             // The Nothing value is validated but otherwise ignored
@@ -141,12 +141,12 @@ class ThrowingSupplierTest extends TestHelper {
     }
 
     @Test
-    void testThrowingSupplierWithDifferentReturnTypes() {
-        LOGGER.info("Test ThrowingSupplier with different return types");
+    void testCheckedProviderWithDifferentReturnTypes() {
+        LOGGER.info("Test CheckedProvider with different return types");
 
-        final ThrowingSupplier<Integer> intSupplier = () -> 42;
-        final ThrowingSupplier<String> stringSupplier = () -> "test";
-        final ThrowingSupplier<Boolean> boolSupplier = () -> true;
+        final CheckedProvider<Integer> intSupplier = () -> 42;
+        final CheckedProvider<String> stringSupplier = () -> "test";
+        final CheckedProvider<Boolean> boolSupplier = () -> true;
 
         assertThatNoException().isThrownBy(() -> {
             assertThat(intSupplier.get()).isEqualTo(42);
@@ -157,10 +157,10 @@ class ThrowingSupplierTest extends TestHelper {
 
     @SuppressWarnings("UnnecessaryLocalVariable")
     @Test
-    void testThrowingSupplierAsApplicable() {
-        LOGGER.info("Test ThrowingSupplier can be used as Applicable");
+    void testCheckedProviderAsApplicable() {
+        LOGGER.info("Test CheckedProvider can be used as Applicable");
 
-        final ThrowingSupplier<String> supplier = () -> "Hello";
+        final CheckedProvider<String> supplier = () -> "Hello";
         final Applicable<?, String> applicable = supplier;
 
         assertThatNoException().isThrownBy(() -> {
@@ -171,11 +171,11 @@ class ThrowingSupplierTest extends TestHelper {
     }
 
     @Test
-    void testThrowingSupplierWithSafeMethod() {
-        LOGGER.info("Test ThrowingSupplier.safe() inherited from Applicable");
+    void testCheckedProviderWithSafeMethod() {
+        LOGGER.info("Test CheckedProvider.safe() inherited from Applicable");
 
-        final ThrowingSupplier<String> successSupplier = () -> "Success";
-        final ThrowingSupplier<String> failureSupplier = () -> {
+        final CheckedProvider<String> successSupplier = () -> "Success";
+        final CheckedProvider<String> failureSupplier = () -> {
             throw new IllegalStateException("Failure");
         };
 
@@ -194,10 +194,10 @@ class ThrowingSupplierTest extends TestHelper {
     }
 
     @Test
-    void testThrowingSupplierWithDeferMethod() {
-        LOGGER.info("Test ThrowingSupplier.defer() inherited from Applicable");
+    void testCheckedProviderWithDeferMethod() {
+        LOGGER.info("Test CheckedProvider.defer() inherited from Applicable");
 
-        final ThrowingSupplier<String> supplier = () -> "Deferred";
+        final CheckedProvider<String> supplier = () -> "Deferred";
 
         assertThatNoException().isThrownBy(() -> {
             final var callable = supplier.defer(() -> nothing);
@@ -208,21 +208,21 @@ class ThrowingSupplierTest extends TestHelper {
 
     @SuppressWarnings("DataFlowIssue")
     @Test
-    void testThrowingSupplierWithDeferMethodAndNullSupplier() {
-        LOGGER.info("Test ThrowingSupplier.defer() with null supplier throws exception");
+    void testCheckedProviderWithDeferMethodAndNullSupplier() {
+        LOGGER.info("Test CheckedProvider.defer() with null supplier throws exception");
 
-        final ThrowingSupplier<String> supplier = () -> "Test";
+        final CheckedProvider<String> supplier = () -> "Test";
 
         assertThatThrownBy(() -> supplier.defer(null))
             .isInstanceOf(NullPointerException.class);
     }
 
     @Test
-    void testThrowingSupplierWithDeferMethodAndThrowingSupplier() {
-        LOGGER.info("Test ThrowingSupplier.defer() propagates exceptions");
+    void testCheckedProviderWithDeferMethodAndThrowingSupplier() {
+        LOGGER.info("Test CheckedProvider.defer() propagates exceptions");
 
         final var testException = new IOException("Deferred exception");
-        final ThrowingSupplier<String> supplier = () -> {
+        final CheckedProvider<String> supplier = () -> {
             throw testException;
         };
 
@@ -233,11 +233,11 @@ class ThrowingSupplierTest extends TestHelper {
     }
 
     @Test
-    void testThrowingSupplierComposition() {
-        LOGGER.info("Test ThrowingSupplier can be composed");
+    void testCheckedProviderComposition() {
+        LOGGER.info("Test CheckedProvider can be composed");
 
         final var counter = new AtomicInteger(0);
-        final ThrowingSupplier<Integer> supplier = counter::incrementAndGet;
+        final CheckedProvider<Integer> supplier = counter::incrementAndGet;
 
         assertThatNoException().isThrownBy(() -> {
             // First invocation
@@ -253,11 +253,11 @@ class ThrowingSupplierTest extends TestHelper {
     }
 
     @Test
-    void testThrowingSupplierExceptionMessage() {
-        LOGGER.info("Test ThrowingSupplier preserves exception messages");
+    void testCheckedProviderExceptionMessage() {
+        LOGGER.info("Test CheckedProvider preserves exception messages");
 
         final var exceptionMessage = "Detailed error message";
-        final ThrowingSupplier<String> supplier = () -> {
+        final CheckedProvider<String> supplier = () -> {
             throw new RuntimeException(exceptionMessage);
         };
 
@@ -267,10 +267,10 @@ class ThrowingSupplierTest extends TestHelper {
     }
 
     @Test
-    void testThrowingSupplierWithComplexComputations() {
-        LOGGER.info("Test ThrowingSupplier with complex computations");
+    void testCheckedProviderWithComplexComputations() {
+        LOGGER.info("Test CheckedProvider with complex computations");
 
-        final ThrowingSupplier<String> supplier = () -> {
+        final CheckedProvider<String> supplier = () -> {
             // Simulate complex computation
             final var sb = new StringBuilder();
             for (int i = 0; i < 5; i++) {
@@ -286,18 +286,18 @@ class ThrowingSupplierTest extends TestHelper {
     }
 
     @Test
-    void testThrowingSupplierMultipleExceptionTypes() {
-        LOGGER.info("Test ThrowingSupplier can throw multiple exception types");
+    void testCheckedProviderMultipleExceptionTypes() {
+        LOGGER.info("Test CheckedProvider can throw multiple exception types");
 
-        final ThrowingSupplier<String> ioExceptionSupplier = () -> {
+        final CheckedProvider<String> ioExceptionSupplier = () -> {
             throw new IOException("IO problem");
         };
 
-        final ThrowingSupplier<String> illegalStateSupplier = () -> {
+        final CheckedProvider<String> illegalStateSupplier = () -> {
             throw new IllegalStateException("State problem");
         };
 
-        final ThrowingSupplier<String> checkedExceptionSupplier = () -> {
+        final CheckedProvider<String> checkedExceptionSupplier = () -> {
             throw new Exception("Generic problem");
         };
 

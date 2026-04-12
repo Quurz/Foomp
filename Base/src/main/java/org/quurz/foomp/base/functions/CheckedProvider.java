@@ -23,7 +23,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *         checked exceptions; callers must handle them.
  *     </p>
  *     <pre>{@code
- *     ThrowingSupplier<String> supplier = () -> {
+ *     CheckedProvider<String> supplier = () -> {
  *         if (Files.notExists(path)) throw new FileNotFoundException(path.toString());
  *         return Files.readString(path);
  *     };
@@ -37,7 +37,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @since 1.0.0
  */
 @FunctionalInterface
-public interface ThrowingSupplier<A>
+public interface CheckedProvider<A>
         extends Applicable<Nothing, A> {
 
     /**

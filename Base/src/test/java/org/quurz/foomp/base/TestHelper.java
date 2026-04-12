@@ -320,13 +320,4 @@ public class TestHelper {
     }
 
 
-    /*
-            Mocks
-     */
-
-    @SuppressWarnings("unchecked")
-    protected final <T, P extends T> P mockLambda(final Class<T> lambdaType,
-                                                  final P lambda) {
-        return (P) mock(lambdaType, delegatesTo(lambda));
-    }
 }

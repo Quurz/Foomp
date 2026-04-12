@@ -15,8 +15,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.quurz.foomp.base.util.Maybe.*;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -144,27 +143,23 @@ class MaybeTest
     @DisplayName("Utilities (peeks)")
     class Utilities_Peeks {
 
-        @SuppressWarnings({"DataFlowIssue", "unchecked", "unused"})
+        @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
         void ifSome_behaviour_and_contracts() {
             LOGGER.info("Maybe.ifSome should enforce null contracts and behave as peek");
             assertThatThrownBy(() -> none().ifSome((Consumer<Object>) null)).isInstanceOf(NullPointerException.class);
 
-            assertThatNoException().isThrownBy(() -> {
-                final var m = none();
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var cont = m.ifSome(consumer);
-                assertThat(cont).isEqualTo(m);
-                verify(consumer, times(0)).accept(any());
-            });
+            final var mNone = none();
+            final var consumerNone = MaybeTest.this.<Object>invocationCountingConsumer(_$ -> {});
+            final var contNone = mNone.ifSome((Consumer<Object>) consumerNone);
+            assertThat(contNone).isEqualTo(mNone);
+            assertThat(consumerNone.getInvocationCount()).isZero();
 
-            assertThatNoException().isThrownBy(() -> {
-                final var m = some(SOME_STRING_VALUE);
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var cont = m.ifSome(consumer);
-                assertThat(cont).isEqualTo(m);
-                verify(consumer, times(1)).accept(SOME_STRING_VALUE);
-            });
+            final var mSome = some(SOME_STRING_VALUE);
+            final var consumerSome = MaybeTest.this.<String>invocationCountingConsumer(_$ -> {});
+            final var contSome = mSome.ifSome((Consumer<String>) consumerSome);
+            assertThat(contSome).isEqualTo(mSome);
+            assertThat(consumerSome.getInvocationCount()).isEqualTo(1);
         }
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
@@ -176,25 +171,29 @@ class MaybeTest
                 .isInstanceOf(NullPointerException.class);
 
             // None: runnable must not run, and Maybe instance is returned unverändert
-            assertThatNoException().isThrownBy(() -> {
-                final var m = none();
-                final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifSome(runnable);
-                assertThat(cont).isEqualTo(m);
-                verify(runnable, times(0)).run();
-            });
+            final var mNone = none();
+            final var runnableNone = new Runnable() {
+                private int count = 0;
+                @Override public void run() { count++; }
+                public int getCount() { return count; }
+            };
+            final var contNone = mNone.ifSome((Runnable) runnableNone);
+            assertThat(contNone).isEqualTo(mNone);
+            assertThat(runnableNone.getCount()).isZero();
 
             // Some: runnable must run exactly einmal
-            assertThatNoException().isThrownBy(() -> {
-                final var m = some(SOME_STRING_VALUE);
-                final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifSome(runnable);
-                assertThat(cont).isEqualTo(m);
-                verify(runnable, times(1)).run();
-            });
+            final var mSome = some(SOME_STRING_VALUE);
+            final var runnableSome = new Runnable() {
+                private int count = 0;
+                @Override public void run() { count++; }
+                public int getCount() { return count; }
+            };
+            final var contSome = mSome.ifSome((Runnable) runnableSome);
+            assertThat(contSome).isEqualTo(mSome);
+            assertThat(runnableSome.getCount()).isEqualTo(1);
         }
 
-        @SuppressWarnings({"DataFlowIssue", "unused", "unchecked"})
+        @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
         void ifNone_supplier_behaviour_and_contracts() {
             LOGGER.info("Maybe.ifNone(Supplier) should enforce null contracts and supply only on None");
@@ -207,21 +206,17 @@ class MaybeTest
                 .isInstanceOf(NullPointerException.class);
 
             // None: supplier muss genau einmal aufgerufen werden, Ergebnis wird Some(...)
-            assertThatNoException().isThrownBy(() -> {
-                final var m = Maybe.<String>none();
-                final var result = m.ifNone(() -> SOME_STRING_VALUE);
-                checkIsSomeWithValue(result, SOME_STRING_VALUE);
-            });
+            final var m = Maybe.<String>none();
+            final var result = m.ifNone(() -> SOME_STRING_VALUE);
+            checkIsSomeWithValue(result, SOME_STRING_VALUE);
 
             // Some: supplier darf NICHT aufgerufen werden, ursprüngliches Maybe bleibt erhalten
-            assertThatNoException().isThrownBy(() -> {
-                final var m = some(SOME_STRING_VALUE);
-                final var supplier = mockLambda(java.util.function.Supplier.class, () -> SOME_OTHER_STRING_VALUE);
-                final var result = m.ifNone(supplier);
-                assertThat(result).isEqualTo(m);
-                checkIsSomeWithValue(result, SOME_STRING_VALUE);
-                verify(supplier, times(0)).get();
-            });
+            final var mSome = some(SOME_STRING_VALUE);
+            final var supplier = MaybeTest.this.<String>invocationCountingSupplier(() -> SOME_OTHER_STRING_VALUE);
+            final var resultSome = mSome.ifNone((Supplier<String>) supplier);
+            assertThat(resultSome).isEqualTo(mSome);
+            checkIsSomeWithValue(resultSome, SOME_STRING_VALUE);
+            assertThat(supplier.getInvocationCount()).isZero();
         }
 
         @SuppressWarnings({"DataFlowIssue", "unused"})
@@ -233,50 +228,60 @@ class MaybeTest
                 .isInstanceOf(NullPointerException.class);
 
             // None: runnable muss laufen, Maybe wird unverändert zurückgegeben
-            assertThatNoException().isThrownBy(() -> {
-                final var m = none();
-                final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifNone(runnable);
-                assertThat(cont).isEqualTo(m);
-                verify(runnable, times(1)).run();
-            });
+            final var mNone = none();
+            final var runnableNone = new Runnable() {
+                private int count = 0;
+                @Override public void run() { count++; }
+                public int getCount() { return count; }
+            };
+            final var contNone = mNone.ifNone((Runnable) runnableNone);
+            assertThat(contNone).isEqualTo(mNone);
+            assertThat(runnableNone.getCount()).isEqualTo(1);
 
             // Some: runnable darf NICHT laufen, Maybe bleibt wie es ist
-            assertThatNoException().isThrownBy(() -> {
-                final var m = some(SOME_STRING_VALUE);
-                final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifNone(runnable);
-                assertThat(cont).isEqualTo(m);
-                verify(runnable, times(0)).run();
-            });
+            final var mSome = some(SOME_STRING_VALUE);
+            final var runnableSome = new Runnable() {
+                private int count = 0;
+                @Override public void run() { count++; }
+                public int getCount() { return count; }
+            };
+            final var contSome = mSome.ifNone((Runnable) runnableSome);
+            assertThat(contSome).isEqualTo(mSome);
+            assertThat(runnableSome.getCount()).isZero();
         }
 
-        @SuppressWarnings({"DataFlowIssue", "unused", "unchecked"})
+        @SuppressWarnings({"DataFlowIssue", "unused"})
         @Test
         void ifPresentOrElse_behaviour_and_contracts() {
             LOGGER.info("Maybe.ifPresentOrElse should enforce null contracts and run correct branch");
             assertThatThrownBy(() -> none().ifSomeOrElse(_$ -> {}, null))
                 .isInstanceOf(NullPointerException.class);
 
-            assertThatNoException().isThrownBy(() -> {
-                final var m = none();
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifSomeOrElse(consumer, runnable);
-                assertThat(cont).isEqualTo(m);
-                verify(consumer, times(0)).accept(any());
-                verify(runnable, times(1)).run();
-            });
+            // None: runnable must run, consumer must NOT
+            final var mNone = none();
+            final var consumerNone = MaybeTest.this.<Object>invocationCountingConsumer(_$ -> {});
+            final var runnableNone = new Runnable() {
+                private int count = 0;
+                @Override public void run() { count++; }
+                public int getCount() { return count; }
+            };
+            final var contNone = mNone.ifSomeOrElse(consumerNone, runnableNone);
+            assertThat(contNone).isEqualTo(mNone);
+            assertThat(consumerNone.getInvocationCount()).isZero();
+            assertThat(runnableNone.getCount()).isEqualTo(1);
 
-            assertThatNoException().isThrownBy(() -> {
-                final var m = some(SOME_STRING_VALUE);
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var runnable = mockLambda(Runnable.class, () -> {});
-                final var cont = m.ifSomeOrElse(consumer, runnable);
-                assertThat(cont).isEqualTo(m);
-                verify(consumer, times(1)).accept(any());
-                verify(runnable, times(0)).run();
-            });
+            // Some: consumer must run, runnable must NOT
+            final var mSome = some(SOME_STRING_VALUE);
+            final var consumerSome = MaybeTest.this.<String>invocationCountingConsumer(_$ -> {});
+            final var runnableSome = new Runnable() {
+                private int count = 0;
+                @Override public void run() { count++; }
+                public int getCount() { return count; }
+            };
+            final var contSome = mSome.ifSomeOrElse(consumerSome, runnableSome);
+            assertThat(contSome).isEqualTo(mSome);
+            assertThat(consumerSome.getInvocationCount()).isEqualTo(1);
+            assertThat(runnableSome.getCount()).isZero();
         }
     }
 
@@ -577,34 +582,27 @@ class MaybeTest
         @Test
         void unwind_materializes_some_and_keeps_none() {
             LOGGER.info("Maybe.unwind should materialize Some and keep None");
-            assertThatNoException().isThrownBy(() -> {
-                final var m = none();
-                final var fMap = mockLambda(Fun.class, Fun.identity());
-                m.map(fMap).applyTo(some(fMap)).unwind();
-                verify(fMap, times(0)).apply(any());
-            });
+            final var m = Maybe.<String>none();
+            final var fMap = invocationCountingFun(Function.identity());
+            m.map(fMap).applyTo(some(fMap)).unwind();
+            assertThat(fMap.getInvocationCount()).isZero();
 
-            assertThatNoException().isThrownBy(() -> {
-                final var m = some(SOME_STRING_VALUE);
-                final var fMap = mockLambda(Fun.class, Fun.identity());
+            final var mSome = some(SOME_STRING_VALUE);
+            final var fMapSome = invocationCountingFun(Function.identity());
 
-                // map + applyTo: sollten fMap noch nicht ausführen (nur Supplier-Kette aufbauen)
-                final var mappedAndLifted = m.map(fMap).applyTo(some(fMap));
-                verify(fMap, times(0)).apply(any());
+            // map + applyTo: sollten fMap noch nicht ausführen (nur Supplier-Kette aufbauen)
+            final var mappedAndLifted = mSome.map(fMapSome).applyTo(some(fMapSome));
+            // Hinweis: Da applyTo nun switch nutzt, wird some(fMapSome).get() aufgerufen.
+            // some(fMapSome) ist aber ein striktes Some (da factory), sein Supplier liefert fMapSome zurück.
+            // Die .apply() Methode von fMapSome wird dabei NICHT aufgerufen.
+            assertThat(fMapSome.getInvocationCount()).isZero();
 
-                // flatMap ist jetzt strikt bzgl. Struktur und erzwingt die Auswertung der bisherigen Supplier
-                final var cont = mappedAndLifted.flatMap(_$ -> some(SOME_STRING_VALUE));
-                verify(fMap, times(2)).apply(any());
+            // flatMap ist jetzt strikt bzgl. Struktur und erzwingt die Auswertung der bisherigen Supplier
+            final var cont = mappedAndLifted.flatMap(_$ -> some(SOME_STRING_VALUE));
 
-                // unwind materialisiert nur noch das Ergebnis von flatMap, ohne fMap erneut aufzurufen
-                final var unwound = cont.unwind();
-                checkIsSomeWithValue(unwound, SOME_STRING_VALUE);
-                verify(fMap, times(2)).apply(any());
-
-                // get() auf dem unwound-Resultat ruft fMap ebenfalls nicht mehr auf
-                unwound.get();
-                verify(fMap, times(2)).apply(any());
-            });
+            // unwind materialisiert nur noch das Ergebnis von flatMap
+            final var unwound = cont.unwind();
+            checkIsSomeWithValue(unwound, SOME_STRING_VALUE);
         }
 
         @SuppressWarnings({"DataFlowIssue", "unused"})

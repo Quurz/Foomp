@@ -534,9 +534,10 @@ public sealed interface Maybe<A>
         Objects.requireNonNull(transformation);
         final var narrowed
             = narrow(transformation);
-        return narrowed.isSome()
-            ? this.map(narrowed.get())
-            : none();
+        return switch (narrowed) {
+            case None<? extends Function<? super A, ? extends B>> _$ -> none();
+            case Some<? extends Function<? super A, ? extends B>> some -> this.map(some.get());
+        };
     }
 
     /**

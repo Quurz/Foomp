@@ -513,9 +513,10 @@ public sealed interface Either<L, R>
                                   @NonNull final Consumer<R> rightConsumer) {
         Objects.requireNonNull(leftConsumer, nullValue("leftConsumer"));
         Objects.requireNonNull(rightConsumer, nullValue("rightConsumer"));
-        switch (this) {
-            case Left<L, R> left -> leftConsumer.accept(left.getLeft());
-            case Right<L, R> right -> rightConsumer.accept(right.getRight());
+        if (this instanceof Left<L, R> left) {
+            leftConsumer.accept(left.getLeft());
+        } else if (this instanceof Right<L, R> right) {
+            rightConsumer.accept(right.getRight());
         }
         return this;
     }

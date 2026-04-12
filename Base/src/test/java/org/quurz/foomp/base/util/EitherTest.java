@@ -256,60 +256,48 @@ class EitherTest
                 .isInstanceOf(NullPointerException.class);
         }
 
-        @SuppressWarnings({"unused", "unchecked"})
         @Test
         void ifLeft_on_right_does_not_invoke_consumer() {
             LOGGER.info("either.ifLeft on Right");
-            assertThatNoException().isThrownBy(() -> {
-                final var e = right(SOME_STRING_VALUE);
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var cont = e.ifLeft(consumer);
+            final Either<String, String> e = right(SOME_STRING_VALUE);
+            final var consumer = EitherTest.this.<String>invocationCountingConsumer(_$ -> {});
+            final var cont = e.ifLeft(consumer);
 
-                assertThat(cont).isEqualTo(e);
-                verify(consumer, times(0)).accept(any());
-            });
+            assertThat(cont).isEqualTo(e);
+            assertThat(consumer.getInvocationCount()).isZero();
         }
 
-        @SuppressWarnings({"unused", "unchecked"})
         @Test
         void ifLeft_on_left_invokes_consumer_once() {
             LOGGER.info("either.ifLeft on Left");
-            assertThatNoException().isThrownBy(() -> {
-                final var e = left(SOME_STRING_VALUE);
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var cont = e.ifLeft(consumer);
+            final Either<String, String> e = left(SOME_STRING_VALUE);
+            final var consumer = EitherTest.this.<String>invocationCountingConsumer(_$ -> {});
+            final var cont = e.ifLeft(consumer);
 
-                assertThat(cont).isEqualTo(e);
-                verify(consumer, times(1)).accept(SOME_STRING_VALUE);
-            });
+            assertThat(cont).isEqualTo(e);
+            assertThat(consumer.getInvocationCount()).isEqualTo(1);
         }
 
-        @SuppressWarnings({"unchecked", "unused"})
         @Test
         void ifRight_on_left_does_not_invoke_consumer() {
             LOGGER.info("either.ifRight on Left");
-            assertThatNoException().isThrownBy(() -> {
-                final var e = left(SOME_STRING_VALUE);
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var cont = e.ifRight(consumer);
+            final Either<String, String> e = left(SOME_STRING_VALUE);
+            final var consumer = EitherTest.this.<String>invocationCountingConsumer(_$ -> {});
+            final var cont = e.ifRight(consumer);
 
-                assertThat(cont).isEqualTo(e);
-                verify(consumer, times(0)).accept(any());
-            });
+            assertThat(cont).isEqualTo(e);
+            assertThat(consumer.getInvocationCount()).isZero();
         }
 
-        @SuppressWarnings({"unchecked", "unused"})
         @Test
         void ifRight_on_right_invokes_consumer_once() {
             LOGGER.info("either.ifRight on Right");
-            assertThatNoException().isThrownBy(() -> {
-                final var e = right(SOME_STRING_VALUE);
-                final var consumer = mockLambda(Consumer.class, _$ -> {});
-                final var cont = e.ifRight(consumer);
+            final Either<String, String> e = right(SOME_STRING_VALUE);
+            final var consumer = EitherTest.this.<String>invocationCountingConsumer(_$ -> {});
+            final var cont = e.ifRight(consumer);
 
-                assertThat(cont).isEqualTo(e);
-                verify(consumer, times(1)).accept(SOME_STRING_VALUE);
-            });
+            assertThat(cont).isEqualTo(e);
+            assertThat(consumer.getInvocationCount()).isEqualTo(1);
         }
     }
 
