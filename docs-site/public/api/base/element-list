@@ -1,0 +1,6 @@
+module:foomp.base
+org.quurz.foomp.base.functions
+org.quurz.foomp.base.localisation
+org.quurz.foomp.base.misc
+org.quurz.foomp.base.types
+org.quurz.foomp.base.util

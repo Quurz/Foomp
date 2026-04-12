@@ -1,0 +1,1 @@
+tagSearchIndex = [{"l":"Rank (arity)","h":"Schnittstelle org.quurz.foomp.higher.Hkt","k":"16","u":"foomp.higher/org/quurz/foomp/higher/Hkt.html#rank-arity--heading"},{"l":"Usage (sketch)","h":"Schnittstelle org.quurz.foomp.higher.Hkt","k":"16","u":"foomp.higher/org/quurz/foomp/higher/Hkt.html#usage-sketch--heading"}];updateSearchResults();

@@ -8,8 +8,8 @@ package org.quurz.foomp.higher;
  *     <p>
  *         Java does not natively support higher‑kinded types. This interface, together with
  *         {@link WitnessType} and the rank‑specific {@code HigherN} interfaces (e.g.
- *         {@link org.quurz.foomp.higher.Higher1}, {@link org.quurz.foomp.higher.Higher2},
- *         {@link org.quurz.foomp.higher.Higher3}, {@link org.quurz.foomp.higher.Higher4}),
+ *         {@link Higher1}, {@link Higher2},
+ *         {@link Higher3}, {@link Higher4}),
  *         provides a lightweight encoding that models type constructors at the type level.
  *     </p>
  *     <p>

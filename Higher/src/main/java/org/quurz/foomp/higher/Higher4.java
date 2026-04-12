@@ -20,6 +20,7 @@ package org.quurz.foomp.higher;
  * @param <D>  The fourth type parameter carried by this HKT
  *
  * @since 1.0.0
+ *
  * @author Alexander Schell
  */
 @SuppressWarnings("unused")

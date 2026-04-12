@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"Alle Packages","u":"allpackages-index.html","k":"18"},{"m":"foomp.base","l":"org.quurz.foomp.base.functions"},{"m":"foomp.base","l":"org.quurz.foomp.base.localisation"},{"m":"foomp.base","l":"org.quurz.foomp.base.misc"},{"m":"foomp.base","l":"org.quurz.foomp.base.types"},{"m":"foomp.base","l":"org.quurz.foomp.base.util"}];updateSearchResults();
