@@ -4,6 +4,12 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	locales: {
+		root: {
+			label: 'English',
+			lang: 'en',
+		},
+	},
 	integrations: [
 		starlight({
 			title: 'My Docs',
