@@ -336,16 +336,16 @@ public class Stateful<A, S>
      *   </p>
      * </div>
      *
-     * @param Tuple2 a tuple whose second component is used as input state; must not be {@code null}
+     * @param stateTuple a tuple whose second component is used as input state; must not be {@code null}
      * @return a {@code Tuple2} containing the produced value and the new state; never {@code null}
      * @throws NullPointerException if the input tuple is {@code null} or the transition returns {@code null}
      *
      * @since 1.0.0
      */
     @UnwindingOperation
-    public Tuple2<A, S> runStateTuple(final @NonNull Tuple2<A, S> Tuple2) {
-        Objects.requireNonNull(Tuple2, nullValue("tuple"));
-        return Objects.requireNonNull(this.runState.apply(Tuple2.get2()), nullResult());
+    public Tuple2<A, S> runStateTuple(final @NonNull Tuple2<A, S> stateTuple) {
+        Objects.requireNonNull(stateTuple, nullValue("tuple"));
+        return Objects.requireNonNull(this.runState.apply(stateTuple.get2()), nullResult());
     }
 
     /**
