@@ -151,7 +151,6 @@ public final class Attempt<A>
      *
      * @since 1.0.0
      */
-    @SuppressWarnings("unused")
     public Attempt<A> onFailureRecover(final @NonNull Supplier<A> recover) {
         Objects.requireNonNull(recover, nullValue("recover"));
         return new Attempt<>(

@@ -1,10 +1,7 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.Monadic;
-import org.quurz.foomp.base.types.Transmogrifyable;
-import org.quurz.foomp.base.types.Unwindable;
-import org.quurz.foomp.base.types.Value;
+import org.quurz.foomp.base.types.*;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
@@ -279,6 +276,7 @@ public sealed interface Eval<A>
      * @since 1.0.0
      */
     @Override
+    @UnwindingOperation
     @NonNull
     default Eval<A> unwind() {
        return switch (this) {
@@ -286,6 +284,95 @@ public sealed interface Eval<A>
            case Later<A> later -> evalLater(later.get());
            case Always<A> always -> new Always<>(always.supplier);
        };
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Converts this {@code Eval} into an eager {@link Now} instance.
+     *   </p>
+     *   <p>
+     *     If this is already a {@code Now}, it is returned as is.
+     *     If this is a {@code Later} or {@code Always}, the value is computed
+     *     immediately and wrapped in a new {@code Now}.
+     *   </p>
+     * </div>
+     *
+     * @return an eager {@code Now} instance carrying the current value
+     *
+     * @since 1.0.0
+     */
+    @UnwindingOperation
+    @NonNull
+    default Eval<A> now() {
+        return switch (this) {
+            case Now<A> _$ -> this;
+            case Later<A> later
+                -> evalNow(
+                    later.memo != null
+                        ? later.memo
+                        : later.supplier.get()
+                );
+            case Always<A> always -> evalNow(always.supplier.get());
+        };
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Converts this {@code Eval} into a lazy, memoized {@link Later} instance.
+     *   </p>
+     *   <p>
+     *     If this is already a {@code Later}, it is returned as is.
+     *     Otherwise, a new {@code Later} is created that will compute (and cache)
+     *     the value upon first access.
+     *   </p>
+     * </div>
+     *
+     * @return a lazy, memoized {@code Later} instance
+     *
+     * @since 1.0.0
+     */
+    @UnwindingOperation
+    @NonNull
+    default Eval<A> later() {
+        return switch (this) {
+            case Now<A> now -> evalLater(now.get());
+            case Later<A> _$ -> this;
+            case Always<A> always -> evalLater(always.supplier.get());
+        };
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Converts this {@code Eval} into a lazy, non‑memoized {@link Always} instance.
+     *   </p>
+     *   <p>
+     *     If this is already an {@code Always}, it is returned as is.
+     *     If this is a {@code Now} or {@code Later}, it is converted into an
+     *     {@code Always} that will re‑evaluate the underlying source or cached
+     *     value (depending on implementation details) on every access.
+     *   </p>
+     * </div>
+     *
+     * @return a lazy, non‑memoized {@code Always} instance
+     *
+     * @since 1.0.0
+     */
+    @UnwindingOperation
+    @NonNull
+    default Eval<A> always() {
+        return switch (this) {
+            case Now<A> now -> evalAlways(now.get());
+            case Later<A> later
+                -> evalNow(
+                    later.memo != null
+                        ? later.memo
+                        : later.supplier.get()
+                );
+            case Always<A> _$ -> this;
+        };
     }
 
     /**

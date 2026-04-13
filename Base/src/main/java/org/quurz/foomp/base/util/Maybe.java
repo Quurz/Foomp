@@ -207,7 +207,6 @@ public sealed interface Maybe<A>
      *
      * @since 1.0.0
      */
-    @SuppressWarnings("unused")
     default boolean isSome() {
         return (this instanceof Maybe.Some<A>);
     }
@@ -234,7 +233,6 @@ public sealed interface Maybe<A>
      */
     @SuppressWarnings({"SwitchLabeledRuleCanBeCodeBlock", "unused"})
     @Override
-    @UnwindingOperation
     @NonNull
     default A get()
             throws NoSuchElementException {
@@ -259,7 +257,6 @@ public sealed interface Maybe<A>
      * @since 1.0.0
      */
     @SuppressWarnings({"SwitchLabeledRuleCanBeCodeBlock", "unused"})
-    @UnwindingOperation
     @NonNull
     default A getOrElse(@NonNull final Supplier<A> supplier) {
         Objects.requireNonNull(supplier, nullValue("supplier"));
@@ -290,7 +287,6 @@ public sealed interface Maybe<A>
      * @since 1.0.0
      */
     @SuppressWarnings({"SwitchLabeledRuleCanBeCodeBlock", "unused"})
-    @UnwindingOperation
     @NonNull
     default <E extends Throwable> A getOrThrow(final @NonNull Supplier<E> exceptionSupplier)
             throws E {
@@ -319,7 +315,7 @@ public sealed interface Maybe<A>
      *
      * @since 1.0.0
      */
-        default Maybe<A> ifSome(final @NonNull Consumer<A> consumer) {
+    default Maybe<A> ifSome(final @NonNull Consumer<A> consumer) {
             Objects.requireNonNull(consumer, nullValue("consumer"));
             if (this instanceof Maybe.Some<A> some) {
                 consumer.accept(some.get());
@@ -327,89 +323,89 @@ public sealed interface Maybe<A>
             return this;
         }
 
-    /**
-     * <div>
-     *   <p>
-     *     Executes the given action if a value is present.
-     *     This is a convenience overload of {@link #ifSome(Consumer)} for cases where
-     *     the action does not need access to the contained value.
-     *   </p>
-     *   <p>
-     *     <strong>Laziness:</strong>
-     *     The decision whether to run the action is made eagerly based on whether this
-     *     {@code Maybe} is {@code Some}. The payload is not evaluated unless other
-     *     operations (e.g. {@link #get()}) are invoked.
-     *   </p>
-     * </div>
-     *
-     * @param runnable the action to run when this is {@code Some}; must not be {@code null}
-     * @return this {@code Maybe}
-     *
-     * @since 1.0.0
-     */
-        default Maybe<A> ifSome(final @NonNull Runnable runnable) {
-            Objects.requireNonNull(runnable, nullValue("runnable"));
-            if (this instanceof Maybe.Some<A>) {
-                runnable.run();
-            }
-            return this;
+/**
+ * <div>
+ *   <p>
+ *     Executes the given action if a value is present.
+ *     This is a convenience overload of {@link #ifSome(Consumer)} for cases where
+ *     the action does not need access to the contained value.
+ *   </p>
+ *   <p>
+ *     <strong>Laziness:</strong>
+ *     The decision whether to run the action is made eagerly based on whether this
+ *     {@code Maybe} is {@code Some}. The payload is not evaluated unless other
+ *     operations (e.g. {@link #get()}) are invoked.
+ *   </p>
+ * </div>
+ *
+ * @param runnable the action to run when this is {@code Some}; must not be {@code null}
+ * @return this {@code Maybe}
+ *
+ * @since 1.0.0
+ */
+    default Maybe<A> ifSome(final @NonNull Runnable runnable) {
+        Objects.requireNonNull(runnable, nullValue("runnable"));
+        if (this instanceof Maybe.Some<A>) {
+            runnable.run();
         }
+        return this;
+    }
 
-    /**
-     * <div>
-     *   <p>
-     *     Returns this {@code Maybe} if a value is present; otherwise supplies a fallback value.
-     *     If this is {@code None}, the supplied value is wrapped in {@code Some} and returned.
-     *     A {@link NullPointerException} is thrown if the supplier is {@code null} or supplies
-     *     {@code null}.
-     *   </p>
-     *   <p>
-     *     <strong>Laziness:</strong>
-     *     The supplier is only invoked eagerly when this {@code Maybe} is {@code None}.
-     *     The fallback value itself is stored lazily inside {@code Some} according to the
-     *     usual payload semantics.
-     *   </p>
-     * </div>
-     *
-     * @param supplier supplies a fallback value when this is {@code None}; must not be {@code null}
-     * @return {@code this} if {@code Some}, otherwise a new {@code Some} with the supplied value
-     *
-     * @since 1.0.0
-     */
-        default Maybe<A> ifNone(final @NonNull Supplier<A> supplier) {
-            Objects.requireNonNull(supplier, nullValue("supplier"));
-            if (this instanceof Maybe.None<A>) {
-                return some(Objects.requireNonNull(supplier.get(), nullSuppliedFrom("supplier")));
-            }
-            return this;
+/**
+ * <div>
+ *   <p>
+ *     Returns this {@code Maybe} if a value is present; otherwise supplies a fallback value.
+ *     If this is {@code None}, the supplied value is wrapped in {@code Some} and returned.
+ *     A {@link NullPointerException} is thrown if the supplier is {@code null} or supplies
+ *     {@code null}.
+ *   </p>
+ *   <p>
+ *     <strong>Laziness:</strong>
+ *     The supplier is only invoked eagerly when this {@code Maybe} is {@code None}.
+ *     The fallback value itself is stored lazily inside {@code Some} according to the
+ *     usual payload semantics.
+ *   </p>
+ * </div>
+ *
+ * @param supplier supplies a fallback value when this is {@code None}; must not be {@code null}
+ * @return {@code this} if {@code Some}, otherwise a new {@code Some} with the supplied value
+ *
+ * @since 1.0.0
+ */
+    default Maybe<A> ifNone(final @NonNull Supplier<A> supplier) {
+        Objects.requireNonNull(supplier, nullValue("supplier"));
+        if (this instanceof Maybe.None<A>) {
+            return some(Objects.requireNonNull(supplier.get(), nullSuppliedFrom("supplier")));
         }
+        return this;
+    }
 
-    /**
-     * <div>
-     *   <p>
-     *     Executes the given action if this {@code Maybe} is empty.
-     *     This is useful for triggering side effects (logging, metrics, fallbacks) when no value
-     *     is present, without changing the {@code Maybe} itself.
-     *   </p>
-     *   <p>
-     *     <strong>Laziness:</strong>
-     *     No payload is evaluated, as {@code None} carries no value. The runnable is invoked
-     *     eagerly if and only if this is {@code None}.
-     *   </p>
-     * </div>
-     *
-     * @param runnable the action to run when this is {@code None}; must not be {@code null}
-     * @return this {@code Maybe}
-     *
-     * @since 1.0.0
-     */
-        default Maybe<A> ifNone(final @NonNull Runnable runnable) {
-            Objects.requireNonNull(runnable, nullValue("runnable"));
-            if (this instanceof Maybe.None<A>) {
-                runnable.run();
-            }
-            return this;
+/**
+ * <div>
+ *   <p>
+ *     Executes the given action if this {@code Maybe} is empty.
+ *     This is useful for triggering side effects (logging, metrics, fallbacks) when no value
+ *     is present, without changing the {@code Maybe} itself.
+ *   </p>
+ *   <p>
+ *     <strong>Laziness:</strong>
+ *     No payload is evaluated, as {@code None} carries no value. The runnable is invoked
+ *     eagerly if and only if this is {@code None}.
+ *   </p>
+ * </div>
+ *
+ * @param runnable the action to run when this is {@code None}; must not be {@code null}
+ * @return this {@code Maybe}
+ *
+ * @since 1.0.0
+ */
+    default Maybe<A> ifNone(final @NonNull Runnable runnable) {
+        Objects.requireNonNull(runnable, nullValue("runnable"));
+        if (this instanceof Maybe.None<A>) {
+            runnable.run();
         }
+        return this;
+    }
 
     /**
      * <div>
@@ -429,7 +425,6 @@ public sealed interface Maybe<A>
      *
      * @since 1.0.0
      */
-    @UnwindingOperation
     @NonNull
     default Maybe<A> ifSomeOrElse(final @NonNull Consumer<A> consumer,
                                   final @NonNull Runnable orElse) {

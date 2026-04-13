@@ -173,6 +173,8 @@ tasks.withType<JavaCompile>().configureEach {
 // Basis-Javadoc-Einstellungen
 tasks.withType<Javadoc>().configureEach {
     options.encoding = "UTF-8"
+    // Immer Englisch als Sprache für generierte Javadoc verwenden
+    (options as StandardJavadocDocletOptions).locale = "en_US"
     // Javadoc-Linting (strenge Prüfung) aktuell deaktiviert
     (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
 }

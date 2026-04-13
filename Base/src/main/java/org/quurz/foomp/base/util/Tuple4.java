@@ -652,6 +652,7 @@ public final class Tuple4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
+    @UnwindingOperation
     public @NonNull Tuple4<A1, A2, A3, A4> unwind1() {
         return new Tuple4<>(this.value1Supplier.get(), this.value2Supplier, this.value3Supplier, this.value4Supplier);
     }
@@ -667,6 +668,7 @@ public final class Tuple4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
+    @UnwindingOperation
     public @NonNull Tuple4<A1, A2, A3, A4> unwind2() {
         return new Tuple4<>(this.value1Supplier, this.value2Supplier.get(), this.value3Supplier, this.value4Supplier);
     }
@@ -682,6 +684,7 @@ public final class Tuple4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
+    @UnwindingOperation
     public @NonNull Tuple4<A1, A2, A3, A4> unwind3() {
         return new Tuple4<>(this.value1Supplier, this.value2Supplier, this.value3Supplier.get(), this.value4Supplier);
     }
@@ -697,6 +700,7 @@ public final class Tuple4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
+    @UnwindingOperation
     public @NonNull Tuple4<A1, A2, A3, A4> unwind4() {
         return new Tuple4<>(this.value1Supplier, this.value2Supplier, this.value3Supplier, this.value4Supplier.get());
     }
