@@ -2,11 +2,6 @@ package org.quurz.foomp.base.types;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.Objects;
-import java.util.function.Function;
-
-import static org.quurz.foomp.base.localisation.BaseMessages.*;
-
 /**
  * <div>
  *     <p>
@@ -40,27 +35,5 @@ public interface Echo {
      */
     @NonNull
     String echo();
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns a formatted string representation produced by applying the given transformer
-     *         function to this instance. This allows callers to supply custom formatting logic.
-     *     </p>
-     *     <p>
-     *         Contract: {@code transformer} must not be {@code null} and must not return {@code null}.
-     *     </p>
-     * </div>
-     *
-     * @param transformer a function mapping this {@code Echo} to its string representation; must not be {@code null}
-     * @return a non-null formatted string
-     *
-     * @since 1.0.0
-     */
-    @NonNull
-    default String echo(final @NonNull Function<? super Echo, String> transformer) {
-        Objects.requireNonNull(transformer, nullValue("transformer"));
-        return Objects.requireNonNull(transformer.apply(this), nullResultFrom("transformer"));
-    }
 
 }

@@ -132,19 +132,19 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"></div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buildMetadata(java.lang.String)" class="member-name-link">buildMetadata</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;buildMetadata)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"></div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#major(int)" class="member-name-link">major</a><wbr>(int&nbsp;major)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"></div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#minor(int)" class="member-name-link">minor</a><wbr>(int&nbsp;minor)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"></div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#patch(int)" class="member-name-link">patch</a><wbr>(int&nbsp;patch)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"></div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#preRelease(java.lang.String)" class="member-name-link">preRelease</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;preRelease)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"></div>
 </div>
 </div>
 </div>
@@ -167,6 +167,21 @@ loadScripts(document, 'script');</script>
 <h3>major</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></span>&nbsp;<span class="element-name">major</span><wbr><span class="parameters">(int&nbsp;major)</span></div>
+<div class="block"><div>
+  <p>
+    Sets the major version component.
+  </p>
+</div></div>
+<dl class="notes">
+<dt>Parameter:</dt>
+<dd><code>major</code> - the major version; must be non-negative</dd>
+<dt>Gibt zurück:</dt>
+<dd>this builder; never <code>null</code></dd>
+<dt>Löst aus:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>major</code> is negative</dd>
+<dt>Seit:</dt>
+<dd>1.0.0</dd>
+</dl>
 </div>
 </section>
 </li>
@@ -175,6 +190,21 @@ loadScripts(document, 'script');</script>
 <h3>minor</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></span>&nbsp;<span class="element-name">minor</span><wbr><span class="parameters">(int&nbsp;minor)</span></div>
+<div class="block"><div>
+  <p>
+    Sets the minor version component.
+  </p>
+</div></div>
+<dl class="notes">
+<dt>Parameter:</dt>
+<dd><code>minor</code> - the minor version; must be non-negative</dd>
+<dt>Gibt zurück:</dt>
+<dd>this builder; never <code>null</code></dd>
+<dt>Löst aus:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>minor</code> is negative</dd>
+<dt>Seit:</dt>
+<dd>1.0.0</dd>
+</dl>
 </div>
 </section>
 </li>
@@ -183,6 +213,21 @@ loadScripts(document, 'script');</script>
 <h3>patch</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></span>&nbsp;<span class="element-name">patch</span><wbr><span class="parameters">(int&nbsp;patch)</span></div>
+<div class="block"><div>
+  <p>
+    Sets the patch version component.
+  </p>
+</div></div>
+<dl class="notes">
+<dt>Parameter:</dt>
+<dd><code>patch</code> - the patch version; must be non-negative</dd>
+<dt>Gibt zurück:</dt>
+<dd>this builder; never <code>null</code></dd>
+<dt>Löst aus:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>patch</code> is negative</dd>
+<dt>Seit:</dt>
+<dd>1.0.0</dd>
+</dl>
 </div>
 </section>
 </li>
@@ -191,6 +236,21 @@ loadScripts(document, 'script');</script>
 <h3>preRelease</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></span>&nbsp;<span class="element-name">preRelease</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;preRelease)</span></div>
+<div class="block"><div>
+  <p>
+    Sets the pre-release version component.
+  </p>
+</div></div>
+<dl class="notes">
+<dt>Parameter:</dt>
+<dd><code>preRelease</code> - the pre-release identifier; must not be <code>null</code></dd>
+<dt>Gibt zurück:</dt>
+<dd>this builder; never <code>null</code></dd>
+<dt>Löst aus:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>preRelease</code> is <code>null</code></dd>
+<dt>Seit:</dt>
+<dd>1.0.0</dd>
+</dl>
 </div>
 </section>
 </li>
@@ -199,6 +259,21 @@ loadScripts(document, 'script');</script>
 <h3>buildMetadata</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SemVer.SemVerBuilder.html" title="Klasse in org.quurz.foomp.base.misc">SemVer.SemVerBuilder</a></span>&nbsp;<span class="element-name">buildMetadata</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;buildMetadata)</span></div>
+<div class="block"><div>
+  <p>
+    Sets the build metadata component.
+  </p>
+</div></div>
+<dl class="notes">
+<dt>Parameter:</dt>
+<dd><code>buildMetadata</code> - the build metadata string; must not be <code>null</code></dd>
+<dt>Gibt zurück:</dt>
+<dd>this builder; never <code>null</code></dd>
+<dt>Löst aus:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>buildMetadata</code> is <code>null</code></dd>
+<dt>Seit:</dt>
+<dd>1.0.0</dd>
+</dl>
 </div>
 </section>
 </li>

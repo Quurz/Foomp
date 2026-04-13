@@ -136,6 +136,19 @@ public class SemVer
                 = null;
         }
 
+        /**
+         * <div>
+         *   <p>
+         *     Sets the major version component.
+         *   </p>
+         * </div>
+         *
+         * @param major the major version; must be non-negative
+         * @return this builder; never {@code null}
+         * @throws IllegalArgumentException if {@code major} is negative
+         *
+         * @since 1.0.0
+         */
         public SemVerBuilder major(final int major) {
             if (major < 0) {
                 throw new IllegalArgumentException("major version must be non-negative");
@@ -144,6 +157,19 @@ public class SemVer
             return this;
         }
 
+        /**
+         * <div>
+         *   <p>
+         *     Sets the minor version component.
+         *   </p>
+         * </div>
+         *
+         * @param minor the minor version; must be non-negative
+         * @return this builder; never {@code null}
+         * @throws IllegalArgumentException if {@code minor} is negative
+         *
+         * @since 1.0.0
+         */
         public SemVerBuilder minor(final int minor) {
             if (minor < 0) {
                 throw new IllegalArgumentException("minor version must be non-negative");
@@ -152,6 +178,19 @@ public class SemVer
             return this;
         }
 
+        /**
+         * <div>
+         *   <p>
+         *     Sets the patch version component.
+         *   </p>
+         * </div>
+         *
+         * @param patch the patch version; must be non-negative
+         * @return this builder; never {@code null}
+         * @throws IllegalArgumentException if {@code patch} is negative
+         *
+         * @since 1.0.0
+         */
         public SemVerBuilder patch(final int patch) {
             if (patch < 0) {
                 throw new IllegalArgumentException("patch version must be non-negative");
@@ -160,11 +199,37 @@ public class SemVer
             return this;
         }
 
+        /**
+         * <div>
+         *   <p>
+         *     Sets the pre-release version component.
+         *   </p>
+         * </div>
+         *
+         * @param preRelease the pre-release identifier; must not be {@code null}
+         * @return this builder; never {@code null}
+         * @throws NullPointerException if {@code preRelease} is {@code null}
+         *
+         * @since 1.0.0
+         */
         public SemVerBuilder preRelease(final @NonNull String preRelease) {
             this.preRelease = Objects.requireNonNull(preRelease, nullValue("preRelease"));
             return this;
         }
 
+        /**
+         * <div>
+         *   <p>
+         *     Sets the build metadata component.
+         *   </p>
+         * </div>
+         *
+         * @param buildMetadata the build metadata string; must not be {@code null}
+         * @return this builder; never {@code null}
+         * @throws NullPointerException if {@code buildMetadata} is {@code null}
+         *
+         * @since 1.0.0
+         */
         public SemVerBuilder buildMetadata(final @NonNull String buildMetadata) {
             this.buildMetadata = Objects.requireNonNull(buildMetadata, nullValue("buildMetadata"));
             return this;
@@ -283,6 +348,19 @@ public class SemVer
     private final Maybe<String> preRelease;
     private final Maybe<String> buildMetadata;
 
+    /**
+     * <div>
+     *   <p>
+     *     Internal constructor using raw strings for optional components.
+     *   </p>
+     * </div>
+     *
+     * @param major the major version
+     * @param minor the minor version
+     * @param patch the patch version
+     * @param preRelease the pre-release string (may be {@code null})
+     * @param buildMetadata the build metadata string (may be {@code null})
+     */
     public SemVer(final int major,
                   final int minor,
                   final int patch,
@@ -291,6 +369,23 @@ public class SemVer
         this(major, minor, patch, Maybe.maybeOfNullable(preRelease), Maybe.maybeOfNullable(buildMetadata));
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Canonical constructor for {@link SemVer} using {@link Maybe} for optional components.
+     *   </p>
+     * </div>
+     *
+     * @param major the major version; must be non-negative
+     * @param minor the minor version; must be non-negative
+     * @param patch the patch version; must be non-negative
+     * @param preRelease the optional pre-release component; must not be {@code null}
+     * @param buildMetadata the optional build metadata component; must not be {@code null}
+     * @throws IllegalArgumentException if any numeric component is negative
+     * @throws NullPointerException if {@code preRelease} or {@code buildMetadata} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public SemVer(final int major,
                   final int minor,
                   final int patch,
@@ -312,54 +407,180 @@ public class SemVer
         this.buildMetadata = Objects.requireNonNull(buildMetadata, nullValue("buildMetadata"));
     }
 
+    /**
+     * @return the major version component
+     */
     public int getMajor() {
         return this.major;
     }
 
+    /**
+     * @return the minor version component
+     */
     public int getMinor() {
         return this.minor;
     }
 
+    /**
+     * @return the patch version component
+     */
     public int getPatch() {
         return this.patch;
     }
 
+    /**
+     * @return the optional pre-release component
+     */
     public Maybe<String> getPreRelease() {
         return this.preRelease;
     }
 
+    /**
+     * @return the optional build metadata component
+     */
     public Maybe<String> getBuildMetadata() {
         return this.buildMetadata;
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Increments the major version.
+     *   </p>
+     *   <p>
+     *     Following the SemVer specification, this resets the minor and patch versions to 0.
+     *     The optional components are preserved.
+     *   </p>
+     * </div>
+     *
+     * @return a new {@link SemVer} instance with incremented major version
+     *
+     * @since 1.0.0
+     */
     public SemVer incrementMajor() {
         return new SemVer(this.major + 1, 0, 0, this.preRelease, this.buildMetadata);
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Increments the minor version.
+     *   </p>
+     *   <p>
+     *     Following the SemVer specification, this resets the patch version to 0.
+     *     The optional components are preserved.
+     *   </p>
+     * </div>
+     *
+     * @return a new {@link SemVer} instance with incremented minor version
+     *
+     * @since 1.0.0
+     */
     public SemVer incrementMinor() {
         return new SemVer(this.major, this.minor + 1, 0, this.preRelease, this.buildMetadata);
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Increments the patch version.
+     *   </p>
+     *   <p>
+     *     The optional components are preserved.
+     *   </p>
+     * </div>
+     *
+     * @return a new {@link SemVer} instance with incremented patch version
+     *
+     * @since 1.0.0
+     */
     public SemVer incrementPatch() {
         return new SemVer(this.major, this.minor, this.patch + 1, this.preRelease, this.buildMetadata);
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Returns a new version with the specified pre-release identifier.
+     *   </p>
+     * </div>
+     *
+     * @param preRelease the pre-release identifier; must not be {@code null}
+     * @return a new {@link SemVer} instance; never {@code null}
+     * @throws NullPointerException if {@code preRelease} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public SemVer withPreRelease(final @NonNull String preRelease) {
         return new SemVer(this.major, this.minor, this.patch, Maybe.some(Objects.requireNonNull(preRelease, nullValue("preRelease"))), this.buildMetadata);
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Returns a new version without any pre-release identifier.
+     *   </p>
+     * </div>
+     *
+     * @return a new {@link SemVer} instance; never {@code null}
+     *
+     * @since 1.0.0
+     */
     public SemVer withoutPreRelease() {
         return new SemVer(this.major, this.minor, this.patch, none(), this.buildMetadata);
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Returns a new version with the specified build metadata.
+     *   </p>
+     * </div>
+     *
+     * @param buildMetadata the build metadata string; must not be {@code null}
+     * @return a new {@link SemVer} instance; never {@code null}
+     * @throws NullPointerException if {@code buildMetadata} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public SemVer withBuildMetadata(final @NonNull String buildMetadata) {
         return new SemVer(this.major, this.minor, this.patch, this.preRelease, Maybe.some(Objects.requireNonNull(buildMetadata, nullValue("buildMetadata"))));
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Returns a new version without any build metadata.
+     *   </p>
+     * </div>
+     *
+     * @return a new {@link SemVer} instance; never {@code null}
+     *
+     * @since 1.0.0
+     */
     public SemVer withoutBuildMetadata() {
         return new SemVer(this.major, this.minor, this.patch, this.preRelease, none());
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Compares this version to another {@link SemVer} based on precedence rules.
+     *   </p>
+     *   <p>
+     *     Precedence is determined by the first difference when comparing MAJOR, MINOR,
+     *     and PATCH components from left to right. Normal versions have higher precedence
+     *     than pre-release versions. Build metadata is ignored.
+     *   </p>
+     * </div>
+     *
+     * @param other the version to compare to; must not be {@code null}
+     * @return a negative integer, zero, or a positive integer as this version
+     *         is less than, equal to, or greater than the specified version
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
     @Override
     public int compareTo(final @NonNull SemVer other) {
         Objects.requireNonNull(other, nullValue("other"));
@@ -389,8 +610,24 @@ public class SemVer
         return this.preRelease.get().compareTo(other.preRelease.get());
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *   Two {@link SemVer} instances are equal if and only if all their components
+     *   (major, minor, patch, pre-release, and build metadata) are equal.
+     * </p>
+     * <p>
+     *   Note: This differs from {@link #compareTo(SemVer)}, which ignores build metadata
+     *   according to the SemVer 2.0.0 specification.
+     * </p>
+     *
+     * @param o the object to compare with
+     * @return {@code true} if this version equals the specified object
+     *
+     * @since 1.0.0
+     */
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (!(o instanceof SemVer that)) return false;
         return major == that.major
             && minor == that.minor
@@ -399,6 +636,17 @@ public class SemVer
             && Objects.equals(buildMetadata, that.buildMetadata);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *   The hash code is calculated based on all version components: major, minor, patch,
+     *   pre-release, and build metadata.
+     * </p>
+     *
+     * @return the hash code value for this version
+     *
+     * @since 1.0.0
+     */
     @Override
     public int hashCode() {
         return Objects.hash(major, minor, patch, preRelease, buildMetadata);
@@ -422,6 +670,20 @@ public class SemVer
         return sb.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     *   Returns a string representation for debugging and logging purposes.
+     * </p>
+     * <p>
+     *   Note: For a valid SemVer 2.0.0 formatted string (e.g., "1.2.3-beta+build"),
+     *   use {@link #echo()} instead.
+     * </p>
+     *
+     * @return a debug string representation of this version
+     *
+     * @since 1.0.0
+     */
     @Override
     public String toString() {
         return new StringJoiner(", ", SemVer.class.getSimpleName() + "[", "]")
