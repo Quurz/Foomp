@@ -46,7 +46,7 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *
  * @author Alexander Schell
  */
-public class Zipper {
+public final class Zipper {
 
     /**
      * <div>

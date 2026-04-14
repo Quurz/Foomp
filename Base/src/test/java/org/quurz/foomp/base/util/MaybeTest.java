@@ -547,7 +547,7 @@ class MaybeTest
                     checkIsSomeWithValue(zipped, SOME_STRING_VALUE + 3);
                 });
 
-                // zipper liefert null -> NPE über requiresNonNullResult2(...)
+                // zipper liefert null -> NPE über requireNonNullResult2(...)
                 assertThatThrownBy(() -> {
                     final var a = some(SOME_STRING_VALUE);
                     final var b = some(3);

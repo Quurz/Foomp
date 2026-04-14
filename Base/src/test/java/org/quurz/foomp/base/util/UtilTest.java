@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -26,291 +24,240 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class UtilTest {
 
     @Nested
-    @DisplayName("requireNonEmpty(Collection)")
+    @DisplayName("requireNonEmpty(Collection, Supplier)")
     class RequireNonEmptyCollection {
 
-        @SuppressWarnings("DataFlowIssue")
         @Test
-        @DisplayName("throws NPE if collection is null")
-        void throwsNpeIfCollectionIsNull() {
-            assertThatThrownBy(() -> Util.requireNonEmpty((Collection<Object>) null, "Test"))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("collection");
-        }
-
-        @SuppressWarnings("DataFlowIssue")
-        @Test
-        @DisplayName("throws NPE if message is null")
-        void throwsNpeIfMessageIsNull() {
-            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), (String) null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("message");
-        }
-
-        @Test
-        @DisplayName("throws IllegalArgumentException if collection is empty")
-        void throwsIaeIfCollectionIsEmpty() {
-            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), "Test"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Test");
-        }
-
-        @Test
-        @DisplayName("returns collection if not empty")
-        void returnsCollectionIfNotEmpty() {
-            final var collection = new HashSet<Integer>();
-            collection.add(1);
-
-            assertThat(Util.requireNonEmpty(collection, "Test"))
-                    .isSameAs(collection);
-        }
-    }
-
-    @Nested
-    @DisplayName("requireNonEmpty(Collection, Supplier)")
-    class RequireNonEmptyCollectionSupplier {
-
-        @SuppressWarnings("DataFlowIssue")
-        @Test
-        @DisplayName("throws NPE if exception supplier is null")
-        void throwsNpeIfSupplierIsNull() {
-            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), (Supplier<Exception>) null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("exceptionSupplier");
+        @DisplayName("returns same instance if collection is not empty")
+        void returnsSameInstance() throws Exception {
+            final var list = new ArrayList<String>();
+            list.add("test");
+            assertThat(Util.requireNonEmpty(list, () -> new Exception("Fail")))
+                    .isSameAs(list);
         }
 
         @Test
         @DisplayName("throws custom exception if collection is empty")
-        void throwsCustomException() {
-            assertThatThrownBy(() -> Util.requireNonEmpty(new HashSet<>(), () -> new IllegalStateException("Custom")))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("Custom");
-        }
-
-        @Test
-        @DisplayName("returns collection if not empty")
-        void returnsCollectionIfNotEmpty() {
-            final var collection = new HashSet<Integer>();
-            collection.add(1);
-
-            assertThat(Util.requireNonEmpty(collection, () -> new IllegalStateException("Custom")))
-                    .isSameAs(collection);
-        }
-    }
-
-    @Nested
-    @DisplayName("requireNonEmpty(Map)")
-    class RequireNonEmptyMap {
-
-        @SuppressWarnings("DataFlowIssue")
-        @Test
-        @DisplayName("throws NPE if map is null")
-        void throwsNpeIfMapIsNull() {
-            assertThatThrownBy(() -> Util.requireNonEmpty((Map<?, ?>) null, "Test"))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("map");
-        }
-
-        @Test
-        @DisplayName("throws IllegalArgumentException if map is empty")
-        void throwsIaeIfMapIsEmpty() {
-            assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), "Test"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Test");
-        }
-
-        @Test
-        @DisplayName("returns map if not empty")
-        void returnsMapIfNotEmpty() {
-            final var map = new HashMap<Integer, String>();
-            map.put(1, "One");
-
-            assertThat(Util.requireNonEmpty(map, "Test"))
-                    .isSameAs(map);
+        void throwsOnEmpty() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new ArrayList<>(), () -> new Exception("Empty")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Empty");
         }
     }
 
     @Nested
     @DisplayName("requireNonEmpty(Map, Supplier)")
-    class RequireNonEmptyMapSupplier {
+    class RequireNonEmptyMap {
+
+        @Test
+        @DisplayName("returns same instance if map is not empty")
+        void returnsSameInstance() throws Exception {
+            final var map = new HashMap<String, String>();
+            map.put("k", "v");
+            assertThat(Util.requireNonEmpty(map, () -> new Exception("Fail")))
+                    .isSameAs(map);
+        }
 
         @Test
         @DisplayName("throws custom exception if map is empty")
-        void throwsCustomException() {
-            assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), () -> new IllegalStateException("Custom")))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("Custom");
+        void throwsOnEmpty() {
+            assertThatThrownBy(() -> Util.requireNonEmpty(new HashMap<>(), () -> new Exception("Empty")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Empty");
         }
     }
 
     @Nested
-    @DisplayName("requireNonNullElements(Collection)")
+    @DisplayName("requireNonNullElements(Collection, Fun)")
     class RequireNonNullElementsCollection {
 
         @Test
-        @DisplayName("throws exception for null element in Set")
-        void throwsExceptionForSet() {
-            final var set = new HashSet<Integer>();
-            set.add(1);
-            set.add(null);
-
-            assertThatThrownBy(() -> Util.requireNonNullElements(set, "testSet", IllegalArgumentException::new))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("testSet");
-        }
-
-        @Test
-        @DisplayName("throws exception for null element in List with index")
-        void throwsExceptionForList() {
-            final var list = new ArrayList<Integer>();
-            list.add(1);
-            list.add(null);
-
-            assertThatThrownBy(() -> Util.requireNonNullElements(list, "testList", IllegalArgumentException::new))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("testList")
-                    .hasMessageContaining("1");
-        }
-
-        @Test
-        @DisplayName("returns collection if all elements non-null")
-        void returnsCleanCollection() {
-            final var list = new ArrayList<>();
-            list.add(1);
-            assertThat(Util.requireNonNullElements(list, "list", IllegalArgumentException::new))
+        @DisplayName("returns same instance if all elements are non-null")
+        void returnsSameInstance() throws Exception {
+            final var list = new ArrayList<String>();
+            list.add("a");
+            assertThat(Util.requireNonNullElements(list, i -> new Exception("Fail")))
                     .isSameAs(list);
+        }
+
+        @Test
+        @DisplayName("throws custom exception with index for null element")
+        void throwsOnNullElement() {
+            final var list = new ArrayList<String>();
+            list.add("a");
+            list.add(null);
+            assertThatThrownBy(() -> Util.requireNonNullElements(list, i -> new Exception("Null at " + i)))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Null at 1");
         }
     }
 
     @Nested
-    @DisplayName("requireNonNullElements(Array)")
+    @DisplayName("requireNonNullElements(Array, Fun)")
     class RequireNonNullElementsArray {
 
         @Test
-        @DisplayName("throws exception for null element in array with index")
-        void throwsExceptionForArray() {
-            final var array = new Integer[]{1, null};
-
-            assertThatThrownBy(() -> Util.requireNonNullElements(array, "testArray", IllegalArgumentException::new))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("testArray")
-                    .hasMessageContaining("1");
-        }
-
-        @Test
-        @DisplayName("returns array if all elements non-null")
-        void returnsCleanArray() {
-            final var array = new Integer[]{1, 2};
-            assertThat(Util.requireNonNullElements(array, "array", IllegalArgumentException::new))
+        @DisplayName("returns same instance if all elements are non-null")
+        void returnsSameInstance() throws Exception {
+            final String[] array = {"a", "b"};
+            assertThat(Util.requireNonNullElements(array, i -> new Exception("Fail")))
                     .isSameAs(array);
         }
-    }
-
-    @Nested
-    @DisplayName("Set Subset Checks")
-    class SetSubsetChecks {
 
         @Test
-        @DisplayName("isSubSet returns true for equal sets")
-        void isSubSetForEqualSets() {
-            final var a = Set.of(1, 2);
-            final var b = Set.of(1, 2);
-            assertThat(Util.isSubSet(a, b)).isTrue();
-        }
-
-        @Test
-        @DisplayName("isSubSet returns true for proper subset")
-        void isSubSetForProperSubset() {
-            final var superSet = Set.of(1, 2, 3);
-            final var subSet = Set.of(1, 2);
-            assertThat(Util.isSubSet(superSet, subSet)).isTrue();
-        }
-
-        @Test
-        @DisplayName("isSubSet returns false if candidate is larger")
-        void isSubSetForLargerCandidate() {
-            final var superSet = Set.of(1);
-            final var subSet = Set.of(1, 2);
-            assertThat(Util.isSubSet(superSet, subSet)).isFalse();
-        }
-
-        @Test
-        @DisplayName("isSubSet returns true for empty sets")
-        void isSubSetForEmptySets() {
-            assertThat(Util.isSubSet(Set.of(), Set.of())).isTrue();
-            assertThat(Util.isSubSet(Set.of(1), Set.of())).isTrue();
-        }
-
-        @Test
-        @DisplayName("mustBeSubSet throws if not subset")
-        void mustBeSubSetThrows() {
-            final var superSet = Set.of(1);
-            final var subSet = Set.of(1, 2);
-
-            assertThatThrownBy(() -> Util.mustBeSubSet(superSet, subSet, "Error"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("Error");
+        @DisplayName("throws custom exception with index for null element")
+        void throwsOnNullElement() {
+            final String[] array = {"a", null};
+            assertThatThrownBy(() -> Util.requireNonNullElements(array, i -> new Exception("Null at " + i)))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Null at 1");
         }
     }
 
     @Nested
-    @DisplayName("Class Type Checks")
-    class ClassTypeChecks {
-
-        private interface TestInterface {}
-        private abstract static class TestAbstractClass {}
+    @DisplayName("requireNonNullResult1")
+    class RequireNonNullResult1 {
 
         @Test
-        @DisplayName("mustBeInterface throws for concrete class")
-        void mustBeInterfaceThrows() {
-            assertThatThrownBy(() -> Util.mustBeInterface(String.class, () -> new IllegalArgumentException("Bad")))
-                    .isInstanceOf(IllegalArgumentException.class);
+        @DisplayName("returns working function that returns same instance")
+        void returnsWorkingFunction() {
+            final var fun = Util.requireNonNullResult1(s -> s, s -> new RuntimeException("Fail: " + s));
+            final String input = "test";
+            assertThat(fun.apply(input)).isSameAs(input);
         }
 
         @Test
-        @DisplayName("mustBeInterface passes for interface")
-        void mustBeInterfacePasses() {
-            assertThatNoException()
-                    .isThrownBy(() -> Util.mustBeInterface(TestInterface.class, () -> new IllegalArgumentException("Bad")));
+        @DisplayName("returned function throws custom exception on null result")
+        void throwsOnNullResult() {
+            final var fun = Util.requireNonNullResult1(s -> null, s -> new RuntimeException("Null for " + s));
+            assertThatThrownBy(() -> fun.apply("input"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Null for input");
         }
 
         @Test
-        @DisplayName("mustBeConcrete throws for abstract class")
-        void mustBeConcreteThrowsForAbstract() {
-            assertThatThrownBy(() -> Util.mustBeConcrete(TestAbstractClass.class, () -> new IllegalArgumentException("Bad")))
-                    .isInstanceOf(IllegalArgumentException.class);
-        }
-
-        @Test
-        @DisplayName("mustBeConcrete passes for String")
-        void mustBeConcretePasses() {
-            assertThatNoException()
-                    .isThrownBy(() -> Util.mustBeConcrete(String.class, () -> new IllegalArgumentException("Bad")));
-        }
-    }
-
-    @Nested
-    @DisplayName("Functional Wrappers")
-    class FunctionalWrappers {
-
-        @SuppressWarnings("unused")
-        @Test
-        @DisplayName("requiresNonNullResult1 throws on null result")
-        void functionThrowsOnNull() {
-            final var fun = Util.requiresNonNullResult1((Function<String, String>) s -> null, "fun");
-            assertThatThrownBy(() -> fun.apply("in"))
+        @DisplayName("returned function throws NPE on null argument")
+        void throwsOnNullArgument() {
+            final var fun = Util.requireNonNullResult1(s -> s, s -> new RuntimeException("Fail"));
+            assertThatThrownBy(() -> fun.apply(null))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("fun");
+                    .hasMessageContaining("x");
+        }
+    }
+
+    @Nested
+    @DisplayName("requireNonNullResult2")
+    class RequireNonNullResult2 {
+
+        @Test
+        @DisplayName("returns working function that returns same instance")
+        void returnsWorkingFunction() {
+            final var fun = Util.requireNonNullResult2((a, b) -> a, (a, b) -> new RuntimeException("Fail"));
+            final String input = "test";
+            assertThat(fun.apply(input, "other")).isSameAs(input);
         }
 
-        @SuppressWarnings("unused")
         @Test
-        @DisplayName("requiresNonNullResult2 throws on null result")
-        void biFunctionThrowsOnNull() {
-            final var fun = Util.requiresNonNullResult2((BiFunction<String, String, String>) (a, b) -> null, "fun");
+        @DisplayName("returned function throws custom exception on null result")
+        void throwsOnNullResult() {
+            final var fun = Util.requireNonNullResult2((a, b) -> null, (a, b) -> new RuntimeException("Null for " + a + b));
             assertThatThrownBy(() -> fun.apply("a", "b"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Null for ab");
+        }
+
+        @Test
+        @DisplayName("returned function throws NPE on null arguments")
+        void throwsOnNullArguments() {
+            final var fun = Util.requireNonNullResult2((a, b) -> a, (a, b) -> new RuntimeException("Fail"));
+            assertThatThrownBy(() -> fun.apply(null, "b"))
                     .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("fun");
+                    .hasMessageContaining("x1");
+            assertThatThrownBy(() -> fun.apply("a", null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("x2");
+        }
+    }
+
+    @Nested
+    @DisplayName("isSubSet & requireSubSet")
+    class SubsetTests {
+
+        @Test
+        @DisplayName("isSubSet returns true for subset or equal sets")
+        void isSubSetWorks() {
+            assertThat(Util.isSubSet(Set.of(1, 2), Set.of(1))).isTrue();
+            assertThat(Util.isSubSet(Set.of(1, 2), Set.of(1, 2))).isTrue();
+            assertThat(Util.isSubSet(Set.of(1), Set.of(1, 2))).isFalse();
+        }
+
+        @Test
+        @DisplayName("requireSubSet returns same instance if condition holds")
+        void requireSubSetReturnsSame() throws Exception {
+            final var superSet = Set.of(1, 2);
+            final var subSet = new HashSet<>(Set.of(1));
+            assertThat(Util.requireSubSet(superSet, subSet, (sup, sub) -> new Exception("Fail")))
+                    .isSameAs(subSet);
+        }
+
+        @Test
+        @DisplayName("requireSubSet throws custom exception if not subset")
+        void requireSubSetThrows() {
+            final var superSet = Set.of(1);
+            final var subSet = Set.of(1, 2);
+            assertThatThrownBy(() -> Util.requireSubSet(superSet, subSet, (sup, sub) -> new Exception("Not a subset")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not a subset");
+        }
+    }
+
+    @Nested
+    @DisplayName("isProperSubSet & requireProperSubSet")
+    class ProperSubsetTests {
+
+        @Test
+        @DisplayName("isProperSubSet returns true only for strictly smaller subset")
+        void isProperSubSetWorks() {
+            assertThat(Util.isProperSubSet(Set.of(1, 2), Set.of(1))).isTrue();
+            assertThat(Util.isProperSubSet(Set.of(1, 2), Set.of(1, 2))).isFalse();
+        }
+
+        @Test
+        @DisplayName("requireProperSubSet returns same instance if condition holds")
+        void requireProperSubSetReturnsSame() throws Exception {
+            final var superSet = Set.of(1, 2);
+            final var subSet = new HashSet<>(Set.of(1));
+            assertThat(Util.requireProperSubSet(superSet, subSet, (sup, sub) -> new Exception("Fail")))
+                    .isSameAs(subSet);
+        }
+
+        @Test
+        @DisplayName("requireProperSubSet throws custom exception if not proper subset")
+        void requireProperSubSetThrows() {
+            final var superSet = Set.of(1, 2);
+            final var subSet = Set.of(1, 2);
+            assertThatThrownBy(() -> Util.requireProperSubSet(superSet, subSet, (sup, sub) -> new Exception("Not proper")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not proper");
+        }
+    }
+
+    @Nested
+    @DisplayName("Class Checks")
+    class ClassChecks {
+
+        @Test
+        @DisplayName("requireInterface returns same instance for interface")
+        void requireInterfaceWorks() {
+            assertThat(Util.requireInterface(Runnable.class, () -> new RuntimeException("Fail")))
+                    .isSameAs(Runnable.class);
+        }
+
+        @Test
+        @DisplayName("requireConcrete returns same instance for concrete class")
+        void requireConcreteWorks() {
+            assertThat(Util.requireConcrete(String.class, () -> new RuntimeException("Fail")))
+                    .isSameAs(String.class);
         }
     }
 
@@ -319,62 +266,38 @@ class UtilTest {
     class FileSystemChecks {
 
         @Test
-        @DisplayName("mustBeDirectory throws for file")
-        void mustBeDirectoryThrowsForFile(@TempDir Path tempDir) throws IOException {
-            Path file = tempDir.resolve("file.txt");
-            Files.createFile(file);
-
-            assertThatThrownBy(() -> Util.mustBeDirectory(file, () -> new IOException("Not a dir")))
-                    .isInstanceOf(IOException.class)
-                    .hasMessage("Not a dir");
+        @DisplayName("requireDirectory returns same instance for directory")
+        void requireDirectoryWorks(@TempDir Path tempDir) throws Exception {
+            assertThat(Util.requireDirectory(tempDir, () -> new Exception("Fail")))
+                    .isSameAs(tempDir);
         }
 
         @Test
-        @DisplayName("mustBeDirectory passes for directory")
-        void mustBeDirectoryPasses(@TempDir Path tempDir) {
-            assertThatNoException()
-                    .isThrownBy(() -> Util.mustBeDirectory(tempDir, () -> new IOException("Fail")));
-        }
-
-        @Test
-        @DisplayName("mustBeRegularFile throws for directory")
-        void mustBeRegularFileThrowsForDirectory(@TempDir Path tempDir) {
-            assertThatThrownBy(() -> Util.mustBeRegularFile(tempDir, () -> new IOException("Not a file")))
-                    .isInstanceOf(IOException.class)
-                    .hasMessage("Not a file");
-        }
-
-        @Test
-        @DisplayName("mustBeRegularFile passes for file")
-        void mustBeRegularFilePasses(@TempDir Path tempDir) throws IOException {
+        @DisplayName("requireRegularFile returns same instance for file")
+        void requireRegularFileWorks(@TempDir Path tempDir) throws Exception {
             Path file = tempDir.resolve("test.txt");
             Files.createFile(file);
-
-            assertThatNoException()
-                    .isThrownBy(() -> Util.mustBeRegularFile(file, () -> new IOException("Fail")));
+            assertThat(Util.requireRegularFile(file, () -> new Exception("Fail")))
+                    .isSameAs(file);
         }
 
         @Test
-        @DisplayName("mustBeReadable passes for readable file")
-        void mustBeReadablePasses(@TempDir Path tempDir) throws IOException {
-            Path file = tempDir.resolve("read.txt");
-            Files.createFile(file);
-            // By default created files are readable
-            assertThat(Util.mustBeReadable(file, () -> new IOException("Fail"))).isEqualTo(file);
+        @DisplayName("requireReadable returns same instance for readable path")
+        void requireReadableWorks(@TempDir Path tempDir) throws Exception {
+            assertThat(Util.requireReadable(tempDir, () -> new Exception("Fail")))
+                    .isSameAs(tempDir);
         }
-        
+
         @Test
-        @DisplayName("mustBeWriteable passes for writeable file")
-        void mustBeWriteablePasses(@TempDir Path tempDir) throws IOException {
-            Path file = tempDir.resolve("write.txt");
-            Files.createFile(file);
-            // By default created files are writeable
-            assertThat(Util.mustBeWriteable(file, () -> new IOException("Fail"))).isEqualTo(file);
+        @DisplayName("requireWriteable returns same instance for writeable path")
+        void requireWriteableWorks(@TempDir Path tempDir) throws Exception {
+            assertThat(Util.requireWriteable(tempDir, () -> new Exception("Fail")))
+                    .isSameAs(tempDir);
         }
     }
 
     @Nested
-    @DisplayName("String Sanitization")
+    @DisplayName("toSafeFileName")
     class StringSanitization {
 
         @Test

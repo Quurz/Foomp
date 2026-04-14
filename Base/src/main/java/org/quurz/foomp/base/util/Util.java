@@ -38,44 +38,11 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @author Alexander Schell
  */
 public final class Util {
-
+    
     /**
      * <div>
      *     <p>
-     *         Ensures that the given collection is not empty.
-     *     </p>
-     *     <p>
-     *         Returns the same collection instance if it is not empty; otherwise throws an
-     *         {@link IllegalArgumentException} with the provided message.
-     *     </p>
-     * </div>
-     *
-     * @param collection the collection to check; must not be {@code null}
-     * @param message    the error message if the collection is empty; must not be {@code null}
-     * @param <C>        the concrete collection type
-     * @param <A>        the element type
-     * @return the same collection instance (for fluent usage)
-     * @throws NullPointerException     if {@code collection} or {@code message} is {@code null}
-     * @throws IllegalArgumentException if {@code collection} is empty
-     *
-     * @since 1.0.0
-     */
-    public static <C extends Collection<A>, A> C requireNonEmpty(final @NonNull C collection,
-                                                                 final @NonNull String message) {
-        Objects.requireNonNull(collection, nullValue("collection"));
-        Objects.requireNonNull(message, nullValue("message"));
-
-        if (collection.isEmpty()) {
-            throw new IllegalArgumentException(message);
-        }
-
-        return collection;
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Ensures that the given collection is not empty.
+     *         Requires that the given collection is not empty.
      *     </p>
      *     <p>
      *         Returns the same collection instance if it is not empty; otherwise throws the exception
@@ -110,45 +77,11 @@ public final class Util {
 
         return collection;
     }
-
+    
     /**
      * <div>
      *     <p>
-     *         Ensures that the given map is not empty.
-     *     </p>
-     *     <p>
-     *         Returns the same map instance if it is not empty; otherwise throws an
-     *         {@link IllegalArgumentException} with the provided message.
-     *     </p>
-     * </div>
-     *
-     * @param map      the map to check; must not be {@code null}
-     * @param message  the error message if the map is empty; must not be {@code null}
-     * @param <M>      the concrete map type
-     * @param <K>      key type
-     * @param <V>      value type
-     * @return the same map instance (for fluent usage)
-     * @throws NullPointerException     if {@code map} or {@code message} is {@code null}
-     * @throws IllegalArgumentException if {@code map} is empty
-     *
-     * @since 1.0.0
-     */
-    public static <M extends Map<K, V>, K, V> M requireNonEmpty(final @NonNull M map,
-                                                                final @NonNull String message) {
-        Objects.requireNonNull(map, nullValue("map"));
-        Objects.requireNonNull(message, nullValue("message"));
-
-        if (map.isEmpty()) {
-            throw new IllegalArgumentException(message);
-        }
-
-        return map;
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Ensures that the given map is not empty.
+     *         Requires that the given map is not empty.
      *     </p>
      *     <p>
      *         Returns the same map instance if it is not empty; otherwise throws the exception
@@ -188,24 +121,21 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Ensures that all elements in the given {@link Collection} are non-{@code null}.
+     *         Requires that all elements in the given collection are non-{@code null}.
      *     </p>
      *     <p>
-     *         If a {@code null} element is encountered, an exception created by
-     *         {@code exceptionConstructor} is thrown. For {@link List} instances the message
-     *         includes the index of the offending element; for other collections the container
-     *         name is included without an index.
+     *         Returns the same collection instance if all elements are non-{@code null};
+     *         otherwise throws an exception created by {@code exceptionConstructor}.
      *     </p>
      *     <p>
-     *         Contract: {@code exceptionConstructor.apply(message)} must not return {@code null}.
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
      *     </p>
      * </div>
      *
      * @param collection           the collection to check; must not be {@code null}
-     * @param collectionName       a descriptive name used in error messages; must not be {@code null}
      * @param exceptionConstructor builds the exception to throw; must not be {@code null}
-     * @param <A>                  the element type
-     * @param <C>                  the concrete collection type
+     * @param <A>                  element type
+     * @param <C>                  concrete collection type
      * @param <E>                  the exception type to be thrown
      * @return the same collection instance (for fluent usage)
      * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
@@ -214,26 +144,15 @@ public final class Util {
      * @since 1.0.0
      */
     public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElements(final @NonNull C collection,
-                                                                                             final @NonNull String collectionName,
-                                                                                             final @NonNull Fun<String, E> exceptionConstructor)
+                                                                                             final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(collection, nullValue("collection"));
-        Objects.requireNonNull(collectionName, nullValue("collectionName"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
 
-        int index
-            = 0;
+        int index = 0;
         for (final var element : collection) {
             if (element == null) {
-                if (collection instanceof List<?>) {
-                    final var message
-                        = nullElementInAt(collectionName, index);
-                    throw Objects.requireNonNull(exceptionConstructor.apply(message), nullResultFrom("exceptionConstructor"));
-                } else {
-                    final var message
-                        = nullElementIn(collectionName);
-                    throw Objects.requireNonNull(exceptionConstructor.apply(message), nullResultFrom("exceptionConstructor"));
-                }
+                throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
             }
             index++;
         }
@@ -246,25 +165,38 @@ public final class Util {
      *         Wraps a unary function and enforces a non-{@code null} result.
      *     </p>
      *     <p>
-     *         The returned {@code Fun} throws {@link NullPointerException} with a meaningful message
-     *         if the wrapped function returns {@code null}.
+     *         The returned {@code Fun} throws a {@link NullPointerException} if its input argument is
+     *         {@code null}, and an exception created by {@code exceptionConstructor} if the wrapped
+     *         function returns {@code null}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(x)} must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param function     function to wrap; must not be {@code null}
-     * @param functionName a descriptive name used in error messages; must not be {@code null}
-     * @param <X>          input type
-     * @param <Y>          result type
-     * @return a {@code Fun} that rejects {@code null} results
-     * @throws NullPointerException if {@code function} or {@code functionName} is {@code null}
+     * @param function             function to wrap; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <X>                  input type
+     * @param <Y>                  result type
+     * @param <E>                  exception type
+     * @return a {@code Fun} that rejects {@code null} arguments and {@code null} results
+     * @throws NullPointerException if {@code function} or {@code exceptionConstructor} is {@code null}
      *
      * @since 1.0.0
      */
-    public static <X, Y> Fun<X, Y> requiresNonNullResult1(final @NonNull Function<X, Y> function,
-                                                          final @NonNull String functionName) {
+    public static <X, Y, E extends RuntimeException> Fun<X, Y> requireNonNullResult1(final @NonNull Function<X, Y> function,
+                                                                                     final @NonNull Fun<X, E> exceptionConstructor)
+            throws E {
         Objects.requireNonNull(function, nullValue("function"));
-        Objects.requireNonNull(functionName, nullValue("functionName"));
-        return x -> Objects.requireNonNull(function.apply(x), nullResultFrom(functionName));
+        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
+        return x -> {
+            Objects.requireNonNull(x, nullValue("x"));
+            final var y = function.apply(x);
+            if (y == null) {
+                throw Objects.requireNonNull(exceptionConstructor.apply(x), nullResultFrom("exceptionConstructor"));
+            }
+            return y;
+        };
     }
 
     /**
@@ -273,46 +205,57 @@ public final class Util {
      *         Wraps a binary function and enforces a non-{@code null} result.
      *     </p>
      *     <p>
-     *         The returned {@code Fun2} throws {@link NullPointerException} with a meaningful message
+     *         The returned {@code Fun2} throws a {@link NullPointerException} if any of its input
+     *         arguments is {@code null}, and an exception created by {@code exceptionConstructor}
      *         if the wrapped function returns {@code null}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(x1, x2)} must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param function     function to wrap; must not be {@code null}
-     * @param functionName a descriptive name used in error messages; must not be {@code null}
-     * @param <X1>         first argument type
-     * @param <X2>         second argument type
-     * @param <Y>          result type
-     * @return a {@code Fun2} that rejects {@code null} results
-     * @throws NullPointerException if {@code function} or {@code functionName} is {@code null}
+     * @param function             function to wrap; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <X1>                 first argument type
+     * @param <X2>                 second argument type
+     * @param <Y>                  result type
+     * @param <E>                  exception type
+     * @return a {@code Fun2} that rejects {@code null} arguments and {@code null} results
+     * @throws NullPointerException if {@code function} or {@code exceptionConstructor} is {@code null}
      *
      * @since 1.0.0
      */
-
-    public static <X1, X2, Y> Fun2<X1, X2, Y> requiresNonNullResult2(final BiFunction<X1, X2, Y> function,
-                                                                     final String functionName) {
+    public static <X1, X2, Y, E extends RuntimeException> Fun2<X1, X2, Y> requireNonNullResult2(final @NonNull BiFunction<X1, X2, Y> function,
+                                                                                                final @NonNull Fun2<X1, X2, E> exceptionConstructor)
+            throws E {
         Objects.requireNonNull(function, nullValue("function"));
-        Objects.requireNonNull(functionName, nullValue("functionName"));
-        return (x1, x2) -> Objects.requireNonNull(function.apply(x1, x2), nullResultFrom(functionName));
+        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
+        return (x1, x2) -> {
+            Objects.requireNonNull(x1, nullValue("x1"));
+            Objects.requireNonNull(x2, nullValue("x2"));
+            final var y = function.apply(x1, x2);
+            if (y == null) {
+                throw Objects.requireNonNull(exceptionConstructor.apply(x1, x2), nullResultFrom("exceptionConstructor"));
+            }
+            return y;
+        };
     }
 
     /**
      * <div>
      *     <p>
-     *         Ensures that all elements in the given array are non-{@code null}.
+     *         Requires that all elements in the given array are non-{@code null}.
      *     </p>
      *     <p>
-     *         If a {@code null} element is encountered, an exception created by
-     *         {@code exceptionConstructor} is thrown. The error message includes the array name
-     *         and the index of the offending element.
+     *         Returns the same array instance if all elements are non-{@code null};
+     *         otherwise throws an exception created by {@code exceptionConstructor}.
      *     </p>
      *     <p>
-     *         Contract: {@code exceptionConstructor.apply(message)} must not return {@code null}.
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
      *     </p>
      * </div>
      *
      * @param array                the array to check; must not be {@code null}
-     * @param arrayName            a descriptive name used in error messages; must not be {@code null}
      * @param exceptionConstructor builds the exception to throw; must not be {@code null}
      * @param <A>                  element type
      * @param <E>                  the exception type to be thrown
@@ -322,20 +265,15 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    @SuppressWarnings("ConstantConditions")
     public static <A, E extends Exception> A[] requireNonNullElements(final @NonNull A[] array,
-                                                                      final @NonNull String arrayName,
-                                                                      final @NonNull Fun<String, E> exceptionConstructor)
+                                                                      final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(array, nullValue("array"));
-        Objects.requireNonNull(arrayName, nullValue("arrayName"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
 
         for (int index = 0; index < array.length; index++) {
             if (array[index] == null) {
-                final var message
-                    = nullElementInAt(arrayName, index);
-                throw Objects.requireNonNull(exceptionConstructor.apply(message), nullResultFrom("exceptionConstructor"));
+                throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
             }
         }
         return array;
@@ -344,18 +282,17 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Checks whether {@code subSet} is a proper subset of {@code superSet}.
+     *         Checks whether {@code subSet} is a subset of {@code superSet}.
      *     </p>
      *     <p>
-     *         A proper subset means every element of {@code subSet} is contained in {@code superSet},
-     *         and {@code subSet} is strictly smaller than {@code superSet}.
+     *         A subset means every element of {@code subSet} is contained in {@code superSet}.
      *     </p>
      * </div>
      *
      * @param superSet the superset; must not be {@code null}
      * @param subSet   the subset candidate; must not be {@code null}
      * @param <A>      element type
-     * @return {@code true} if {@code subSet} is a proper subset of {@code superSet}; otherwise {@code false}
+     * @return {@code true} if {@code subSet} is a subset of {@code superSet}; otherwise {@code false}
      * @throws NullPointerException if {@code superSet} or {@code subSet} is {@code null}
      *
      * @since 1.0.0
@@ -371,43 +308,119 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Ensures that {@code subSet} is a proper subset of {@code superSet}.
+     *         Requires that {@code subSet} is a subset of {@code superSet}.
      *     </p>
      *     <p>
      *         Returns the same {@code subSet} instance if the condition holds; otherwise throws
-     *         an {@link IllegalArgumentException} with the provided message.
+     *         an exception created by {@code exceptionConstructor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(superSet, subSet)} must not return {@code null}.
      *     </p>
      * </div>
      *
-     * @param superSet the superset; must not be {@code null}
-     * @param subSet   the subset candidate; must not be {@code null}
-     * @param message  the error message if {@code subSet} is not a proper subset; must not be {@code null}
-     * @param <S>      the concrete set type
-     * @param <A>      element type
+     * @param superSet             the superset; must not be {@code null}
+     * @param subSet               the subset candidate; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <S>                  the concrete set type
+     * @param <A>                  element type
+     * @param <E>                  the exception type to be thrown
      * @return the same {@code subSet} instance (for fluent usage)
-     * @throws NullPointerException     if any argument is {@code null}
-     * @throws IllegalArgumentException if {@code subSet} is not a proper subset of {@code superSet}
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if {@code subSet} is not a subset of {@code superSet}
      *
      * @since 1.0.0
      */
-    public static <S extends Set<A>, A> S mustBeSubSet(final @NonNull S superSet,
-                                                       final @NonNull S subSet,
-                                                       final @NonNull String message) {
+    public static <S extends Set<A>, A, E extends Exception> S requireSubSet(final @NonNull S superSet,
+                                                                             final @NonNull S subSet,
+                                                                             final @NonNull Fun2<S, S, E> exceptionConstructor)
+            throws E {
         Objects.requireNonNull(superSet, nullValue("superSet"));
         Objects.requireNonNull(subSet, nullValue("subSet"));
-        Objects.requireNonNull(message, nullValue("message"));
+        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
 
         if (isSubSet(superSet, subSet)) {
             return subSet;
         } else {
-            throw new IllegalArgumentException(message);
+            throw Objects.requireNonNull(exceptionConstructor.apply(superSet, subSet), nullResultFrom("exceptionConstructor"));
         }
     }
 
     /**
      * <div>
      *     <p>
-     *         Ensures that the given class represents an interface.
+     *         Checks if a set is a proper subset of another set.
+     *     </p>
+     *     <p>
+     *         A <i>proper subset</i> of a set {@code superSet} is a set {@code subSet} that
+     *         is a subset of {@code superSet} and is not equal to {@code superSet}.
+     *         Mathematically: {@code subSet ⊂ superSet}.
+     *     </p>
+     * </div>
+     *
+     * @param superSet the superset to check against; must not be {@code null}
+     * @param subSet   the potential proper subset; must not be {@code null}
+     * @param <A>      the type of elements in the sets
+     * @return {@code true} if {@code subSet} is a proper subset of {@code superSet}; {@code false} otherwise
+     * @throws NullPointerException if {@code superSet} or {@code subSet} is {@code null}
+     *
+     * @see #isSubSet(Set, Set)
+     * @since 1.0.0
+     */
+    public static <A> boolean isProperSubSet(final @NonNull Set<A> superSet,
+                                             final @NonNull Set<A> subSet) {
+        Objects.requireNonNull(superSet, nullValue("superSet"));
+        Objects.requireNonNull(subSet, nullValue("subSet"));
+
+        return isSubSet(superSet, subSet) && subSet.size() < superSet.size();
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given {@code subSet} is a proper subset of {@code superSet}.
+     *     </p>
+     *     <p>
+     *         Returns the same {@code subSet} instance if it is a proper subset; otherwise throws an
+     *         exception created by {@code exceptionConstructor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(superSet, subSet)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param superSet             the superset to check against; must not be {@code null}
+     * @param subSet               the potential proper subset; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <S>                  the concrete set type
+     * @param <A>                  the type of elements in the sets
+     * @param <E>                  the exception type to be thrown
+     * @return the same {@code subSet} instance if it is a proper subset
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if {@code subSet} is not a proper subset of {@code superSet}
+     *
+     * @see #isProperSubSet(Set, Set)
+     * @since 1.0.0
+     */
+    public static <S extends Set<A>, A, E extends Exception> S requireProperSubSet(final @NonNull S superSet,
+                                                                                   final @NonNull S subSet,
+                                                                                   final @NonNull Fun2<S, S, E> exceptionConstructor)
+            throws E {
+        Objects.requireNonNull(superSet, nullValue("superSet"));
+        Objects.requireNonNull(subSet, nullValue("subSet"));
+        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
+
+        if (isProperSubSet(superSet, subSet)) {
+            return subSet;
+        } else {
+            throw Objects.requireNonNull(exceptionConstructor.apply(superSet, subSet), nullResultFrom("exceptionConstructor"));
+        }
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given class represents an interface.
      *     </p>
      *     <p>
      *         Returns the same class object if it is an interface; otherwise throws the exception
@@ -429,8 +442,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends RuntimeException> Class<A> mustBeInterface(final @NonNull Class<A> clazz,
-                                                                           final @NonNull Supplier<E> exceptionSupplier)
+    public static <A, E extends RuntimeException> Class<A> requireInterface(final @NonNull Class<A> clazz,
+                                                                            final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(clazz, nullValue("clazz"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -444,7 +457,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Ensures that the given class represents a concrete (instantiable) class.
+     *         Requires that the given class represents a concrete (instantiable) class.
      *     </p>
      *     <p>
      *         A concrete class is neither an interface nor abstract, nor a primitive or annotation type.
@@ -467,8 +480,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends RuntimeException> Class<A> mustBeConcrete(final @NonNull Class<A> clazz,
-                                                                          final @NonNull Supplier<E> exceptionSupplier)
+    public static <A, E extends RuntimeException> Class<A> requireConcrete(final @NonNull Class<A> clazz,
+                                                                           final @NonNull Supplier<E> exceptionSupplier)
              throws E {
         Objects.requireNonNull(clazz, nullValue("clazz"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -486,7 +499,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Ensures that the given path points to a regular file.
+     *         Requires that the given path points to a regular file.
      *     </p>
      *     <p>
      *         Returns the same path instance if it is a regular file; otherwise throws the exception
@@ -507,8 +520,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <E extends Exception> Path mustBeRegularFile(final @NonNull Path path,
-                                                               final @NonNull Supplier<E> exceptionSupplier)
+    public static <E extends Exception> Path requireRegularFile(final @NonNull Path path,
+                                                                final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(path, nullValue("path"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -522,7 +535,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Ensures that the given path points to an existing directory.
+     *         Requires that the given path points to an existing directory.
      *     </p>
      *     <p>
      *         Returns the same path instance if it is a directory; otherwise throws the exception
@@ -543,8 +556,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <E extends Exception> Path mustBeDirectory(final @NonNull Path path,
-                                                             final @NonNull Supplier<E> exceptionSupplier)
+    public static <E extends Exception> Path requireDirectory(final @NonNull Path path,
+                                                              final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(path, nullValue("path"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -558,7 +571,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Ensures that the given path is readable.
+     *         Requires that the given path is readable.
      *     </p>
      *     <p>
      *         Returns the same path instance if it is readable; otherwise throws the exception
@@ -579,8 +592,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <E extends Exception> Path mustBeReadable(final @NonNull Path path,
-                                                            final @NonNull Supplier<E> exceptionSupplier)
+    public static <E extends Exception> Path requireReadable(final @NonNull Path path,
+                                                             final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(path, nullValue("path"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -594,7 +607,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Ensures that the given path is writable.
+     *         Requires that the given path is writable.
      *     </p>
      *     <p>
      *         Returns the same path instance if it is writable; otherwise throws the exception
@@ -615,8 +628,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <E extends Exception> Path mustBeWriteable(final @NonNull Path path,
-                                                             final @NonNull Supplier<E> exceptionSupplier)
+    public static <E extends Exception> Path requireWriteable(final @NonNull Path path,
+                                                              final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(path, nullValue("path"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -647,8 +660,8 @@ public final class Util {
     public static String toSafeFileName(final @NonNull String name) {
         Objects.requireNonNull(name, nullValue("name"));
         return name
-                .replaceAll("\\s+", "_")
-                .replaceAll("[^a-zA-Z0-9._-]", "");
+            .replaceAll("\\s+", "_")
+            .replaceAll("[^a-zA-Z0-9._-]", "");
     }
 
     private Util() {}

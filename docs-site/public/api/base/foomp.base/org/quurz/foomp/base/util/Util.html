@@ -58,22 +58,22 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-summary" tabindex="0">Methodenübersicht</a></li>
 <li><a href="#method-detail" tabindex="0">Methodendetails</a>
 <ol class="toc-list">
-<li><a href="#requireNonEmpty(C,java.lang.String)" tabindex="0">requireNonEmpty(C, String)</a></li>
 <li><a href="#requireNonEmpty(C,java.util.function.Supplier)" tabindex="0">requireNonEmpty(C, Supplier)</a></li>
-<li><a href="#requireNonEmpty(M,java.lang.String)" tabindex="0">requireNonEmpty(M, String)</a></li>
 <li><a href="#requireNonEmpty(M,java.util.function.Supplier)" tabindex="0">requireNonEmpty(M, Supplier)</a></li>
-<li><a href="#requireNonNullElements(C,java.lang.String,org.quurz.foomp.base.functions.Fun)" tabindex="0">requireNonNullElements(C, String, Fun)</a></li>
-<li><a href="#requiresNonNullResult1(java.util.function.Function,java.lang.String)" tabindex="0">requiresNonNullResult1(Function, String)</a></li>
-<li><a href="#requiresNonNullResult2(java.util.function.BiFunction,java.lang.String)" tabindex="0">requiresNonNullResult2(BiFunction, String)</a></li>
-<li><a href="#requireNonNullElements(A%5B%5D,java.lang.String,org.quurz.foomp.base.functions.Fun)" tabindex="0">requireNonNullElements(A[], String, Fun)</a></li>
+<li><a href="#requireNonNullElements(C,org.quurz.foomp.base.functions.Fun)" tabindex="0">requireNonNullElements(C, Fun)</a></li>
+<li><a href="#requireNonNullResult1(java.util.function.Function,org.quurz.foomp.base.functions.Fun)" tabindex="0">requireNonNullResult1(Function, Fun)</a></li>
+<li><a href="#requireNonNullResult2(java.util.function.BiFunction,org.quurz.foomp.base.functions.Fun2)" tabindex="0">requireNonNullResult2(BiFunction, Fun2)</a></li>
+<li><a href="#requireNonNullElements(A%5B%5D,org.quurz.foomp.base.functions.Fun)" tabindex="0">requireNonNullElements(A[], Fun)</a></li>
 <li><a href="#isSubSet(java.util.Set,java.util.Set)" tabindex="0">isSubSet(Set, Set)</a></li>
-<li><a href="#mustBeSubSet(S,S,java.lang.String)" tabindex="0">mustBeSubSet(S, S, String)</a></li>
-<li><a href="#mustBeInterface(java.lang.Class,java.util.function.Supplier)" tabindex="0">mustBeInterface(Class, Supplier)</a></li>
-<li><a href="#mustBeConcrete(java.lang.Class,java.util.function.Supplier)" tabindex="0">mustBeConcrete(Class, Supplier)</a></li>
-<li><a href="#mustBeRegularFile(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">mustBeRegularFile(Path, Supplier)</a></li>
-<li><a href="#mustBeDirectory(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">mustBeDirectory(Path, Supplier)</a></li>
-<li><a href="#mustBeReadable(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">mustBeReadable(Path, Supplier)</a></li>
-<li><a href="#mustBeWriteable(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">mustBeWriteable(Path, Supplier)</a></li>
+<li><a href="#requireSubSet(S,S,org.quurz.foomp.base.functions.Fun2)" tabindex="0">requireSubSet(S, S, Fun2)</a></li>
+<li><a href="#isProperSubSet(java.util.Set,java.util.Set)" tabindex="0">isProperSubSet(Set, Set)</a></li>
+<li><a href="#requireProperSubSet(S,S,org.quurz.foomp.base.functions.Fun2)" tabindex="0">requireProperSubSet(S, S, Fun2)</a></li>
+<li><a href="#requireInterface(java.lang.Class,java.util.function.Supplier)" tabindex="0">requireInterface(Class, Supplier)</a></li>
+<li><a href="#requireConcrete(java.lang.Class,java.util.function.Supplier)" tabindex="0">requireConcrete(Class, Supplier)</a></li>
+<li><a href="#requireRegularFile(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">requireRegularFile(Path, Supplier)</a></li>
+<li><a href="#requireDirectory(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">requireDirectory(Path, Supplier)</a></li>
+<li><a href="#requireReadable(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">requireReadable(Path, Supplier)</a></li>
+<li><a href="#requireWriteable(java.nio.file.Path,java.util.function.Supplier)" tabindex="0">requireWriteable(Path, Supplier)</a></li>
 <li><a href="#toSafeFileName(java.lang.String)" tabindex="0">toSafeFileName(String)</a></li>
 </ol>
 </li>
@@ -122,71 +122,70 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Methode</div>
 <div class="table-header col-last">Beschreibung</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A&gt;&nbsp;boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isSubSet(java.util.Set,java.util.Set)" class="member-name-link">isSubSet</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;superSet,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isProperSubSet(java.util.Set,java.util.Set)" class="member-name-link">isProperSubSet</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;superSet,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;subSet)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a><wbr>&lt;A&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mustBeConcrete(java.lang.Class,java.util.function.Supplier)" class="member-name-link">mustBeConcrete</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A&gt;&nbsp;boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isSubSet(java.util.Set,java.util.Set)" class="member-name-link">isSubSet</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;superSet,
+ @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;subSet)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mustBeDirectory(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">mustBeDirectory</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a><wbr>&lt;A&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mustBeInterface(java.lang.Class,java.util.function.Supplier)" class="member-name-link">mustBeInterface</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mustBeReadable(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">mustBeReadable</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a><wbr>&lt;A&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireConcrete(java.lang.Class,java.util.function.Supplier)" class="member-name-link">requireConcrete</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mustBeRegularFile(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">mustBeRegularFile</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireDirectory(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">requireDirectory</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;S extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;, A&gt;<br>S</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mustBeSubSet(S,S,java.lang.String)" class="member-name-link">mustBeSubSet</a><wbr>(@NonNull S&nbsp;superSet,
- @NonNull S&nbsp;subSet,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mustBeWriteable(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">mustBeWriteable</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a><wbr>&lt;A&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireInterface(java.lang.Class,java.util.function.Supplier)" class="member-name-link">requireInterface</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;C extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Collection</a>&lt;A&gt;, A&gt;<br>C</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonEmpty(C,java.lang.String)" class="member-name-link">requireNonEmpty</a><wbr>(@NonNull C&nbsp;collection,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;C extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Collection</a>&lt;A&gt;, A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>C</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonEmpty(C,java.util.function.Supplier)" class="member-name-link">requireNonEmpty</a><wbr>(@NonNull C&nbsp;collection,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;M extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Map.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Map</a>&lt;K,<wbr>V&gt;, K, V&gt;<br>M</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonEmpty(M,java.lang.String)" class="member-name-link">requireNonEmpty</a><wbr>(@NonNull M&nbsp;map,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;M extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Map.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Map</a>&lt;K,<wbr>V&gt;, K, V, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>M</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonEmpty(M,java.util.function.Supplier)" class="member-name-link">requireNonEmpty</a><wbr>(@NonNull M&nbsp;map,
+ @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;M extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Map.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Map</a>&lt;K,<wbr>V&gt;, K, V, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>M</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonEmpty(M,java.util.function.Supplier)" class="member-name-link">requireNonEmpty</a><wbr>(@NonNull M&nbsp;map,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>A[]</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonNullElements(A%5B%5D,org.quurz.foomp.base.functions.Fun)" class="member-name-link">requireNonNullElements</a><wbr>(@NonNull A[]&nbsp;array,
+ @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Integer.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Integer</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, C extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Collection</a>&lt;A&gt;, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>C</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonNullElements(C,org.quurz.foomp.base.functions.Fun)" class="member-name-link">requireNonNullElements</a><wbr>(@NonNull C&nbsp;collection,
+ @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Integer.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Integer</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;X, Y, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;<br><a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a><wbr>&lt;X,<wbr>Y&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonNullResult1(java.util.function.Function,org.quurz.foomp.base.functions.Fun)" class="member-name-link">requireNonNullResult1</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Function</a>&lt;X,<wbr>Y&gt;&nbsp;function,
+ @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;X,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;X1, X2, Y, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;<br><a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a><wbr>&lt;X1,<wbr>X2,<wbr>Y&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonNullResult2(java.util.function.BiFunction,org.quurz.foomp.base.functions.Fun2)" class="member-name-link">requireNonNullResult2</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiFunction.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">BiFunction</a>&lt;X1,<wbr>X2,<wbr>Y&gt;&nbsp;function,
+ @NonNull <a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;X1,<wbr>X2,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;S extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;, A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>S</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireProperSubSet(S,S,org.quurz.foomp.base.functions.Fun2)" class="member-name-link">requireProperSubSet</a><wbr>(@NonNull S&nbsp;superSet,
+ @NonNull S&nbsp;subSet,
+ @NonNull <a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;S,<wbr>S,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireReadable(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">requireReadable</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+ @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireRegularFile(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">requireRegularFile</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>A[]</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonNullElements(A%5B%5D,java.lang.String,org.quurz.foomp.base.functions.Fun)" class="member-name-link">requireNonNullElements</a><wbr>(@NonNull A[]&nbsp;array,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;arrayName,
- @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;S extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;, A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>S</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireSubSet(S,S,org.quurz.foomp.base.functions.Fun2)" class="member-name-link">requireSubSet</a><wbr>(@NonNull S&nbsp;superSet,
+ @NonNull S&nbsp;subSet,
+ @NonNull <a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;S,<wbr>S,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;A, C extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Collection</a>&lt;A&gt;, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br>C</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireNonNullElements(C,java.lang.String,org.quurz.foomp.base.functions.Fun)" class="member-name-link">requireNonNullElements</a><wbr>(@NonNull C&nbsp;collection,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;collectionName,
- @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;X,<wbr>Y&gt;&nbsp;<a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a><wbr>&lt;X,<wbr>Y&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requiresNonNullResult1(java.util.function.Function,java.lang.String)" class="member-name-link">requiresNonNullResult1</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Function</a>&lt;X,<wbr>Y&gt;&nbsp;function,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;functionName)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;X1,<wbr>X2,<wbr>Y&gt;&nbsp;<a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a><wbr>&lt;X1,<wbr>X2,<wbr>Y&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requiresNonNullResult2(java.util.function.BiFunction,java.lang.String)" class="member-name-link">requiresNonNullResult2</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiFunction.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">BiFunction</a>&lt;X1,<wbr>X2,<wbr>Y&gt;&nbsp;function,
- <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;functionName)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;<br><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#requireWriteable(java.nio.file.Path,java.util.function.Supplier)" class="member-name-link">requireWriteable</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+ @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"></div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#toSafeFileName(java.lang.String)" class="member-name-link">toSafeFileName</a><wbr>(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
@@ -209,39 +208,6 @@ loadScripts(document, 'script');</script>
 <h2>Methodendetails</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="requireNonEmpty(C,java.lang.String)">
-<h3 id="requireNonEmpty(java.util.Collection,java.lang.String)">requireNonEmpty</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;C extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Collection</a>&lt;A&gt;, A&gt;</span>&nbsp;<span class="return-type">C</span>&nbsp;<span class="element-name">requireNonEmpty</span><wbr><span class="parameters">(@NonNull C&nbsp;collection,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;message)</span></div>
-<div class="block"><div>
-    <p>
-        Ensures that the given collection is not empty.
-    </p>
-    <p>
-        Returns the same collection instance if it is not empty; otherwise throws an
-        <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>IllegalArgumentException</code></a> with the provided message.
-    </p>
-</div></div>
-<dl class="notes">
-<dt>Typparameter:</dt>
-<dd><span id="requireNonEmpty(C,java.lang.String)-type-param-C"><code>C</code> - the concrete collection type</span></dd>
-<dd><span id="requireNonEmpty(C,java.lang.String)-type-param-A"><code>A</code> - the element type</span></dd>
-<dt>Parameter:</dt>
-<dd><code>collection</code> - the collection to check; must not be <code>null</code></dd>
-<dd><code>message</code> - the error message if the collection is empty; must not be <code>null</code></dd>
-<dt>Gibt zurück:</dt>
-<dd>the same collection instance (for fluent usage)</dd>
-<dt>Löst aus:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>collection</code> or <code>message</code> is <code>null</code></dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>collection</code> is empty</dd>
-<dt>Seit:</dt>
-<dd>1.0.0</dd>
-</dl>
-</div>
-</section>
-</li>
-<li>
 <section class="detail" id="requireNonEmpty(C,java.util.function.Supplier)">
 <h3 id="requireNonEmpty(java.util.Collection,java.util.function.Supplier)">requireNonEmpty</h3>
 <div class="horizontal-scroll">
@@ -251,7 +217,7 @@ loadScripts(document, 'script');</script>
            throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given collection is not empty.
+        Requires that the given collection is not empty.
     </p>
     <p>
         Returns the same collection instance if it is not empty; otherwise throws the exception
@@ -282,40 +248,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="requireNonEmpty(M,java.lang.String)">
-<h3 id="requireNonEmpty(java.util.Map,java.lang.String)">requireNonEmpty</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;M extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Map.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Map</a>&lt;K,<wbr>V&gt;, K, V&gt;</span>&nbsp;<span class="return-type">M</span>&nbsp;<span class="element-name">requireNonEmpty</span><wbr><span class="parameters">(@NonNull M&nbsp;map,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;message)</span></div>
-<div class="block"><div>
-    <p>
-        Ensures that the given map is not empty.
-    </p>
-    <p>
-        Returns the same map instance if it is not empty; otherwise throws an
-        <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>IllegalArgumentException</code></a> with the provided message.
-    </p>
-</div></div>
-<dl class="notes">
-<dt>Typparameter:</dt>
-<dd><span id="requireNonEmpty(M,java.lang.String)-type-param-M"><code>M</code> - the concrete map type</span></dd>
-<dd><span id="requireNonEmpty(M,java.lang.String)-type-param-K"><code>K</code> - key type</span></dd>
-<dd><span id="requireNonEmpty(M,java.lang.String)-type-param-V"><code>V</code> - value type</span></dd>
-<dt>Parameter:</dt>
-<dd><code>map</code> - the map to check; must not be <code>null</code></dd>
-<dd><code>message</code> - the error message if the map is empty; must not be <code>null</code></dd>
-<dt>Gibt zurück:</dt>
-<dd>the same map instance (for fluent usage)</dd>
-<dt>Löst aus:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>map</code> or <code>message</code> is <code>null</code></dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>map</code> is empty</dd>
-<dt>Seit:</dt>
-<dd>1.0.0</dd>
-</dl>
-</div>
-</section>
-</li>
-<li>
 <section class="detail" id="requireNonEmpty(M,java.util.function.Supplier)">
 <h3 id="requireNonEmpty(java.util.Map,java.util.function.Supplier)">requireNonEmpty</h3>
 <div class="horizontal-scroll">
@@ -325,7 +257,7 @@ loadScripts(document, 'script');</script>
            throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given map is not empty.
+        Requires that the given map is not empty.
     </p>
     <p>
         Returns the same map instance if it is not empty; otherwise throws the exception
@@ -357,36 +289,32 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="requireNonNullElements(C,java.lang.String,org.quurz.foomp.base.functions.Fun)">
-<h3 id="requireNonNullElements(java.util.Collection,java.lang.String,org.quurz.foomp.base.functions.Fun)">requireNonNullElements</h3>
+<section class="detail" id="requireNonNullElements(C,org.quurz.foomp.base.functions.Fun)">
+<h3 id="requireNonNullElements(java.util.Collection,org.quurz.foomp.base.functions.Fun)">requireNonNullElements</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;A, C extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Collection</a>&lt;A&gt;, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>
 <span class="return-type">C</span>&nbsp;<span class="element-name">requireNonNullElements</span><wbr><span class="parameters">(@NonNull C&nbsp;collection,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;collectionName,
- @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
+ @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Integer.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Integer</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
                   throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that all elements in the given <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="Klasse oder Schnittstelle in java.util" class="external-link"><code>Collection</code></a> are non-<code>null</code>.
+        Requires that all elements in the given collection are non-<code>null</code>.
     </p>
     <p>
-        If a <code>null</code> element is encountered, an exception created by
-        <code>exceptionConstructor</code> is thrown. For <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="Klasse oder Schnittstelle in java.util" class="external-link"><code>List</code></a> instances the message
-        includes the index of the offending element; for other collections the container
-        name is included without an index.
+        Returns the same collection instance if all elements are non-<code>null</code>;
+        otherwise throws an exception created by <code>exceptionConstructor</code>.
     </p>
     <p>
-        Contract: <code>exceptionConstructor.apply(message)</code> must not return <code>null</code>.
+        Contract: <code>exceptionConstructor.apply(index)</code> must not return <code>null</code>.
     </p>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="requireNonNullElements(C,java.lang.String,org.quurz.foomp.base.functions.Fun)-type-param-A"><code>A</code> - the element type</span></dd>
-<dd><span id="requireNonNullElements(C,java.lang.String,org.quurz.foomp.base.functions.Fun)-type-param-C"><code>C</code> - the concrete collection type</span></dd>
-<dd><span id="requireNonNullElements(C,java.lang.String,org.quurz.foomp.base.functions.Fun)-type-param-E"><code>E</code> - the exception type to be thrown</span></dd>
+<dd><span id="requireNonNullElements(C,org.quurz.foomp.base.functions.Fun)-type-param-A"><code>A</code> - element type</span></dd>
+<dd><span id="requireNonNullElements(C,org.quurz.foomp.base.functions.Fun)-type-param-C"><code>C</code> - concrete collection type</span></dd>
+<dd><span id="requireNonNullElements(C,org.quurz.foomp.base.functions.Fun)-type-param-E"><code>E</code> - the exception type to be thrown</span></dd>
 <dt>Parameter:</dt>
 <dd><code>collection</code> - the collection to check; must not be <code>null</code></dd>
-<dd><code>collectionName</code> - a descriptive name used in error messages; must not be <code>null</code></dd>
 <dd><code>exceptionConstructor</code> - builds the exception to throw; must not be <code>null</code></dd>
 <dt>Gibt zurück:</dt>
 <dd>the same collection instance (for fluent usage)</dd>
@@ -400,31 +328,39 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="requiresNonNullResult1(java.util.function.Function,java.lang.String)">
-<h3>requiresNonNullResult1</h3>
+<section class="detail" id="requireNonNullResult1(java.util.function.Function,org.quurz.foomp.base.functions.Fun)">
+<h3>requireNonNullResult1</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;X,<wbr>Y&gt;</span>&nbsp;<span class="return-type"><a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;X,<wbr>Y&gt;</span>&nbsp;<span class="element-name">requiresNonNullResult1</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Function</a>&lt;X,<wbr>Y&gt;&nbsp;function,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;functionName)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;X, Y, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;</span>
+<span class="return-type"><a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;X,<wbr>Y&gt;</span>&nbsp;<span class="element-name">requireNonNullResult1</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Function</a>&lt;X,<wbr>Y&gt;&nbsp;function,
+ @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;X,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
+                        throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
         Wraps a unary function and enforces a non-<code>null</code> result.
     </p>
     <p>
-        The returned <code>Fun</code> throws <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>NullPointerException</code></a> with a meaningful message
-        if the wrapped function returns <code>null</code>.
+        The returned <code>Fun</code> throws a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>NullPointerException</code></a> if its input argument is
+        <code>null</code>, and an exception created by <code>exceptionConstructor</code> if the wrapped
+        function returns <code>null</code>.
+    </p>
+    <p>
+        Contract: <code>exceptionConstructor.apply(x)</code> must not return <code>null</code>.
     </p>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="requiresNonNullResult1(java.util.function.Function,java.lang.String)-type-param-X"><code>X</code> - input type</span></dd>
-<dd><span id="requiresNonNullResult1(java.util.function.Function,java.lang.String)-type-param-Y"><code>Y</code> - result type</span></dd>
+<dd><span id="requireNonNullResult1(java.util.function.Function,org.quurz.foomp.base.functions.Fun)-type-param-X"><code>X</code> - input type</span></dd>
+<dd><span id="requireNonNullResult1(java.util.function.Function,org.quurz.foomp.base.functions.Fun)-type-param-Y"><code>Y</code> - result type</span></dd>
+<dd><span id="requireNonNullResult1(java.util.function.Function,org.quurz.foomp.base.functions.Fun)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>function</code> - function to wrap; must not be <code>null</code></dd>
-<dd><code>functionName</code> - a descriptive name used in error messages; must not be <code>null</code></dd>
+<dd><code>exceptionConstructor</code> - builds the exception to throw; must not be <code>null</code></dd>
 <dt>Gibt zurück:</dt>
-<dd>a <code>Fun</code> that rejects <code>null</code> results</dd>
+<dd>a <code>Fun</code> that rejects <code>null</code> arguments and <code>null</code> results</dd>
 <dt>Löst aus:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>function</code> or <code>functionName</code> is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>function</code> or <code>exceptionConstructor</code> is <code>null</code></dd>
+<dd><code>E</code></dd>
 <dt>Seit:</dt>
 <dd>1.0.0</dd>
 </dl>
@@ -432,32 +368,40 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="requiresNonNullResult2(java.util.function.BiFunction,java.lang.String)">
-<h3>requiresNonNullResult2</h3>
+<section class="detail" id="requireNonNullResult2(java.util.function.BiFunction,org.quurz.foomp.base.functions.Fun2)">
+<h3>requireNonNullResult2</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;X1,<wbr>X2,<wbr>Y&gt;</span>&nbsp;<span class="return-type"><a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;X1,<wbr>X2,<wbr>Y&gt;</span>&nbsp;<span class="element-name">requiresNonNullResult2</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiFunction.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">BiFunction</a>&lt;X1,<wbr>X2,<wbr>Y&gt;&nbsp;function,
- <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;functionName)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;X1, X2, Y, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;</span>
+<span class="return-type"><a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;X1,<wbr>X2,<wbr>Y&gt;</span>&nbsp;<span class="element-name">requireNonNullResult2</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiFunction.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">BiFunction</a>&lt;X1,<wbr>X2,<wbr>Y&gt;&nbsp;function,
+ @NonNull <a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;X1,<wbr>X2,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
+                             throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
         Wraps a binary function and enforces a non-<code>null</code> result.
     </p>
     <p>
-        The returned <code>Fun2</code> throws <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>NullPointerException</code></a> with a meaningful message
+        The returned <code>Fun2</code> throws a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>NullPointerException</code></a> if any of its input
+        arguments is <code>null</code>, and an exception created by <code>exceptionConstructor</code>
         if the wrapped function returns <code>null</code>.
+    </p>
+    <p>
+        Contract: <code>exceptionConstructor.apply(x1, x2)</code> must not return <code>null</code>.
     </p>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="requiresNonNullResult2(java.util.function.BiFunction,java.lang.String)-type-param-X1"><code>X1</code> - first argument type</span></dd>
-<dd><span id="requiresNonNullResult2(java.util.function.BiFunction,java.lang.String)-type-param-X2"><code>X2</code> - second argument type</span></dd>
-<dd><span id="requiresNonNullResult2(java.util.function.BiFunction,java.lang.String)-type-param-Y"><code>Y</code> - result type</span></dd>
+<dd><span id="requireNonNullResult2(java.util.function.BiFunction,org.quurz.foomp.base.functions.Fun2)-type-param-X1"><code>X1</code> - first argument type</span></dd>
+<dd><span id="requireNonNullResult2(java.util.function.BiFunction,org.quurz.foomp.base.functions.Fun2)-type-param-X2"><code>X2</code> - second argument type</span></dd>
+<dd><span id="requireNonNullResult2(java.util.function.BiFunction,org.quurz.foomp.base.functions.Fun2)-type-param-Y"><code>Y</code> - result type</span></dd>
+<dd><span id="requireNonNullResult2(java.util.function.BiFunction,org.quurz.foomp.base.functions.Fun2)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>function</code> - function to wrap; must not be <code>null</code></dd>
-<dd><code>functionName</code> - a descriptive name used in error messages; must not be <code>null</code></dd>
+<dd><code>exceptionConstructor</code> - builds the exception to throw; must not be <code>null</code></dd>
 <dt>Gibt zurück:</dt>
-<dd>a <code>Fun2</code> that rejects <code>null</code> results</dd>
+<dd>a <code>Fun2</code> that rejects <code>null</code> arguments and <code>null</code> results</dd>
 <dt>Löst aus:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>function</code> or <code>functionName</code> is <code>null</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>function</code> or <code>exceptionConstructor</code> is <code>null</code></dd>
+<dd><code>E</code></dd>
 <dt>Seit:</dt>
 <dd>1.0.0</dd>
 </dl>
@@ -465,33 +409,30 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="requireNonNullElements(A[],java.lang.String,org.quurz.foomp.base.functions.Fun)">
-<h3 id="requireNonNullElements(java.lang.Object[],java.lang.String,org.quurz.foomp.base.functions.Fun)">requireNonNullElements</h3>
+<section class="detail" id="requireNonNullElements(A[],org.quurz.foomp.base.functions.Fun)">
+<h3 id="requireNonNullElements(java.lang.Object[],org.quurz.foomp.base.functions.Fun)">requireNonNullElements</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type">A[]</span>&nbsp;<span class="element-name">requireNonNullElements</span><wbr><span class="parameters">(@NonNull A[]&nbsp;array,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;arrayName,
- @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
+ @NonNull <a href="../functions/Fun.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Integer.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Integer</a>,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
                                                            throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that all elements in the given array are non-<code>null</code>.
+        Requires that all elements in the given array are non-<code>null</code>.
     </p>
     <p>
-        If a <code>null</code> element is encountered, an exception created by
-        <code>exceptionConstructor</code> is thrown. The error message includes the array name
-        and the index of the offending element.
+        Returns the same array instance if all elements are non-<code>null</code>;
+        otherwise throws an exception created by <code>exceptionConstructor</code>.
     </p>
     <p>
-        Contract: <code>exceptionConstructor.apply(message)</code> must not return <code>null</code>.
+        Contract: <code>exceptionConstructor.apply(index)</code> must not return <code>null</code>.
     </p>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="requireNonNullElements(A[],java.lang.String,org.quurz.foomp.base.functions.Fun)-type-param-A"><code>A</code> - element type</span></dd>
-<dd><span id="requireNonNullElements(A[],java.lang.String,org.quurz.foomp.base.functions.Fun)-type-param-E"><code>E</code> - the exception type to be thrown</span></dd>
+<dd><span id="requireNonNullElements(A[],org.quurz.foomp.base.functions.Fun)-type-param-A"><code>A</code> - element type</span></dd>
+<dd><span id="requireNonNullElements(A[],org.quurz.foomp.base.functions.Fun)-type-param-E"><code>E</code> - the exception type to be thrown</span></dd>
 <dt>Parameter:</dt>
 <dd><code>array</code> - the array to check; must not be <code>null</code></dd>
-<dd><code>arrayName</code> - a descriptive name used in error messages; must not be <code>null</code></dd>
 <dd><code>exceptionConstructor</code> - builds the exception to throw; must not be <code>null</code></dd>
 <dt>Gibt zurück:</dt>
 <dd>the same array instance (for fluent usage)</dd>
@@ -512,11 +453,10 @@ loadScripts(document, 'script');</script>
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;subSet)</span></div>
 <div class="block"><div>
     <p>
-        Checks whether <code>subSet</code> is a proper subset of <code>superSet</code>.
+        Checks whether <code>subSet</code> is a subset of <code>superSet</code>.
     </p>
     <p>
-        A proper subset means every element of <code>subSet</code> is contained in <code>superSet</code>,
-        and <code>subSet</code> is strictly smaller than <code>superSet</code>.
+        A subset means every element of <code>subSet</code> is contained in <code>superSet</code>.
     </p>
 </div></div>
 <dl class="notes">
@@ -526,7 +466,7 @@ loadScripts(document, 'script');</script>
 <dd><code>superSet</code> - the superset; must not be <code>null</code></dd>
 <dd><code>subSet</code> - the subset candidate; must not be <code>null</code></dd>
 <dt>Gibt zurück:</dt>
-<dd><code>true</code> if <code>subSet</code> is a proper subset of <code>superSet</code>; otherwise <code>false</code></dd>
+<dd><code>true</code> if <code>subSet</code> is a subset of <code>superSet</code>; otherwise <code>false</code></dd>
 <dt>Löst aus:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>superSet</code> or <code>subSet</code> is <code>null</code></dd>
 <dt>Seit:</dt>
@@ -536,34 +476,40 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mustBeSubSet(S,S,java.lang.String)">
-<h3 id="mustBeSubSet(java.util.Set,java.util.Set,java.lang.String)">mustBeSubSet</h3>
+<section class="detail" id="requireSubSet(S,S,org.quurz.foomp.base.functions.Fun2)">
+<h3 id="requireSubSet(java.util.Set,java.util.Set,org.quurz.foomp.base.functions.Fun2)">requireSubSet</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;S extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;, A&gt;</span>&nbsp;<span class="return-type">S</span>&nbsp;<span class="element-name">mustBeSubSet</span><wbr><span class="parameters">(@NonNull S&nbsp;superSet,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;S extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;, A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>
+<span class="return-type">S</span>&nbsp;<span class="element-name">requireSubSet</span><wbr><span class="parameters">(@NonNull S&nbsp;superSet,
  @NonNull S&nbsp;subSet,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">String</a>&nbsp;message)</span></div>
+ @NonNull <a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;S,<wbr>S,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
+         throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that <code>subSet</code> is a proper subset of <code>superSet</code>.
+        Requires that <code>subSet</code> is a subset of <code>superSet</code>.
     </p>
     <p>
         Returns the same <code>subSet</code> instance if the condition holds; otherwise throws
-        an <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>IllegalArgumentException</code></a> with the provided message.
+        an exception created by <code>exceptionConstructor</code>.
+    </p>
+    <p>
+        Contract: <code>exceptionConstructor.apply(superSet, subSet)</code> must not return <code>null</code>.
     </p>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="mustBeSubSet(S,S,java.lang.String)-type-param-S"><code>S</code> - the concrete set type</span></dd>
-<dd><span id="mustBeSubSet(S,S,java.lang.String)-type-param-A"><code>A</code> - element type</span></dd>
+<dd><span id="requireSubSet(S,S,org.quurz.foomp.base.functions.Fun2)-type-param-S"><code>S</code> - the concrete set type</span></dd>
+<dd><span id="requireSubSet(S,S,org.quurz.foomp.base.functions.Fun2)-type-param-A"><code>A</code> - element type</span></dd>
+<dd><span id="requireSubSet(S,S,org.quurz.foomp.base.functions.Fun2)-type-param-E"><code>E</code> - the exception type to be thrown</span></dd>
 <dt>Parameter:</dt>
 <dd><code>superSet</code> - the superset; must not be <code>null</code></dd>
 <dd><code>subSet</code> - the subset candidate; must not be <code>null</code></dd>
-<dd><code>message</code> - the error message if <code>subSet</code> is not a proper subset; must not be <code>null</code></dd>
+<dd><code>exceptionConstructor</code> - builds the exception to throw; must not be <code>null</code></dd>
 <dt>Gibt zurück:</dt>
 <dd>the same <code>subSet</code> instance (for fluent usage)</dd>
 <dt>Löst aus:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if any argument is <code>null</code></dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalArgumentException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>subSet</code> is not a proper subset of <code>superSet</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if any argument is <code>null</code> or the constructor returns <code>null</code></dd>
+<dd><code>E</code> - if <code>subSet</code> is not a subset of <code>superSet</code></dd>
 <dt>Seit:</dt>
 <dd>1.0.0</dd>
 </dl>
@@ -571,16 +517,101 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mustBeInterface(java.lang.Class,java.util.function.Supplier)">
-<h3>mustBeInterface</h3>
+<section class="detail" id="isProperSubSet(java.util.Set,java.util.Set)">
+<h3>isProperSubSet</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;</span>
-<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;</span>&nbsp;<span class="element-name">mustBeInterface</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</span>
-                  throws <span class="exceptions">E</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;A&gt;</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isProperSubSet</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;superSet,
+ @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;&nbsp;subSet)</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given class represents an interface.
+        Checks if a set is a proper subset of another set.
+    </p>
+    <p>
+        A <i>proper subset</i> of a set <code>superSet</code> is a set <code>subSet</code> that
+        is a subset of <code>superSet</code> and is not equal to <code>superSet</code>.
+        Mathematically: <code>subSet ⊂ superSet</code>.
+    </p>
+</div></div>
+<dl class="notes">
+<dt>Typparameter:</dt>
+<dd><span id="isProperSubSet(java.util.Set,java.util.Set)-type-param-A"><code>A</code> - the type of elements in the sets</span></dd>
+<dt>Parameter:</dt>
+<dd><code>superSet</code> - the superset to check against; must not be <code>null</code></dd>
+<dd><code>subSet</code> - the potential proper subset; must not be <code>null</code></dd>
+<dt>Gibt zurück:</dt>
+<dd><code>true</code> if <code>subSet</code> is a proper subset of <code>superSet</code>; <code>false</code> otherwise</dd>
+<dt>Löst aus:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if <code>superSet</code> or <code>subSet</code> is <code>null</code></dd>
+<dt>Seit:</dt>
+<dd>1.0.0</dd>
+<dt>Siehe auch:</dt>
+<dd>
+<ul class="tag-list-long">
+<li><a href="#isSubSet(java.util.Set,java.util.Set)"><code>isSubSet(Set, Set)</code></a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="requireProperSubSet(S,S,org.quurz.foomp.base.functions.Fun2)">
+<h3 id="requireProperSubSet(java.util.Set,java.util.Set,org.quurz.foomp.base.functions.Fun2)">requireProperSubSet</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;S extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html" title="Klasse oder Schnittstelle in java.util" class="external-link">Set</a>&lt;A&gt;, A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>
+<span class="return-type">S</span>&nbsp;<span class="element-name">requireProperSubSet</span><wbr><span class="parameters">(@NonNull S&nbsp;superSet,
+ @NonNull S&nbsp;subSet,
+ @NonNull <a href="../functions/Fun2.html" title="Schnittstelle in org.quurz.foomp.base.functions">Fun2</a>&lt;S,<wbr>S,<wbr>E&gt;&nbsp;exceptionConstructor)</span>
+               throws <span class="exceptions">E</span></div>
+<div class="block"><div>
+    <p>
+        Requires that the given <code>subSet</code> is a proper subset of <code>superSet</code>.
+    </p>
+    <p>
+        Returns the same <code>subSet</code> instance if it is a proper subset; otherwise throws an
+        exception created by <code>exceptionConstructor</code>.
+    </p>
+    <p>
+        Contract: <code>exceptionConstructor.apply(superSet, subSet)</code> must not return <code>null</code>.
+    </p>
+</div></div>
+<dl class="notes">
+<dt>Typparameter:</dt>
+<dd><span id="requireProperSubSet(S,S,org.quurz.foomp.base.functions.Fun2)-type-param-S"><code>S</code> - the concrete set type</span></dd>
+<dd><span id="requireProperSubSet(S,S,org.quurz.foomp.base.functions.Fun2)-type-param-A"><code>A</code> - the type of elements in the sets</span></dd>
+<dd><span id="requireProperSubSet(S,S,org.quurz.foomp.base.functions.Fun2)-type-param-E"><code>E</code> - the exception type to be thrown</span></dd>
+<dt>Parameter:</dt>
+<dd><code>superSet</code> - the superset to check against; must not be <code>null</code></dd>
+<dd><code>subSet</code> - the potential proper subset; must not be <code>null</code></dd>
+<dd><code>exceptionConstructor</code> - builds the exception to throw; must not be <code>null</code></dd>
+<dt>Gibt zurück:</dt>
+<dd>the same <code>subSet</code> instance if it is a proper subset</dd>
+<dt>Löst aus:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if any argument is <code>null</code> or the constructor returns <code>null</code></dd>
+<dd><code>E</code> - if <code>subSet</code> is not a proper subset of <code>superSet</code></dd>
+<dt>Seit:</dt>
+<dd>1.0.0</dd>
+<dt>Siehe auch:</dt>
+<dd>
+<ul class="tag-list-long">
+<li><a href="#isProperSubSet(java.util.Set,java.util.Set)"><code>isProperSubSet(Set, Set)</code></a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="requireInterface(java.lang.Class,java.util.function.Supplier)">
+<h3>requireInterface</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;</span>
+<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;</span>&nbsp;<span class="element-name">requireInterface</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
+ @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</span>
+                   throws <span class="exceptions">E</span></div>
+<div class="block"><div>
+    <p>
+        Requires that the given class represents an interface.
     </p>
     <p>
         Returns the same class object if it is an interface; otherwise throws the exception
@@ -592,8 +623,8 @@ loadScripts(document, 'script');</script>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="mustBeInterface(java.lang.Class,java.util.function.Supplier)-type-param-A"><code>A</code> - class type</span></dd>
-<dd><span id="mustBeInterface(java.lang.Class,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
+<dd><span id="requireInterface(java.lang.Class,java.util.function.Supplier)-type-param-A"><code>A</code> - class type</span></dd>
+<dd><span id="requireInterface(java.lang.Class,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>clazz</code> - class to check; must not be <code>null</code></dd>
 <dd><code>exceptionSupplier</code> - supplies the exception to throw if the check fails; must not be <code>null</code></dd>
@@ -610,16 +641,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mustBeConcrete(java.lang.Class,java.util.function.Supplier)">
-<h3>mustBeConcrete</h3>
+<section class="detail" id="requireConcrete(java.lang.Class,java.util.function.Supplier)">
+<h3>requireConcrete</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;A, E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/RuntimeException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">RuntimeException</a>&gt;</span>
-<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;</span>&nbsp;<span class="element-name">mustBeConcrete</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
+<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;</span>&nbsp;<span class="element-name">requireConcrete</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Class</a>&lt;A&gt;&nbsp;clazz,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</span>
-                 throws <span class="exceptions">E</span></div>
+                  throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given class represents a concrete (instantiable) class.
+        Requires that the given class represents a concrete (instantiable) class.
     </p>
     <p>
         A concrete class is neither an interface nor abstract, nor a primitive or annotation type.
@@ -632,8 +663,8 @@ loadScripts(document, 'script');</script>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="mustBeConcrete(java.lang.Class,java.util.function.Supplier)-type-param-A"><code>A</code> - class type</span></dd>
-<dd><span id="mustBeConcrete(java.lang.Class,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
+<dd><span id="requireConcrete(java.lang.Class,java.util.function.Supplier)-type-param-A"><code>A</code> - class type</span></dd>
+<dd><span id="requireConcrete(java.lang.Class,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>clazz</code> - class to check; must not be <code>null</code></dd>
 <dd><code>exceptionSupplier</code> - supplies the exception to throw if the check fails; must not be <code>null</code></dd>
@@ -650,15 +681,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mustBeRegularFile(java.nio.file.Path,java.util.function.Supplier)">
-<h3>mustBeRegularFile</h3>
+<section class="detail" id="requireRegularFile(java.nio.file.Path,java.util.function.Supplier)">
+<h3>requireRegularFile</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">mustBeRegularFile</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">requireRegularFile</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</span>
-                                                    throws <span class="exceptions">E</span></div>
+                                                     throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given path points to a regular file.
+        Requires that the given path points to a regular file.
     </p>
     <p>
         Returns the same path instance if it is a regular file; otherwise throws the exception
@@ -670,7 +701,7 @@ loadScripts(document, 'script');</script>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="mustBeRegularFile(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
+<dd><span id="requireRegularFile(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>path</code> - path to check; must not be <code>null</code></dd>
 <dd><code>exceptionSupplier</code> - supplies the exception to throw if the check fails; must not be <code>null</code></dd>
@@ -687,15 +718,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mustBeDirectory(java.nio.file.Path,java.util.function.Supplier)">
-<h3>mustBeDirectory</h3>
+<section class="detail" id="requireDirectory(java.nio.file.Path,java.util.function.Supplier)">
+<h3>requireDirectory</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">mustBeDirectory</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">requireDirectory</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</span>
-                                                  throws <span class="exceptions">E</span></div>
+                                                   throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given path points to an existing directory.
+        Requires that the given path points to an existing directory.
     </p>
     <p>
         Returns the same path instance if it is a directory; otherwise throws the exception
@@ -707,7 +738,7 @@ loadScripts(document, 'script');</script>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="mustBeDirectory(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
+<dd><span id="requireDirectory(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>path</code> - path to check; must not be <code>null</code></dd>
 <dd><code>exceptionSupplier</code> - supplies the exception to throw if the check fails; must not be <code>null</code></dd>
@@ -724,15 +755,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mustBeReadable(java.nio.file.Path,java.util.function.Supplier)">
-<h3>mustBeReadable</h3>
+<section class="detail" id="requireReadable(java.nio.file.Path,java.util.function.Supplier)">
+<h3>requireReadable</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">mustBeReadable</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">requireReadable</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</span>
-                                                 throws <span class="exceptions">E</span></div>
+                                                  throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given path is readable.
+        Requires that the given path is readable.
     </p>
     <p>
         Returns the same path instance if it is readable; otherwise throws the exception
@@ -744,7 +775,7 @@ loadScripts(document, 'script');</script>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="mustBeReadable(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
+<dd><span id="requireReadable(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>path</code> - path to check; must not be <code>null</code></dd>
 <dd><code>exceptionSupplier</code> - supplies the exception to throw if the check fails; must not be <code>null</code></dd>
@@ -761,15 +792,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mustBeWriteable(java.nio.file.Path,java.util.function.Supplier)">
-<h3>mustBeWriteable</h3>
+<section class="detail" id="requireWriteable(java.nio.file.Path,java.util.function.Supplier)">
+<h3>requireWriteable</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">mustBeWriteable</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;E extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Exception.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">Exception</a>&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">requireWriteable</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/file/Path.html" title="Klasse oder Schnittstelle in java.nio.file" class="external-link">Path</a>&nbsp;path,
  @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Supplier.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Supplier</a>&lt;E&gt;&nbsp;exceptionSupplier)</span>
-                                                  throws <span class="exceptions">E</span></div>
+                                                   throws <span class="exceptions">E</span></div>
 <div class="block"><div>
     <p>
-        Ensures that the given path is writable.
+        Requires that the given path is writable.
     </p>
     <p>
         Returns the same path instance if it is writable; otherwise throws the exception
@@ -781,7 +812,7 @@ loadScripts(document, 'script');</script>
 </div></div>
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="mustBeWriteable(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
+<dd><span id="requireWriteable(java.nio.file.Path,java.util.function.Supplier)-type-param-E"><code>E</code> - exception type</span></dd>
 <dt>Parameter:</dt>
 <dd><code>path</code> - path to check; must not be <code>null</code></dd>
 <dd><code>exceptionSupplier</code> - supplies the exception to throw if the check fails; must not be <code>null</code></dd>
