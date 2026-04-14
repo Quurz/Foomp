@@ -42,7 +42,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Requires that the given collection is not empty.
+     *         Requires that the given {@code collection} is not empty.
      *     </p>
      *     <p>
      *         Returns the same collection instance if it is not empty; otherwise throws the exception
@@ -81,7 +81,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Requires that the given map is not empty.
+     *         Requires that the given {@code map} is not empty.
      *     </p>
      *     <p>
      *         Returns the same map instance if it is not empty; otherwise throws the exception
@@ -282,7 +282,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Checks whether {@code subSet} is a subset of {@code superSet}.
+     *         Requires that {@code subSet} is a subset of {@code superSet}.
      *     </p>
      *     <p>
      *         A subset means every element of {@code subSet} is contained in {@code superSet}.
@@ -349,7 +349,7 @@ public final class Util {
     /**
      * <div>
      *     <p>
-     *         Checks if a set is a proper subset of another set.
+     *         Requires that {@code subSet} is a proper subset of {@code superSet}.
      *     </p>
      *     <p>
      *         A <i>proper subset</i> of a set {@code superSet} is a set {@code subSet} that

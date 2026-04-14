@@ -254,10 +254,26 @@ class UtilTest {
         }
 
         @Test
+        @DisplayName("requireInterface throws on non-interface")
+        void requireInterfaceThrows() {
+            assertThatThrownBy(() -> Util.requireInterface(String.class, () -> new RuntimeException("Not interface")))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Not interface");
+        }
+
+        @Test
         @DisplayName("requireConcrete returns same instance for concrete class")
         void requireConcreteWorks() {
             assertThat(Util.requireConcrete(String.class, () -> new RuntimeException("Fail")))
                     .isSameAs(String.class);
+        }
+
+        @Test
+        @DisplayName("requireConcrete throws on abstract class or interface")
+        void requireConcreteThrows() {
+            assertThatThrownBy(() -> Util.requireConcrete(Runnable.class, () -> new RuntimeException("Not concrete")))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Not concrete");
         }
     }
 
@@ -273,12 +289,30 @@ class UtilTest {
         }
 
         @Test
+        @DisplayName("requireDirectory throws on file")
+        void requireDirectoryThrows(@TempDir Path tempDir) throws Exception {
+            Path file = tempDir.resolve("test.txt");
+            Files.createFile(file);
+            assertThatThrownBy(() -> Util.requireDirectory(file, () -> new Exception("Not a directory")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not a directory");
+        }
+
+        @Test
         @DisplayName("requireRegularFile returns same instance for file")
         void requireRegularFileWorks(@TempDir Path tempDir) throws Exception {
             Path file = tempDir.resolve("test.txt");
             Files.createFile(file);
             assertThat(Util.requireRegularFile(file, () -> new Exception("Fail")))
                     .isSameAs(file);
+        }
+
+        @Test
+        @DisplayName("requireRegularFile throws on directory")
+        void requireRegularFileThrows(@TempDir Path tempDir) throws Exception {
+            assertThatThrownBy(() -> Util.requireRegularFile(tempDir, () -> new Exception("Not a file")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not a file");
         }
 
         @Test

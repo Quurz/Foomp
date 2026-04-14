@@ -85,6 +85,11 @@ public sealed interface Maybe<A>
         return (Maybe<A>) Objects.requireNonNull(wide, nullValue("wide"));
     }
 
+    static <A> Higher1<µ, A> wide(final @NonNull Maybe<A> narrow) {
+        Objects.requireNonNull(narrow, nullValue("narrow"));
+        return narrow;
+    }
+
     /**
      * <div>
      *   <p>

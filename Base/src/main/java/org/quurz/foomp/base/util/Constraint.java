@@ -77,7 +77,7 @@ public final class Constraint<A, FAILURE>
      * @since 1.0.0
      */
     public static <A, FAILURE> Function<A, Maybe<FAILURE>> constraintFunction(final @NonNull Predicate<? super A> check,
-                                                                                      final @NonNull Function<? super A, ? extends FAILURE> failureFunction) {
+                                                                              final @NonNull Function<? super A, ? extends FAILURE> failureFunction) {
         Objects.requireNonNull(check, nullValue("check"));
         Objects.requireNonNull(failureFunction, nullValue("failureFunction"));
 

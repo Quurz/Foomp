@@ -60,6 +60,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-detail" tabindex="0">Methodendetails</a>
 <ol class="toc-list">
 <li><a href="#narrow(org.quurz.foomp.higher.Higher1)" tabindex="0">narrow(Higher1)</a></li>
+<li><a href="#wide(org.quurz.foomp.base.util.Maybe)" tabindex="0">wide(Maybe)</a></li>
 <li><a href="#flatten(org.quurz.foomp.higher.Higher1)" tabindex="0">flatten(Higher1)</a></li>
 <li><a href="#some(A)" tabindex="0">some(A)</a></li>
 <li><a href="#maybeOfNullable(A)" tabindex="0">maybeOfNullable(A)</a></li>
@@ -254,16 +255,19 @@ extends <a href="../types/Monadic.html" title="Schnittstelle in org.quurz.foomp.
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default @NonNull <a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a><wbr>&lt;<a href="#type-param-A" title="Typparameter in Maybe">A</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#unwind()" class="member-name-link">unwind</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;B&gt;&nbsp;<a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a><wbr>&lt;B&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#with(B)" class="member-name-link">with</a><wbr>(@NonNull B&nbsp;newValue)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static &lt;A&gt;&nbsp;org.quurz.foomp.higher.Higher1<wbr>&lt;<a href="Maybe.%C2%B5.html" title="Klasse in org.quurz.foomp.base.util">Maybe.µ</a>,<wbr>A&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#wide(org.quurz.foomp.base.util.Maybe)" class="member-name-link">wide</a><wbr>(@NonNull <a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a>&lt;A&gt;&nbsp;narrow)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;B&gt;&nbsp;<a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a><wbr>&lt;B&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#withNullable(B)" class="member-name-link">withNullable</a><wbr>(B&nbsp;newValue)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#with(B)" class="member-name-link">with</a><wbr>(@NonNull B&nbsp;newValue)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"></div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;B,<wbr>C&gt;&nbsp;@NonNull <a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a><wbr>&lt;C&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#zip(org.quurz.foomp.base.util.Maybe,java.util.function.BiFunction)" class="member-name-link">zip</a><wbr>(@NonNull <a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a>&lt;B&gt;&nbsp;other,
- @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiFunction.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">BiFunction</a>&lt;<a href="#type-param-A" title="Typparameter in Maybe">A</a>,<wbr>B,<wbr>C&gt;&nbsp;zipper)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;B&gt;&nbsp;<a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a><wbr>&lt;B&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#withNullable(B)" class="member-name-link">withNullable</a><wbr>(B&nbsp;newValue)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default &lt;B,<wbr>C&gt;&nbsp;@NonNull <a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a><wbr>&lt;C&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#zip(org.quurz.foomp.base.util.Maybe,java.util.function.BiFunction)" class="member-name-link">zip</a><wbr>(@NonNull <a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a>&lt;B&gt;&nbsp;other,
+ @NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BiFunction.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">BiFunction</a>&lt;<a href="#type-param-A" title="Typparameter in Maybe">A</a>,<wbr>B,<wbr>C&gt;&nbsp;zipper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"></div>
 </div>
 </div>
 </div>
@@ -301,6 +305,15 @@ extends <a href="../types/Monadic.html" title="Schnittstelle in org.quurz.foomp.
 <dt>Seit:</dt>
 <dd>1.0.0</dd>
 </dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="wide(org.quurz.foomp.base.util.Maybe)">
+<h3>wide</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="type-parameters">&lt;A&gt;</span>
+<span class="return-type">org.quurz.foomp.higher.Higher1&lt;<a href="Maybe.%C2%B5.html" title="Klasse in org.quurz.foomp.base.util">Maybe.µ</a>,<wbr>A&gt;</span>&nbsp;<span class="element-name">wide</span><wbr><span class="parameters">(@NonNull <a href="Maybe.html" title="Schnittstelle in org.quurz.foomp.base.util">Maybe</a>&lt;A&gt;&nbsp;narrow)</span></div>
 </div>
 </section>
 </li>
