@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
  * @since 1.0.0
  * @author Alexander Schell
  */
-// TODO: Add missing tests
 public final class BaseMessages {
 
     private static final ResourceBundle RESOURCE_BUNDLE

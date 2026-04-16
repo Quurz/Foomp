@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.units.qual.N;
 import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.functions.Fun2;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -162,6 +164,44 @@ public final class Util {
     /**
      * <div>
      *     <p>
+     *         Requires that all elements in the given array are non-{@code null}.
+     *     </p>
+     *     <p>
+     *         Returns the same array instance if all elements are non-{@code null};
+     *         otherwise throws an exception created by {@code exceptionConstructor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param array                the array to check; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <A>                  element type
+     * @param <E>                  the exception type to be thrown
+     * @return the same array instance (for fluent usage)
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if a {@code null} element is found
+     *
+     * @since 1.0.0
+     */
+    public static <A, E extends Exception> A[] requireNonNullElements(final @NonNull A[] array,
+                                                                      final @NonNull Fun<Integer, E> exceptionConstructor)
+            throws E {
+        Objects.requireNonNull(array, nullValue("array"));
+        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
+
+        for (int index = 0; index < array.length; index++) {
+            if (array[index] == null) {
+                throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
+            }
+        }
+        return array;
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Wraps a unary function and enforces a non-{@code null} result.
      *     </p>
      *     <p>
@@ -239,44 +279,6 @@ public final class Util {
             }
             return y;
         };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Requires that all elements in the given array are non-{@code null}.
-     *     </p>
-     *     <p>
-     *         Returns the same array instance if all elements are non-{@code null};
-     *         otherwise throws an exception created by {@code exceptionConstructor}.
-     *     </p>
-     *     <p>
-     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
-     *     </p>
-     * </div>
-     *
-     * @param array                the array to check; must not be {@code null}
-     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
-     * @param <A>                  element type
-     * @param <E>                  the exception type to be thrown
-     * @return the same array instance (for fluent usage)
-     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
-     * @throws E                    if a {@code null} element is found
-     *
-     * @since 1.0.0
-     */
-    public static <A, E extends Exception> A[] requireNonNullElements(final @NonNull A[] array,
-                                                                      final @NonNull Fun<Integer, E> exceptionConstructor)
-            throws E {
-        Objects.requireNonNull(array, nullValue("array"));
-        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
-
-        for (int index = 0; index < array.length; index++) {
-            if (array[index] == null) {
-                throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
-            }
-        }
-        return array;
     }
 
     /**

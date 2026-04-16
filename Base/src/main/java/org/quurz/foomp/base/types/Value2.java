@@ -41,11 +41,11 @@ public interface Value2<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Haben wir was im zweiten Wert?
+     *         Returns whether the second component is present (can be retrieved without error).
      *     </p>
      * </div>
      *
-     * @return <code>true</code> falls ein Wert vorhanden ist; <code>false</code>, falls nicht
+     * @return {@code true} if the second component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */

@@ -4,12 +4,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>
@@ -32,23 +31,15 @@ import java.util.function.Supplier;
  * @author Alexander Schell
  */
 @SuppressWarnings("NonAsciiCharacters")
-public interface Seq<A>
-        extends Container<A>,
-                Value<A>,
-                Streamable<A>,
-                Iterable<A>,
-                Higher1<Seq.µ, A> {
+public interface Seq<A> {
 
-    /**
-     * <div>
-     *     <p>
-     *         Witness type used to encode {@link Seq} as a higher‑kinded type.
-     *     </p>
-     * </div>
-     *
-     * @since 1.0.0
-     */
     class µ implements WitnessType { protected µ() {} }
+
+    @SuppressWarnings("unchecked")
+    static <A> Seq<A> narrow(final @NonNull Higher1<? extends µ, A> other) {
+        Objects.requireNonNull(other, nullValue("other"));
+        return (Seq<A>) other;
+    }
 
     /**
      * <div>
@@ -101,10 +92,12 @@ public interface Seq<A>
      * </div>
      *
      * @return the tail sequence (never {@code null}); may be empty
+     * @throws NoSuchElementException if this sequence is empty
      *
      * @since 1.0.0
      */
-    @NonNull Seq<A> tail();
+    @NonNull Seq<A> tail()
+        throws NoSuchElementException;
 
     /**
      * <div>
@@ -115,6 +108,7 @@ public interface Seq<A>
      *
      * @param element the element to prepend; must not be {@code null} (unless an implementation explicitly allows it)
      * @return a new sequence with {@code element} as its head (never {@code null})
+     * @throws NullPointerException if {@code element} is {@code null} and the implementation does not support nulls
      *
      * @since 1.0.0
      */
@@ -133,7 +127,7 @@ public interface Seq<A>
      *
      * @since 1.0.0
      */
-    @NonNull Seq<A> consAll(final @NonNull Higher1<? extends Seq.µ, A> other);
+    @NonNull Seq<A> consAll(final @NonNull Higher1<? extends µ, A> other);
 
     /**
      * <div>
@@ -153,35 +147,6 @@ public interface Seq<A>
     /**
      * <div>
      *     <p>
-     *         Splits this sequence into two parts according to the given predicate.
-     *     </p>
-     * </div>
-     *
-     * @param predicate the predicate used to partition the sequence; must not be {@code null}
-     * @return a pair of sequences: elements matching the predicate, and elements not matching it
-     *
-     * @since 1.0.0
-     */
-    @NonNull Value2<? extends Seq<A>, ? extends Seq<A>> split(final @NonNull Predicate<? super A> predicate);
-
-    /**
-     * <div>
-     *     <p>
-     *         Splits this sequence into two parts according to an implementation‑specific rule.
-     *     </p>
-     * </div>
-     *
-     * @return a pair of two sub‑sequences
-     * @throws IllegalStateException if the sequence cannot be split according to the rule
-     *
-     * @since 1.0.0
-     */
-    @NonNull Value2<? extends Seq<A>, ? extends Seq<A>> split()
-            throws IllegalStateException;
-
-    /**
-     * <div>
-     *     <p>
      *         Filters this sequence by the given predicate, returning a sequence with only
      *         the elements that satisfy the predicate.
      *     </p>
@@ -189,6 +154,7 @@ public interface Seq<A>
      *
      * @param pred the filter predicate; must not be {@code null}
      * @return a new sequence containing only matching elements (never {@code null})
+     * @throws NullPointerException if {@code pred} is {@code null}
      *
      * @since 1.0.0
      */
@@ -208,6 +174,7 @@ public interface Seq<A>
      * @param init a supplier for the target collection instance; must not be {@code null}
      * @param <C>  the concrete collection type
      * @return a collection containing the elements of this sequence (never {@code null})
+     * @throws NullPointerException if {@code init} is {@code null}
      *
      * @since 1.0.0
      */
@@ -243,4 +210,17 @@ public interface Seq<A>
     default @NonNull Set<A> toSet() {
         return this.toCollection(java.util.LinkedHashSet::new);
     }
+
+    /**
+     * <div>
+     *     <p>
+     *         Returns the number of elements in this sequence.
+     *     </p>
+     * </div>
+     *
+     * @return the size of this sequence
+     *
+     * @since 1.0.0
+     */
+    int getSize();
 }

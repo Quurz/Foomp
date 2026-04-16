@@ -26,5 +26,5 @@ import org.quurz.foomp.higher.WitnessType;
  */
 public interface Monadic<WT extends WitnessType, A>
         extends Mappable<WT, A>,
-        Appliable<WT, A>,
-        Bindable<WT, A> {}
+                Appliable<WT, A>,
+                Bindable<WT, A> {}
