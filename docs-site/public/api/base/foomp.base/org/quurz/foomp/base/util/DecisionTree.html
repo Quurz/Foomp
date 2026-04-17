@@ -228,8 +228,8 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="type-parameters">&lt;F,<wbr>R&gt;</span>&nbsp;<span class="return-type"><a href="DecisionTree.html" title="Schnittstelle in org.quurz.foomp.base.util">DecisionTree</a>&lt;F,<wbr>R&gt;</span>&nbsp;<span class="element-name">decisionTree</span><wbr><span class="parameters">(@NonNull <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Function.html" title="Klasse oder Schnittstelle in java.util.function" class="external-link">Function</a>&lt;? super F, ? extends R&gt;&nbsp;transformer)</span></div>
 <div class="block"><div>
   <p>
-    Creates a leaf node that computes the final result using the given transformer function.
-    The transformer is applied to the fact when this leaf is reached during evaluation.
+    Creates a transformingLeaf node that computes the final result using the given transformer function.
+    The transformer is applied to the fact when this transformingLeaf is reached during evaluation.
   </p>
   <p>
     Variance:
@@ -250,10 +250,10 @@ loadScripts(document, 'script');</script>
   <p>
     Usage example:
   </p>
-  <pre><code>  DecisionTree&lt;String, Integer&gt; leaf =
+  <pre><code>  DecisionTree&lt;String, Integer&gt; transformingLeaf =
       DecisionTree.decisionTree(String::length); // returns the length of the input
 
-  int len = leaf.examine("abc"); // 3
+  int len = transformingLeaf.examine("abc"); // 3
   </code></pre>
 </div></div>
 <dl class="notes">
@@ -263,7 +263,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameter:</dt>
 <dd><code>transformer</code> - the function that transforms facts into results</dd>
 <dt>Gibt zurück:</dt>
-<dd>a new decision tree leaf with the specified transformer</dd>
+<dd>a new decision tree transformingLeaf with the specified transformer</dd>
 <dt>Löst aus:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">NullPointerException</a></code> - if the transformer is null</dd>
 <dt>Seit:</dt>
@@ -288,7 +288,7 @@ loadScripts(document, 'script');</script>
     <ul>
       <li>Throws <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>NullPointerException</code></a> if <code>fact</code> is <code>null</code>.</li>
       <li>Exceptions raised by predicate/transformer or subtrees are propagated.</li>
-      <li>If a leaf transformer returns <code>null</code>, a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>NullPointerException</code></a> is thrown.</li>
+      <li>If a transformingLeaf transformer returns <code>null</code>, a <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/NullPointerException.html" title="Klasse oder Schnittstelle in java.lang" class="external-link"><code>NullPointerException</code></a> is thrown.</li>
     </ul>
   </p>
   <p>

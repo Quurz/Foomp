@@ -16,8 +16,8 @@ include(":higher")
 
 /*
  * Standardmäßig erwartet Gradle die Submodule in Ordnern, die genau so heißen wie das Projekt.
- * Da hier eine verschachtelte Ordnerstruktur (z.B. unter 'Plugins/') genutzt wird,
- * müssen die Pfade zu den Projektverzeichnissen manuell zugewiesen werden.
+ * Falls eine verschachtelte Ordnerstruktur genutzt wird, müssen die Pfade zu den Projektverzeichnissen
+ * manuell zugewiesen werden.
  */
 project(":base").projectDir = file("Base")
 project(":higher").projectDir = file("Higher")

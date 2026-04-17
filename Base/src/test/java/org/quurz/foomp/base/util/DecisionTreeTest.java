@@ -7,13 +7,18 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.quurz.foomp.base.util.DecisionTree.decisionLeaf;
 import static org.quurz.foomp.base.util.DecisionTree.decisionTree;
+import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @DisplayName("DecisionTree")
@@ -37,8 +42,8 @@ class DecisionTreeTest {
                 assertThatThrownBy(
                     () -> decisionTree(
                         null,
-                        decisionTree(x -> x),
-                        decisionTree(x -> x)
+                        DecisionTree.decisionLeaf(x -> x),
+                        DecisionTree.decisionLeaf(x -> x)
                     )
                 )
                     .isInstanceOf(NullPointerException.class)
@@ -54,7 +59,7 @@ class DecisionTreeTest {
                     () -> decisionTree(
                         i -> i > 0,
                         null,
-                        decisionTree((Function<Integer, Integer>) x -> x)
+                        DecisionTree.decisionLeaf((Function<Integer, Integer>) x -> x)
                     )
                 )
                     .isInstanceOf(NullPointerException.class)
@@ -69,7 +74,7 @@ class DecisionTreeTest {
                 assertThatThrownBy(
                     () -> decisionTree(
                         i -> i > 0,
-                        decisionTree((Function<Integer, Integer>) x -> x),
+                        DecisionTree.decisionLeaf((Function<Integer, Integer>) x -> x),
                         null
                     )
                 )
@@ -85,33 +90,77 @@ class DecisionTreeTest {
                     .isThrownBy(
                         () -> decisionTree(
                                 (Integer i) -> i % 2 == 0,
-                                decisionTree(_$ -> "even"),
-                                decisionTree(_$ -> "odd")
+                                DecisionTree.decisionLeaf(_$ -> "even"),
+                                DecisionTree.decisionLeaf(_$ -> "odd")
                         )
                     );
             }
 
         }
 
+
         @Nested
-        class Leaf {
+        class TransformingAndConsumingLeaf {
 
             @SuppressWarnings("DataFlowIssue")
             @Test
             void should_throw_NPE_when_transformer_is_null() {
-                LOGGER.info("DecisionTree.decisionTree(transformer) should throw NPE when transformer is null");
+                LOGGER.info("DecisionTree.decisionLeaf(transformer, consumer) should throw NPE when transformer is null");
 
-                assertThatThrownBy(() -> decisionTree((Function<?, ?>) null))
+                assertThatThrownBy(() -> decisionLeaf(null, (Object x) -> {}))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("transformer");
+            }
+
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void should_throw_NPE_when_consumer_is_null() {
+                LOGGER.info("DecisionTree.decisionLeaf(transformer, consumer) should throw NPE when consumer is null");
+
+                assertThatThrownBy(() -> decisionLeaf(x -> x, null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("consumer");
+            }
+
+            @Test
+            void should_create_leaf_when_arguments_are_valid() {
+                LOGGER.info("DecisionTree.decisionLeaf(transformer, consumer) should create leaf on valid args");
+
+                assertThatNoException()
+                    .isThrownBy(() -> decisionLeaf(x -> x, (Object x) -> {}));
+            }
+
+        }
+
+        @Nested
+        class ConsumingAndTransformingLeaf {
+
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void should_throw_NPE_when_consumer_is_null() {
+                LOGGER.info("DecisionTree.decisionLeaf(consumer, transformer) should throw NPE when consumer is null");
+
+                assertThatThrownBy(() -> decisionLeaf(null, x -> x))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("consumer");
+            }
+
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void should_throw_NPE_when_transformer_is_null() {
+                LOGGER.info("DecisionTree.decisionLeaf(consumer, transformer) should throw NPE when transformer is null");
+
+                assertThatThrownBy(() -> decisionLeaf((Object x) -> {}, null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("transformer");
             }
 
             @Test
-            void should_create_leaf_when_transformer_is_valid() {
-                LOGGER.info("DecisionTree.decisionTree(transformer) should create leaf on valid transformer");
+            void should_create_leaf_when_arguments_are_valid() {
+                LOGGER.info("DecisionTree.decisionLeaf(consumer, transformer) should create leaf on valid args");
 
                 assertThatNoException()
-                    .isThrownBy(() -> decisionTree(String::length));
+                    .isThrownBy(() -> decisionLeaf((Object x) -> {}, x -> x));
             }
 
         }
@@ -129,8 +178,8 @@ class DecisionTreeTest {
             final var tree
                 = decisionTree(
                     x -> true,
-                    decisionTree(x -> x),
-                    decisionTree(x -> x)
+                    DecisionTree.decisionLeaf(x -> x),
+                    DecisionTree.decisionLeaf(x -> x)
                 );
 
             assertThatThrownBy(() -> tree.examine(null))
@@ -143,9 +192,9 @@ class DecisionTreeTest {
             LOGGER.info("DecisionTree Node should route to yes/no correctly");
 
             final var yes
-                = decisionTree((Function<Integer, String>) _$ -> "YES");
+                = DecisionTree.decisionLeaf((Function<Integer, String>) _$ -> "YES");
             final var no
-                = decisionTree((Function<Integer, String>) _$ -> "NO");
+                = DecisionTree.decisionLeaf((Function<Integer, String>) _$ -> "NO");
             final var node
                 = decisionTree(i -> i % 2 == 0, yes, no);
 
@@ -160,7 +209,7 @@ class DecisionTreeTest {
             LOGGER.info("DecisionTree Leaf should apply transformer to fact");
 
             final var leaf
-                = decisionTree(String::length);
+                = DecisionTree.decisionLeaf(String::length);
 
             assertThat(leaf.examine("abcd")).isEqualTo(4);
         }
@@ -170,7 +219,7 @@ class DecisionTreeTest {
             LOGGER.info("DecisionTree Leaf transformer returning null should cause NPE in examine");
 
             final var leaf
-                = decisionTree((Function<String, String>) _s -> null);
+                = DecisionTree.decisionLeaf((Function<String, String>) _s -> null);
 
             assertThatThrownBy(() -> leaf.examine("x"))
                 .isInstanceOf(NullPointerException.class);
@@ -183,11 +232,11 @@ class DecisionTreeTest {
             final DecisionTree<Integer, String> tree
                 = decisionTree(
                     i -> i < 0,
-                    decisionTree(_$ -> "NEG"),
+                    DecisionTree.decisionLeaf(_$ -> "NEG"),
                     decisionTree(
                             i -> i > 0,
-                            decisionTree(_$ -> "POS"),
-                            decisionTree(_$ -> "ZERO")
+                            DecisionTree.decisionLeaf(_$ -> "POS"),
+                            DecisionTree.decisionLeaf(_$ -> "ZERO")
                     )
                 );
 
@@ -211,8 +260,8 @@ class DecisionTreeTest {
             final DecisionTree<String, CharSequence> tree
                 = decisionTree(
                     pred,
-                    decisionTree((Function<? super String, ? extends CharSequence>) toUpper),
-                    decisionTree((Function<String, CharSequence>) s -> s)
+                    DecisionTree.decisionLeaf((Function<? super String, ? extends CharSequence>) toUpper),
+                    DecisionTree.decisionLeaf((Function<String, CharSequence>) s -> s)
                 );
 
             assertThat(tree.examine("test"))
@@ -226,11 +275,11 @@ class DecisionTreeTest {
             LOGGER.info("DecisionTree should not evaluate NO-branch when YES-branch is taken");
 
             final var dangerousNo
-                = decisionTree(
+                = DecisionTree.decisionLeaf(
                     (Function<Integer, String>) _i -> { throw new AssertionError("NO-branch must not be evaluated"); }
                 );
             final var safeYes
-                    = decisionTree((Function<Integer, String>) _i -> "SAFE-YES");
+                    = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> "SAFE-YES");
             final var node
                     = decisionTree(i -> i % 2 == 0, safeYes, dangerousNo);
 
@@ -242,11 +291,11 @@ class DecisionTreeTest {
             LOGGER.info("DecisionTree should not evaluate YES-branch when NO-branch is taken");
 
             final var dangerousYes
-                    = decisionTree((Function<Integer, String>) _i -> {
+                    = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> {
                 throw new AssertionError("YES-branch must not be evaluated");
             });
             final var safeNo
-                    = decisionTree((Function<Integer, String>) _i -> "SAFE-NO");
+                    = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> "SAFE-NO");
             final var node
                     = decisionTree(i -> i < 0, dangerousYes, safeNo);
 
@@ -258,8 +307,8 @@ class DecisionTreeTest {
             LOGGER.info("DecisionTree should propagate exceptions thrown by the predicate unchanged");
 
             final var ex = new IllegalStateException("boom from predicate");
-            final var yes = decisionTree((Function<Integer, String>) _i -> "YES");
-            final var no = decisionTree((Function<Integer, String>) _i -> "NO");
+            final var yes = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> "YES");
+            final var no = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> "NO");
             final var node = decisionTree(_i -> {
                 throw ex;
             }, yes, no);
@@ -274,11 +323,11 @@ class DecisionTreeTest {
 
             final var ex = new UnsupportedOperationException("boom from transformer");
             final var throwingLeaf
-                = decisionTree((Function<Integer, String>) _i -> {
+                = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> {
                     throw ex;
                 });
             final var okLeaf
-                = decisionTree((Function<Integer, String>) _i -> "OK");
+                = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> "OK");
 
             // Force the throwing leaf to be taken
             final var node = decisionTree(i -> i > 0, throwingLeaf, okLeaf);
@@ -287,15 +336,108 @@ class DecisionTreeTest {
                 .isSameAs(ex);
         }
 
+
+        @Test
+        void transformingAndConsumingLeaf_should_apply_transformer_and_then_consumer() {
+            LOGGER.info("DecisionTree TransformingAndConsumingLeaf should apply transformer and then side-effect");
+
+            final AtomicReference<String> sideEffectValue = new AtomicReference<>();
+            final var leaf
+                = decisionLeaf(
+                    (Integer i) -> "Value: " + i,
+                    sideEffectValue::set
+                );
+
+            final String result = leaf.examine(42);
+
+            assertThat(result).isEqualTo("Value: 42");
+            assertThat(sideEffectValue.get()).isEqualTo("Value: 42");
+        }
+
+        @Test
+        void consumingAndTransformingLeaf_should_apply_consumer_and_then_transformer() {
+            LOGGER.info("DecisionTree ConsumingAndTransformingLeaf should apply side-effect and then transformer");
+
+            final AtomicInteger sideEffectValue = new AtomicInteger();
+            final var leaf
+                = decisionLeaf(
+                    sideEffectValue::set,
+                    (Integer i) -> "Fact was: " + i
+                );
+
+            final String result = leaf.examine(123);
+
+            assertThat(result).isEqualTo("Fact was: 123");
+            assertThat(sideEffectValue.get()).isEqualTo(123);
+        }
+
+        @Test
+        void transformingAndConsumingLeaf_should_propagate_transformer_exception() {
+            LOGGER.info("DecisionTree TransformingAndConsumingLeaf should propagate transformer exceptions");
+
+            final var ex = new RuntimeException("transformer boom");
+            final var leaf = decisionLeaf(
+                (Function<Integer, Integer>) _i -> { throw ex; },
+                _res -> { throw new AssertionError("Consumer should not be called"); }
+            );
+
+            assertThatThrownBy(() -> leaf.examine(1))
+                .isSameAs(ex);
+        }
+
+        @Test
+        void transformingAndConsumingLeaf_should_propagate_consumer_exception() {
+            LOGGER.info("DecisionTree TransformingAndConsumingLeaf should propagate consumer exceptions");
+
+            final var ex = new RuntimeException("consumer boom");
+            final var leaf = decisionLeaf(
+                i -> i,
+                _res -> { throw ex; }
+            );
+
+            assertThatThrownBy(() -> leaf.examine(1))
+                .isSameAs(ex);
+        }
+
+        @Test
+        void consumingAndTransformingLeaf_should_propagate_consumer_exception() {
+            LOGGER.info("DecisionTree ConsumingAndTransformingLeaf should propagate consumer exceptions");
+
+            final var ex = new RuntimeException("consumer boom");
+            final var leaf = decisionLeaf(
+                _fact -> { throw ex; },
+                i -> i
+            );
+
+            assertThatThrownBy(() -> leaf.examine(1))
+                .isSameAs(ex);
+        }
+
+        @Test
+        void consumingAndTransformingLeaf_should_propagate_transformer_exception() {
+            LOGGER.info("DecisionTree ConsumingAndTransformingLeaf should propagate transformer exceptions");
+
+            final var ex = new RuntimeException("transformer boom");
+            final AtomicInteger callCount = new AtomicInteger();
+            final var leaf = decisionLeaf(
+                (Consumer<Integer>) _fact -> callCount.incrementAndGet(),
+                _fact -> { throw ex; }
+            );
+
+            assertThatThrownBy(() -> leaf.examine(1))
+                .isSameAs(ex);
+            assertThat(callCount.get()).isEqualTo(1);
+        }
+
         @Test
         void deeply_nested_tree_should_traverse_correctly() {
             LOGGER.info("DecisionTree deep nesting traversal should yield expected results");
 
             // Build a tree with ~8 Ebenen; YES wenn i > d, sonst spezifische NO_d
-            DecisionTree<Integer, String> tree = decisionTree(_i -> "LEAF");
+            DecisionTree<Integer, String> tree = DecisionTree.decisionLeaf(_i -> "LEAF");
             for (int d = 7; d >= 0; d--) {
                 final int depth = d;
-                final var noLeaf = decisionTree((Function<Integer, String>) _i -> "NO" + depth);
+                final var noLeaf = DecisionTree.decisionLeaf((Function<Integer, String>) _i -> "NO" + depth);
                 tree = decisionTree(i -> i > depth, tree, noLeaf);
             }
 
@@ -314,7 +456,7 @@ class DecisionTreeTest {
         void leaf_length_property_like_should_hold_for_random_strings() {
             LOGGER.info("DecisionTree leaf(String::length) should return s.length() for random inputs");
 
-            final var leaf = decisionTree(String::length);
+            final var leaf = DecisionTree.decisionLeaf(String::length);
 
             final var rnd = new java.util.Random(123456789L);
             for (int t = 0; t < 100; t++) {

@@ -81,14 +81,14 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Vererbungsbaum"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Record.html" title="Klasse oder Schnittstelle in java.lang" class="external-link">java.lang.Record</a>
-<div class="inheritance">org.quurz.foomp.base.util.DecisionTree.Leaf&lt;F,<wbr>R&gt;</div>
+<div class="inheritance">org.quurz.foomp.base.util.DecisionTree.TransformingLeaf&lt;F,<wbr>R&gt;</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>Typparameter:</dt>
-<dd><span id="type-param-F"><code>F</code> - the type of facts that this leaf processes</span></dd>
-<dd><span id="type-param-R"><code>R</code> - the type of results that this leaf produces</span></dd>
+<dd><span id="type-param-F"><code>F</code> - the type of facts that this transformingLeaf processes</span></dd>
+<dd><span id="type-param-R"><code>R</code> - the type of results that this transformingLeaf produces</span></dd>
 <dt>Datensatzkomponenten:</dt>
 <dd><code><span id="param-transformer">transformer</span></code> - the function that transforms facts into results</dd>
 </dl>
@@ -108,7 +108,7 @@ loadScripts(document, 'script');</script>
 implements <a href="DecisionTree.html" title="Schnittstelle in org.quurz.foomp.base.util">DecisionTree</a>&lt;F,<wbr>R&gt;</span></div>
 <div class="block"><div>
     <p>
-        A leaf node in the tree that contains a transformer function.
+        A transformingLeaf node in the tree that contains a transformer function.
     </p>
 </div></div>
 <dl class="notes">

@@ -1,6 +1,6 @@
 /*
  * Dies ist ein Convention-Plugin. Es kapselt gemeinsame Build-Logik,
- * die in mehreren Submodulen (Base, Automata, etc.) wiederverwendet wird.
+ * die in mehreren Submodulen (Base, Higher, etc.) wiederverwendet wird.
  * Durch 'plugins { id("buildlogic.java-conventions") }' in den Submodulen
  * wird der gesamte hier definierte Code dort aktiv.
  */

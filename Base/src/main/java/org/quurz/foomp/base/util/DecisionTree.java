@@ -3,6 +3,7 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -27,7 +28,6 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *     Error handling: any exception thrown by the predicate or by evaluating a subtree is propagated.
  *   </p>
  * </div>
-
  *
  * @param <F> the type of facts that this decision tree processes
  * @param <R> the type of results that this decision tree produces
@@ -38,7 +38,9 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  */
 public sealed interface DecisionTree<F, R>
         permits DecisionTree.Node,
-                DecisionTree.Leaf {
+                DecisionTree.TransformingLeaf,
+                DecisionTree.TransformingAndConsumingLeaf,
+                DecisionTree.ConsumingAndTransformingLeaf {
 
     /**
      * <div>
@@ -68,12 +70,11 @@ public sealed interface DecisionTree<F, R>
      *   DecisionTree<Integer, String> tree =
      *       DecisionTree.decisionTree(
      *           i -> i < 0,
-     *           DecisionTree.decisionTree(_$ -> "NEG"),
-     *           DecisionTree.decisionTree(_$ -> "NON-NEG")
+     *           DecisionTree.decisionLeaf(_$ -> "NEG"),
+     *           DecisionTree.decisionLeaf(_$ -> "NON-NEG")
      *       );
      *   }</pre>
      * </div>
-
      *
      * @param predicate the condition to evaluate for branching
      * @param yesTree   the subtree to use when the predicate evaluates to true
@@ -121,12 +122,11 @@ public sealed interface DecisionTree<F, R>
      *   </p>
      *   <pre>{@code
      *   DecisionTree<String, Integer> leaf =
-     *       DecisionTree.decisionTree(String::length); // returns the length of the input
+     *       DecisionTree.decisionLeaf(String::length); // returns the length of the input
      *
      *   int len = leaf.examine("abc"); // 3
      *   }</pre>
      * </div>
-
      *
      * @param transformer the function that transforms facts into results
      * @param <F>         the type of facts that this decision tree processes
@@ -136,9 +136,75 @@ public sealed interface DecisionTree<F, R>
      *
      * @since 1.0.0
      */
-    static <F, R> DecisionTree<F, R> decisionTree(final @NonNull Function<? super F, ? extends R> transformer) {
+    static <F, R> DecisionTree<F, R> decisionLeaf(final @NonNull Function<? super F, ? extends R> transformer) {
         Objects.requireNonNull(transformer, nullValue("transformer"));
-        return new Leaf<>(transformer);
+        return new TransformingLeaf<>(transformer);
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Creates a leaf node that computes a result using the given transformer
+     *     and then applies a side-effect to that result using the given consumer.
+     *   </p>
+     *   <p>
+     *     Error handling:
+     *     <ul>
+     *       <li>Throws {@link NullPointerException} if {@code transformer} or {@code consumer} is {@code null}.</li>
+     *       <li>Any exception thrown by {@code transformer} or {@code consumer} is propagated as-is.</li>
+     *       <li>If {@code transformer} returns {@code null}, {@link #examine(Object)} will throw
+     *           a {@link NullPointerException}.</li>
+     *     </ul>
+     *   </p>
+     * </div>
+     *
+     * @param transformer the function that transforms facts into results
+     * @param consumer    the consumer that performs a side-effect on the result
+     * @param <F>         the type of facts that this decision tree processes
+     * @param <R>         the type of results that this decision tree produces
+     * @return a new decision tree leaf with the specified transformer and consumer
+     * @throws NullPointerException if any argument is null
+     *
+     * @since 1.0.0
+     */
+    static <F, R> DecisionTree<F, R> decisionLeaf(final @NonNull Function<? super F, ? extends R> transformer,
+                                                  final @NonNull Consumer<? super R> consumer) {
+        Objects.requireNonNull(transformer, nullValue("transformer"));
+        Objects.requireNonNull(consumer, nullValue("consumer"));
+        return new TransformingAndConsumingLeaf<>(transformer, consumer);
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Creates a leaf node that performs a side-effect using the given consumer
+     *     and then computes the final result using the given transformer.
+     *   </p>
+     *   <p>
+     *     Error handling:
+     *     <ul>
+     *       <li>Throws {@link NullPointerException} if {@code consumer} or {@code transformer} is {@code null}.</li>
+     *       <li>Any exception thrown by {@code consumer} or {@code transformer} is propagated as-is.</li>
+     *       <li>If {@code transformer} returns {@code null}, {@link #examine(Object)} will throw
+     *           a {@link NullPointerException}.</li>
+     *     </ul>
+     *   </p>
+     * </div>
+     *
+     * @param consumer    the consumer that performs a side-effect on the fact
+     * @param transformer the function that transforms facts into results
+     * @param <F>         the type of facts that this decision tree processes
+     * @param <R>         the type of results that this decision tree produces
+     * @return a new decision tree leaf with the specified consumer and transformer
+     * @throws NullPointerException if any argument is null
+     *
+     * @since 1.0.0
+     */
+    static <F, R> DecisionTree<F, R> decisionLeaf(final @NonNull Consumer<? super F> consumer,
+                                                  final @NonNull Function<? super F, ? extends R> transformer) {
+        Objects.requireNonNull(transformer, nullValue("transformer"));
+        Objects.requireNonNull(consumer, nullValue("consumer"));
+        return new ConsumingAndTransformingLeaf<>(consumer, transformer);
     }
 
     /**
@@ -163,11 +229,11 @@ public sealed interface DecisionTree<F, R>
      *   DecisionTree<Integer, String> tree =
      *       DecisionTree.decisionTree(
      *           i -> i < 0,
-     *           DecisionTree.decisionTree(_$ -> "NEG"),
+     *           DecisionTree.decisionLeaf(_$ -> "NEG"),
      *           DecisionTree.decisionTree(
      *               i -> i > 0,
-     *               DecisionTree.decisionTree(_$ -> "POS"),
-     *               DecisionTree.decisionTree(_$ -> "ZERO")
+     *               DecisionTree.decisionLeaf(_$ -> "POS"),
+     *               DecisionTree.decisionLeaf(_$ -> "ZERO")
      *           )
      *       );
      *
@@ -176,7 +242,6 @@ public sealed interface DecisionTree<F, R>
      *   tree.examine( 0); // "ZERO"
      *   }</pre>
      * </div>
-
      *
      * @param fact the input fact to examine
      * @return the result produced by examining the fact
@@ -186,11 +251,26 @@ public sealed interface DecisionTree<F, R>
      */
     default R examine(final @NonNull F fact) {
         Objects.requireNonNull(fact, nullValue("fact"));
+
         return switch (this) {
-            case DecisionTree.Node<F, R> node -> node.predicate.test(fact)
-                                                    ? node.yesTree.examine(fact)
-                                                    : node.noTree.examine(fact);
-            case DecisionTree.Leaf<F, R> leaf -> Objects.requireNonNull(leaf.transformer.apply(fact), nullResultFrom("transformer"));
+            case DecisionTree.Node<F, R> node
+                -> node.predicate.test(fact)
+                    ? node.yesTree.examine(fact)
+                    : node.noTree.examine(fact);
+            case DecisionTree.TransformingLeaf<F, R> transformingLeaf
+                -> Objects.requireNonNull(transformingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
+            case DecisionTree.TransformingAndConsumingLeaf<F, R> transformingAndConsumingLeaf
+                -> {
+                    final var result
+                        = Objects.requireNonNull(transformingAndConsumingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
+                    transformingAndConsumingLeaf.consumer.accept(result);
+                    yield result;
+                }
+            case DecisionTree.ConsumingAndTransformingLeaf<F, R> consumingAndTransformingLeaf
+                -> {
+                    consumingAndTransformingLeaf.consumer.accept(fact);
+                    yield Objects.requireNonNull(consumingAndTransformingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
+                }
         };
     }
 
@@ -201,15 +281,24 @@ public sealed interface DecisionTree<F, R>
      *     </p>
      * </div>
      *
-     * @param predicate the condition to evaluate for branching
-     * @param yesTree   the subtree to use when the predicate evaluates to true
-     * @param noTree    the subtree to use when the predicate evaluates to false
-     * @param <F>       the type of facts that this node processes
-     * @param <R>       the type of results that this node produces
+     * @param <F> the type of facts that this node processes
+     * @param <R> the type of results that this node produces
      */
-    record Node<F, R>(Predicate<? super F> predicate,
-                      DecisionTree<F, ? extends R> yesTree,
-                      DecisionTree<F, ? extends R> noTree) implements DecisionTree<F, R> {
+    final class Node<F, R>
+            implements DecisionTree<F, R> {
+
+        private final Predicate<? super F> predicate;
+        private final DecisionTree<F, ? extends R> yesTree;
+        private final DecisionTree<F, ? extends R> noTree;
+
+        private Node(final Predicate<? super F> predicate,
+                     final DecisionTree<F, ? extends R> yesTree,
+                     final DecisionTree<F, ? extends R> noTree) {
+            this.predicate = predicate;
+            this.yesTree = yesTree;
+            this.noTree = noTree;
+        }
+
     }
 
     /**
@@ -219,11 +308,69 @@ public sealed interface DecisionTree<F, R>
      *     </p>
      * </div>
      *
-     * @param transformer the function that transforms facts into results
-     * @param <F>         the type of facts that this leaf processes
-     * @param <R>         the type of results that this leaf produces
+     * @param <F> the type of facts that this leaf processes
+     * @param <R> the type of results that this leaf produces
      */
-    record Leaf<F, R>(Function<? super F, ? extends R> transformer)
-            implements DecisionTree<F, R> { }
+    final class TransformingLeaf<F, R>
+            implements DecisionTree<F, R> {
+
+        private final Function<? super F, ? extends R> transformer;
+
+        private TransformingLeaf(final Function<? super F, ? extends R> transformer) {
+            this.transformer = transformer;
+        }
+
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         A leaf node in the tree that computes a result using a transformer
+     *         and then applies a side-effect using a consumer.
+     *     </p>
+     * </div>
+     *
+     * @param <F> the type of facts that this leaf processes
+     * @param <R> the type of results that this leaf produces
+     */
+    final class TransformingAndConsumingLeaf<F, R>
+        implements DecisionTree<F, R> {
+
+        private final Function<? super F, ? extends R> transformer;
+        private final Consumer<? super R> consumer;
+
+        private TransformingAndConsumingLeaf(final Function<? super F, ? extends R> transformer, final Consumer<? super R> consumer) {
+            this.transformer
+                = transformer;
+            this.consumer
+                = consumer;
+        }
+
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         A leaf node in the tree that applies a side-effect using a consumer
+     *         and then computes a result using a transformer.
+     *     </p>
+     * </div>
+     *
+     * @param <F> the type of facts that this leaf processes
+     * @param <R> the type of results that this leaf produces
+     */
+    final class ConsumingAndTransformingLeaf<F, R>
+        implements DecisionTree<F, R> {
+
+        private final Consumer<? super F> consumer;
+        private final Function<? super F, ? extends R> transformer;
+
+        private ConsumingAndTransformingLeaf(final Consumer<? super F> consumer, final Function<? super F, ? extends R> transformer) {
+            this.consumer
+                = consumer;
+            this.transformer
+                = transformer;
+        }
+    }
 
 }
