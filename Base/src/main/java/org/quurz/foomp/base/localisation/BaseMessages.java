@@ -2,6 +2,7 @@ package org.quurz.foomp.base.localisation;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -377,6 +378,25 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
+     *         Indicates that the specified path does not represent a directory.
+     *     </p>
+     * </div>
+     *
+     * @param path the path that is not a directory; must not be {@code null}
+     * @return a formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code path} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String notADirectory(final @NonNull Path path) {
+        Objects.requireNonNull(path);
+        return notADirectory(path.toString());
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Indicates that the specified path is not readable.
      *     </p>
      * </div>
@@ -391,6 +411,25 @@ public final class BaseMessages {
     public static String notReadable(final @NonNull String path) {
         Objects.requireNonNull(path);
         return String.format(RESOURCE_BUNDLE.getString("NOT_READABLE"), path);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the specified path is not readable.
+     *     </p>
+     * </div>
+     *
+     * @param path the path that is not readable; must not be {@code null}
+     * @return a formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code path} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String notReadable(final @NonNull Path path) {
+        Objects.requireNonNull(path);
+        return notReadable(path.toString());
     }
 
     /**
@@ -415,6 +454,25 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
+     *         Indicates that the specified path is not writable.
+     *     </p>
+     * </div>
+     *
+     * @param path the path that is not writable; must not be {@code null}
+     * @return a formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code path} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String notWritable(final @NonNull Path path) {
+        Objects.requireNonNull(path);
+        return notWritable(path.toString());
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Indicates that the specified path does not represent a regular file.
      *     </p>
      * </div>
@@ -429,6 +487,25 @@ public final class BaseMessages {
     public static String notARegularFile(final @NonNull String path) {
         Objects.requireNonNull(path);
         return String.format(RESOURCE_BUNDLE.getString("NOT_A_REGULAR_FILE"), path);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the specified path does not represent a regular file.
+     *     </p>
+     * </div>
+     *
+     * @param path the path that is not a regular file; must not be {@code null}
+     * @return a formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code path} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String notARegularFile(final @NonNull Path path) {
+        Objects.requireNonNull(path);
+        return notARegularFile(path.toString());
     }
 
     /**
