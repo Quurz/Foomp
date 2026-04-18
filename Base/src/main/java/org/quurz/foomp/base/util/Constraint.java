@@ -56,7 +56,7 @@ public final class Constraint<A, FAILURE>
         Objects.requireNonNull(check, nullValue("check"));
         Objects.requireNonNull(failure, nullValue("failure"));
 
-        return constraintFunction(check, _$ -> failure);
+        return constraintFunction(check, _ -> failure);
     }
 
     /**
@@ -81,7 +81,8 @@ public final class Constraint<A, FAILURE>
         Objects.requireNonNull(check, nullValue("check"));
         Objects.requireNonNull(failureFunction, nullValue("failureFunction"));
 
-        return value -> check.test(value)
+        return value
+                -> check.test(value)
                     ? none()
                     : some(Objects.requireNonNull(failureFunction.apply(value), nullResultFrom("failureFunction")));
     }
@@ -107,7 +108,7 @@ public final class Constraint<A, FAILURE>
         Objects.requireNonNull(check, nullValue("check"));
         Objects.requireNonNull(failure, nullValue("failure"));
 
-        return constraint(check, _$ -> failure);
+        return constraint(check, _ -> failure);
     }
 
     /**
