@@ -100,6 +100,30 @@ class DecisionTreeTest {
 
 
         @Nested
+        class TransformingLeaf {
+
+            @SuppressWarnings("DataFlowIssue")
+            @Test
+            void should_throw_NPE_when_transformer_is_null() {
+                LOGGER.info("DecisionTree.decisionLeaf(transformer) should throw NPE when transformer is null");
+
+                assertThatThrownBy(() -> decisionLeaf(null))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("transformer");
+            }
+
+            @Test
+            void should_create_leaf_when_transformer_is_valid() {
+                LOGGER.info("DecisionTree.decisionLeaf(transformer) should create leaf on valid transformer");
+
+                assertThatNoException()
+                    .isThrownBy(() -> decisionLeaf(x -> x));
+            }
+
+        }
+
+
+        @Nested
         class TransformingAndConsumingLeaf {
 
             @SuppressWarnings("DataFlowIssue")
@@ -427,6 +451,22 @@ class DecisionTreeTest {
             assertThatThrownBy(() -> leaf.examine(1))
                 .isSameAs(ex);
             assertThat(callCount.get()).isEqualTo(1);
+        }
+
+        @Test
+        void nothing_should_be_supported_as_result_type() {
+            LOGGER.info("DecisionTree should support Nothing as result type for side-effects");
+
+            final AtomicReference<String> log = new AtomicReference<>();
+            final DecisionTree<String, Nothing> sideEffectOnly = decisionLeaf(
+                s -> log.set("Logged: " + s),
+                s -> nothing
+            );
+
+            final Nothing result = sideEffectOnly.examine("hello");
+
+            assertThat(result).isSameAs(nothing);
+            assertThat(log.get()).isEqualTo("Logged: hello");
         }
 
         @Test

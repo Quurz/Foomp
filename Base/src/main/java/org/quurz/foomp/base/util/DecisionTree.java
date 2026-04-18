@@ -13,9 +13,8 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 /**
  * <div>
  *   <p>
- *     Creates a decision node that routes evaluation based on the given predicate:
- *     if the predicate evaluates to {@code true} for the provided fact, the {@code yesTree} is used,
- *     otherwise the {@code noTree}.
+ *     A functional decision tree implementation for routing evaluation and producing results based on input facts.
+ *     The tree consists of decision nodes (branching) and leaf nodes (final computation and optional side-effects).
  *   </p>
  *   <p>
  *     Variance:
@@ -25,7 +24,8 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *     </ul>
  *   </p>
  *   <p>
- *     Error handling: any exception thrown by the predicate or by evaluating a subtree is propagated.
+ *     Error handling: any exception thrown by a predicate, transformer, or consumer is propagated.
+ *     If a transformer returns {@code null}, {@link #examine(Object)} will throw a {@link NullPointerException}.
  *   </p>
  * </div>
  *
@@ -146,6 +146,11 @@ public sealed interface DecisionTree<F, R>
      *   <p>
      *     Creates a leaf node that computes a result using the given transformer
      *     and then applies a side-effect to that result using the given consumer.
+     *     <b>Execution order:</b> transformer -&gt; consumer -&gt; return result.
+     *   </p>
+     *   <p>
+     *     This variant is particularly useful when the side-effect (e.g., logging or status updates)
+     *     needs to access the computed result of the transformation.
      *   </p>
      *   <p>
      *     Error handling:
@@ -179,6 +184,11 @@ public sealed interface DecisionTree<F, R>
      *   <p>
      *     Creates a leaf node that performs a side-effect using the given consumer
      *     and then computes the final result using the given transformer.
+     *     <b>Execution order:</b> consumer -&gt; transformer -&gt; return result.
+     *   </p>
+     *   <p>
+     *     This variant is particularly useful when the side-effect (e.g., input validation logging or
+     *     external system notification) needs to happen before the final transformation logic runs.
      *   </p>
      *   <p>
      *     Error handling:

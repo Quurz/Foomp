@@ -63,7 +63,7 @@ A mutable alternative to `Tuple2`. It allows updating its two values and is usef
 Specialized tools for controlling logic flow and processing data streams.
 
 ### DecisionTree
-`DecisionTree<F, R>` allows modeling complex, branching business logic as a traversable, lazy tree structure based on facts.
+`DecisionTree<F, R>` allows modeling complex, branching business logic as a traversable, lazy tree structure based on facts. It is implemented as a sealed interface with internal immutable classes for nodes and leaves.
 
 ### Constraint
 `Constraint<A, FAILURE>` encapsulates a validation rule. It combines a predicate with a failure result, making it easy to build validation pipelines.

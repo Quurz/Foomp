@@ -193,20 +193,42 @@ Continuation<Integer, Integer> length = hello.map(String::length);
 int result = length.apply(len -> len * 2); // 10
 ```
 
-## DecisionTree (Rule Engines)
+## DecisionTree (Rule Engines & Branching Logic)
 
-`DecisionTree<F, R>` allows building a tree of rules that are evaluated against a "fact" object.
+`DecisionTree<F, R>` allows building a tree of rules that are evaluated against a "fact" object. It supports simple transformations as well as combined side-effects.
 
+### Basic Branching
 ```java
 import org.quurz.foomp.base.util.DecisionTree;
 
 DecisionTree<Integer, String> ageCheck = DecisionTree.decisionTree(
     age -> age >= 18,
-    DecisionTree.decisionTree(fact -> "Adult"),
-    DecisionTree.decisionTree(fact -> "Minor")
+    DecisionTree.decisionLeaf(fact -> "Adult"),
+    DecisionTree.decisionLeaf(fact -> "Minor")
 );
 
 String status = ageCheck.examine(20); // "Adult"
+```
+
+### Side-Effects in Leaves
+You can combine transformations with side-effects (Consumers). This is useful for logging or updating external state during tree traversal.
+
+#### Consumer then Transformer
+The side-effect is executed before the transformation.
+```java
+DecisionTree<String, Integer> leaf = DecisionTree.decisionLeaf(
+    fact -> System.out.println("Processing: " + fact), // Side-effect
+    fact -> fact.length()                             // Transformation
+);
+```
+
+#### Transformer then Consumer
+The side-effect is executed after the transformation and receives the transformed result.
+```java
+DecisionTree<String, Integer> leaf = DecisionTree.decisionLeaf(
+    fact -> fact.length(),                            // Transformation
+    result -> System.out.println("Result: " + result) // Side-effect on result
+);
 ```
 
 ## Constraint (Object Validation)

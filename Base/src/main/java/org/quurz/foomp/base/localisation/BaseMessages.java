@@ -511,6 +511,44 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
+     *         Indicates that the specified class is not an interface.
+     *     </p>
+     * </div>
+     *
+     * @param clazz the class that is not an interface; must not be {@code null}
+     * @return a formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code clazz} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String notAnInterface(final @NonNull Class<?> clazz) {
+        Objects.requireNonNull(clazz);
+        return String.format(RESOURCE_BUNDLE.getString("NOT_AN_INTERFACE"), clazz.getCanonicalName());
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the specified class is not a concrete class.
+     *     </p>
+     * </div>
+     *
+     * @param clazz the class that is not a concrete class; must not be {@code null}
+     * @return a formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code clazz} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String notAConcreteClass(final @NonNull Class<?> clazz) {
+        Objects.requireNonNull(clazz);
+        return String.format(RESOURCE_BUNDLE.getString("NOT_A_CONCRETE_CLASS"), clazz.getCanonicalName());
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Indicates that something unexpectedly went wrong.
      *     </p>
      * </div>

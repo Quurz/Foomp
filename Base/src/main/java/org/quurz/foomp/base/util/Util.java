@@ -451,7 +451,7 @@ public final class Util {
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
 
         if (!clazz.isInterface()) {
-            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));     // TODO: Das ist falsch
         }
         return clazz;
     }
