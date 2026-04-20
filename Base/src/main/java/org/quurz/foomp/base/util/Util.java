@@ -1,25 +1,22 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.units.qual.N;
 import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.functions.Fun2;
 
+import java.io.File;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.nullElementIn;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullElementInAt;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -444,8 +441,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends RuntimeException> Class<A> requireInterface(final @NonNull Class<A> clazz,
-                                                                            final @NonNull Supplier<E> exceptionSupplier)
+    public static <A, E extends RuntimeException> Class<A> requireInterfaceType(final @NonNull Class<A> clazz,
+                                                                                final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(clazz, nullValue("clazz"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -482,8 +479,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends RuntimeException> Class<A> requireConcrete(final @NonNull Class<A> clazz,
-                                                                           final @NonNull Supplier<E> exceptionSupplier)
+    public static <A, E extends RuntimeException> Class<A> requireConcreteType(final @NonNull Class<A> clazz,
+                                                                               final @NonNull Supplier<E> exceptionSupplier)
              throws E {
         Objects.requireNonNull(clazz, nullValue("clazz"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
@@ -496,6 +493,75 @@ public final class Util {
             throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
         }
         return clazz;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given path points to a regular file.
+     *     </p>
+     *     <p>
+     *         Returns the path as {@link Path} if it is a regular file;
+     *         otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same path as a {@link Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not a regular file
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path requireRegularFile(final @NonNull String path,
+                                                                final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        return requireRegularFile(Paths.get(path), exceptionSupplier);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given file is a regular file.
+     *     </p>
+     *     <p>
+     *         Returns the file if it is a regular file; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param file              file to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code File} instance
+     * @throws NullPointerException if {@code file} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code file} is not a regular file
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> File requireRegularFile(final @NonNull File file,
+                                                                final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(file, nullValue("file"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!Files.isRegularFile(file.toPath())) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return file;
     }
 
     /**
@@ -532,6 +598,79 @@ public final class Util {
             throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
         }
         return path;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given path points to a regular directory.
+     *     </p>
+     *     <p>
+     *         Returns the path if it is a directory; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not a directory
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path requireDirectory(final @NonNull String path,
+                                                              final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        final Path p = Paths.get(path);
+        if (!Files.isDirectory(p)) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return p;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given file is an existing directory.
+     *     </p>
+     *     <p>
+     *         Returns the file if it is a directory; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param file              file to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code File} instance
+     * @throws NullPointerException if {@code file} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code file} is not a directory
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> File requireDirectory(final @NonNull File file,
+                                                              final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(file, nullValue("file"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!file.isDirectory()) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return file;
     }
 
     /**

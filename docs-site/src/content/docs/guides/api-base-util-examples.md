@@ -126,7 +126,28 @@ Util.requireNonEmpty(names, () -> new RuntimeException("List is empty"));
 java.util.Set<String> tags = new java.util.HashSet<>(java.util.Arrays.asList("java", "functional"));
 java.util.Set<String> allowed = new java.util.HashSet<>(java.util.Arrays.asList("java", "functional", "foomp"));
 Util.requireSubSet(allowed, tags, (sup, sub) -> new IllegalArgumentException("Invalid tags: " + sub));
+```
 
+### Type & File System Validation
+
+You can also validate class types and file system properties.
+
+```java
+import java.io.File;
+import java.nio.file.Path;
+
+// Validate Class types
+Util.requireConcreteType(String.class, () -> new RuntimeException("Not a concrete class"));
+Util.requireInterfaceType(Runnable.class, () -> new RuntimeException("Not an interface"));
+
+// Validate File System
+Util.requireRegularFile("config.properties", () -> new RuntimeException("Missing config"));
+Util.requireDirectory(new File("data"), () -> new RuntimeException("Data directory missing"));
+```
+
+### Functional Wrappers
+
+```java
 // Wrap a function to never return null
 org.quurz.foomp.base.functions.Fun<String, String> safeUpper = Util.requireNonNullResult1(String::toUpperCase, (s) -> new RuntimeException("Null result for " + s));
 ```

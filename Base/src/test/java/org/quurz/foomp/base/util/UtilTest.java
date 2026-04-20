@@ -5,19 +5,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Util")
@@ -247,31 +242,31 @@ class UtilTest {
     class ClassChecks {
 
         @Test
-        @DisplayName("requireInterface returns same instance for interface")
-        void requireInterfaceWorks() {
-            assertThat(Util.requireInterface(Runnable.class, () -> new RuntimeException("Fail")))
+        @DisplayName("requireInterfaceType returns same instance for interface")
+        void requireInterfaceTypeWorks() {
+            assertThat(Util.requireInterfaceType(Runnable.class, () -> new RuntimeException("Fail")))
                     .isSameAs(Runnable.class);
         }
 
         @Test
-        @DisplayName("requireInterface throws on non-interface")
-        void requireInterfaceThrows() {
-            assertThatThrownBy(() -> Util.requireInterface(String.class, () -> new RuntimeException("Not interface")))
+        @DisplayName("requireInterfaceType throws on non-interface")
+        void requireInterfaceTypeThrows() {
+            assertThatThrownBy(() -> Util.requireInterfaceType(String.class, () -> new RuntimeException("Not interface")))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Not interface");
         }
 
         @Test
-        @DisplayName("requireConcrete returns same instance for concrete class")
-        void requireConcreteWorks() {
-            assertThat(Util.requireConcrete(String.class, () -> new RuntimeException("Fail")))
+        @DisplayName("requireConcreteType returns same instance for concrete class")
+        void requireConcreteTypeWorks() {
+            assertThat(Util.requireConcreteType(String.class, () -> new RuntimeException("Fail")))
                     .isSameAs(String.class);
         }
 
         @Test
-        @DisplayName("requireConcrete throws on abstract class or interface")
-        void requireConcreteThrows() {
-            assertThatThrownBy(() -> Util.requireConcrete(Runnable.class, () -> new RuntimeException("Not concrete")))
+        @DisplayName("requireConcreteType throws on abstract class or interface")
+        void requireConcreteTypeThrows() {
+            assertThatThrownBy(() -> Util.requireConcreteType(Runnable.class, () -> new RuntimeException("Not concrete")))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Not concrete");
         }
@@ -280,6 +275,44 @@ class UtilTest {
     @Nested
     @DisplayName("File System Checks")
     class FileSystemChecks {
+
+        @Test
+        @DisplayName("requireDirectory (String) returns path for directory")
+        void requireDirectoryStringWorks(@TempDir Path tempDir) throws Exception {
+            String path = tempDir.toAbsolutePath().toString();
+            assertThat(Util.requireDirectory(path, () -> new Exception("Fail")))
+                    .isEqualTo(tempDir);
+        }
+
+        @Test
+        @DisplayName("requireDirectory (String) throws on file")
+        void requireDirectoryStringThrows(@TempDir Path tempDir) throws Exception {
+            Path file = tempDir.resolve("test.txt");
+            Files.createFile(file);
+            String path = file.toAbsolutePath().toString();
+            assertThatThrownBy(() -> Util.requireDirectory(path, () -> new Exception("Not a directory")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not a directory");
+        }
+
+        @Test
+        @DisplayName("requireDirectory (File) returns same instance for directory")
+        void requireDirectoryFileWorks(@TempDir Path tempDir) throws Exception {
+            java.io.File dir = tempDir.toFile();
+            assertThat(Util.requireDirectory(dir, () -> new Exception("Fail")))
+                    .isSameAs(dir);
+        }
+
+        @Test
+        @DisplayName("requireDirectory (File) throws on file")
+        void requireDirectoryFileThrows(@TempDir Path tempDir) throws Exception {
+            Path file = tempDir.resolve("test.txt");
+            Files.createFile(file);
+            java.io.File f = file.toFile();
+            assertThatThrownBy(() -> Util.requireDirectory(f, () -> new Exception("Not a directory")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not a directory");
+        }
 
         @Test
         @DisplayName("requireDirectory returns same instance for directory")
@@ -296,6 +329,44 @@ class UtilTest {
             assertThatThrownBy(() -> Util.requireDirectory(file, () -> new Exception("Not a directory")))
                     .isInstanceOf(Exception.class)
                     .hasMessage("Not a directory");
+        }
+
+        @Test
+        @DisplayName("requireRegularFile (String) returns path for file")
+        void requireRegularFileStringWorks(@TempDir Path tempDir) throws Exception {
+            Path file = tempDir.resolve("test.txt");
+            Files.createFile(file);
+            String path = file.toAbsolutePath().toString();
+            assertThat(Util.requireRegularFile(path, () -> new Exception("Fail")))
+                    .isEqualTo(file);
+        }
+
+        @Test
+        @DisplayName("requireRegularFile (String) throws on directory")
+        void requireRegularFileStringThrows(@TempDir Path tempDir) throws Exception {
+            String path = tempDir.toAbsolutePath().toString();
+            assertThatThrownBy(() -> Util.requireRegularFile(path, () -> new Exception("Not a file")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not a file");
+        }
+
+        @Test
+        @DisplayName("requireRegularFile (File) returns same instance for file")
+        void requireRegularFileFileWorks(@TempDir Path tempDir) throws Exception {
+            Path file = tempDir.resolve("test.txt");
+            Files.createFile(file);
+            java.io.File f = file.toFile();
+            assertThat(Util.requireRegularFile(f, () -> new Exception("Fail")))
+                    .isSameAs(f);
+        }
+
+        @Test
+        @DisplayName("requireRegularFile (File) throws on directory")
+        void requireRegularFileFileThrows(@TempDir Path tempDir) throws Exception {
+            java.io.File dir = tempDir.toFile();
+            assertThatThrownBy(() -> Util.requireRegularFile(dir, () -> new Exception("Not a file")))
+                    .isInstanceOf(Exception.class)
+                    .hasMessage("Not a file");
         }
 
         @Test
