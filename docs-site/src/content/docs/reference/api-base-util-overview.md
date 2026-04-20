@@ -80,7 +80,7 @@ Static helper classes for common operations.
 ### Util
 The primary entry point for contract enforcement and validation.
 - **require...**: Methods (like `requireSubSet`, `requireNonEmpty`, `requireConcreteType`, `requireInterfaceType`) that throw exceptions with consistent messaging if conditions are not met.
-- **File System Utilities**: Methods (like `requireRegularFile`, `requireDirectory`) to validate paths and file types.
+- **File System Utilities**: Methods (like `requireRegularFile`, `requireDirectory`, `requireReadable`, `requireWriteable`) to validate paths, file types, and permissions.
 - **requireNonNullResult**: Wrappers to ensure functions always return non-null values.
 
 ### Zipper

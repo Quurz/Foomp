@@ -143,6 +143,8 @@ Util.requireInterfaceType(Runnable.class, () -> new RuntimeException("Not an int
 // Validate File System
 Util.requireRegularFile("config.properties", () -> new RuntimeException("Missing config"));
 Util.requireDirectory(new File("data"), () -> new RuntimeException("Data directory missing"));
+Util.requireReadable("input.txt", () -> new RuntimeException("Cannot read input"));
+Util.requireWriteable(Path.of("output.log"), () -> new RuntimeException("Cannot write log"));
 ```
 
 ### Functional Wrappers

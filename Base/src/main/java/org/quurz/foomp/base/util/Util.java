@@ -715,6 +715,75 @@ public final class Util {
      *         Requires that the given path is readable.
      *     </p>
      *     <p>
+     *         Returns the path as {@link Path} if it is readable;
+     *         otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the path as a {@link Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not readable
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path requireReadable(final @NonNull String path,
+                                                             final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        return requireReadable(Paths.get(path), exceptionSupplier);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given file is readable.
+     *     </p>
+     *     <p>
+     *         Returns the file if it is readable; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param file              file to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code File} instance
+     * @throws NullPointerException if {@code file} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code file} is not readable
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> File requireReadable(final @NonNull File file,
+                                                             final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(file, nullValue("file"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!Files.isReadable(file.toPath())) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return file;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given path is readable.
+     *     </p>
+     *     <p>
      *         Returns the same path instance if it is readable; otherwise throws the exception
      *         supplied by {@code exceptionSupplier}.
      *     </p>
@@ -743,6 +812,75 @@ public final class Util {
             throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
         }
         return path;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given path is writable.
+     *     </p>
+     *     <p>
+     *         Returns the path as {@link Path} if it is writable;
+     *         otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param path              path to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the path as a {@link Path} instance
+     * @throws NullPointerException if {@code path} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code path} is not writable
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> Path requireWriteable(final @NonNull String path,
+                                                              final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(path, nullValue("path"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        return requireWriteable(Paths.get(path), exceptionSupplier);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given file is writable.
+     *     </p>
+     *     <p>
+     *         Returns the file if it is writable; otherwise throws the exception
+     *         supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param file              file to check; must not be {@code null}
+     * @param exceptionSupplier supplies the exception to throw if the check fails; must not be {@code null}
+     * @param <E>               exception type
+     * @return the same {@code File} instance
+     * @throws NullPointerException if {@code file} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code file} is not writable
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> File requireWriteable(final @NonNull File file,
+                                                              final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(file, nullValue("file"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (!Files.isWritable(file.toPath())) {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+        return file;
     }
 
     /**

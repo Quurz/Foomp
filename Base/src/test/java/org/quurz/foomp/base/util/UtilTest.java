@@ -387,10 +387,42 @@ class UtilTest {
         }
 
         @Test
+        @DisplayName("requireReadable (String) returns path for readable path")
+        void requireReadableStringWorks(@TempDir Path tempDir) throws Exception {
+            String path = tempDir.toAbsolutePath().toString();
+            assertThat(Util.requireReadable(path, () -> new Exception("Fail")))
+                    .isEqualTo(tempDir);
+        }
+
+        @Test
+        @DisplayName("requireReadable (File) returns same instance for readable file")
+        void requireReadableFileWorks(@TempDir Path tempDir) throws Exception {
+            java.io.File f = tempDir.toFile();
+            assertThat(Util.requireReadable(f, () -> new Exception("Fail")))
+                    .isSameAs(f);
+        }
+
+        @Test
         @DisplayName("requireReadable returns same instance for readable path")
         void requireReadableWorks(@TempDir Path tempDir) throws Exception {
             assertThat(Util.requireReadable(tempDir, () -> new Exception("Fail")))
                     .isSameAs(tempDir);
+        }
+
+        @Test
+        @DisplayName("requireWriteable (String) returns path for writeable path")
+        void requireWriteableStringWorks(@TempDir Path tempDir) throws Exception {
+            String path = tempDir.toAbsolutePath().toString();
+            assertThat(Util.requireWriteable(path, () -> new Exception("Fail")))
+                    .isEqualTo(tempDir);
+        }
+
+        @Test
+        @DisplayName("requireWriteable (File) returns same instance for writeable file")
+        void requireWriteableFileWorks(@TempDir Path tempDir) throws Exception {
+            java.io.File f = tempDir.toFile();
+            assertThat(Util.requireWriteable(f, () -> new Exception("Fail")))
+                    .isSameAs(f);
         }
 
         @Test
