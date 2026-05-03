@@ -6,8 +6,12 @@ import org.quurz.foomp.base.functions.Komparator;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static org.quurz.foomp.base.functions.Komparator.komparator;
+import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
 
 public class BinaryTree<A> {
 
@@ -18,26 +22,33 @@ public class BinaryTree<A> {
 
     @SuppressWarnings("unchecked")
     public static <A> BinaryTree<A> binaryTree(final @NonNull Comparator<A> comparator) {
+        Objects.requireNonNull(comparator, nullValue("compatator"));
         return new BinaryTree<>(komparator(comparator), (Tree<A>) NIL);
     }
 
     @SafeVarargs
     public static <A extends Comparable<A>> BinaryTree<A> binaryTreeOf(final @NonNull A... values) {
+        Objects.requireNonNull(values, nullValue("values"));
         return null;    // TODO
     }
 
     @SafeVarargs
     public static <A> BinaryTree<A> binaryTreeOf(final @NonNull Comparator<A> comparator,
                                                  final @NonNull A... values) {
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(values, nullValue("values"));
         return null;    // TODO
     }
 
     public static <A extends Comparable<A>> BinaryTree<A> binaryTreeFrom(final @NonNull Collection<A> values) {
+        Objects.requireNonNull(values, nullValue("values"));
         return null;    // TODO
     }
 
     public static <A> BinaryTree<A> binaryTreeFrom(final @NonNull Comparator<A> comparator,
                                                    final @NonNull Collection<A> values) {
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(values, nullValue("values"));
         return null;    // TODO
     }
 
@@ -172,16 +183,22 @@ public class BinaryTree<A> {
     }
 
     public boolean contains(final @NonNull A value) {
-        return false;    // TODO
+        return this.searchRecursive(value, this.root) != null;
     }
 
     public @NonNull A search(final @NonNull A value)
             throws NoSuchElementException {
-        return null;    // TODO
+        final A found
+            = this.searchRecursive(value, this.root);
+        if (found != null) {
+            return found;
+        } else {
+            throw new NoSuchElementException(noValuePresent());
+        }
     }
 
     public @NonNull Maybe<A> searchSafe(final @NonNull A value) {
-        return Maybe.none();    // TODO
+        return maybeOfNullable(this.searchRecursive(value, this.root));
     }
 
     public BinaryTree<A> remove(final @NonNull A value)
@@ -213,6 +230,35 @@ public class BinaryTree<A> {
             }
             case Tree.Nil<A> _ -> new Tree.Leaf<>(value);
         };
+    }
+
+    private A searchRecursive(final A value,
+                              final Tree<A> current) {
+        return switch (current) {
+            case Tree.Node<A> node -> {
+                final var comparison
+                    = this.comparator.kompare(value, node.value);
+                yield switch (comparison) {
+                    case LESS -> searchRecursive(value, node.getLeft());
+                    case EQUAL -> node.value;
+                    case GREATER -> searchRecursive(value, node.getRight());
+                };
+            }
+            case Tree.Leaf<A> leaf -> this.comparator.kompare(leaf.value, value) == Komparator.Komparison.EQUAL ? leaf.value : null;
+            case Tree.Nil<A> _ -> null;
+        };
+    }
+
+    private Tree<A> rebalance(final Tree<A> current) {
+        return null;    // TODO
+    }
+
+    private Tree<A> rotateLeft(final Tree<A> node) {
+        return null;    // TODO
+    }
+
+    private Tree<A> rotateRight(final Tree<A> node) {
+        return null;    // TODO
     }
 
 }
