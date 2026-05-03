@@ -4,7 +4,6 @@ import org.junit.jupiter.api.*;
 import org.quurz.foomp.base.TestHelper;
 import org.slf4j.Logger;
 
-import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;

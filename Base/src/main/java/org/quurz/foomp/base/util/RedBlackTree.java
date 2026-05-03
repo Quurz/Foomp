@@ -218,8 +218,8 @@ public class RedBlackTree<A> {
 
         final var comparison = this.comparator.kompare(value, current.getValue());
         return switch (comparison) {
-            case LESS -> balance(current.black, current.getValue(), insertRecursive(current.getLeft(), value), current.getRight());
-            case GREATER -> balance(current.black, current.getValue(), current.getLeft(), insertRecursive(current.getRight(), value));
+            case LESS -> rebalance(current.black, current.getValue(), insertRecursive(current.getLeft(), value), current.getRight());
+            case GREATER -> rebalance(current.black, current.getValue(), current.getLeft(), insertRecursive(current.getRight(), value));
             case EQUAL -> current;
         };
     }
@@ -231,7 +231,7 @@ public class RedBlackTree<A> {
      *     </p>
      * </div>
      */
-    private Tree<A> balance(boolean black, A x, Tree<A> left, Tree<A> right) {
+    private Tree<A> rebalance(boolean black, A x, Tree<A> left, Tree<A> right) {
         if (black) {
             // Case 1: Left child is red and has a red left child
             if (!left.black && left instanceof Tree.Node<A> l && !l.left.black && l.left instanceof Tree.Node<A> ll) {
