@@ -546,6 +546,10 @@ public final class BaseMessages {
         return String.format(RESOURCE_BUNDLE.getString("NOT_A_CONCRETE_CLASS"), clazz.getCanonicalName());
     }
 
+    public static String unsupportedOperation() {
+        return RESOURCE_BUNDLE.getString("UNSUPPORTED_OPERATION");
+    }
+
     /**
      * <div>
      *     <p>
