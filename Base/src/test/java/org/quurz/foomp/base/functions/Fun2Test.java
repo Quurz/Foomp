@@ -79,38 +79,6 @@ class Fun2Test
             });
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDefer() {
-        LOGGER.info("Test fun2.defer(...)");
-
-        final BiFunction<Integer, Integer, Integer> biFunction
-            = Integer::sum;
-        final var fun2
-            = fun2(biFunction);
-
-        assertThatThrownBy(() -> fun2.defer(null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun2.defer(null, () -> 5))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun2.defer(() -> 5, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> fun2.defer(() -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun2.defer(() -> null, () -> 5).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun2.defer(() -> 5, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var result
-                    = fun2.defer(() -> 5, () -> 5).call();
-                assertThat(result)
-                    .isEqualTo(10);
-            });
-    }
 
     @SuppressWarnings("DataFlowIssue")
     @Test

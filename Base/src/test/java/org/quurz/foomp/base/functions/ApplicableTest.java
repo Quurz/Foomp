@@ -73,27 +73,6 @@ class ApplicableTest
 
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDefer() {
-        LOGGER.info("Test applicable.defer");
-
-        final Applicable<Integer, Integer> applicable
-            = applicable(i -> i + 5);
-
-        assertThatThrownBy(() -> applicable.defer(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> applicable.defer(() -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatNoException()
-            .isThrownBy((() -> {
-                final var result
-                    = applicable.defer(() -> 5).call();
-                assertThat(result)
-                    .isEqualTo(10);
-                }
-            ));
-    }
 
     @Test
     void testIdentity() {

@@ -55,40 +55,6 @@ class Fun3Test {
             .isEqualTo("6");
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDefer() {
-        LOGGER.info("Test fun3.defer(...)");
-
-        final Fun3<Integer, Integer, Integer, Integer> fun3
-            = (x1, x2, x3) -> x1 + x2 + x3;
-
-        assertThatThrownBy(() -> fun3.defer(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun3.defer(null, null, () -> 5))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun3.defer(null, () -> 5, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun3.defer(() -> 5, null, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> fun3.defer(() -> null, () -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun3.defer(() -> null, () -> null, () -> 5).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun3.defer(() -> null, () -> 5, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun3.defer(() -> 5, () -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var result
-                    = fun3.defer(() -> 5, () -> 5, () -> 5).call();
-                Assertions.assertThat(result)
-                    .isEqualTo(15);
-            });
-    }
 
     @Test
     @SuppressWarnings("DataFlowIssue")

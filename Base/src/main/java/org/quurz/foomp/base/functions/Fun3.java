@@ -2,10 +2,8 @@ package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.quurz.foomp.base.types.Deferrable3;
 
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -17,7 +15,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * <div>
  *     <p>
  *         A functional interface for ternary functions. Provides utilities for composition,
- *         currying, partial application, and deferral with strict non-null contracts.
+ *         currying, and partial application with strict non-null contracts.
  *     </p>
  *     <p>
  *         Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
@@ -34,8 +32,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *
  */
 @FunctionalInterface
-public interface Fun3<X1, X2, X3, Y>
-        extends Deferrable3<X1, X2, X3, Y> {
+public interface Fun3<X1, X2, X3, Y> {
 
     /**
      * <div>
@@ -82,24 +79,6 @@ public interface Fun3<X1, X2, X3, Y>
         };
     }
 
-    @Override
-    @NonNull
-    default Callable<Y> defer(final @NonNull Supplier<X1> a1,
-                              final @NonNull Supplier<X2> a2,
-                              final @NonNull Supplier<X3> a3) {
-        Objects.requireNonNull(a1, nullValue("a1"));
-        Objects.requireNonNull(a2, nullValue("a2"));
-        Objects.requireNonNull(a3, nullValue("a3"));
-        return () -> {
-            final var x1
-                = Objects.requireNonNull(a1.get(), nullSuppliedFrom("a1"));
-            final var x2
-                = Objects.requireNonNull(a2.get(), nullSuppliedFrom("a2"));
-            final var x3
-                = Objects.requireNonNull(a3.get(), nullSuppliedFrom("a3"));
-            return Objects.requireNonNull(this.apply(x1, x2, x3), nullResult());
-        };
-    }
 
     /**
      * <div>

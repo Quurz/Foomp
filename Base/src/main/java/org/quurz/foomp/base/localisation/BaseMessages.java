@@ -527,6 +527,11 @@ public final class BaseMessages {
         return String.format(RESOURCE_BUNDLE.getString("NOT_AN_INTERFACE"), clazz.getCanonicalName());
     }
 
+    // TODO: JavaDoc
+    public static String finalLeafReached() {
+        return RESOURCE_BUNDLE.getString("FINAL_LEAF_REACHED");
+    }
+
     /**
      * <div>
      *     <p>

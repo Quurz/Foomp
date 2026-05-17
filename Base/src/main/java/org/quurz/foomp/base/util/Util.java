@@ -3,6 +3,7 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.functions.Fun2;
+import org.quurz.foomp.base.functions.Receiver;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
@@ -194,6 +195,25 @@ public final class Util {
             }
         }
         return array;
+    }
+
+    public static <A, E extends Exception> void requireNonNullElements(final @NonNull A[] array,
+                                                                       final @NonNull Receiver<A> andThen,
+                                                                       final @NonNull Fun<Integer, E> exceptionConstructor)
+            throws E {
+        Objects.requireNonNull(array, nullValue("array"));
+        Objects.requireNonNull(andThen, nullValue("andThen"));
+        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
+
+        for (int index = 0; index < array.length; index++) {
+            final var element
+                = array[index];
+            if (element != null) {
+                andThen.accept(array[index]);
+            } else {
+                throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
+            }
+        }
     }
 
     /**

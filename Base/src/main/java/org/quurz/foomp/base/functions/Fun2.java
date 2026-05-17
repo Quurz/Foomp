@@ -2,10 +2,8 @@ package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.quurz.foomp.base.types.Deferrable2;
 
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -20,7 +18,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *     <p>
  *         A functional interface for binary functions that augments {@link BiFunction} with
  *         stronger non-null contracts and utilities for currying, partial application, flipping,
- *         deferring, and composition.
+ *         and composition.
  *     </p>
  *     <p>
  *         Contract: unless stated otherwise, arguments must not be {@code null} and results must not be {@code null}.
@@ -37,8 +35,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  */
 @FunctionalInterface
 public interface Fun2<X1, X2, Y>
-        extends Deferrable2<X1, X2, Y>,
-                BiFunction<X1, X2, Y> {
+        extends BiFunction<X1, X2, Y> {
 
     /**
      * <div>
@@ -80,9 +77,8 @@ public interface Fun2<X1, X2, Y>
      */
     @Override
     @Pure
-    @NonNull Y
-    apply(final @NonNull X1 x1,
-          final @NonNull X2 x2);
+    @NonNull Y apply(final @NonNull X1 x1,
+                     final @NonNull X2 x2);
 
     /**
      * <div>
@@ -116,42 +112,6 @@ public interface Fun2<X1, X2, Y>
         };
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         Defers application by turning this function into a {@link Callable} whose arguments are
-     *         supplied lazily via {@link java.util.function.Supplier}s.
-     *     </p>
-     *     <p>
-     *         The supplied arguments are evaluated only when the returned {@code Callable} is invoked.
-     *         This allows for lazy evaluation of arguments.
-     *     </p>
-     *     <p>
-     *         Contract: suppliers and the values they supply must not be {@code null}; the result must not be {@code null}.
-     *     </p>
-     * </div>
-     *
-     * @param s1 supplier for the first argument; must not be {@code null}
-     * @param s2 supplier for the second argument; must not be {@code null}
-     * @return a callable that applies this function to supplied values
-     * @throws NullPointerException if any supplier or supplied value is {@code null}, or the result is {@code null}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    @NonNull
-    default Callable<Y> defer(final @NonNull Supplier<X1> s1,
-                              final @NonNull Supplier<X2> s2) {
-        Objects.requireNonNull(s1, nullValue("s1"));
-        Objects.requireNonNull(s2, nullValue("s2"));
-        return () -> {
-            final var x1
-                = Objects.requireNonNull(s1.get(), nullSuppliedFrom("s1"));
-            final var x2
-                = Objects.requireNonNull(s2.get(), nullSuppliedFrom("s2"));
-            return Objects.requireNonNull(this.apply(x1, x2), nullResult());
-        };
-    }
 
     /**
      * <div>

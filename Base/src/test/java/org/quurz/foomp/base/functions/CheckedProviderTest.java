@@ -193,44 +193,6 @@ class CheckedProviderTest extends TestHelper {
         });
     }
 
-    @Test
-    void testCheckedProviderWithDeferMethod() {
-        LOGGER.info("Test CheckedProvider.defer() inherited from Applicable");
-
-        final CheckedProvider<String> supplier = () -> "Deferred";
-
-        assertThatNoException().isThrownBy(() -> {
-            final var callable = supplier.defer(() -> nothing);
-            final var result = callable.call();
-            assertThat(result).isEqualTo("Deferred");
-        });
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testCheckedProviderWithDeferMethodAndNullSupplier() {
-        LOGGER.info("Test CheckedProvider.defer() with null supplier throws exception");
-
-        final CheckedProvider<String> supplier = () -> "Test";
-
-        assertThatThrownBy(() -> supplier.defer(null))
-            .isInstanceOf(NullPointerException.class);
-    }
-
-    @Test
-    void testCheckedProviderWithDeferMethodAndThrowingSupplier() {
-        LOGGER.info("Test CheckedProvider.defer() propagates exceptions");
-
-        final var testException = new IOException("Deferred exception");
-        final CheckedProvider<String> supplier = () -> {
-            throw testException;
-        };
-
-        final var callable = supplier.defer(() -> nothing);
-
-        assertThatThrownBy(callable::call)
-            .isSameAs(testException);
-    }
 
     @Test
     void testCheckedProviderComposition() {

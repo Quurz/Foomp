@@ -296,34 +296,5 @@ class Pred3Test {
             .isFalse();
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDefer() {
-        LOGGER.info("Test pred3.defer");
-
-        assertThatThrownBy(() -> pred3.defer(null, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred3.defer(null, null, () -> 23))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred3.defer(null, () -> "Gumpf", null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred3.defer(() -> 3, null, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> pred3.defer(() -> null, () -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred3.defer(() -> null, () -> null, () -> 23).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred3.defer(() -> null, () -> "Gumpf", () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred3.defer(() -> 4, () -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-
-        Assertions.assertThatNoException()
-            .isThrownBy(() -> {
-                assertThat(pred3.defer(() -> 4, () -> "Gumpf", () -> 23).call())
-                    .isTrue();
-            });
-    }
 
 }

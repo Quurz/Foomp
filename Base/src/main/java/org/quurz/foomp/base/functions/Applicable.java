@@ -1,25 +1,20 @@
 package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.Deferrable;
 import org.quurz.foomp.base.types.XorValue;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullSupplied;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.localisation.BaseMessages.*;
 
 /**
  * <div>
  *     <p>
  *         Functional interface for executing an operation on an input value {@code X} to produce
- *         a result {@code Y}. Extends {@link Deferrable} to support deferred execution.
+ *         a result {@code Y}.
  *     </p>
  *     <p>
  *         Execution semantics:
@@ -47,8 +42,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @author Alexander Schell
  */
 @FunctionalInterface
-public interface Applicable<X, Y>
-        extends Deferrable<X, Y> {
+public interface Applicable<X, Y> {
 
     /**
      * <div>
@@ -158,38 +152,6 @@ public interface Applicable<X, Y>
                     }
                 };
             }
-        };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns a {@link Callable} that defers execution of this operation until invoked,
-     *         obtaining the input from the given {@link Supplier}.
-     *     </p>
-     *     <p>
-     *         Contract:
-     *     </p>
-     *     <ul>
-     *         <li>{@code supplier} must not be {@code null} and must not supply {@code null}.</li>
-     *         <li>The returned callable must not return {@code null}.</li>
-     *         <li>Side effects (if any) occur when the callable is executed.</li>
-     *     </ul>
-     * </div>
-     *
-     * @param supplier the input supplier; must not be {@code null}
-     * @return a callable that, when called, executes this operation
-     * @throws NullPointerException if {@code supplier} is {@code null}, supplies {@code null},
-     *                              or if the result of {@link #apply(Object)} is {@code null}
-     *
-     * @since 1.0.0
-     */
-    @NonNull
-    default Callable<Y> defer(final @NonNull Supplier<X> supplier) {
-        Objects.requireNonNull(supplier, nullValue("supplier"));
-        return () -> {
-            final var x = Objects.requireNonNull(supplier.get(), nullSupplied());
-            return Objects.requireNonNull(apply(x), nullResult());
         };
     }
 

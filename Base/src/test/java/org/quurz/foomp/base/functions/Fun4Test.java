@@ -54,44 +54,6 @@ class Fun4Test {
             .isEqualTo(20);
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDefer() {
-        LOGGER.info("Test fun4.defer(...)");
-
-        final Fun4<Integer, Integer, Integer, Integer, Integer> fun4
-            = (x1, x2, x3, x4) -> x1 + x2 + x3 + x4;
-
-        assertThatThrownBy(() -> fun4.defer(null, null, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(null, null, null, () -> 5))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(null, null, () -> 5, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(null, () -> 5, null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(() -> 5, null, null, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> fun4.defer(() -> null, () -> null, () -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(() -> null, () -> null, () -> null, () -> 5).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(() -> null, () -> null, () -> 5, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(() -> null, () -> 5, () -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> fun4.defer(() -> 5, () -> null, () -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-
-        Assertions.assertThatNoException()
-            .isThrownBy(() -> {
-                final var result
-                    = fun4.defer(() -> 5, () -> 5, () -> 5, () -> 5).call();
-                Assertions.assertThat(result)
-                    .isEqualTo(20);
-            });
-    }
 
     @Test
     @SuppressWarnings("DataFlowIssue")

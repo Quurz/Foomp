@@ -347,35 +347,5 @@ class Pred2Test {
             .isTrue();
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDefer() {
-        LOGGER.info("Test pred2.defer");
-
-        final BiPredicate<Integer, String> biPredicate
-            = (i, s) -> s.length() == i;
-        final var pred2
-            = pred2(biPredicate);
-
-        assertThatThrownBy(() -> pred2.defer(null, null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred2.defer(null, () -> "Gumpf"))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred2.defer(() -> 5, null))
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatThrownBy(() -> pred2.defer(() -> null, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred2.defer(() -> null, () -> "Gumpf").call())
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> pred2.defer(() -> 5, () -> null).call())
-            .isInstanceOf(NullPointerException.class);
-
-        Assertions.assertThatNoException()
-            .isThrownBy(() -> {
-                assertThat(pred2.defer(() -> 5, () -> "Gumpf").call())
-                    .isTrue();
-            });
-    }
 
 }

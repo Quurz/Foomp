@@ -2,10 +2,8 @@ package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.quurz.foomp.base.types.Deferrable3;
 
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -32,8 +30,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @author Alexander Schell
  */
 @FunctionalInterface
-public interface Pred3<A1, A2, A3>
-        extends Deferrable3<A1, A2, A3, Boolean> {
+public interface Pred3<A1, A2, A3> {
 
     /**
      * <div>
@@ -439,38 +436,5 @@ public interface Pred3<A1, A2, A3>
         return (a1, a2) -> this.test(a1, a2, supplier.get());
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         Delays the evaluation of this predicate until all three inputs are supplied
-     *         by the given {@link Supplier}s.
-     *     </p>
-     *     <p>
-     *         Contract: suppliers must not be {@code null} and must not supply {@code null} values.
-     *     </p>
-     * </div>
-     *
-     * @param supplier1 supplies the first input; must not be {@code null}
-     * @param supplier2 supplies the second input; must not be {@code null}
-     * @param supplier3 supplies the third input; must not be {@code null}
-     * @return a {@link Callable} that evaluates the predicate when called
-     * @throws NullPointerException if any supplier is {@code null} or supplies {@code null}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    @NonNull
-    default Callable<Boolean> defer(final @NonNull Supplier<A1> supplier1,
-                                    final @NonNull Supplier<A2> supplier2,
-                                    final @NonNull Supplier<A3> supplier3) {
-        Objects.requireNonNull(supplier1, nullValue("supplier1"));
-        Objects.requireNonNull(supplier2, nullValue("supplier2"));
-        Objects.requireNonNull(supplier3, nullValue("supplier3"));
-        return () -> this.test(
-                        Objects.requireNonNull(supplier1.get(), nullSupplied()),
-                        Objects.requireNonNull(supplier2.get(), nullSupplied()),
-                        Objects.requireNonNull(supplier3.get(), nullSupplied())
-                     );
-    }
 
 }

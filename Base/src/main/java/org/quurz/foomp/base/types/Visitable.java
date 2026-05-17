@@ -35,12 +35,12 @@ public interface Visitable<A> {
      *     </p>
      * </div>
      *
-     * @param visitor the visitor to apply; must not be {@code null}
+     * @param visitor the guest to be received; must not be {@code null}
      * @param <V>     the concrete visitor type
      * @return the same visitor instance, for fluent chaining
      *
      * @since 1.0.0
      */
-    <V extends Visitor<A>> V allow(final @NonNull V visitor);
+     @NonNull <V extends Visitor<? super A>> V welcome(final @NonNull V visitor);
 
 }

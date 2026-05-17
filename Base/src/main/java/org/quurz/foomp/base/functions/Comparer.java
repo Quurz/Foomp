@@ -12,7 +12,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * <div>
  *     <p>
  *         A functional interface defining comparison logic between two values of the same type.
- *         It returns a well-defined {@link Komparison} enum instead of raw integers, restricting
+ *         It returns a well-defined {@link Relation} enum instead of raw integers, restricting
  *         outcomes to {@code LESS}, {@code EQUAL}, or {@code GREATER} and making the result
  *         suitable for switch-expressions.
  *     </p>
@@ -28,8 +28,8 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @author Alexander Schell
  */
 @FunctionalInterface
-public interface Komparator<A>
-        extends Fun2<A, A, Komparator.Komparison> {
+public interface Comparer<A>
+        extends Fun2<A, A, Comparer.Relation> {
 
     /**
      * <div>
@@ -40,7 +40,7 @@ public interface Komparator<A>
      *
      * @since 1.0.0
      */
-    enum Komparison {
+    enum Relation {
         /**
          * <div>
          *     <p>
@@ -72,8 +72,8 @@ public interface Komparator<A>
     /**
      * <div>
      *     <p>
-     *         Creates a {@code Komparator} from a standard {@link java.util.Comparator}.
-     *         Maps {@code compare} results to {@link Komparison} via sign semantics, enabling
+     *         Creates a {@code Comparer} from a standard {@link java.util.Comparator}.
+     *         Maps {@code compare} results to {@link Relation} via sign semantics, enabling
      *         ergonomic use in switch-expressions.
      *     </p>
      *     <p>
@@ -85,21 +85,21 @@ public interface Komparator<A>
      * @param <A>        the value type
      * @param comparator a standard {@link java.util.Comparator}; must not be {@code null}
      *
-     * @return a {@code Komparator} delegating to the given {@code comparator}
+     * @return a {@code Comparer} delegating to the given {@code comparator}
      *
      * @throws NullPointerException if {@code comparator} is {@code null}
      *
      * @since 1.0.0
      */
-    static <A> Komparator<A> komparator(final @NonNull Comparator<A> comparator) {
+    static <A> Comparer<A> comparer(final @NonNull Comparator<A> comparator) {
         Objects.requireNonNull(comparator, nullValue("comparator"));
         return (first, second) -> {
             Objects.requireNonNull(first, nullValue("first"));
             Objects.requireNonNull(second, nullValue("second"));
             return switch (Integer.signum(comparator.compare(first, second))) {
-                case -1 -> Komparison.LESS;
-                case 1 -> Komparison.GREATER;
-                default -> Komparison.EQUAL;
+                case -1 -> Relation.LESS;
+                case 1 -> Relation.GREATER;
+                default -> Relation.EQUAL;
             };
         };
     }
@@ -107,7 +107,7 @@ public interface Komparator<A>
     /**
      * <div>
      *     <p>
-     *         Compares two values and returns a {@link Komparison} describing their order.
+     *         Compares two values and returns a {@link Relation} describing their order.
      *     </p>
      *     <p>
      *         Contract: {@code first} and {@code second} must not be {@code null}.
@@ -116,7 +116,7 @@ public interface Komparator<A>
      *
      * @param first  the first value to compare; must not be {@code null}
      * @param second the second value to compare; must not be {@code null}
-     * @return the comparison outcome as {@link Komparison}
+     * @return the comparison outcome as {@link Relation}
      *
      * @throws NullPointerException if any argument is {@code null}
      *
@@ -124,24 +124,24 @@ public interface Komparator<A>
      */
     @Pure
     @NonNull
-    Komparison kompare(final @NonNull A first,
-                       final @NonNull A second);
+    Relation compare(final @NonNull A first,
+                     final @NonNull A second);
 
     /**
      * <div>
      *     <p>
-     *         Applies this comparator to the given values and returns a {@link Komparison}.
-     *         Ensures both inputs are non-null before delegating to {@link #kompare(Object, Object)}.
+     *         Applies this comparator to the given values and returns a {@link Relation}.
+     *         Ensures both inputs are non-null before delegating to {@link #compare(Object, Object)}.
      *     </p>
      * </div>
      *
-     * @see #kompare(Object, Object)
+     * @see #compare(Object, Object)
      * @see Fun2#apply(Object, Object)
      *
      * @param first  the first value; must not be {@code null}
      * @param second the second value; must not be {@code null}
      *
-     * @return the comparison outcome as {@link Komparison}
+     * @return the comparison outcome as {@link Relation}
      *
      * @throws NullPointerException if any argument is {@code null}
      *
@@ -149,11 +149,11 @@ public interface Komparator<A>
      */
     @Override
     @Pure
-    default Komparator.@NonNull Komparison apply(final @NonNull A first,
-                                                 final @NonNull A second) {
+    default @NonNull Relation apply(final @NonNull A first,
+                                    final @NonNull A second) {
         Objects.requireNonNull(first, nullValue("first"));
         Objects.requireNonNull(second, nullValue("second"));
-        return kompare(first, second);
+        return compare(first, second);
     }
 
 }

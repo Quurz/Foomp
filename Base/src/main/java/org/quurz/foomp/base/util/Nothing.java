@@ -57,6 +57,9 @@ public final class Nothing
      *   <p>
      *     Aside: A lighthearted, almost metaphysical nod to “ex nihilo”. &#128512;
      *   </p>
+     *   <p>
+     *       And a nod to Monty Python: <cite>You come from nothing.. You're going back to nothing... What have you lost? Nothing! </cite>
+     *   </p>
      * </div>
      *
      * @param transmogrifier the function to apply to this <code>Nothing</code> instance

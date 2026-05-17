@@ -2,10 +2,8 @@ package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.quurz.foomp.base.types.Deferrable;
 
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -39,8 +37,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  */
 @FunctionalInterface
 public interface Pred<A>
-        extends Deferrable<A, Boolean>,
-                Predicate<A> {
+        extends Predicate<A> {
 
     /**
      * <div>
@@ -579,26 +576,5 @@ public interface Pred<A>
         return this.xor(boolSupplier);
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         Defers evaluation of this predicate until the input is supplied by the given {@link Supplier}.
-     *     </p>
-     *     <p>
-     *         Contract: {@code supplier} must not be {@code null} and must not supply {@code null}.
-     *     </p>
-     * </div>
-     *
-     * @param supplier supplies the input value; must not be {@code null}
-     * @return a {@link Callable} that evaluates this predicate when called
-     *
-     * @since 1.0.0
-     */
-    @Override
-    @NonNull
-    default Callable<Boolean> defer(final @NonNull Supplier<A> supplier) {
-        Objects.requireNonNull(supplier, nullValue("supplier"));
-        return () -> this.test(Objects.requireNonNull(supplier.get(), nullSupplied()));
-    }
 
 }

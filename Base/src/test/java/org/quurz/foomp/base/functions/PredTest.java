@@ -398,19 +398,5 @@ class PredTest {
             .isFalse();
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Test
-    void testDefer() {
-        LOGGER.info("Test pred.defer");
-
-        assertThatThrownBy(() -> alwaysTrue().defer(null))
-            .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> alwaysTrue().defer(() -> null).call())
-            .isInstanceOf(NullPointerException.class);
-
-        assertThatNoException()
-            .isThrownBy(() -> assertThat(alwaysTrue().defer(() -> 5).call())
-            .isTrue());
-    }
 
 }
