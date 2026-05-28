@@ -177,122 +177,6 @@ public abstract sealed class AVLTree<A>
         );
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         The internal node class for the AVL tree.
-     *     </p>
-     * </div>
-     *
-     * @param <A> the element type
-     *
-     * @since 1.0.0
-     */
-    public static final class Node<A>
-            extends AVLTree<A> {
-
-        private final A element;
-        private final AVLTree<A> left;
-        private final AVLTree<A> right;
-
-        /**
-         * <div>
-         *     <p>
-         *         Constructs a new internal node.
-         *     </p>
-         * </div>
-         *
-         * @param comparer the comparer to use
-         * @param element  the element stored in this node
-         * @param left     the left subtree
-         * @param right    the right subtree
-         *
-         * @since 1.0.0
-         */
-        private Node(final Comparer<? super A> comparer,
-                     final A element,
-                     final AVLTree<A> left,
-                     final AVLTree<A> right) {
-
-            super(comparer, Math.max(left.height(), right.height()) + 1);
-            this.element
-                = element;
-            this.left
-                = left;
-            this.right
-                = right;
-        }
-
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         The internal leaf class for the AVL tree, representing a node without children.
-     *     </p>
-     * </div>
-     *
-     * @param <A> the element type
-     *
-     * @since 1.0.0
-     */
-    public static final class Leaf<A>
-            extends AVLTree<A> {
-
-        private final A element;
-
-        /**
-         * <div>
-         *     <p>
-         *         Constructs a new leaf node.
-         *     </p>
-         * </div>
-         *
-         * @param comparer the comparer to use
-         * @param element  the element stored in this leaf
-         *
-         * @since 1.0.0
-         */
-        private Leaf(final Comparer<? super A> comparer,
-                     final A element) {
-            super(comparer, 0);
-            this.element
-                = element;
-        }
-
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         The internal empty class for the AVL tree, representing an empty subtree.
-     *     </p>
-     * </div>
-     *
-     * @param <A> the element type
-     *
-     * @since 1.0.0
-     */
-    public static final class Empty<A>
-            extends AVLTree<A> {
-
-        /**
-         * <div>
-         *     <p>
-         *         Constructs a new empty subtree.
-         *     </p>
-         * </div>
-         *
-         * @param comparator the comparer to use
-         *
-         * @since 1.0.0
-         */
-        private Empty(final Comparer<? super A> comparator) {
-            super(comparator, -1);
-        }
-
-    }
-
     protected final Comparer<? super A> comparer;
     protected final int height;
 
@@ -350,7 +234,7 @@ public abstract sealed class AVLTree<A>
      * @since 1.0.0
      */
     @Override
-    public @NonNull BinaryTree<A> left() {
+    public @NonNull AVLTree<A> left() {
         return switch (this) {
             case Node<A> node -> node.left;
             default -> throw new NoSuchElementException(noValuePresent());
@@ -370,7 +254,7 @@ public abstract sealed class AVLTree<A>
      * @since 1.0.0
      */
     @Override
-    public @NonNull BinaryTree<A> right() {
+    public @NonNull AVLTree<A> right() {
         return switch (this) {
             case Node<A> node -> node.right;
             default -> throw new NoSuchElementException(noValuePresent());
@@ -395,7 +279,8 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull AVLTree<A> insert(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return insertRecursive(element, this.comparer, this);
+        // return insertRecursive(element, this.comparer, this, false);
+        return null;    // TODO
     }
 
     /**
@@ -474,11 +359,11 @@ public abstract sealed class AVLTree<A>
      * @since 1.0.0
      */
     @Override
-    public @NonNull List<? extends Tree<A>> children() {
+    public @NonNull List<AVLTree<A>> children() {
         return switch (this) {
             case Node<A> node -> List.of(node.left, node.right);
             case Leaf<A> _ -> List.of();
-            case Empty<A> _ -> List.of();    // TODO: Mal überlegen, ob ich in solchen Fällen nicht besser eine UnsupportedOperationExcepption werfen sollte
+            case Empty<A> _ -> List.of();
         };
     }
 
@@ -498,7 +383,8 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull AVLTree<A> remove(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return removeRecursive(element, this.comparer, this);
+        // return removeRecursive(element, this.comparer, this);
+        return null;    // TODO
     }
 
     /**
@@ -512,6 +398,7 @@ public abstract sealed class AVLTree<A>
      *
      * @since 1.0.0
      */
+    @Override
     public int height() {
         return this.height;
     }
@@ -519,39 +406,137 @@ public abstract sealed class AVLTree<A>
     /**
      * <div>
      *     <p>
-     *         Recursively inserts an element into the tree and rebalances the result.
+     *         The internal node class for the AVL tree.
      *     </p>
      * </div>
      *
-     * @param <A>      the element type
-     * @param element  the element to insert
-     * @param comparer the comparer to use
-     * @param current  the current subtree
-     * @return the new balanced subtree
+     * @param <A> the element type
      *
      * @since 1.0.0
      */
+    public static final class Node<A>
+            extends AVLTree<A> {
+
+        private final A element;
+        private final AVLTree<A> left;
+        private final AVLTree<A> right;
+
+        /**
+         * <div>
+         *     <p>
+         *         Constructs a new internal node.
+         *     </p>
+         * </div>
+         *
+         * @param comparer the comparer to use
+         * @param element  the element stored in this node
+         * @param left     the left subtree
+         * @param right    the right subtree
+         *
+         * @since 1.0.0
+         */
+        private Node(final Comparer<? super A> comparer,
+                     final A element,
+                     final AVLTree<A> left,
+                     final AVLTree<A> right) {
+
+            super(comparer, Math.max(left.height, right.height) + 1);
+            this.element
+                = element;
+            this.left
+                = left;
+            this.right
+                = right;
+        }
+
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         The internal leaf class for the AVL tree, representing a node without children.
+     *     </p>
+     * </div>
+     *
+     * @param <A> the element type
+     *
+     * @since 1.0.0
+     */
+    public static final class Leaf<A>
+            extends AVLTree<A> {
+
+        private final A element;
+
+        /**
+         * <div>
+         *     <p>
+         *         Constructs a new leaf node.
+         *     </p>
+         * </div>
+         *
+         * @param comparer the comparer to use
+         * @param element  the element stored in this leaf
+         *
+         * @since 1.0.0
+         */
+        private Leaf(final Comparer<? super A> comparer,
+                     final A element) {
+            super(comparer, 0);
+            this.element
+                = element;
+        }
+
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         The internal empty class for the AVL tree, representing an empty subtree.
+     *     </p>
+     * </div>
+     *
+     * @param <A> the element type
+     *
+     * @since 1.0.0
+     */
+    public static final class Empty<A>
+            extends AVLTree<A> {
+
+        /**
+         * <div>
+         *     <p>
+         *         Constructs a new empty subtree.
+         *     </p>
+         * </div>
+         *
+         * @param comparator the comparer to use
+         *
+         * @since 1.0.0
+         */
+        private Empty(final Comparer<? super A> comparator) {
+            super(comparator, -1);
+        }
+
+    }
+
     private static <A> AVLTree<A> insertRecursive(final A element,
                                                   final Comparer<? super A> comparer,
                                                   final AVLTree<A> current) {
         return switch (current) {
-            case Empty<A> _ -> new Leaf<>(comparer, element);
-            case Leaf<A> leaf -> {
-                final var relation = comparer.compare(element, leaf.element);
-                yield switch (relation) {
+            case Empty<A> _
+                -> new Leaf<>(comparer, element);
+            case Leaf<A> leaf
+                -> switch (comparer.compare(element, leaf.element)) {
+                    case LESS -> null;    // TODO
                     case EQUAL -> leaf;
-                    case LESS -> balance(comparer, new Node<>(comparer, leaf.element, new Leaf<>(comparer, element), new Empty<>(comparer)));
-                    case GREATER -> balance(comparer, new Node<>(comparer, leaf.element, new Empty<>(comparer), new Leaf<>(comparer, element)));
+                    case GREATER -> null;   // TODO
                 };
-            }
-            case Node<A> node -> {
-                final var relation = comparer.compare(element, node.element);
-                yield switch (relation) {
+            case Node<A> node
+                -> switch (comparer.compare(element, node.element)) {
+                    case LESS -> null;    // TODO
                     case EQUAL -> node;
-                    case LESS -> balance(comparer, new Node<>(comparer, node.element, insertRecursive(element, comparer, node.left), node.right));
-                    case GREATER -> balance(comparer, new Node<>(comparer, node.element, node.left, insertRecursive(element, comparer, node.right)));
+                    case GREATER -> null;    // TODO
                 };
-            }
         };
     }
 
@@ -589,277 +574,6 @@ public abstract sealed class AVLTree<A>
                     : null;
             case Empty<A> _ -> null;
         };
-    }
-
-    private static <A> AVLTree<A> removeRecursive(final A element,
-                                                  final Comparer<? super A> comparer,
-                                                  final AVLTree<A> current) {
-        return switch (current) {
-            case Empty<A> _ -> current;
-            case Leaf<A> leaf -> {
-                if (comparer.compare(element, leaf.element) == EQUAL) {
-                    yield new Empty<>(comparer);
-                }
-                yield leaf;
-            }
-            case Node<A> node -> {
-                final var relation = comparer.compare(element, node.element);
-                yield switch (relation) {
-                    case LESS
-                        -> balance(
-                            comparer,
-                            new Node<>(
-                                comparer,
-                                node.element,
-                                removeRecursive(
-                                    element,
-                                    comparer,
-                                    node.left
-                                ),
-                                node.right
-                            )
-                        );
-                    case GREATER
-                        -> balance(
-                            comparer,
-                            new Node<>(
-                                comparer,
-                                node.element,
-                                node.left,
-                                removeRecursive(
-                                    element,
-                                    comparer,
-                                    node.right
-                                )
-                            )
-                        );
-                    case EQUAL -> {
-                        if (node.left instanceof Empty) {
-                            yield node.right;
-                        } else if (node.right instanceof Empty) {
-                            yield node.left;
-                        } else {
-                            // Node has two children.
-                            // Find the in-order successor (smallest element in the right subtree)
-                            final A successor
-                                = findMin(node.right);
-                            // Replace node's element with successor and remove successor from right subtree
-                            yield balance(
-                                comparer,
-                                new Node<>(
-                                    comparer,
-                                    successor,
-                                    node.left,
-                                    removeRecursive(
-                                        successor,
-                                        comparer,
-                                        node.right
-                                    )
-                                )
-                            );
-                        }
-                    }
-                };
-            }
-        };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Finds the minimum element in the given tree.
-     *     </p>
-     * </div>
-     *
-     * @param <A>  the element type
-     * @param tree the tree to search
-     * @return the minimum element
-     * @throws NoSuchElementException if the tree is empty
-     *
-     * @since 1.0.0
-     */
-    private static <A> A findMin(final AVLTree<A> tree) {
-        return switch (tree) {
-            case Empty<A> _ -> throw new NoSuchElementException(noValuePresent());
-            case Leaf<A> leaf -> leaf.element;
-            case Node<A> node
-                -> node.left instanceof Empty
-                    ? node.element
-                    : findMin(node.left);
-        };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Calculates the balance factor of a node.
-     *     </p>
-     * </div>
-     *
-     * @param tree the tree to check
-     * @return the balance factor (height of left - height of right)
-     *
-     * @since 1.0.0
-     */
-    private static <A> int balanceFactor(final AVLTree<A> tree) {
-        return switch (tree) {
-            case Node<A> node -> node.left.height() - node.right.height();
-            case Leaf<A> _ -> 0;
-            case Empty<A> _ -> 0;
-        };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Balances the given tree if it violates the AVL condition.
-     *     </p>
-     * </div>
-     *
-     * @param comparer the comparer to use
-     * @param tree     the tree to balance
-     * @return the balanced tree
-     *
-     * @since 1.0.0
-     */
-    private static <A> AVLTree<A> balance(final Comparer<? super A> comparer,
-                                          final AVLTree<A> tree) {
-        final int factor
-            = balanceFactor(tree);
-
-        if (factor > 1) {
-            if (balanceFactor(((Node<A>) tree).left) < 0) {
-                return rotateRight(
-                    comparer,
-                    new Node<>(
-                        comparer,
-                        ((Node<A>) tree).element,
-                        rotateLeft(
-                            comparer,
-                            ((Node<A>) tree).left
-                        ),
-                        ((Node<A>) tree).right
-                    )
-                );
-            }
-            return rotateRight(comparer, tree);
-        }
-
-        if (factor < -1) {
-            if (balanceFactor(((Node<A>) tree).right) > 0) {
-                return rotateLeft(
-                    comparer,
-                    new Node<>(
-                        comparer,
-                        ((Node<A>) tree).element,
-                        ((Node<A>) tree).left,
-                        rotateRight(
-                            comparer,
-                            ((Node<A>) tree).right
-                        )
-                    )
-                );
-            }
-            return rotateLeft(comparer, tree);
-        }
-
-        return tree;
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Performs a right rotation on the given tree.
-     *     </p>
-     * </div>
-     *
-     * @param comparer the comparer to use
-     * @param tree     the tree to rotate
-     * @return the new root after rotation
-     *
-     * @since 1.0.0
-     */
-    private static <A> AVLTree<A> rotateRight(final Comparer<? super A> comparer,
-                                              final AVLTree<A> tree) {
-        if (tree instanceof Node<A> node && node.left instanceof Node<A> left) {
-            return new Node<>(
-                comparer,
-                left.element,
-                left.left,
-                new Node<>(
-                    comparer,
-                    node.element,
-                    left.right,
-                    node.right
-                )
-            );
-        }
-
-        if (tree instanceof Node<A> node && node.left instanceof Leaf<A> left) {
-            final AVLTree<A> empty
-                = new Empty<>(comparer);
-            return new Node<>(
-                comparer,
-                left.element,
-                empty,
-                new Node<>(
-                    comparer,
-                    node.element,
-                    empty,
-                    node.right
-                )
-            );
-        }
-
-        return tree;
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Performs a left rotation on the given tree.
-     *     </p>
-     * </div>
-     *
-     * @param comparer the comparer to use
-     * @param tree     the tree to rotate
-     * @return the new root after rotation
-     *
-     * @since 1.0.0
-     */
-    private static <A> AVLTree<A> rotateLeft(final Comparer<? super A> comparer,
-                                             final AVLTree<A> tree) {
-        if (tree instanceof Node<A> node && node.right instanceof Node<A> right) {
-            return new Node<>(
-                comparer,
-                right.element,
-                new Node<>(
-                    comparer,
-                    node.element,
-                    node.left,
-                    right.left
-                ),
-                right.right
-            );
-        }
-
-        if (tree instanceof Node<A> node && node.right instanceof Leaf<A> right) {
-            final AVLTree<A> empty
-                = new Empty<>(comparer);
-            return new Node<>(
-                comparer,
-                right.element,
-                new Node<>(
-                    comparer,
-                    node.element,
-                    node.left,
-                    empty
-                ),
-                empty
-            );
-        }
-
-        return tree;
     }
 
 }
