@@ -30,6 +30,11 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 public interface Tree<A>
         extends Visitable<Tree<A>> {
 
+    enum InsertionStrategy {
+        Discard,
+        Replace
+    }
+
     /**
      * <div>
      *     <p>

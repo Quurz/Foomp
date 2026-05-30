@@ -6,12 +6,15 @@ import org.quurz.foomp.base.types.BinaryTree;
 import org.quurz.foomp.base.types.Tree;
 import org.quurz.foomp.base.types.Value;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.util.Maybe.none;
+import static org.quurz.foomp.base.util.Maybe.some;
 
 public abstract sealed class RedBlackTree<A>
         implements BinaryTree<A>
@@ -40,6 +43,26 @@ public abstract sealed class RedBlackTree<A>
             case Node<A> node -> node.element;
             case Leaf<A> leaf -> leaf.element;
             case Empty<A> _ -> throw new NoSuchElementException(noValuePresent());
+        };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Returns the element stored in this node, if it exists.
+     *     </p>
+     * </div>
+     *
+     * @return a {@link Maybe.Some} containing the element, or {@link Maybe.None} if the tree is empty
+     *
+     * @since 1.1.0
+     */
+    @Override
+    public @NonNull Maybe<A> elementSafe() {
+        return switch (this) {
+            case Node<A> node -> some(node.element);
+            case Leaf<A> leaf -> some(leaf.element);
+            case Empty<A> _ -> none();
         };
     }
 
@@ -98,12 +121,8 @@ public abstract sealed class RedBlackTree<A>
     }
 
     @Override
-    public @NonNull List<RedBlackTree<A>> children() {
-        return switch (this) {
-            case Node<A> node -> List.of(node.left, node.right);
-            case Leaf<A> _ -> List.of();
-            case Empty<A> _ -> List.of();
-        };
+    public @NonNull List<? extends Tree<A>> children() {
+        return List.of();
     }
 
     @Override
@@ -138,18 +157,12 @@ public abstract sealed class RedBlackTree<A>
             extends RedBlackTree<A> {
 
         private final A element;
-        private final RedBlackTree<A> left;
-        private final RedBlackTree<A> right;
 
         private Leaf(final Comparer<? super A> comparer,
                      final A element) {
             super(comparer, 1, false);
             this.element
                 = element;
-            this.left
-                = new Empty<>(comparer);
-            this.right
-                = new Empty<>(comparer);
         }
 
     }

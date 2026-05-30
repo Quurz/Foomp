@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.types;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.quurz.foomp.base.util.Maybe;
 
 /**
  * <div>
@@ -36,6 +37,9 @@ public interface BinaryTree<A>
      * @since 1.0.0
      */
     @NonNull A element();
+
+    // TODO: JavaDoc
+    @NonNull Value<A> elementSafe();
 
     /**
      * <div>

@@ -3,15 +3,16 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Comparer;
 import org.quurz.foomp.base.types.BinaryTree;
-import org.quurz.foomp.base.types.Tree;
+import org.quurz.foomp.base.types.Copyable;
 
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.quurz.foomp.base.functions.Comparer.Relation.EQUAL;
 import static org.quurz.foomp.base.functions.Comparer.comparer;
 import static org.quurz.foomp.base.localisation.BaseMessages.*;
-import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
+import static org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard;
+import static org.quurz.foomp.base.util.Maybe.*;
+import static org.quurz.foomp.base.util.Tuple2.tuple2;
 
 /**
  * <div>
@@ -27,10 +28,10 @@ import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
  * @author Alexander Schell
  */
 public abstract sealed class AVLTree<A>
-        implements BinaryTree<A>
+        implements BinaryTree<A>,
+                   Copyable<AVLTree<A>>
         permits AVLTree.Node,
-                AVLTree.Leaf,
-                AVLTree.Empty {
+                AVLTree.Leaf {
 
     /**
      * <div>
@@ -46,7 +47,13 @@ public abstract sealed class AVLTree<A>
      */
     @SuppressWarnings("unchecked")
     public static <A extends Comparable<A>> AVLTree<A> avlTree() {
-        return new Empty<>(comparer((Comparator<? super A>) Comparator.naturalOrder()));
+        return new Leaf<>(Discard, comparer((Comparator<? super A>) Comparator.naturalOrder()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <A extends Comparable<A>> AVLTree<A> avlTree(final @NonNull InsertionStrategy insertionStrategy) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        return new Leaf<>(insertionStrategy,comparer((Comparator<? super A>) Comparator.naturalOrder()));
     }
 
     /**
@@ -65,7 +72,14 @@ public abstract sealed class AVLTree<A>
      */
     public static <A> AVLTree<A> avlTree(final @NonNull Comparator<? super A> comparator) {
         Objects.requireNonNull(comparator, nullValue("comparator"));
-        return new Empty<>(comparer(comparator));
+        return new Leaf<>(Discard, comparer(comparator));
+    }
+
+    public static <A> AVLTree<A> avlTree(final @NonNull InsertionStrategy insertionStrategy,
+                                         final @NonNull Comparator<? super A> comparator) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        return new Leaf<>(insertionStrategy, comparer(comparator));
     }
 
     /**
@@ -85,7 +99,14 @@ public abstract sealed class AVLTree<A>
     @SuppressWarnings("unchecked")
     public static <A extends Comparable<A>> AVLTree<A> avlTreeOf(final @NonNull A... elements) {
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(Comparator.naturalOrder(), Stream.of(elements));
+        return construct(Discard, Comparator.naturalOrder(), Stream.of(elements));
+    }
+
+    public static <A extends Comparable<A>> AVLTree<A> avlTreeOf(final @NonNull InsertionStrategy insertionStrategy,
+                                                                 final @NonNull A... elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return construct(insertionStrategy, Comparator.naturalOrder(), Stream.of(elements));
     }
 
     /**
@@ -108,7 +129,17 @@ public abstract sealed class AVLTree<A>
                                            final @NonNull A... elements) {
         Objects.requireNonNull(comparator, nullValue("comparator"));
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(comparator, Stream.of(elements));
+        return construct(Discard, comparator, Stream.of(elements));
+    }
+
+    @SafeVarargs
+    public static <A> AVLTree<A> avlTreeOF(final @NonNull InsertionStrategy insertionStrategy,
+                                           final @NonNull Comparator<? super A> comparator,
+                                           final @NonNull A... elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return construct(insertionStrategy, comparator, Stream.of(elements));
     }
 
     /**
@@ -127,7 +158,14 @@ public abstract sealed class AVLTree<A>
      */
     public static <A extends Comparable<A>> AVLTree<A> avlTreeFrom(final @NonNull Collection<A> elements) {
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(Comparator.naturalOrder(), elements.stream());
+        return construct(Discard, Comparator.naturalOrder(), elements.stream());
+    }
+
+    public static <A extends Comparable<A>> AVLTree<A> avlTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
+                                                                   final @NonNull Collection<A> elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return construct(insertionStrategy, Comparator.naturalOrder(), elements.stream());
     }
 
     /**
@@ -149,7 +187,7 @@ public abstract sealed class AVLTree<A>
                                              final @NonNull Collection<A> elements) {
         Objects.requireNonNull(comparator, nullValue("comparator"));
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(comparator, elements.stream());
+        return construct(Discard, comparator, elements.stream());
     }
 
     /**
@@ -166,17 +204,19 @@ public abstract sealed class AVLTree<A>
      *
      * @since 1.0.0
      */
-    private static <A> AVLTree<A> construct(final Comparator<? super A> comparator,
+    private static <A> AVLTree<A> construct(final InsertionStrategy insertionStrategy,
+                                            final Comparator<? super A> comparator,
                                             final Stream<A> elements) {
         return elements.reduce(
-                AVLTree.avlTree(comparator),
-                AVLTree::insert,
-                (t1, t2) -> {
-                    throw new UnsupportedOperationException("Parallel streams are not supported");
-                }
+            AVLTree.avlTree(insertionStrategy, comparator),
+            AVLTree::insert,
+            (t1, t2) -> {
+                throw new UnsupportedOperationException("Parallel streams are not supported");
+            }
         );
     }
 
+    protected final InsertionStrategy insertionStrategy;
     protected final Comparer<? super A> comparer;
     protected final int height;
 
@@ -192,8 +232,11 @@ public abstract sealed class AVLTree<A>
      *
      * @since 1.0.0
      */
-    protected AVLTree(final Comparer<? super A> comparer,
+    protected AVLTree(final InsertionStrategy insertionStrategy,
+                      final Comparer<? super A> comparer,
                       final int height) {
+        this.insertionStrategy
+            = insertionStrategy;
         this.comparer
             = comparer;
         this.height
@@ -216,8 +259,26 @@ public abstract sealed class AVLTree<A>
     public @NonNull A element() {
         return switch (this) {
             case Node<A> node -> node.element;
-            case Leaf<A> leaf -> leaf.element;
-            case Empty<A> _ -> throw new NoSuchElementException(noValuePresent());
+            case Leaf<A> _ -> throw new NoSuchElementException(noValuePresent());
+        };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Returns the element stored in this node, if it exists.
+     *     </p>
+     * </div>
+     *
+     * @return a {@link Maybe.Some} containing the element, or {@link Maybe.None} if the tree is empty
+     *
+     * @since 1.1.0
+     */
+    @Override
+    public @NonNull Maybe<A> elementSafe() {
+        return switch (this) {
+            case Node<A> node -> some(node.element);
+            case Leaf<A> _ -> none();
         };
     }
 
@@ -279,8 +340,7 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull AVLTree<A> insert(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        // return insertRecursive(element, this.comparer, this, false);
-        return null;    // TODO
+        return insertRecursive(this.insertionStrategy, this.comparer, element, this).get();
     }
 
     /**
@@ -299,7 +359,7 @@ public abstract sealed class AVLTree<A>
     @Override
     public boolean contains(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return searchRecursive(element, this.comparer, this) != null;
+        return searchRecursive(this.comparer, element, this) != null;
     }
 
     /**
@@ -320,7 +380,7 @@ public abstract sealed class AVLTree<A>
     public @NonNull A search(final @NonNull A element) throws NoSuchElementException {
         Objects.requireNonNull(element, nullValue("element"));
         final var result
-            = searchRecursive(element, this.comparer, this);
+            = searchRecursive(this.comparer, element, this);
         if (result != null) {
             return result;
         } else {
@@ -344,7 +404,7 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull Maybe<A> searchSafe(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return maybeOfNullable(searchRecursive(element, this.comparer, this));
+        return maybeOfNullable(searchRecursive(this.comparer, element, this));
     }
 
     /**
@@ -363,7 +423,6 @@ public abstract sealed class AVLTree<A>
         return switch (this) {
             case Node<A> node -> List.of(node.left, node.right);
             case Leaf<A> _ -> List.of();
-            case Empty<A> _ -> List.of();
         };
     }
 
@@ -385,6 +444,14 @@ public abstract sealed class AVLTree<A>
         Objects.requireNonNull(element, nullValue("element"));
         // return removeRecursive(element, this.comparer, this);
         return null;    // TODO
+    }
+
+    @Override
+    public String toString() {
+        return switch (this) {
+            case Node<A> node -> String.format("Node(%s, %s, %s)", node.left, node.element, node.right);
+            case Leaf<A> _ -> "Leaf()";
+        };
     }
 
     /**
@@ -435,12 +502,13 @@ public abstract sealed class AVLTree<A>
          *
          * @since 1.0.0
          */
-        private Node(final Comparer<? super A> comparer,
+        private Node(final InsertionStrategy insertionStrategy,
+                     final Comparer<? super A> comparer,
                      final A element,
                      final AVLTree<A> left,
                      final AVLTree<A> right) {
 
-            super(comparer, Math.max(left.height, right.height) + 1);
+            super(insertionStrategy, comparer, Math.max(left.height, right.height) + 1);
             this.element
                 = element;
             this.left
@@ -449,6 +517,16 @@ public abstract sealed class AVLTree<A>
                 = right;
         }
 
+        @Override
+        public @NonNull AVLTree<A> copy() {
+            return new Node<>(
+                this.insertionStrategy,
+                this.comparer,
+                this.element,
+                this.left.copy(),
+                this.right.copy()
+            );
+        }
     }
 
     /**
@@ -465,78 +543,81 @@ public abstract sealed class AVLTree<A>
     public static final class Leaf<A>
             extends AVLTree<A> {
 
-        private final A element;
+        private Leaf(final InsertionStrategy insertionStrategy,
+                     final Comparer<? super A> comparer) {
+            super(insertionStrategy, comparer, 0);
+        }
 
-        /**
-         * <div>
-         *     <p>
-         *         Constructs a new leaf node.
-         *     </p>
-         * </div>
-         *
-         * @param comparer the comparer to use
-         * @param element  the element stored in this leaf
-         *
-         * @since 1.0.0
-         */
-        private Leaf(final Comparer<? super A> comparer,
-                     final A element) {
-            super(comparer, 0);
-            this.element
-                = element;
+        @Override
+        public @NonNull AVLTree<A> copy() {
+            return new Leaf<>(this.insertionStrategy, this.comparer);
         }
 
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         The internal empty class for the AVL tree, representing an empty subtree.
-     *     </p>
-     * </div>
-     *
-     * @param <A> the element type
-     *
-     * @since 1.0.0
-     */
-    public static final class Empty<A>
-            extends AVLTree<A> {
-
-        /**
-         * <div>
-         *     <p>
-         *         Constructs a new empty subtree.
-         *     </p>
-         * </div>
-         *
-         * @param comparator the comparer to use
-         *
-         * @since 1.0.0
-         */
-        private Empty(final Comparer<? super A> comparator) {
-            super(comparator, -1);
-        }
-
-    }
-
-    private static <A> AVLTree<A> insertRecursive(final A element,
-                                                  final Comparer<? super A> comparer,
-                                                  final AVLTree<A> current) {
+    private static <A> Tuple2<AVLTree<A>, Boolean> insertRecursive(final InsertionStrategy insertionStrategy,
+                                                                   final Comparer<? super A> comparer,
+                                                                   final A element,
+                                                                   final AVLTree<A> current) {
         return switch (current) {
-            case Empty<A> _
-                -> new Leaf<>(comparer, element);
-            case Leaf<A> leaf
-                -> switch (comparer.compare(element, leaf.element)) {
-                    case LESS -> null;    // TODO
-                    case EQUAL -> leaf;
-                    case GREATER -> null;   // TODO
-                };
             case Node<A> node
                 -> switch (comparer.compare(element, node.element)) {
-                    case LESS -> null;    // TODO
-                    case EQUAL -> node;
-                    case GREATER -> null;    // TODO
+                    case LESS
+                        -> {
+                            final var change
+                                = insertRecursive(insertionStrategy, comparer, element, node.left);
+                            final AVLTree<A> newNode;
+                            if (change.get2()) {
+                                newNode
+                                    = new Node<>(insertionStrategy, comparer, current.element(), change.get(), current.right());
+                            } else {
+                                newNode
+                                    = current;
+                            }
+                            yield tuple2(newNode, change.get2());
+                        }
+                    case EQUAL
+                        -> switch (insertionStrategy) {
+                            case Discard
+                                -> tuple2(node, Boolean.FALSE);
+                            case Replace
+                                -> tuple2(
+                                    new Node<>(
+                                        insertionStrategy,
+                                        comparer,
+                                        element,
+                                        node.left.copy(),
+                                        node.right.copy()
+                                    ),
+                                    Boolean.TRUE
+                                );
+                        };
+                    case GREATER
+                        -> {
+                            final var change
+                                = insertRecursive(insertionStrategy, comparer, element, node.left);
+                            final AVLTree<A> newNode;
+                            if (change.get2()) {
+                                newNode
+                                    = new Node<>(insertionStrategy, comparer, current.element(), current.left(), change.get());
+                            } else {
+                                newNode
+                                    = current;
+                            }
+                            yield tuple2(newNode, change.get2());
+                        }
                 };
+            case Leaf<A> _
+                -> tuple2(
+                    new Node<>(
+                        insertionStrategy,
+                        comparer,
+                        element,
+                        new Leaf<>(insertionStrategy, comparer),
+                        new Leaf<>(insertionStrategy, comparer)
+                    ),
+                    Boolean.TRUE
+                );
         };
     }
 
@@ -555,24 +636,18 @@ public abstract sealed class AVLTree<A>
      *
      * @since 1.0.0
      */
-    private static <A> A searchRecursive(final A element,
-                                         final Comparer<? super A> comparer,
+    private static <A> A searchRecursive(final Comparer<? super A> comparer,
+                                         final A element,
                                          final AVLTree<A> current) {
         return switch (current) {
-            case Node<A> node -> {
-                final var relation
-                    = comparer.compare(element, node.element);
-                yield switch (relation) {
-                    case LESS -> searchRecursive(element, comparer, node.left);
+            case Node<A> node
+                -> switch (comparer.compare(element, node.element)) {
+                    case LESS -> searchRecursive(comparer, element, node.left);
                     case EQUAL -> node.element;
-                    case GREATER -> searchRecursive(element, comparer, node.right);
+                    case GREATER -> searchRecursive(comparer, element, node.right);
                 };
-            }
-            case Leaf<A> leaf
-                -> comparer.compare(element, leaf.element) == EQUAL
-                    ? leaf.element
-                    : null;
-            case Empty<A> _ -> null;
+            case Leaf<A> _
+                -> null;
         };
     }
 

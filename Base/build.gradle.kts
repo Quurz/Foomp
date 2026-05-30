@@ -5,6 +5,11 @@
 plugins {
     // Einbinden der gemeinsamen Java-Konventionen aus buildSrc
     id("buildlogic.java-conventions")
+    id("application")
+}
+
+application {
+    mainClass.set("org.quurz.foomp.base.util.Gumpf")
 }
 
 dependencies {
