@@ -1,13 +1,19 @@
 package org.quurz.foomp.base.util;
 
-import static org.quurz.foomp.base.util.AVLTree.avlTreeOf;
+import static org.quurz.foomp.base.util.AVLTree.avlTree;
 
 public class TestMain {
 
     static void main(final String... args) {
-        final var avlTree
-            = avlTreeOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        AVLTree<Integer> avlTree
+            = avlTree();
         System.out.println(avlTree);
+        for (int i = 1; i <= 10; i++) {
+            avlTree
+                = avlTree.insert(i);
+            System.out.println(avlTree);
+        }
+
     }
 
 }

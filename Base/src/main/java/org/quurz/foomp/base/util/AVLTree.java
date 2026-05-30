@@ -564,17 +564,17 @@ public abstract sealed class AVLTree<A>
                 -> switch (comparer.compare(element, node.element)) {
                     case LESS
                         -> {
-                            final var change
+                            final var childNodeAndChangeFlag
                                 = insertRecursive(insertionStrategy, comparer, element, node.left);
-                            final AVLTree<A> newNode;
-                            if (change.get2()) {
-                                newNode
-                                    = new Node<>(insertionStrategy, comparer, current.element(), change.get(), current.right());
+                            final AVLTree<A> copyOnWriteNode;
+                            if (childNodeAndChangeFlag.get2()) {
+                                copyOnWriteNode
+                                    = new Node<>(insertionStrategy, comparer, current.element(), childNodeAndChangeFlag.get(), current.right());
                             } else {
-                                newNode
+                                copyOnWriteNode
                                     = current;
                             }
-                            yield tuple2(newNode, change.get2());
+                            yield tuple2(copyOnWriteNode, childNodeAndChangeFlag.get2());
                         }
                     case EQUAL
                         -> switch (insertionStrategy) {
@@ -594,17 +594,17 @@ public abstract sealed class AVLTree<A>
                         };
                     case GREATER
                         -> {
-                            final var change
-                                = insertRecursive(insertionStrategy, comparer, element, node.left);
-                            final AVLTree<A> newNode;
-                            if (change.get2()) {
-                                newNode
-                                    = new Node<>(insertionStrategy, comparer, current.element(), current.left(), change.get());
+                            final var childNodeAndChangeFlag
+                                = insertRecursive(insertionStrategy, comparer, element, node.right);
+                            final AVLTree<A> copyOnWriteNode;
+                            if (childNodeAndChangeFlag.get2()) {
+                                copyOnWriteNode
+                                    = new Node<>(insertionStrategy, comparer, current.element(), current.left(), childNodeAndChangeFlag.get());
                             } else {
-                                newNode
+                                copyOnWriteNode
                                     = current;
                             }
-                            yield tuple2(newNode, change.get2());
+                            yield tuple2(copyOnWriteNode, childNodeAndChangeFlag.get2());
                         }
                 };
             case Leaf<A> _
