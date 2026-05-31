@@ -2,10 +2,14 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Comparer;
+import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.types.BinaryTree;
 import org.quurz.foomp.base.types.Copyable;
+import org.quurz.foomp.base.types.Echo;
+import org.quurz.foomp.base.types.Transmogrifyable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.quurz.foomp.base.functions.Comparer.comparer;
@@ -29,6 +33,8 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  */
 public abstract sealed class AVLTree<A>
         implements BinaryTree<A>,
+                   Transmogrifyable<AVLTree<A>>,
+                   Echo,
                    Copyable<AVLTree<A>>
         permits AVLTree.Node,
                 AVLTree.Leaf {
@@ -50,6 +56,20 @@ public abstract sealed class AVLTree<A>
         return new Leaf<>(Discard, comparer((Comparator<? super A>) Comparator.naturalOrder()));
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates an empty AVL tree using the natural ordering and the specified insertion strategy.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type, must be {@link Comparable}
+     * @param insertionStrategy the strategy to use when inserting duplicate elements; must not be {@code null}
+     * @return an empty AVL tree
+     * @throws NullPointerException if {@code insertionStrategy} is {@code null}
+     *
+     * @since 1.0.0
+     */
     @SuppressWarnings("unchecked")
     public static <A extends Comparable<A>> AVLTree<A> avlTree(final @NonNull InsertionStrategy insertionStrategy) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
@@ -75,6 +95,21 @@ public abstract sealed class AVLTree<A>
         return new Leaf<>(Discard, comparer(comparator));
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates an empty AVL tree using the specified insertion strategy and comparator.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type
+     * @param insertionStrategy the strategy to use when inserting duplicate elements; must not be {@code null}
+     * @param comparator        the comparator to determine the order of elements; must not be {@code null}
+     * @return an empty AVL tree
+     * @throws NullPointerException if {@code insertionStrategy} or {@code comparator} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static <A> AVLTree<A> avlTree(final @NonNull InsertionStrategy insertionStrategy,
                                          final @NonNull Comparator<? super A> comparator) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
@@ -102,6 +137,22 @@ public abstract sealed class AVLTree<A>
         return construct(Discard, Comparator.naturalOrder(), Stream.of(elements));
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates an AVL tree containing the specified elements using their natural ordering
+     *         and the specified insertion strategy.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type, must be {@link Comparable}
+     * @param insertionStrategy the strategy to use when inserting duplicate elements; must not be {@code null}
+     * @param elements          the elements to be included in the tree; must not be {@code null}
+     * @return an AVL tree containing the elements
+     * @throws NullPointerException if {@code insertionStrategy} or {@code elements} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static <A extends Comparable<A>> AVLTree<A> avlTreeOf(final @NonNull InsertionStrategy insertionStrategy,
                                                                  final @NonNull A... elements) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
@@ -132,6 +183,23 @@ public abstract sealed class AVLTree<A>
         return construct(Discard, comparator, Stream.of(elements));
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates an AVL tree containing the specified elements using the given comparator
+     *         and insertion strategy.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type
+     * @param insertionStrategy the strategy to use when inserting duplicate elements; must not be {@code null}
+     * @param comparator        the comparator to determine the order; must not be {@code null}
+     * @param elements          the elements to be included; must not be {@code null}
+     * @return an AVL tree containing the elements
+     * @throws NullPointerException if {@code insertionStrategy}, {@code comparator} or {@code elements} is {@code null}
+     *
+     * @since 1.0.0
+     */
     @SafeVarargs
     public static <A> AVLTree<A> avlTreeOF(final @NonNull InsertionStrategy insertionStrategy,
                                            final @NonNull Comparator<? super A> comparator,
@@ -161,6 +229,22 @@ public abstract sealed class AVLTree<A>
         return construct(Discard, Comparator.naturalOrder(), elements.stream());
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates an AVL tree from a collection of elements using their natural ordering
+     *         and the specified insertion strategy.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type, must be {@link Comparable}
+     * @param insertionStrategy the strategy to use when inserting duplicate elements; must not be {@code null}
+     * @param elements          the collection of elements; must not be {@code null}
+     * @return an AVL tree containing the elements
+     * @throws NullPointerException if {@code insertionStrategy} or {@code elements} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static <A extends Comparable<A>> AVLTree<A> avlTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
                                                                    final @NonNull Collection<A> elements) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
@@ -197,9 +281,10 @@ public abstract sealed class AVLTree<A>
      *     </p>
      * </div>
      *
-     * @param <A>        the element type
-     * @param comparator the comparator to determine the order
-     * @param elements   the stream of elements
+     * @param <A>               the element type
+     * @param insertionStrategy the strategy to use when inserting duplicate elements
+     * @param comparator        the comparator to determine the order
+     * @param elements          the stream of elements
      * @return an AVL tree containing the elements
      *
      * @since 1.0.0
@@ -227,8 +312,9 @@ public abstract sealed class AVLTree<A>
      *     </p>
      * </div>
      *
-     * @param comparer the comparer used for element ordering
-     * @param height   the height of this tree
+     * @param insertionStrategy the strategy to use when inserting duplicate elements
+     * @param comparer          the comparer used for element ordering
+     * @param height            the height of this tree
      *
      * @since 1.0.0
      */
@@ -446,6 +532,73 @@ public abstract sealed class AVLTree<A>
         return null;    // TODO
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Transforms this AVL tree into another representation using the provided transmogrifier function.
+     *     </p>
+     * </div>
+     *
+     * @param transmogrifier the function to apply to this tree; must not be {@code null}
+     * @param <T>            the target type of the transformation
+     * @return the result of the transformation; never {@code null}
+     * @throws NullPointerException if {@code transmogrifier} is {@code null} or returns {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull <T> T transmogrify(final @NonNull Function<? super AVLTree<A>, ? extends T> transmogrifier) {
+        Objects.requireNonNull(transmogrifier, nullValue("transmogrifier"));
+        return Objects.requireNonNull(transmogrifier.apply(this), nullResultFrom("transmogrifier"));
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Returns a structured string representation of this tree.
+     *     </p>
+     * </div>
+     *
+     * @return a structured string representation
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull String echo() {
+        return echoRecursive("", "", this).trim();
+    }
+
+    private static <A> String echoRecursive(final String prefix,
+                                            final String childrenPrefix,
+                                            final AVLTree<A> current) {
+        return switch (current) {
+            case Node<A> node -> {
+                final var stringBuilder
+                    = new StringBuilder();
+                stringBuilder.append(prefix).append(node.element).append("\n");
+
+                if (node.left instanceof Node<A> || node.right instanceof Node<A>) {
+                    stringBuilder.append(echoRecursive(childrenPrefix + "├── ", childrenPrefix + "│   ", node.left));
+                    stringBuilder.append(echoRecursive(childrenPrefix + "└── ", childrenPrefix + "    ", node.right));
+                }
+
+                yield stringBuilder.toString();
+            }
+            case Leaf<A> _ -> prefix.contains("──") ? prefix + "[empty]\n" : "";
+        };
+    }
+    
+    /**
+     * <div>
+     *     <p>
+     *         Returns a string representation of this tree.
+     *     </p>
+     * </div>
+     *
+     * @return a string representation
+     *
+     * @since 1.0.0
+     */
     @Override
     public String toString() {
         return switch (this) {
@@ -495,10 +648,11 @@ public abstract sealed class AVLTree<A>
          *     </p>
          * </div>
          *
-         * @param comparer the comparer to use
-         * @param element  the element stored in this node
-         * @param left     the left subtree
-         * @param right    the right subtree
+         * @param insertionStrategy the strategy to use when inserting duplicate elements
+         * @param comparer          the comparer to use
+         * @param element           the element stored in this node
+         * @param left              the left subtree
+         * @param right             the right subtree
          *
          * @since 1.0.0
          */
@@ -517,6 +671,17 @@ public abstract sealed class AVLTree<A>
                 = right;
         }
 
+        /**
+         * <div>
+         *     <p>
+         *         Returns a deep copy of this node and its subtrees.
+         *     </p>
+         * </div>
+         *
+         * @return a copy of this tree
+         *
+         * @since 1.0.0
+         */
         @Override
         public @NonNull AVLTree<A> copy() {
             return new Node<>(
@@ -543,11 +708,34 @@ public abstract sealed class AVLTree<A>
     public static final class Leaf<A>
             extends AVLTree<A> {
 
+        /**
+         * <div>
+         *     <p>
+         *         Constructs a new leaf node.
+         *     </p>
+         * </div>
+         *
+         * @param insertionStrategy the strategy to use when inserting duplicate elements
+         * @param comparer          the comparer to use
+         *
+         * @since 1.0.0
+         */
         private Leaf(final InsertionStrategy insertionStrategy,
                      final Comparer<? super A> comparer) {
             super(insertionStrategy, comparer, 0);
         }
 
+        /**
+         * <div>
+         *     <p>
+         *         Returns a copy of this leaf.
+         *     </p>
+         * </div>
+         *
+         * @return a new leaf instance
+         *
+         * @since 1.0.0
+         */
         @Override
         public @NonNull AVLTree<A> copy() {
             return new Leaf<>(this.insertionStrategy, this.comparer);
@@ -555,6 +743,22 @@ public abstract sealed class AVLTree<A>
 
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Recursively inserts an element into the tree, maintaining AVL balance.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type
+     * @param insertionStrategy the strategy to use for duplicate elements
+     * @param comparer          the comparer to use
+     * @param element           the element to insert
+     * @param current           the current node in the recursion
+     * @return a tuple containing the new root of the subtree and a boolean indicating if the height changed
+     *
+     * @since 1.0.0
+     */
     private static <A> Tuple2<AVLTree<A>, Boolean> insertRecursive(final InsertionStrategy insertionStrategy,
                                                                    final Comparer<? super A> comparer,
                                                                    final A element,
@@ -566,15 +770,23 @@ public abstract sealed class AVLTree<A>
                         -> {
                             final var childNodeAndChangeFlag
                                 = insertRecursive(insertionStrategy, comparer, element, node.left);
-                            final AVLTree<A> copyOnWriteNode;
+                            final AVLTree<A> newNode;
                             if (childNodeAndChangeFlag.get2()) {
-                                copyOnWriteNode
-                                    = new Node<>(insertionStrategy, comparer, current.element(), childNodeAndChangeFlag.get(), current.right());
+                                newNode
+                                    = rebalance(
+                                        new Node<>(
+                                            insertionStrategy,
+                                            comparer,
+                                            current.element(),
+                                            childNodeAndChangeFlag.get(),
+                                            current.right()
+                                        )
+                                    );
                             } else {
-                                copyOnWriteNode
+                                newNode
                                     = current;
                             }
-                            yield tuple2(copyOnWriteNode, childNodeAndChangeFlag.get2());
+                            yield tuple2(newNode, childNodeAndChangeFlag.get2());
                         }
                     case EQUAL
                         -> switch (insertionStrategy) {
@@ -596,15 +808,23 @@ public abstract sealed class AVLTree<A>
                         -> {
                             final var childNodeAndChangeFlag
                                 = insertRecursive(insertionStrategy, comparer, element, node.right);
-                            final AVLTree<A> copyOnWriteNode;
+                            final AVLTree<A> newNode;
                             if (childNodeAndChangeFlag.get2()) {
-                                copyOnWriteNode
-                                    = new Node<>(insertionStrategy, comparer, current.element(), current.left(), childNodeAndChangeFlag.get());
+                                newNode
+                                    = rebalance(
+                                        new Node<>(
+                                            insertionStrategy,
+                                            comparer,
+                                            current.element(),
+                                            current.left(),
+                                            childNodeAndChangeFlag.get()
+                                        )
+                                    );
                             } else {
-                                copyOnWriteNode
+                                newNode
                                     = current;
                             }
-                            yield tuple2(copyOnWriteNode, childNodeAndChangeFlag.get2());
+                            yield tuple2(newNode, childNodeAndChangeFlag.get2());
                         }
                 };
             case Leaf<A> _
@@ -619,6 +839,146 @@ public abstract sealed class AVLTree<A>
                     Boolean.TRUE
                 );
         };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Calculates the balance factor of the given tree.
+     *     </p>
+     *     <p>
+     *         The balance factor is defined as the height of the right subtree minus the height
+     *         of the left subtree.
+     *     </p>
+     * </div>
+     *
+     * @param tree the tree to calculate the balance factor for
+     * @return the balance factor (right height - left height)
+     *
+     * @since 1.0.0
+     */
+    private static int balanceFactor(final AVLTree<?> tree) {
+        return switch (tree) {
+            case Node<?> node -> node.right.height - node.left.height;
+            case Leaf<?> _ -> 0;
+        };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Rebalances the given node if its balance factor exceeds 1 or is less than -1.
+     *     </p>
+     * </div>
+     *
+     * @param <A>  the element type
+     * @param node the node to rebalance
+     * @return the rebalanced node (might be the same or a new root after rotation)
+     *
+     * @since 1.0.0
+     */
+    private static <A> Node<A> rebalance(final Node<A> node) {
+        final var balanceFactor
+            = balanceFactor(node);
+
+        if (balanceFactor > 1) {
+            // Der Baum ist rechtslastig
+            if (balanceFactor(node.right) < 0) {
+                // Fall RL (Right-Left): Rechtes Kind ist linkslastig
+                final var rightRotatedChild
+                    = rotateRight((Node<A>) node.right);
+                return rotateLeft(new Node<>(
+                    node.insertionStrategy,
+                    node.comparer,
+                    node.element,
+                    node.left,
+                    rightRotatedChild
+                ));
+            }
+            // Fall RR (Right-Right)
+            return rotateLeft(node);
+        } else if (balanceFactor < -1) {
+            // Der Baum ist linkslastig
+            if (balanceFactor(node.left) > 0) {
+                // Fall LR (Left-Right): Linkes Kind ist rechtslastig
+                final var leftRotatedChild
+                    = rotateLeft((Node<A>) node.left);
+                return rotateRight(new Node<>(
+                    node.insertionStrategy,
+                    node.comparer,
+                    node.element,
+                    leftRotatedChild,
+                    node.right
+                ));
+            }
+            // Fall LL (Left-Left)
+            return rotateRight(node);
+        }
+
+        // Der Baum ist ausgeglichen
+        return node;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Performs a left rotation around the given node.
+     *     </p>
+     * </div>
+     *
+     * @param <A>  the element type
+     * @param node the node to rotate around
+     * @return the new root after rotation
+     *
+     * @since 1.0.0
+     */
+    private static <A> Node<A> rotateLeft(final Node<A> node) {
+        final var pivot
+            = (Node<A>) node.right;
+        return new Node<>(
+            node.insertionStrategy,
+            node.comparer,
+            pivot.element,
+            new Node<>(
+                node.insertionStrategy,
+                node.comparer,
+                node.element,
+                node.left,
+                pivot.left
+            ),
+            pivot.right
+        );
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Performs a right rotation around the given node.
+     *     </p>
+     * </div>
+     *
+     * @param <A>  the element type
+     * @param node the node to rotate around
+     * @return the new root after rotation
+     *
+     * @since 1.0.0
+     */
+    private static <A> Node<A> rotateRight(final Node<A> node) {
+        final var pivot
+            = (Node<A>) node.left;
+        return new Node<>(
+            node.insertionStrategy,
+            node.comparer,
+            pivot.element,
+            pivot.left,
+            new Node<>(
+                node.insertionStrategy,
+                node.comparer,
+                node.element,
+                pivot.right,
+                node.right
+            )
+        );
     }
 
     /**

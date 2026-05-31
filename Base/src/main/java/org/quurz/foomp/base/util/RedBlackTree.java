@@ -19,16 +19,19 @@ import static org.quurz.foomp.base.util.Maybe.some;
 public abstract sealed class RedBlackTree<A>
         implements BinaryTree<A>
         permits RedBlackTree.Node,
-                RedBlackTree.Leaf,
-                RedBlackTree.Empty {
+                RedBlackTree.Leaf {
 
+    protected final InsertionStrategy insertionStrategy;
     protected final Comparer<? super A> comparer;
     protected final int blackHeight;
     protected final boolean black;
 
-    protected RedBlackTree(final Comparer<? super A> comparer,
+    protected RedBlackTree(final InsertionStrategy insertionStrategy,
+                           final Comparer<? super A> comparer,
                            final int blackHeight,
                            final boolean black) {
+        this.insertionStrategy
+            = insertionStrategy;
         this.comparer
             = comparer;
         this.blackHeight
@@ -39,11 +42,7 @@ public abstract sealed class RedBlackTree<A>
 
     @Override
     public @NonNull A element() {
-        return switch (this) {
-            case Node<A> node -> node.element;
-            case Leaf<A> leaf -> leaf.element;
-            case Empty<A> _ -> throw new NoSuchElementException(noValuePresent());
-        };
+        return null;    // TODO
     }
 
     /**
@@ -59,11 +58,7 @@ public abstract sealed class RedBlackTree<A>
      */
     @Override
     public @NonNull Maybe<A> elementSafe() {
-        return switch (this) {
-            case Node<A> node -> some(node.element);
-            case Leaf<A> leaf -> some(leaf.element);
-            case Empty<A> _ -> none();
-        };
+        return null;    // TODO
     }
 
     @Override
@@ -138,11 +133,17 @@ public abstract sealed class RedBlackTree<A>
         private final RedBlackTree<A> left;
         private final RedBlackTree<A> right;
 
-        private Node(final Comparer<? super A> comparer,
+        private Node(final InsertionStrategy insertionStrategy,
+                     final Comparer<? super A> comparer,
                      final A element,
                      final RedBlackTree<A> left,
                      final RedBlackTree<A> right) {
-            super(comparer, Math.max(left.blackHeight, right.blackHeight) + 1, true);
+            super(
+                insertionStrategy,
+                comparer,
+                Math.max(left.blackHeight, right.blackHeight) + 1,    // TODO: Das stimmt so nicht
+                true
+            );
             this.element
                 = element;
             this.left
@@ -156,22 +157,9 @@ public abstract sealed class RedBlackTree<A>
     public static final class Leaf<A>
             extends RedBlackTree<A> {
 
-        private final A element;
-
-        private Leaf(final Comparer<? super A> comparer,
-                     final A element) {
-            super(comparer, 1, false);
-            this.element
-                = element;
-        }
-
-    }
-
-    public static final class Empty<A>
-            extends RedBlackTree<A> {
-
-        private Empty(final Comparer<? super A> comparer) {
-            super(comparer, 0, true);
+        private Leaf(final InsertionStrategy insertionStrategy,
+                     final Comparer<? super A> comparer) {
+            super(insertionStrategy, comparer, 1, true);
         }
 
     }
