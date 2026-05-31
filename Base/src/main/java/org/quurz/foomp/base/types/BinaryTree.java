@@ -1,7 +1,6 @@
 package org.quurz.foomp.base.types;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.util.Maybe;
 
 /**
  * <div>
@@ -38,7 +37,17 @@ public interface BinaryTree<A>
      */
     @NonNull A element();
 
-    // TODO: JavaDoc
+    /**
+     * <div>
+     *     <p>
+     *         Returns the element held by this node, wrapped in a {@link Value}.
+     *     </p>
+     * </div>
+     *
+     * @return a {@code Value} containing the element if it exists, or an empty {@code Value} otherwise
+     *
+     * @since 1.1.0
+     */
     @NonNull Value<A> elementSafe();
 
     /**
@@ -68,5 +77,20 @@ public interface BinaryTree<A>
      * @since 1.0.0
      */
     @NonNull BinaryTree<A> right();
+
+    /**
+     * <div>
+     *     <p>
+     *         Merges this tree with another binary tree.
+     *     </p>
+     * </div>
+     *
+     * @param other the tree to merge with; must not be {@code null}
+     * @return the merged binary tree
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.1.0
+     */
+    @NonNull BinaryTree<A> merge(final @NonNull BinaryTree<A> other);
 
 }

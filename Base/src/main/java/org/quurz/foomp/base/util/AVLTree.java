@@ -2,7 +2,6 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Comparer;
-import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.types.BinaryTree;
 import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Echo;
@@ -10,6 +9,7 @@ import org.quurz.foomp.base.types.Transmogrifyable;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static org.quurz.foomp.base.functions.Comparer.comparer;
@@ -134,7 +134,7 @@ public abstract sealed class AVLTree<A>
     @SuppressWarnings("unchecked")
     public static <A extends Comparable<A>> AVLTree<A> avlTreeOf(final @NonNull A... elements) {
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(Discard, Comparator.naturalOrder(), Stream.of(elements));
+        return avlTreeFrom(Discard, Comparator.naturalOrder(), Stream.of(elements));
     }
 
     /**
@@ -157,7 +157,7 @@ public abstract sealed class AVLTree<A>
                                                                  final @NonNull A... elements) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(insertionStrategy, Comparator.naturalOrder(), Stream.of(elements));
+        return avlTreeFrom(insertionStrategy, Comparator.naturalOrder(), Stream.of(elements));
     }
 
     /**
@@ -176,11 +176,11 @@ public abstract sealed class AVLTree<A>
      * @since 1.0.0
      */
     @SafeVarargs
-    public static <A> AVLTree<A> avlTreeOF(final @NonNull Comparator<? super A> comparator,
+    public static <A> AVLTree<A> avlTreeOf(final @NonNull Comparator<? super A> comparator,
                                            final @NonNull A... elements) {
         Objects.requireNonNull(comparator, nullValue("comparator"));
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(Discard, comparator, Stream.of(elements));
+        return avlTreeFrom(Discard, comparator, Stream.of(elements));
     }
 
     /**
@@ -201,13 +201,13 @@ public abstract sealed class AVLTree<A>
      * @since 1.0.0
      */
     @SafeVarargs
-    public static <A> AVLTree<A> avlTreeOF(final @NonNull InsertionStrategy insertionStrategy,
+    public static <A> AVLTree<A> avlTreeOf(final @NonNull InsertionStrategy insertionStrategy,
                                            final @NonNull Comparator<? super A> comparator,
                                            final @NonNull A... elements) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
         Objects.requireNonNull(comparator, nullValue("comparator"));
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(insertionStrategy, comparator, Stream.of(elements));
+        return avlTreeFrom(insertionStrategy, comparator, Stream.of(elements));
     }
 
     /**
@@ -226,7 +226,7 @@ public abstract sealed class AVLTree<A>
      */
     public static <A extends Comparable<A>> AVLTree<A> avlTreeFrom(final @NonNull Collection<A> elements) {
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(Discard, Comparator.naturalOrder(), elements.stream());
+        return avlTreeFrom(Discard, Comparator.naturalOrder(), elements.stream());
     }
 
     /**
@@ -249,7 +249,7 @@ public abstract sealed class AVLTree<A>
                                                                    final @NonNull Collection<A> elements) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(insertionStrategy, Comparator.naturalOrder(), elements.stream());
+        return avlTreeFrom(insertionStrategy, Comparator.naturalOrder(), elements.stream());
     }
 
     /**
@@ -271,33 +271,100 @@ public abstract sealed class AVLTree<A>
                                              final @NonNull Collection<A> elements) {
         Objects.requireNonNull(comparator, nullValue("comparator"));
         Objects.requireNonNull(elements, nullValue("elements"));
-        return construct(Discard, comparator, elements.stream());
+        return avlTreeFrom(Discard, comparator, elements.stream());
+    }
+
+    public static <A> AVLTree<A> avlTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
+                                             final @NonNull Comparator<? super A> comparator,
+                                             final @NonNull Collection<A> elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return avlTreeFrom(insertionStrategy, comparator, elements.stream());
     }
 
     /**
      * <div>
      *     <p>
-     *         Constructs an AVL tree from a stream of elements.
+     *         Constructs an AVL tree from a stream of elements using the natural ordering.
+     *     </p>
+     * </div>
+     *
+     * @param <A>      the element type, must be {@link Comparable}
+     * @param elements the stream of elements; must not be {@code null}
+     * @return an AVL tree containing the elements
+     * @throws NullPointerException if {@code elements} is {@code null}
+     *
+     * @since 1.1.0
+     */
+    public static <A extends Comparable<A>> AVLTree<A> avlTreeFrom(final @NonNull Stream<A> elements) {
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return avlTreeFrom(Discard, Comparator.naturalOrder(), elements);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Constructs an AVL tree from a stream of elements using the specified comparator.
+     *     </p>
+     * </div>
+     *
+     * @param <A>        the element type
+     * @param comparator the comparator to determine the order; must not be {@code null}
+     * @param elements   the stream of elements; must not be {@code null}
+     * @return an AVL tree containing the elements
+     * @throws NullPointerException if {@code comparator} or {@code elements} is {@code null}
+     *
+     * @since 1.1.0
+     */
+    public static <A> AVLTree<A> avlTreeFrom(final @NonNull Comparator<? super A> comparator,
+                                             final @NonNull Stream<A> elements) {
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return avlTreeFrom(Discard, comparator, elements);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Constructs an AVL tree from a stream of elements using the specified insertion strategy and comparator.
      *     </p>
      * </div>
      *
      * @param <A>               the element type
-     * @param insertionStrategy the strategy to use when inserting duplicate elements
-     * @param comparator        the comparator to determine the order
-     * @param elements          the stream of elements
+     * @param insertionStrategy the strategy to use when inserting duplicate elements; must not be {@code null}
+     * @param comparator        the comparator to determine the order; must not be {@code null}
+     * @param elements          the stream of elements; must not be {@code null}
      * @return an AVL tree containing the elements
+     * @throws NullPointerException if {@code insertionStrategy}, {@code comparator} or {@code elements} is {@code null}
      *
-     * @since 1.0.0
+     * @since 1.1.0
      */
-    private static <A> AVLTree<A> construct(final InsertionStrategy insertionStrategy,
-                                            final Comparator<? super A> comparator,
-                                            final Stream<A> elements) {
+    public static <A> AVLTree<A> avlTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
+                                             final @NonNull Comparator<? super A> comparator,
+                                             final @NonNull Stream<A> elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
         return elements.reduce(
             AVLTree.avlTree(insertionStrategy, comparator),
             AVLTree::insert,
             (t1, t2) -> {
-                throw new UnsupportedOperationException("Parallel streams are not supported");
+                throw new UnsupportedOperationException("Parallel streams are not supported");    // TODO
             }
+        );
+    }
+
+    public static <A> Collector<A, Set<A>, AVLTree<A>> toAVLTree(final @NonNull InsertionStrategy insertionStrategy,
+                                                                 final @NonNull Comparator<? super A> comparator) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+
+        return Collector.of(
+                HashSet::new,
+                Set::add,
+                (left, right) -> { left.addAll(right); return left; },
+                set -> avlTreeFrom(insertionStrategy, comparator, (Collection<A>) set)
         );
     }
 
@@ -426,7 +493,7 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull AVLTree<A> insert(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return insertRecursive(this.insertionStrategy, this.comparer, element, this).get();
+        return insertRecursive(insertionStrategy, comparer, element, this).get1();
     }
 
     /**
@@ -528,7 +595,11 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull AVLTree<A> remove(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        // return removeRecursive(element, this.comparer, this);
+        return removeRecursive(this.comparer, element, this);
+    }
+
+    @Override
+    public @NonNull AVLTree<A> merge(final @NonNull BinaryTree<A> other) {
         return null;    // TODO
     }
 
@@ -1008,6 +1079,80 @@ public abstract sealed class AVLTree<A>
                 };
             case Leaf<A> _
                 -> null;
+        };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Recursively removes an element from the tree and rebalances the affected subtrees.
+     *     </p>
+     * </div>
+     *
+     * @param <A>      the element type
+     * @param comparer the comparer to use for navigation
+     * @param element  the element to remove
+     * @param current  the current node in the recursion
+     * @return the new root of the subtree after removal and rebalancing
+     *
+     * @since 1.0.0
+     */
+    private static <A> AVLTree<A> removeRecursive(final Comparer<? super A> comparer,
+                                                  final A element,
+                                                  final AVLTree<A> current) {
+        return switch (current) {
+            case Leaf<A> _ -> current;
+            case Node<A> node -> {
+                final AVLTree<A> result
+                    = switch (comparer.compare(element, node.element)) {
+                    case LESS -> {
+                        final var newLeft = removeRecursive(comparer, element, node.left);
+                        yield newLeft == node.left ? node : rebalance(new Node<>(node.insertionStrategy, node.comparer, node.element, newLeft, node.right));
+                    }
+                    case GREATER -> {
+                        final var newRight = removeRecursive(comparer, element, node.right);
+                        yield newRight == node.right ? node : rebalance(new Node<>(node.insertionStrategy, node.comparer, node.element, node.left, newRight));
+                    }
+                    case EQUAL -> {
+                        if (node.left instanceof Leaf<A>) {
+                            yield node.right;
+                        } else if (node.right instanceof Leaf<A>) {
+                            yield node.left;
+                        } else {
+                            final var successor = findMin(node.right);
+                            yield rebalance(new Node<>(
+                                node.insertionStrategy,
+                                node.comparer,
+                                successor,
+                                node.left,
+                                removeRecursive(comparer, successor, node.right)
+                            ));
+                        }
+                    }
+                };
+                yield result;
+            }
+        };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Finds the minimum element in the given tree (the leftmost node).
+     *     </p>
+     * </div>
+     *
+     * @param <A>  the element type
+     * @param tree the tree to search in
+     * @return the minimum element found
+     * @throws NoSuchElementException if the tree is empty
+     *
+     * @since 1.0.0
+     */
+    private static <A> A findMin(final AVLTree<A> tree) {
+        return switch (tree) {
+            case Node<A> node -> node.left instanceof Leaf<A> ? node.element : findMin(node.left);
+            case Leaf<A> _ -> throw new NoSuchElementException();
         };
     }
 
