@@ -396,6 +396,11 @@ public abstract sealed class AVLTree<A>
             = height;
     }
 
+    @Override
+    public boolean isNode() {
+        return (this instanceof Node<A>);
+    }
+
     /**
      * <div>
      *     <p>
@@ -504,7 +509,7 @@ public abstract sealed class AVLTree<A>
      * </div>
      *
      * @param element the element to search for; must not be {@code null}
-     * @return {@code true} if the element is found, {@code false} otherwise
+     * @return {@code true} if the element is present, {@code false} otherwise
      * @throws NullPointerException if {@code element} is {@code null}
      *
      * @since 1.0.0
@@ -598,6 +603,19 @@ public abstract sealed class AVLTree<A>
         return removeRecursive(this.comparer, element, this);
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Merges this AVL tree with another binary tree.
+     *     </p>
+     * </div>
+     *
+     * @param other the other binary tree to merge with; must not be {@code null}
+     * @return a new AVL tree representing the result of the merge
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
     @Override
     public @NonNull AVLTree<A> merge(final @NonNull BinaryTree<A> other) {
         return null;    // TODO

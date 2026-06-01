@@ -30,9 +30,66 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 public interface Tree<A>
         extends Visitable<Tree<A>> {
 
+    /**
+     * <div>
+     *     <p>
+     *         Defines strategies for handling element insertions when an equivalent
+     *         element already exists in the tree.
+     *     </p>
+     * </div>
+     *
+     * @since 1.0.0
+     */
     enum InsertionStrategy {
+        /**
+         * <div>
+         *     <p>
+         *         Keeps the existing element and discards the new one.
+         *     </p>
+         * </div>
+         *
+         * @since 1.0.0
+         */
         Discard,
+
+        /**
+         * <div>
+         *     <p>
+         *         Replaces the existing element with the new one.
+         *     </p>
+         * </div>
+         *
+         * @since 1.0.0
+         */
         Replace
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Checks if this tree instance represents a node containing an element and children.
+     *     </p>
+     * </div>
+     *
+     * @return {@code true} if this is a node, {@code false} if it is a terminal leaf
+     *
+     * @since 1.0.0
+     */
+    boolean isNode();
+
+    /**
+     * <div>
+     *     <p>
+     *         Checks if this tree instance represents a terminal leaf without an element.
+     *     </p>
+     * </div>
+     *
+     * @return {@code true} if this is a leaf, {@code false} if it is a node
+     *
+     * @since 1.0.0
+     */
+    default boolean isLeaf() {
+        return !this.isNode();
     }
 
     /**

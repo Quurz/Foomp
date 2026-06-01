@@ -41,6 +41,11 @@ public abstract sealed class RedBlackTree<A>
     }
 
     @Override
+    public boolean isNode() {
+        return (this instanceof Node<A>);
+    }
+
+    @Override
     public @NonNull A element() {
         return null;    // TODO
     }
@@ -123,6 +128,12 @@ public abstract sealed class RedBlackTree<A>
     @Override
     public @NonNull Tree<A> remove(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
+        return null;    // TODO
+    }
+
+    @Override
+    public @NonNull RedBlackTree<A> merge(final @NonNull BinaryTree<A> other) {
+        Objects.requireNonNull(other, nullValue("other"));
         return null;    // TODO
     }
 

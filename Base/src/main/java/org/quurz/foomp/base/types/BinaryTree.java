@@ -21,7 +21,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * @author Alexander Schell
  */
 public interface BinaryTree<A>
-        extends Tree<A> {
+        extends Tree<A>,
+                Mergeable<BinaryTree<A>> {
 
     /**
      * <div>
@@ -46,7 +47,7 @@ public interface BinaryTree<A>
      *
      * @return a {@code Value} containing the element if it exists, or an empty {@code Value} otherwise
      *
-     * @since 1.1.0
+     * @since 1.0.0
      */
     @NonNull Value<A> elementSafe();
 
@@ -77,20 +78,5 @@ public interface BinaryTree<A>
      * @since 1.0.0
      */
     @NonNull BinaryTree<A> right();
-
-    /**
-     * <div>
-     *     <p>
-     *         Merges this tree with another binary tree.
-     *     </p>
-     * </div>
-     *
-     * @param other the tree to merge with; must not be {@code null}
-     * @return the merged binary tree
-     * @throws NullPointerException if {@code other} is {@code null}
-     *
-     * @since 1.1.0
-     */
-    @NonNull BinaryTree<A> merge(final @NonNull BinaryTree<A> other);
 
 }
