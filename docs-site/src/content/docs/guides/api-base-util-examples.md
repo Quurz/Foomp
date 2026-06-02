@@ -362,3 +362,28 @@ AVLTree<Integer> combined = largerTree.merge(otherTree);
 AVLTree<Integer> collected = java.util.stream.Stream.of(1, 2, 3)
     .collect(AVLTree.collectToAVLTree(org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard, Integer::compareTo));
 ```
+
+## RedBlackTree (Okasaki-Style Search Tree)
+
+`RedBlackTree<A>` is another immutable self-balancing tree. It uses the Okasaki balance algorithm and maintains a black-height property for balance.
+
+```java
+import org.quurz.foomp.base.util.RedBlackTree;
+import static org.quurz.foomp.base.util.RedBlackTree.redBlackTreeOf;
+
+// Create an immutable RB tree
+RedBlackTree<String> rbTree = redBlackTreeOf("apple", "banana", "cherry");
+
+// Insertion
+RedBlackTree<String> largerRB = rbTree.insert("date");
+
+// Search with color-aware structure
+System.out.println(largerRB.echo()); // Prints a tree structure with B/R markers
+
+// Collectors are also supported
+RedBlackTree<Integer> collectedRB = java.util.stream.Stream.of(10, 20, 30)
+    .collect(RedBlackTree.collectToRedBlackTree(
+        org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard, 
+        Integer::compareTo
+    ));
+```
