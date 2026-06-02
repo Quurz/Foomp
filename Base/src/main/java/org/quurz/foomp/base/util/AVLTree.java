@@ -346,6 +346,7 @@ public abstract sealed class AVLTree<A>
      * <div>
      *     <p>
      *         Constructs an AVL tree from a stream of elements using the specified insertion strategy and comparator.
+     *         This method supports parallel streams through the use of the merge operation.
      *     </p>
      * </div>
      *
@@ -367,9 +368,7 @@ public abstract sealed class AVLTree<A>
         return elements.reduce(
             AVLTree.avlTree(insertionStrategy, comparator),
             AVLTree::insert,
-            (t1, t2) -> {
-                throw new UnsupportedOperationException("Parallel streams are not supported");
-            }
+            AVLTree::merge
         );
     }
 
@@ -377,6 +376,7 @@ public abstract sealed class AVLTree<A>
      * <div>
      *     <p>
      *         Returns a collector that accumulates elements into an AVL tree.
+     *         The collector supports parallel accumulation.
      *     </p>
      * </div>
      *
@@ -397,7 +397,7 @@ public abstract sealed class AVLTree<A>
             HashSet::new,
             Set::add,
             (left, right) -> { left.addAll(right); return left; },
-            set -> avlTreeFrom(insertionStrategy, comparator, (Collection<A>) set)
+            set -> avlTreeFrom(insertionStrategy, comparator, set)
         );
     }
 
@@ -871,7 +871,11 @@ public abstract sealed class AVLTree<A>
     /**
      * <div>
      *     <p>
-     *         Returns a string representation of this tree.
+     *         Returns a string representation of this AVL tree.
+     *     </p>
+     *     <p>
+     *         The representation follows the format {@code Node(left, element, right)} for nodes
+     *         and {@code Leaf()} for leaves, providing a structural view of the tree.
      *     </p>
      * </div>
      *

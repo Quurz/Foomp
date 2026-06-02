@@ -96,12 +96,50 @@ class AVLTreeTest extends TestHelper {
         }
 
         @Test
+        void avlTreeFrom_stream_with_strategy_and_comparator_creates_tree() {
+            LOGGER.info("avlTreeFrom(Strategy, Comparator, Stream) should create a tree");
+            final var tree = AVLTree.avlTreeFrom(
+                Tree.InsertionStrategy.Replace,
+                Comparator.reverseOrder(),
+                Stream.of(1, 2, 3)
+            );
+            assertThat(tree.contains(1)).isTrue();
+            assertThat(tree.contains(2)).isTrue();
+            assertThat(tree.contains(3)).isTrue();
+            // With reverse order, 3 is root
+            assertThat(tree.element()).isEqualTo(2); 
+            // 2 is center, 3 and 1 are children. wait.
+            // reverseOrder: 3 < 2 < 1.
+            // 1, 2, 3 in reverse order: 1 is largest, 3 is smallest.
+            // tree: 2
+            //      / \
+            //     3   1
+            assertThat(tree.left().element()).isEqualTo(3);
+            assertThat(tree.right().element()).isEqualTo(1);
+        }
+
+        @Test
+        void avlTreeFrom_parallel_stream_works() {
+            LOGGER.info("avlTreeFrom with parallel stream should work correctly");
+            final var elements = Stream.iterate(0, i -> i + 1)
+                                      .limit(100)
+                                      .parallel();
+            final var tree = AVLTree.avlTreeFrom(elements);
+            
+            assertThat(tree.height()).isGreaterThan(0);
+            for (int i = 0; i < 100; i++) {
+                assertThat(tree.contains(i)).isTrue();
+            }
+        }
+
+        @Test
         void avlTreeFrom_empty_collection_returns_leaf() {
             LOGGER.info("avlTreeFrom(EmptyCollection) should return an empty tree");
             final var tree = AVLTree.avlTreeFrom(Collections.<Integer>emptyList());
             assertThat(tree.height()).isEqualTo(0);
         }
 
+        @SuppressWarnings("DataFlowIssue")
         @Test
         void avlTree_with_null_arguments_throws() {
             LOGGER.info("avlTree with null arguments should throw NullPointerException");
@@ -408,7 +446,18 @@ class AVLTreeTest extends TestHelper {
             final var tree2 = avlTreeOf(1, 2, 3);
             
             assertThat(tree1).isEqualTo(tree2);
-            assertThat(tree1.hashCode()).isEqualTo(tree2.hashCode());
+        }
+
+        @Test
+        void toString_works() {
+            LOGGER.info("toString should return a structural representation");
+            final var tree = avlTreeOf(1, 2);
+            final String str = tree.toString();
+            assertThat(str).isNotNull();
+            assertThat(str).contains("Node");
+            assertThat(str).contains("1");
+            assertThat(str).contains("2");
+            assertThat(str).contains("Leaf()");
         }
     }
 

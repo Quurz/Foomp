@@ -14,6 +14,34 @@ import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard;
 
+/**
+ * <div>
+ *     <p>
+ *         A persistent, functional Red-Black Tree implementation based on Chris Okasaki's approach.
+ *     </p>
+ *     <p>
+ *         This implementation is a self-balancing binary search tree where each node has a color (red or black).
+ *         It ensures a logarithmic height (O(log n)), guaranteeing efficient operations for insertion,
+ *         deletion, and lookup.
+ *     </p>
+ *     <p>
+ *         The tree is immutable and uses Copy-on-Write (CoW) semantics, making it inherently thread-safe.
+ *         Balancing is performed during insertion using the Okasaki balance algorithm, which
+ *         maintains the Red-Black properties:
+ *         <ul>
+ *             <li>Every node is either red or black.</li>
+ *             <li>The root is always black.</li>
+ *             <li>Leaves (null nodes) are black.</li>
+ *             <li>If a node is red, both its children are black.</li>
+ *             <li>Every path from a node to its descendant leaves contains the same number of black nodes.</li>
+ *         </ul>
+ *     </p>
+ * </div>
+ *
+ * @param <A> the type of elements maintained by this tree
+ *
+ * @since 1.0.0
+ */
 public abstract sealed class RedBlackTree<A>
         implements BinaryTree<A>,
                    Transmogrifyable<RedBlackTree<A>>,
@@ -312,6 +340,7 @@ public abstract sealed class RedBlackTree<A>
      * <div>
      *     <p>
      *         Creates a Red-Black Tree from a {@link Stream} of elements, using the specified {@link InsertionStrategy} and {@link Comparator}.
+     *         This method supports parallel streams through the use of the merge operation.
      *     </p>
      * </div>
      *
@@ -340,6 +369,7 @@ public abstract sealed class RedBlackTree<A>
      * <div>
      *     <p>
      *         Returns a {@link Collector} that accumulates elements into a {@link RedBlackTree}.
+     *         The collector supports parallel accumulation.
      *     </p>
      * </div>
      *
@@ -359,7 +389,7 @@ public abstract sealed class RedBlackTree<A>
             HashSet::new,
             Set::add,
             (left, right) -> { left.addAll(right); return left; },
-            set -> redBlackTreeFrom(insertionStrategy, comparator, (Collection<A>) set)
+            set -> redBlackTreeFrom(insertionStrategy, comparator, set)
         );
     }
 
@@ -1012,7 +1042,11 @@ public abstract sealed class RedBlackTree<A>
     /**
      * <div>
      *     <p>
-     *         Returns a string representation of the tree.
+     *         Returns a string representation of this Red-Black Tree.
+     *     </p>
+     *     <p>
+     *         The representation follows the format {@code Node(left, element, right)} for nodes
+     *         and {@code Leaf()} for leaves, providing a structural view of the tree.
      *     </p>
      * </div>
      *
@@ -1022,7 +1056,10 @@ public abstract sealed class RedBlackTree<A>
      */
     @Override
     public @NonNull String toString() {
-        return "RedBlackTree[" + elementSafe().toString() + "]";
+        return switch (this) {
+            case Node<A> node -> String.format("Node(%s, %s, %s)", node.left, node.element, node.right);
+            case Leaf<A> _ -> "Leaf()";
+        };
     }
 
     /**
