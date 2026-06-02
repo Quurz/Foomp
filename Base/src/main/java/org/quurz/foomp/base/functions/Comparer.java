@@ -41,6 +41,7 @@ public interface Comparer<A>
      * @since 1.0.0
      */
     enum Relation {
+
         /**
          * <div>
          *     <p>
@@ -67,6 +68,7 @@ public interface Comparer<A>
          * </div>
          */
         GREATER
+
     }
 
     /**

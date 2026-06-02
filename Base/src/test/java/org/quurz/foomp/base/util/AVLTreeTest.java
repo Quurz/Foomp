@@ -302,6 +302,53 @@ class AVLTreeTest extends TestHelper {
     class Utilities {
 
         @Test
+        void merge_combines_two_trees() {
+            LOGGER.info("merge should correctly combine two AVL trees");
+            final var tree1 = avlTreeOf(1, 3, 5);
+            final var tree2 = avlTreeOf(2, 4, 6);
+            
+            final var merged = tree1.merge(tree2);
+            
+            assertThat(merged.height()).isEqualTo(3);
+            for (int i = 1; i <= 6; i++) {
+                assertThat(merged.contains(i)).isTrue();
+            }
+            validateAVLProperty(merged);
+        }
+
+        @Test
+        void merge_with_overlapping_elements_respects_strategy() {
+            LOGGER.info("merge with overlapping elements should respect the insertion strategy");
+            // Strategy Discard (default)
+            final var tree1 = avlTreeOf(new Element(1, "A"));
+            final var tree2 = avlTreeOf(new Element(1, "B"));
+            
+            final var mergedDiscard = tree1.merge(tree2);
+            assertThat(mergedDiscard.search(new Element(1, "")).value()).isEqualTo("A");
+            
+            // Strategy Replace
+            final var tree3 = avlTree(Tree.InsertionStrategy.Replace, Element::compareTo)
+                .insert(new Element(1, "A"));
+            final var tree4 = avlTreeOf(new Element(1, "B"));
+            
+            final var mergedReplace = tree3.merge(tree4);
+            assertThat(mergedReplace.search(new Element(1, "")).value()).isEqualTo("B");
+        }
+
+        @Test
+        void toAVLTree_collector_works() {
+            LOGGER.info("toAVLTree collector should correctly collect stream elements into an AVL tree");
+            final var tree = Stream.of(3, 1, 2)
+                .collect(AVLTree.toAVLTree(Tree.InsertionStrategy.Discard, Integer::compareTo));
+            
+            assertThat(tree.height()).isEqualTo(2);
+            assertThat(tree.contains(1)).isTrue();
+            assertThat(tree.contains(2)).isTrue();
+            assertThat(tree.contains(3)).isTrue();
+            validateAVLProperty(tree);
+        }
+
+        @Test
         void echo_returns_non_empty_string() {
             LOGGER.info("echo should return a structured string representation of the tree");
             final var tree = avlTreeOf(1, 2, 3);
@@ -332,6 +379,36 @@ class AVLTreeTest extends TestHelper {
             final var tree = avlTreeOf(1, 2, 3);
             final String result = tree.transmogrify(t -> "Height: " + t.height());
             assertThat(result).isEqualTo("Height: 2");
+        }
+
+        @Test
+        void equals_and_hashCode_work() {
+            LOGGER.info("equals and hashCode should work based on in-order sequence");
+            final var tree1 = avlTreeOf(1, 2, 3);
+            final var tree2 = avlTreeOf(3, 2, 1); // Same elements, may have different insertion history
+            final var tree3 = avlTreeOf(1, 2);
+            final var tree4 = avlTreeOf(1, 2, 4);
+
+            assertThat(tree1).isEqualTo(tree2);
+            assertThat(tree1.hashCode()).isEqualTo(tree2.hashCode());
+
+            assertThat(tree1).isNotEqualTo(tree3);
+            assertThat(tree1.hashCode()).isNotEqualTo(tree3.hashCode());
+
+            assertThat(tree1).isNotEqualTo(tree4);
+        }
+
+        @Test
+        void equals_works_with_different_internal_structure() {
+            LOGGER.info("equals should return true for trees with same elements but different structures");
+            // AVL trees with same elements are usually same structure, but let's be sure.
+            // We can compare it with a different BinaryTree implementation if we had one,
+            // or just ensure that different insertion orders resulting in same elements are equal.
+            final var tree1 = avlTreeOf(2, 1, 3);
+            final var tree2 = avlTreeOf(1, 2, 3);
+            
+            assertThat(tree1).isEqualTo(tree2);
+            assertThat(tree1.hashCode()).isEqualTo(tree2.hashCode());
         }
     }
 

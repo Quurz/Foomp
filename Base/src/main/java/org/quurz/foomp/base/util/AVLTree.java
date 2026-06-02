@@ -153,6 +153,7 @@ public abstract sealed class AVLTree<A>
      *
      * @since 1.0.0
      */
+    @SafeVarargs
     public static <A extends Comparable<A>> AVLTree<A> avlTreeOf(final @NonNull InsertionStrategy insertionStrategy,
                                                                  final @NonNull A... elements) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
@@ -274,6 +275,23 @@ public abstract sealed class AVLTree<A>
         return avlTreeFrom(Discard, comparator, elements.stream());
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Creates an AVL tree from a collection of elements using the specified insertion strategy
+     *         and comparator.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type
+     * @param insertionStrategy the strategy to use when inserting duplicate elements; must not be {@code null}
+     * @param comparator        the comparator to determine the order; must not be {@code null}
+     * @param elements          the collection of elements; must not be {@code null}
+     * @return an AVL tree containing the elements
+     * @throws NullPointerException if {@code insertionStrategy}, {@code comparator} or {@code elements} is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static <A> AVLTree<A> avlTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
                                              final @NonNull Comparator<? super A> comparator,
                                              final @NonNull Collection<A> elements) {
@@ -295,7 +313,7 @@ public abstract sealed class AVLTree<A>
      * @return an AVL tree containing the elements
      * @throws NullPointerException if {@code elements} is {@code null}
      *
-     * @since 1.1.0
+     * @since 1.0.0
      */
     public static <A extends Comparable<A>> AVLTree<A> avlTreeFrom(final @NonNull Stream<A> elements) {
         Objects.requireNonNull(elements, nullValue("elements"));
@@ -315,7 +333,7 @@ public abstract sealed class AVLTree<A>
      * @return an AVL tree containing the elements
      * @throws NullPointerException if {@code comparator} or {@code elements} is {@code null}
      *
-     * @since 1.1.0
+     * @since 1.0.0
      */
     public static <A> AVLTree<A> avlTreeFrom(final @NonNull Comparator<? super A> comparator,
                                              final @NonNull Stream<A> elements) {
@@ -338,7 +356,7 @@ public abstract sealed class AVLTree<A>
      * @return an AVL tree containing the elements
      * @throws NullPointerException if {@code insertionStrategy}, {@code comparator} or {@code elements} is {@code null}
      *
-     * @since 1.1.0
+     * @since 1.0.0
      */
     public static <A> AVLTree<A> avlTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
                                              final @NonNull Comparator<? super A> comparator,
@@ -350,11 +368,26 @@ public abstract sealed class AVLTree<A>
             AVLTree.avlTree(insertionStrategy, comparator),
             AVLTree::insert,
             (t1, t2) -> {
-                throw new UnsupportedOperationException("Parallel streams are not supported");    // TODO
+                throw new UnsupportedOperationException("Parallel streams are not supported");
             }
         );
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Returns a collector that accumulates elements into an AVL tree.
+     *     </p>
+     * </div>
+     *
+     * @param <A>               the element type
+     * @param insertionStrategy the strategy to use for duplicates; must not be {@code null}
+     * @param comparator        the comparator to determine the order; must not be {@code null}
+     * @return a collector that creates an AVL tree
+     * @throws NullPointerException if any argument is {@code null}
+     *
+     * @since 1.0.0
+     */
     public static <A> Collector<A, Set<A>, AVLTree<A>> toAVLTree(final @NonNull InsertionStrategy insertionStrategy,
                                                                  final @NonNull Comparator<? super A> comparator) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
@@ -396,6 +429,33 @@ public abstract sealed class AVLTree<A>
             = height;
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Returns the height of this tree.
+     *     </p>
+     * </div>
+     *
+     * @return the height of the tree (-1 for empty, 0 for leaf)
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public int height() {
+        return this.height;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Checks if this tree instance represents a node containing an element and children.
+     *     </p>
+     * </div>
+     *
+     * @return {@code true} if this is a node, {@code false} if it is a terminal leaf
+     *
+     * @since 1.0.0
+     */
     @Override
     public boolean isNode() {
         return (this instanceof Node<A>);
@@ -430,7 +490,7 @@ public abstract sealed class AVLTree<A>
      *
      * @return a {@link Maybe.Some} containing the element, or {@link Maybe.None} if the tree is empty
      *
-     * @since 1.1.0
+     * @since 1.0.0
      */
     @Override
     public @NonNull Maybe<A> elementSafe() {
@@ -618,7 +678,26 @@ public abstract sealed class AVLTree<A>
      */
     @Override
     public @NonNull AVLTree<A> merge(final @NonNull BinaryTree<A> other) {
-        return null;    // TODO
+        Objects.requireNonNull(other, nullValue("other"));
+
+        AVLTree<A> merged
+            = this;
+        final Deque<BinaryTree<A>> stack
+            = new ArrayDeque<>();
+        stack.push(other);
+
+        while (!stack.isEmpty()) {
+            final BinaryTree<A> current = stack.pop();
+
+            if (current.isNode()) {
+                merged
+                    = merged.insert(current.element());
+                stack.push(current.right());
+                stack.push(current.left());
+            }
+        }
+
+        return merged;
     }
 
     /**
@@ -657,6 +736,118 @@ public abstract sealed class AVLTree<A>
         return echoRecursive("", "", this).trim();
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Compares the specified object with this tree for equality.
+     *     </p>
+     *     <p>
+     *         Two AVL trees are considered equal if they contain the same elements in the same
+     *         order (in-order traversal). The internal structure (balancing) of the trees
+     *         may differ.
+     *     </p>
+     * </div>
+     *
+     * @param other the object to be compared for equality with this tree
+     * @return {@code true} if the specified object is equal to this tree, {@code false} otherwise
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (!(other instanceof AVLTree<?> that)) {
+            return false;
+        }
+
+        return equalsRecursive(this, that);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Recursively compares two AVL trees for equality.
+     *     </p>
+     * </div>
+     *
+     * @param tree1 the first tree
+     * @param tree2 the second tree
+     * @return {@code true} if the trees are equal, {@code false} otherwise
+     *
+     * @since 1.0.0
+     */
+    private static boolean equalsRecursive(final AVLTree<?> tree1, final AVLTree<?> tree2) {
+        if (!tree1.isNode() && !tree2.isNode()) {
+            return true;
+        }
+        if (tree1.isNode() && tree2.isNode()) {
+            return Objects.equals(tree1.element(), tree2.element())
+                && equalsRecursive(tree1.left(), tree2.left())
+                && equalsRecursive(tree1.right(), tree2.right());
+        }
+        return false;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Returns the hash code value for this tree.
+     *     </p>
+     *     <p>
+     *         The hash code is calculated based on the elements of the tree in their
+     *         in-order sequence.
+     *     </p>
+     * </div>
+     *
+     * @return the hash code value for this tree
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public int hashCode() {
+        return hashCodeRecursive(this);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Recursively calculates the hash code for the given tree node.
+     *     </p>
+     * </div>
+     *
+     * @param current the node to calculate the hash code for
+     * @return the calculated hash code
+     *
+     * @since 1.0.0
+     */
+    private int hashCodeRecursive(final AVLTree<A> current) {
+        if (!current.isNode()) {
+            return 1;
+        }
+        int h = hashCodeRecursive(current.left());
+        h = 31 * h + Objects.hashCode(current.element());
+        h = 31 * h + hashCodeRecursive(current.right());
+        return h;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Recursively generates a structured string representation of the tree.
+     *     </p>
+     * </div>
+     *
+     * @param <A>            the element type
+     * @param prefix         the prefix for the current line
+     * @param childrenPrefix the prefix for children lines
+     * @param current        the current node being processed
+     * @return the formatted string for the current subtree
+     *
+     * @since 1.0.0
+     */
     private static <A> String echoRecursive(final String prefix,
                                             final String childrenPrefix,
                                             final AVLTree<A> current) {
@@ -694,22 +885,6 @@ public abstract sealed class AVLTree<A>
             case Node<A> node -> String.format("Node(%s, %s, %s)", node.left, node.element, node.right);
             case Leaf<A> _ -> "Leaf()";
         };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns the height of this tree.
-     *     </p>
-     * </div>
-     *
-     * @return the height of the tree (-1 for empty, 0 for leaf)
-     *
-     * @since 1.0.0
-     */
-    @Override
-    public int height() {
-        return this.height;
     }
 
     /**
@@ -840,10 +1015,10 @@ public abstract sealed class AVLTree<A>
      * </div>
      *
      * @param <A>               the element type
-     * @param insertionStrategy the strategy to use for duplicate elements
-     * @param comparer          the comparer to use
-     * @param element           the element to insert
-     * @param current           the current node in the recursion
+     * @param insertionStrategy the strategy to use for duplicate elements; must not be {@code null}
+     * @param comparer          the comparer to use; must not be {@code null}
+     * @param element           the element to insert; must not be {@code null}
+     * @param current           the current node in the recursion; must not be {@code null}
      * @return a tuple containing the new root of the subtree and a boolean indicating if the height changed
      *
      * @since 1.0.0
@@ -1119,10 +1294,10 @@ public abstract sealed class AVLTree<A>
                                                   final A element,
                                                   final AVLTree<A> current) {
         return switch (current) {
-            case Leaf<A> _ -> current;
-            case Node<A> node -> {
-                final AVLTree<A> result
-                    = switch (comparer.compare(element, node.element)) {
+            case Leaf<A> _
+                -> current;
+            case Node<A> node
+                -> switch (comparer.compare(element, node.element)) {
                     case LESS -> {
                         final var newLeft = removeRecursive(comparer, element, node.left);
                         yield newLeft == node.left ? node : rebalance(new Node<>(node.insertionStrategy, node.comparer, node.element, newLeft, node.right));
@@ -1148,8 +1323,6 @@ public abstract sealed class AVLTree<A>
                         }
                     }
                 };
-                yield result;
-            }
         };
     }
 

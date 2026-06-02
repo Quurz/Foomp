@@ -2,9 +2,11 @@ package org.quurz.foomp.base.types;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
@@ -41,6 +43,7 @@ public interface Tree<A>
      * @since 1.0.0
      */
     enum InsertionStrategy {
+
         /**
          * <div>
          *     <p>

@@ -6,15 +6,14 @@ import org.quurz.foomp.base.types.BinaryTree;
 import org.quurz.foomp.base.types.Tree;
 import org.quurz.foomp.base.types.Value;
 
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
-import static org.quurz.foomp.base.util.Maybe.none;
-import static org.quurz.foomp.base.util.Maybe.some;
 
 public abstract sealed class RedBlackTree<A>
         implements BinaryTree<A>
