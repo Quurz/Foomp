@@ -388,16 +388,16 @@ public abstract sealed class AVLTree<A>
      *
      * @since 1.0.0
      */
-    public static <A> Collector<A, Set<A>, AVLTree<A>> toAVLTree(final @NonNull InsertionStrategy insertionStrategy,
-                                                                 final @NonNull Comparator<? super A> comparator) {
+    public static <A> Collector<A, Set<A>, AVLTree<A>> collectToAVLTree(final @NonNull InsertionStrategy insertionStrategy,
+                                                                        final @NonNull Comparator<? super A> comparator) {
         Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
         Objects.requireNonNull(comparator, nullValue("comparator"));
 
         return Collector.of(
-                HashSet::new,
-                Set::add,
-                (left, right) -> { left.addAll(right); return left; },
-                set -> avlTreeFrom(insertionStrategy, comparator, (Collection<A>) set)
+            HashSet::new,
+            Set::add,
+            (left, right) -> { left.addAll(right); return left; },
+            set -> avlTreeFrom(insertionStrategy, comparator, (Collection<A>) set)
         );
     }
 

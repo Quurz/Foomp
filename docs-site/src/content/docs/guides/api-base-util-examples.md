@@ -360,5 +360,5 @@ AVLTree<Integer> combined = largerTree.merge(otherTree);
 
 // Use a Collector to build a tree from a Stream
 AVLTree<Integer> collected = java.util.stream.Stream.of(1, 2, 3)
-    .collect(AVLTree.toAVLTree());
+    .collect(AVLTree.collectToAVLTree(org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard, Integer::compareTo));
 ```

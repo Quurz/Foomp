@@ -336,10 +336,10 @@ class AVLTreeTest extends TestHelper {
         }
 
         @Test
-        void toAVLTree_collector_works() {
-            LOGGER.info("toAVLTree collector should correctly collect stream elements into an AVL tree");
+        void collectToAVLTree_collector_works() {
+            LOGGER.info("collectToAVLTree collector should correctly collect stream elements into an AVL tree");
             final var tree = Stream.of(3, 1, 2)
-                .collect(AVLTree.toAVLTree(Tree.InsertionStrategy.Discard, Integer::compareTo));
+                .collect(AVLTree.collectToAVLTree(Tree.InsertionStrategy.Discard, Integer::compareTo));
             
             assertThat(tree.height()).isEqualTo(2);
             assertThat(tree.contains(1)).isTrue();

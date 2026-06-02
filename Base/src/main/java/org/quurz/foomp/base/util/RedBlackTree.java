@@ -2,23 +2,145 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Comparer;
-import org.quurz.foomp.base.types.BinaryTree;
-import org.quurz.foomp.base.types.Tree;
-import org.quurz.foomp.base.types.Value;
+import org.quurz.foomp.base.types.*;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
+import static org.quurz.foomp.base.functions.Comparer.comparer;
 import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard;
 
 public abstract sealed class RedBlackTree<A>
-        implements BinaryTree<A>
+        implements BinaryTree<A>,
+                   Transmogrifyable<RedBlackTree<A>>,
+                   Echo,
+                   Copyable<RedBlackTree<A>>
         permits RedBlackTree.Node,
                 RedBlackTree.Leaf {
+
+    @SuppressWarnings("unchecked")
+    public static <A extends Comparable<A>> RedBlackTree<A> redBlackTree() {
+        return new Leaf<>(Discard, comparer((Comparator<? super A>) Comparator.naturalOrder()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <A extends Comparable<A>> RedBlackTree<A> redBlackTree(final @NonNull InsertionStrategy insertionStrategy) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        return new Leaf<>(insertionStrategy,comparer((Comparator<? super A>) Comparator.naturalOrder()));
+    }
+
+    public static <A> RedBlackTree<A> redBlackTree(final @NonNull Comparator<? super A> comparator) {
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        return new Leaf<>(Discard, comparer(comparator));
+    }
+
+    public static <A> RedBlackTree<A> redBlackTree(final @NonNull InsertionStrategy insertionStrategy,
+                                                   final @NonNull Comparator<? super A> comparator) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        return new Leaf<>(insertionStrategy, comparer(comparator));
+    }
+
+    public static <A extends Comparable<A>> RedBlackTree<A> redBlackTreeOf(final @NonNull A... elements) {
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(Discard, Comparator.naturalOrder(), Stream.of(elements));
+    }
+
+    public static <A extends Comparable<A>> RedBlackTree<A> redBlackTreeOf(final @NonNull InsertionStrategy insertionStrategy,
+                                                                           final @NonNull A... elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(insertionStrategy, Comparator.naturalOrder(), Stream.of(elements));
+    }
+
+    @SafeVarargs
+    public static <A> RedBlackTree<A> redBlackTreeOf(final @NonNull Comparator<? super A> comparator,
+                                                     final @NonNull A... elements) {
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(Discard, comparator, Stream.of(elements));
+    }
+
+    @SafeVarargs
+    public static <A> RedBlackTree<A> redBlackTreeOf(final @NonNull InsertionStrategy insertionStrategy,
+                                                     final @NonNull Comparator<? super A> comparator,
+                                                     final @NonNull A... elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(insertionStrategy, comparator, Stream.of(elements));
+    }
+
+    public static <A extends Comparable<A>> RedBlackTree<A> redBlackTreeFrom(final @NonNull Collection<A> elements) {
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(Discard, Comparator.naturalOrder(), elements.stream());
+    }
+
+    public static <A extends Comparable<A>> RedBlackTree<A> redBlackTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
+                                                                             final @NonNull Collection<A> elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(insertionStrategy, Comparator.naturalOrder(), elements.stream());
+    }
+
+    public static <A> RedBlackTree<A> redBlackTreeFrom(final @NonNull Comparator<? super A> comparator,
+                                                       final @NonNull Collection<A> elements) {
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(Discard, comparator, elements.stream());
+    }
+
+    public static <A> RedBlackTree<A> redBlackTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
+                                                       final @NonNull Comparator<? super A> comparator,
+                                                       final @NonNull Collection<A> elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(insertionStrategy, comparator, elements.stream());
+    }
+
+    public static <A extends Comparable<A>> RedBlackTree<A> redBlackTreeFrom(final @NonNull Stream<A> elements) {
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(Discard, Comparator.naturalOrder(), elements);
+    }
+
+    public static <A> RedBlackTree<A> redBlackTreeFrom(final @NonNull Comparator<? super A> comparator,
+                                                       final @NonNull Stream<A> elements) {
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return redBlackTreeFrom(Discard, comparator, elements);
+    }
+
+    public static <A> RedBlackTree<A> redBlackTreeFrom(final @NonNull InsertionStrategy insertionStrategy,
+                                                       final @NonNull Comparator<? super A> comparator,
+                                                       final @NonNull Stream<A> elements) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+        Objects.requireNonNull(elements, nullValue("elements"));
+        return elements.reduce(
+            redBlackTree(insertionStrategy, comparator),
+            RedBlackTree::insert,
+            RedBlackTree::merge
+        );
+    }
+
+    public static <A> Collector<A, Set<A>, RedBlackTree<A>> collectToRedBlackTree(final @NonNull InsertionStrategy insertionStrategy,
+                                                                                  final @NonNull Comparator<? super A> comparator) {
+        Objects.requireNonNull(insertionStrategy, nullValue("insertionStrategy"));
+        Objects.requireNonNull(comparator, nullValue("comparator"));
+
+        return Collector.of(
+            HashSet::new,
+            Set::add,
+            (left, right) -> { left.addAll(right); return left; },
+            set -> redBlackTreeFrom(insertionStrategy, comparator, (Collection<A>) set)
+        );
+    }
 
     protected final InsertionStrategy insertionStrategy;
     protected final Comparer<? super A> comparer;
@@ -95,7 +217,7 @@ public abstract sealed class RedBlackTree<A>
     }
 
     @Override
-    public @NonNull Tree<A> insert(final @NonNull A element) {
+    public @NonNull RedBlackTree<A> insert(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
         return null;    // TODO
     }
@@ -136,6 +258,30 @@ public abstract sealed class RedBlackTree<A>
         return null;    // TODO
     }
 
+    @Override
+    public @NonNull <T> T transmogrify(@NonNull Function<? super RedBlackTree<A>, ? extends T> transmogrifier) {
+        Objects.requireNonNull(transmogrifier, nullValue("transmogrifier"));
+        return null;    // TODO
+    }
+
+    @Override
+    public @NonNull String echo() {
+        return "";    // TODO
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        // TODO: Rekursiv
+        if (!(other instanceof RedBlackTree<?> that)) return false;
+        return blackHeight == that.blackHeight && black == that.black && insertionStrategy == that.insertionStrategy && Objects.equals(comparer, that.comparer);
+    }
+
+    @Override
+    public int hashCode() {
+        // TODO: Rekursiv
+        return Objects.hash(insertionStrategy, comparer, blackHeight, black);
+    }
+
     public static final class Node<A>
             extends RedBlackTree<A> {
 
@@ -162,6 +308,11 @@ public abstract sealed class RedBlackTree<A>
                 = right;
         }
 
+        @Override
+        public @NonNull RedBlackTree<A> copy() {
+            return null;    // TODO
+        }
+
     }
 
     public static final class Leaf<A>
@@ -170,6 +321,11 @@ public abstract sealed class RedBlackTree<A>
         private Leaf(final InsertionStrategy insertionStrategy,
                      final Comparer<? super A> comparer) {
             super(insertionStrategy, comparer, 1, true);
+        }
+
+        @Override
+        public @NonNull RedBlackTree<A> copy() {
+            return null;
         }
 
     }
