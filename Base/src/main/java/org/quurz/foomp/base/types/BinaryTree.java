@@ -10,7 +10,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  *     </p>
  *     <p>
  *         Unlike the general {@code Tree} interface, a {@code BinaryTree} node typically
- *         carries a single {@link #element()}.
+ *         carries a single {@link #element()}. It also implements {@link Mergeable}
+ *         to support merging two binary trees.
  *     </p>
  * </div>
  *

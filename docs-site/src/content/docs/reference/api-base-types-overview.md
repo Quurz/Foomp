@@ -16,6 +16,9 @@ These interfaces define how values are stored, accessed, and identified.
 *   **`Value2<A, B>`**, **`Value3`**, **`Value4`**: Extensions for tuples or multiple value carriers (e.g., used by `Tuple2`, `Tuple3`).
 *   **`XorValue<A, B>`**: Represents a value that can be one of two types, but not both (a "Sum Type" or "Either").
 *   **`Container<A>`**: A specialization for types that "contain" elements, providing size and emptiness checks.
+*   **`Tree<A>`**: The base interface for hierarchical structures, supporting search, insertion, and removal.
+*   **`BinaryTree<A>`**: A specialized tree where each node has at most two children.
+*   **`Mergeable<SELF>`**: Represents objects that can be combined with others of the same type.
 *   **`Assoc<K, V>`**: Represents a key-value association.
 
 ### 2. Functional Composition (HKTs)

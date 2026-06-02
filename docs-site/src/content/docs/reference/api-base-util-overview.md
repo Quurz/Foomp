@@ -50,6 +50,9 @@ Immutable, type-safe containers for fixed-size collections of heterogenous value
 ### Records (Record2, Record3, Record4)
 A specialized variant of tuples designed for structured data. While similar to tuples, they are often used where a more "named" or structured approach to multiple values is required within the functional pipeline.
 
+### AVLTree
+A self-balancing binary search tree. It ensures $O(\log n)$ time complexity for search, insertion, and deletion by maintaining a height balance between subtrees. It is immutable and supports merging with other binary trees.
+
 ### MutablePair
 A mutable alternative to `Tuple2`. It allows updating its two values and is useful for local state management within performance-critical loops before being converted back into immutable structures.
 
@@ -97,6 +100,7 @@ A utility for merging and splitting lists.
 | **Sum Types / Monads** | `Maybe`, `Either`, `Result`, `Eval`, `Attempt`, `Stateful`, `Continuation` |
 | **Recursion** | `Trampoline` |
 | **Fixed Containers** | `Tuple2`, `Tuple3`, `Tuple4`, `Record2`, `Record3`, `Record4`, `MutablePair` |
+| **Data Structures** | `AVLTree` |
 | **Logic & Validation** | `DecisionTree`, `Constraint` |
 | **Stream Processing** | `Bucket` |
 | **System Types** | `Nothing` |

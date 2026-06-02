@@ -336,3 +336,29 @@ Record2<String, String> user = Record2.record2("Alexander", "Admin");
 String name = user.get1();
 String role = user.get2();
 ```
+
+## AVLTree (Self-Balancing Search Tree)
+
+`AVLTree<A>` is an immutable binary search tree that automatically keeps its height minimal.
+
+```java
+import org.quurz.foomp.base.util.AVLTree;
+import static org.quurz.foomp.base.util.AVLTree.avlTreeOf;
+
+// Create an immutable tree
+AVLTree<Integer> tree = avlTreeOf(10, 20, 5, 15);
+
+// Insertion returns a new tree (immutability)
+AVLTree<Integer> largerTree = tree.insert(25);
+
+// Search for elements
+boolean found = largerTree.contains(15); // true
+
+// Merge two trees
+AVLTree<Integer> otherTree = avlTreeOf(30, 40);
+AVLTree<Integer> combined = largerTree.merge(otherTree);
+
+// Use a Collector to build a tree from a Stream
+AVLTree<Integer> collected = java.util.stream.Stream.of(1, 2, 3)
+    .collect(AVLTree.toAVLTree());
+```
