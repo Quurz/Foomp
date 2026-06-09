@@ -29,32 +29,6 @@ class SeqDefaultMethodsTest {
         assertTrue(seq.isNotEmpty(), "isNotEmpty() sollte true liefern, wenn Elemente vorhanden sind");
     }
 
-    @Test
-    void toList_materializes_as_ArrayList_preserves_order_non_null() {
-        List<Integer> data = List.of(1, 2, 3);
-        Seq<Integer> seq = proxySeq(data);
-
-        List<Integer> list = seq.toList();
-
-        assertNotNull(list, "toList() darf kein null liefern");
-        assertInstanceOf(ArrayList.class, list, "toList() sollte über ArrayList::new materialisieren");
-        assertEquals(data, list, "toList() sollte die Encounter-Order beibehalten");
-    }
-
-    @Test
-    void toSet_materializes_as_LinkedHashSet_preserves_encounter_order_and_uniqueness() {
-        List<Integer> data = List.of(1, 2, 2, 3, 1, 4);
-        Seq<Integer> seq = proxySeq(data);
-
-        Set<Integer> set = seq.toSet();
-
-        assertNotNull(set, "toSet() darf kein null liefern");
-        assertInstanceOf(LinkedHashSet.class, set, "toSet() sollte über LinkedHashSet::new materialisieren");
-
-        // LinkedHashSet bewahrt Encounter-Order und entfernt Duplikate
-        LinkedHashSet<Integer> expected = new LinkedHashSet<>(data);
-        assertEquals(expected, set, "toSet() sollte Encounter-Order bewahren und Duplikate entfernen");
-    }
 
     // Hilfsfunktion: Erzeugt einen Proxy-basierten Seq-Stub, der nur die für die Tests
     // benötigten Wege implementiert:

@@ -84,6 +84,8 @@ public interface Seq<A> {
     @NonNull A head()
         throws NoSuchElementException;
 
+    @NonNull Value<A> headSafe();
+
     /**
      * <div>
      *     <p>
@@ -113,21 +115,6 @@ public interface Seq<A> {
      * @since 1.0.0
      */
     @NonNull Seq<A> cons(final @NonNull A element);
-
-    /**
-     * <div>
-     *     <p>
-     *         Prepends all elements of the given sequence to this sequence, preserving the given
-     *         sequence’s encounter order.
-     *     </p>
-     * </div>
-     *
-     * @param other the sequence whose elements are to be prepended; must not be {@code null}
-     * @return a new sequence with {@code other}’s elements followed by this sequence (never {@code null})
-     *
-     * @since 1.0.0
-     */
-    @NonNull Seq<A> consAll(final @NonNull Higher1<? extends µ, A> other);
 
     /**
      * <div>
@@ -180,47 +167,4 @@ public interface Seq<A> {
      */
     <C extends Collection<? super A>> @NonNull C toCollection(final @NonNull Supplier<C> init);
 
-    /**
-     * <div>
-     *     <p>
-     *         Convenience: materializes this sequence into a mutable {@link java.util.ArrayList}.
-     *     </p>
-     * </div>
-     *
-     * @return a new {@code ArrayList} with the elements of this sequence
-     *
-     * @since 1.0.0
-     */
-    default @NonNull List<A> toList() {
-        return this.toCollection(java.util.ArrayList::new);
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Convenience: materializes this sequence into a mutable {@link java.util.LinkedHashSet}
-     *         (preserving encounter order).
-     *     </p>
-     * </div>
-     *
-     * @return a new {@code LinkedHashSet} with the elements of this sequence
-     *
-     * @since 1.0.0
-     */
-    default @NonNull Set<A> toSet() {
-        return this.toCollection(java.util.LinkedHashSet::new);
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns the number of elements in this sequence.
-     *     </p>
-     * </div>
-     *
-     * @return the size of this sequence
-     *
-     * @since 1.0.0
-     */
-    int getSize();
 }

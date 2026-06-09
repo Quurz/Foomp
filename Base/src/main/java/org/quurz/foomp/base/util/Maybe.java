@@ -85,6 +85,7 @@ public sealed interface Maybe<A>
         return (Maybe<A>) Objects.requireNonNull(wide, nullValue("wide"));
     }
 
+    // TODO: JavaDoc
     static <A> Higher1<µ, A> wide(final @NonNull Maybe<A> narrow) {
         Objects.requireNonNull(narrow, nullValue("narrow"));
         return narrow;
@@ -761,6 +762,10 @@ public sealed interface Maybe<A>
      */
     final class Some<A>
             implements Maybe<A> {
+
+        static <A> Some<A> fromSpool(final @NonNull Supplier<A> spool) {
+            return new Some<>(spool);
+        }
 
         private final Supplier<A> spool;
 

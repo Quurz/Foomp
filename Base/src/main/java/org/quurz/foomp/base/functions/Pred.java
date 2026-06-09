@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static org.quurz.foomp.base.functions.MemoisingPred.memoisingPred;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSupplied;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
@@ -576,5 +577,8 @@ public interface Pred<A>
         return this.xor(boolSupplier);
     }
 
+    default MemoisingPred<A> memoise() {
+        return memoisingPred(this);
+    }
 
 }
