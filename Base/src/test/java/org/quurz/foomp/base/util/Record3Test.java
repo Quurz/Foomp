@@ -189,13 +189,6 @@ class Record3Test {
             });
         }
 
-        @Test
-        void copy_preserves_semantics() {
-            LOGGER.info("Record3.copy should keep values");
-
-            final var r = record3("TEST", 23, 3.0d);
-            assertThat(r.copy()).isEqualTo(record3("TEST", 23, 3.0d));
-        }
 
         @Test
         void equals_hashCode_and_toString() {

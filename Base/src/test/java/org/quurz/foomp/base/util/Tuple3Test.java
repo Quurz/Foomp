@@ -179,14 +179,6 @@ class Tuple3Test
             assertThat(t.meld(melding)).isEqualTo("Hello 17 2.0");
         }
 
-        @Test
-        void copy_preserves_semantics() {
-            LOGGER.info("Tuple3.copy should keep values");
-
-            final var t = tuple3("Hello", 17, 2.0D);
-
-            assertThat(t.copy()).isEqualTo(tuple3("Hello", 17, 2.0D));
-        }
 
         @Test
         void toRecord_converts_values() {

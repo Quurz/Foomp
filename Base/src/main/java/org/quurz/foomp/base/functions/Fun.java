@@ -5,12 +5,11 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.quurz.foomp.base.types.Promise;
 
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.functions.MemoisingFun.memoisingFun;
-import static org.quurz.foomp.base.localisation.BaseMessages.*;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>

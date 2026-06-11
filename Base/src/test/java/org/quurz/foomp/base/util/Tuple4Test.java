@@ -206,16 +206,6 @@ class Tuple4Test
             .isEqualTo("Hello 1 2.0 true");
         }
  
-        @Test
-        void copy_preserves_semantics() {
-        LOGGER.info("Test tuple4.copy");
- 
-        final var tuple4
-            = tuple4("Hello", 1, 2.0, true);
- 
-        assertThat(tuple4.copy())
-            .isEqualTo(tuple4("Hello", 1, 2.0, true));
-        }
  
         @Test
         void toRecord_converts_values() {

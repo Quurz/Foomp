@@ -2,7 +2,6 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun3;
-import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Appliable3;
 import org.quurz.foomp.base.types.Mappable3;
 import org.quurz.foomp.base.types.Unwindable;
@@ -23,7 +22,7 @@ import static org.quurz.foomp.base.util.Record3.record3;
 /**
  * <div>
  *     <p>
- *         An immutable tuple with three values that supports functional operations such as mapping, copying, and lazy evaluation.
+ *         An immutable tuple with three values that supports functional operations such as mapping and lazy evaluation.
  *         {@code Tuple3} uses {@link Supplier} instances to enable deferred evaluation of its values.
  *     </p>
  * </div>
@@ -40,7 +39,6 @@ import static org.quurz.foomp.base.util.Record3.record3;
 public final class Tuple3<A1, A2, A3>
         implements Appliable3<Tuple3.µ, A1, A2, A3>,
                    Mappable3<Tuple3.µ, A1, A2, A3>,
-                   Copyable<Tuple3<A1, A2, A3>>,
                    Unwindable<Tuple3<A1, A2, A3>>,
                    Value3<A1, A2, A3>,
                    Higher3<Tuple3.µ, A1, A2, A3> {
@@ -475,23 +473,6 @@ public final class Tuple3<A1, A2, A3>
     public @NonNull <B> B meld(final @NonNull Fun3<A1, A2, A3, B> meld) {
         Objects.requireNonNull(meld, nullValue("meld"));
         return Objects.requireNonNull(meld.apply(this.value1Supplier.get(), value2Supplier.get(), value3Supplier.get()), nullResult());
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Erzeugt eine Kopie des aktuellen Tupels.
-     *         Da {@code Tuple3} immutabel ist, wird ein neues Tupel mit denselben Werten erstellt.
-     *     </p>
-     * </div>
-     *
-     * @return Eine Kopie des aktuellen {@code Tuple3}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    public @NonNull Tuple3<A1, A2, A3> copy() {
-        return new Tuple3<>(this.value1Supplier, this.value2Supplier, this.value3Supplier);
     }
 
     /**

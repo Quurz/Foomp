@@ -65,7 +65,6 @@ public sealed interface Either<L, R>
         Appliable2<Either.µ, L, R>,
                 Bindable<Either.µ, R>,
                 Swappable<Either<R, L>, L, R>,
-                Copyable<Either<L, R>>,
                 Unwindable<Either<L, R>>,
                 Transmogrifyable<Either<L, R>>,
                 XorValue<L, R>,
@@ -721,26 +720,6 @@ public sealed interface Either<L, R>
         return switch (this) {
             case Left<L, R> left -> new Right<>(left.spool);
             case Right<L, R> right -> new Left<>(right.spool);
-        };
-    }
-
-    /**
-     * <div>
-     *   <p>
-     *     Returns a shallow copy of this {@code Either} (preserves laziness).
-     *   </p>
-     * </div>
-     *
-     * @return a copy of this {@code Either}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    @NonNull
-    default Either<L, R> copy() {
-        return switch (this) {
-            case Left<L, R> left -> new Left<>(left.spool);
-            case Right<L, R> right -> new Right<>(right.spool);
         };
     }
 

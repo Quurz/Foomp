@@ -1,6 +1,10 @@
 package org.quurz.foomp.base.util;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quurz.foomp.base.TestHelper;
@@ -14,8 +18,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 import static org.quurz.foomp.base.util.Maybe.*;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -567,16 +569,6 @@ class MaybeTest
             assertThat(opt.get()).isEqualTo(SOME_STRING_VALUE);
         }
 
-        @Test
-        void copy_preserves_value_and_laziness() {
-            LOGGER.info("Maybe.copy should preserve value and laziness");
-            final var noneCopy = none().copy();
-            checkIsNone(noneCopy.unwind());
-
-            final var someCopy = some(SOME_STRING_VALUE).copy();
-            checkIsSome(someCopy.unwind());
-            assertThat(someCopy.get()).isEqualTo(SOME_STRING_VALUE);
-        }
 
         @SuppressWarnings("unused")
         @Test

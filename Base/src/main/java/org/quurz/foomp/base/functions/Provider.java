@@ -2,12 +2,7 @@ package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Monadic;
-import org.quurz.foomp.base.types.Transmogrifyable;
-import org.quurz.foomp.base.types.Unwindable;
-import org.quurz.foomp.base.types.UnwindingOperation;
-import org.quurz.foomp.base.types.Value;
+import org.quurz.foomp.base.types.*;
 import org.quurz.foomp.base.util.Nothing;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
@@ -16,9 +11,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullSupplied;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.localisation.BaseMessages.*;
 
 /**
  * <div>
@@ -42,7 +35,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *     <li>Implements {@link Supplier} to provide values.</li>
  *     <li>Supports monadic operations such as {@code map}, {@code applyTo}, and {@code flatMap}.</li>
  *     <li>Integrates with {@link Fun}, {@link Value}, and {@link Higher1}.</li>
- *     <li>Provides extras like {@code copy}, {@code unwind}, and {@code transmogrify}.</li>
+ *     <li>Provides extras like {@code unwind}, and {@code transmogrify}.</li>
  * </ul>
  *
  * @param <A> the provided value type
@@ -55,7 +48,6 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 @FunctionalInterface
 public interface Provider<A>
         extends Monadic<Provider.µ, A>,
-                Copyable<Provider<A>>,
                 Unwindable<Provider<A>>,
                 Transmogrifyable<Provider<A>>,
                 Fun<Nothing, A>,
@@ -269,29 +261,6 @@ public interface Provider<A>
     default <B> Provider<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return this.map(a -> narrow(transformation.apply(a)).get());
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Creates an exact copy of this {@code Provider}.
-     *     </p>
-     *     <p>
-     *         Semantics: this default implementation returns a new instance delegating to {@code get()}.
-     *         Implementations may override to control evaluation (lazy vs. eager) or copying strategy.
-     *     </p>
-     * </div>
-     *
-     * @return a new {@code Provider} instance yielding the same value
-     *
-     * @since 1.0.0
-     */
-    @Override
-    @NonNull
-    default Provider<A> copy() {
-        final var self
-            = this;
-        return self::get;    // TODO
     }
 
     /**

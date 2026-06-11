@@ -1,6 +1,5 @@
 package org.quurz.foomp.base.functions;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 

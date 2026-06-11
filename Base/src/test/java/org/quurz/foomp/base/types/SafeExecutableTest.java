@@ -1,6 +1,5 @@
 package org.quurz.foomp.base.types;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -8,7 +7,6 @@ import org.quurz.foomp.base.TestHelper;
 import org.slf4j.Logger;
 
 import java.util.NoSuchElementException;
-import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

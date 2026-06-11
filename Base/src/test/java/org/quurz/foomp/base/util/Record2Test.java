@@ -177,12 +177,6 @@ class Record2Test {
             });
         }
 
-        @Test
-        void copy_preserves_semantics() {
-            LOGGER.info("Record2.copy should keep values");
-            final var r = record2("TEST", 23);
-            assertThat(r.copy()).isEqualTo(record2("TEST", 23));
-        }
 
         @SuppressWarnings({"ConstantValue", "EqualsWithItself"})
         @Test

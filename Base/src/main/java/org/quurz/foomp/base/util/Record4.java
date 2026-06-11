@@ -1,8 +1,8 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Appliable4;
+import org.quurz.foomp.base.types.Eager;
 import org.quurz.foomp.base.types.Mappable4;
 import org.quurz.foomp.base.types.Transmogrifyable;
 import org.quurz.foomp.base.types.Value4;
@@ -22,8 +22,8 @@ import static org.quurz.foomp.base.util.Tuple4.tuple4;
  *     <p>
  *         A record-based, immutable 4-tuple carrying four non-null values. This type provides
  *         value accessors, structural updates (with1/with2/with3/with4), mapping utilities
- *         (map1/map2/map3/map4/mapAll), applicative application (applyTo), conversions (toTuple),
- *         transmogrification and copying.
+ *         (map1/map2/map3/map4/mapAll), applicative application (applyTo), conversions (toTuple)
+ *         and transmogrification.
  *     </p>
  *     <p>
  *         Semantics:
@@ -53,7 +53,6 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
         implements Appliable4<Record4.µ, A1, A2, A3, A4>,
                    Mappable4<Record4.µ, A1, A2, A3, A4>,
                    Transmogrifyable<Record4<A1, A2, A3, A4>>,
-                   Copyable<Record4<A1, A2, A3, A4>>,
                    Value4<A1, A2, A3, A4>,
                    Higher4<Record4.µ, A1, A2, A3, A4> {
 
@@ -596,22 +595,6 @@ public record Record4<A1, A2, A3, A4>(A1 value1,
     public <T> @NonNull T transmogrify(final @NonNull Function<? super Record4<A1, A2, A3, A4>, ? extends T> transmogrifier) {
         Objects.requireNonNull(transmogrifier, nullValue("transmogrifier"));
         return Objects.requireNonNull(transmogrifier.apply(this), nullResultFrom("transmogrifier"));
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns a structural copy of this record (values are identical; identity is not preserved).
-     *     </p>
-     * </div>
-     *
-     * @return a copy of this {@code Record4}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    public @NonNull Record4<A1, A2, A3, A4> copy() {
-        return record4(this.value1, this.value2, this.value3, this.value4);
     }
 
     /**

@@ -2,7 +2,6 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun4;
-import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Appliable4;
 import org.quurz.foomp.base.types.Mappable4;
 import org.quurz.foomp.base.types.Unwindable;
@@ -23,7 +22,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * <div>
  *     <p>
  *         An immutable, functional data structure that stores four values.
- *         This class supports functional operations such as mapping, applicative application, copying, and lazy evaluation.
+ *         This class supports functional operations such as mapping, applicative application, and lazy evaluation.
  *     </p>
  * </div>
  *
@@ -40,7 +39,6 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 public final class Tuple4<A1, A2, A3, A4>
         implements Appliable4<Tuple4.µ, A1, A2, A3, A4>,
                    Mappable4<Tuple4.µ, A1, A2, A3, A4>,
-                   Copyable<Tuple4<A1, A2, A3, A4>>,
                    Unwindable<Tuple4<A1, A2, A3, A4>>,
                    Value4<A1, A2, A3, A4>,
                    Higher4<Tuple4.µ, A1, A2, A3, A4> {
@@ -605,22 +603,6 @@ public final class Tuple4<A1, A2, A3, A4>
     public @NonNull <B> B meld(final @NonNull Fun4<A1, A2, A3, A4, B> meld) {
         Objects.requireNonNull(meld, nullValue("meld"));
         return Objects.requireNonNull(meld.apply(this.value1Supplier.get(), value2Supplier.get(), value3Supplier.get(), value4Supplier.get()), nullResult());
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Creates a copy of this {@code Tuple4} with the same values.
-     *     </p>
-     * </div>
-     *
-     * @return a new instance of {@code Tuple4} backed by the same suppliers
-     *
-     * @since 1.0.0
-     */
-    @Override
-    public @NonNull Tuple4<A1, A2, A3, A4> copy() {
-        return new Tuple4<>(this.value1Supplier, this.value2Supplier, this.value3Supplier, this.value4Supplier);
     }
 
     /**

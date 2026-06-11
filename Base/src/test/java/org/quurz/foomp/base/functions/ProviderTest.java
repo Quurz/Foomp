@@ -162,23 +162,6 @@ class ProviderTest
             });
     }
 
-    @Test
-    void testCopy() {
-        LOGGER.info("Test provider.copy");
-
-        assertThatNoException()
-            .isThrownBy(() -> {
-                final var provider
-                    = provider(SOME_STRING_VALUE);
-                final var mappedCopy
-                    = provider.copy().map(String::length);
-
-                assertThat(provider.get())
-                    .isEqualTo(SOME_STRING_VALUE);
-                assertThat(mappedCopy.get())
-                    .isEqualTo(SOME_STRING_VALUE.length());
-            });
-    }
 
     @SuppressWarnings("DataFlowIssue")
     @Test
@@ -230,5 +213,6 @@ class ProviderTest
                     .isEqualTo(2);
             });
     }
+
 
 }

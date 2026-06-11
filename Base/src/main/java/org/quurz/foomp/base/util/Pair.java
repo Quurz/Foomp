@@ -2,6 +2,7 @@ package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Mutable;
 import org.quurz.foomp.base.types.MutatingOperation;
 import org.quurz.foomp.base.types.Value2;
@@ -32,7 +33,8 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  */
 @Mutable
 public final class Pair<A1, A2>
-        implements Value2<A1, A2> {
+        implements Copyable<Pair<A1, A2>>,
+                   Value2<A1, A2> {
 
     /**
      * <div>
@@ -274,6 +276,35 @@ public final class Pair<A1, A2>
             = Objects.hashCode(value1);
         result = 31 * result + Objects.hashCode(value2);
         return result;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Creates a copy of this {@code Pair}.
+     *     </p>
+     *     <p>
+     *         If the contained values implement the {@link Copyable} interface, they will be copied
+     *         as well (deep copy). Otherwise, the original references are kept (shallow copy).
+     *     </p>
+     * </div>
+     *
+     * @return a new {@code Pair} instance containing copies of the values
+     *
+     * @since 1.0.0
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public @NonNull Pair<A1, A2> copy() {
+        final var newValue1
+            = this.value1 instanceof Copyable<?> copyable
+                ? (A1) copyable.copy()
+                : this.value1;
+        final var newValue2
+            = (this.value2 instanceof Copyable<?> copyable)
+                ? (A2) copyable.copy()
+                : this.value2;
+        return pair(newValue1, newValue2);
     }
 
     /**

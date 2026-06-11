@@ -1,9 +1,8 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Eager;
 import org.quurz.foomp.base.types.Appliable3;
+import org.quurz.foomp.base.types.Eager;
 import org.quurz.foomp.base.types.Mappable3;
 import org.quurz.foomp.base.types.Transmogrifyable;
 import org.quurz.foomp.base.types.Value3;
@@ -23,7 +22,7 @@ import static org.quurz.foomp.base.util.Tuple3.tuple3;
  *     <p>
  *         A record-based, immutable 3-tuple carrying three non-null values. This type provides
  *         value accessors, structural updates (with1/with2/with3), mapping utilities (map1/map2/map3/mapAll),
- *         applicative application (applyTo), conversions (toTuple), transmogrification and copying.
+ *         applicative application (applyTo), conversions (toTuple) and transmogrification.
  *     </p>
  *     <p>
  *         Semantics:
@@ -51,7 +50,6 @@ public record Record3<A1, A2, A3>(A1 value1,
         implements Appliable3<Record3.µ, A1, A2, A3>,
                    Mappable3<Record3.µ, A1, A2, A3>,
                    Transmogrifyable<Record3<A1, A2, A3>>,
-                   Copyable<Record3<A1, A2, A3>>,
                    Value3<A1, A2, A3>,
                    Higher3<Record3.µ, A1, A2, A3> {
 
@@ -507,22 +505,6 @@ public record Record3<A1, A2, A3>(A1 value1,
     public <T> @NonNull T transmogrify(final @NonNull Function<? super Record3<A1, A2, A3>, ? extends T> transmogrifier) {
         Objects.requireNonNull(transmogrifier, nullValue("transmogrifier"));
         return Objects.requireNonNull(transmogrifier.apply(this), nullResultFrom("transmogrifier"));
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns a structural copy of this record (values are identical; identity is not preserved).
-     *     </p>
-     * </div>
-     *
-     * @return a copy of this {@code Record3}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    public @NonNull Record3<A1, A2, A3> copy() {
-        return record3(this.value1, this.value2, this.value3);
     }
 
     /**

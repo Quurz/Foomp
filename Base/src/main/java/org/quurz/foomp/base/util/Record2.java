@@ -1,9 +1,8 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.Copyable;
-import org.quurz.foomp.base.types.Eager;
 import org.quurz.foomp.base.types.Appliable2;
+import org.quurz.foomp.base.types.Eager;
 import org.quurz.foomp.base.types.Mappable2;
 import org.quurz.foomp.base.types.Transmogrifyable;
 import org.quurz.foomp.base.types.Value2;
@@ -22,8 +21,8 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  * <div>
  *     <p>
  *         A record-based, immutable 2-tuple carrying two non-null values. This type offers
- *         value accessors, structural updates (with1/with2), mapping utilities (map/map1/map2/mapAll),
- *         applicative application (applyTo) and conversions (toTuple), as well as transmogrification and copying.
+ *         Value accessors, structural updates (with1/with2), mapping utilities (map/map1/map2/mapAll),
+ *         applicative application (applyTo) and conversions (toTuple), as well as transmogrification.
  *     </p>
  *     <p>
  *         Semantics:
@@ -49,7 +48,6 @@ public record Record2<A1, A2>(A1 value1,
         implements Appliable2<Record2.µ, A1, A2>,
                    Mappable2<Record2.µ, A1, A2>,
                    Transmogrifyable<Record2<A1, A2>>,
-                   Copyable<Record2<A1, A2>>,
                    Value2<A1, A2>,
                    Higher2<Record2.µ, A1, A2> {
 
@@ -436,22 +434,6 @@ public record Record2<A1, A2>(A1 value1,
     public <T> @NonNull T transmogrify(@NonNull Function<? super Record2<A1, A2>, ? extends T> transmogrifier) {
         Objects.requireNonNull(transmogrifier, nullValue("transmogrifier"));
         return Objects.requireNonNull(transmogrifier.apply(this), nullResultFrom("transmogrifier"));
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Returns a structural copy of this record (values are identical; identity is not preserved).
-     *     </p>
-     * </div>
-     *
-     * @return a copy of this {@code Record2}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    public @NonNull Record2<A1, A2> copy() {
-        return record2(this.value1, this.value2);
     }
 
     /**

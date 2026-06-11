@@ -1,5 +1,9 @@
 package org.quurz.foomp.base.util;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -9,11 +13,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.quurz.foomp.base.util.Record4.record4;
 import static org.quurz.foomp.base.util.Tuple4.tuple4;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Nested;
 
 @DisplayName("Record4")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -220,13 +219,6 @@ class Record4Test {
             });
         }
 
-        @Test
-        void copy_preserves_semantics() {
-            LOGGER.info("Record4.copy should produce a structural copy");
-
-            final var r = record4("TEST", 23, 3.0d, 2.0f);
-            assertThat(r.copy()).isEqualTo(record4("TEST", 23, 3.0d, 2.0f));
-        }
 
         @Test
         void equals_hashCode_and_toString() {

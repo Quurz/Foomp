@@ -1,7 +1,6 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Appliable2;
 import org.quurz.foomp.base.types.Mappable2;
 import org.quurz.foomp.base.types.Swappable;
@@ -34,7 +33,7 @@ import static org.quurz.foomp.base.util.Pair.pair;
  *       <li><b>Lazy access</b>: values are retrieved on demand using suppliers (see {@code get1()}/{@code get2()}).</li>
  *       <li><b>Mapping</b>: {@code map}/{@code map1}/{@code map2}/{@code mapAll} transform components eagerly at call site.</li>
  *       <li><b>Applicative</b>: {@code applyTo} applies functions carried by another {@code Tuple2} to the respective values.</li>
- *       <li><b>Structure</b>: {@code swap}, {@code with1}/{@code with2}, {@code copy}, {@code toRecord} provide structural utilities.</li>
+ *       <li><b>Structure</b>: {@code swap}, {@code with1}/{@code with2}, {@code toRecord} provide structural utilities.</li>
  *     </ul>
  *   </p>
  *   <p>
@@ -73,7 +72,6 @@ public final class Tuple2<A1, A2>
         implements Mappable2<Tuple2.µ, A1, A2>,
         Appliable2<Tuple2.µ, A1, A2>,
                    Swappable<Tuple2<A2, A1>, A1, A2>,
-                   Copyable<Tuple2<A1, A2>>,
                    Unwindable<Tuple2<A1, A2>>,
                    Value2<A1, A2>,
                    Higher2<Tuple2.µ, A1, A2> {
@@ -527,22 +525,6 @@ public final class Tuple2<A1, A2>
     @Override
     public @NonNull Tuple2<A2, A1> swap() {
         return new Tuple2<>(this.value2Supplier, this.value1Supplier);
-    }
-
-    /**
-     * <div>
-     *   <p>
-     *     Creates a copy of this {@code Tuple2}.
-     *   </p>
-     * </div>
-     *
-     * @return a new instance of {@code Tuple2} with the same values
-     *
-     * @since 1.0.0
-     */
-    @Override
-    public @NonNull Tuple2<A1, A2> copy() {
-        return new Tuple2<>(this.value1Supplier, this.value2Supplier);
     }
 
     /**

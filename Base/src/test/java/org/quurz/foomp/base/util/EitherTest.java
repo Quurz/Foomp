@@ -13,14 +13,8 @@ import org.slf4j.Logger;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.Consumer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.*;
 import static org.quurz.foomp.base.util.Either.left;
 import static org.quurz.foomp.base.util.Either.right;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -530,19 +524,6 @@ class EitherTest
         }
 
         @Test
-        void copy_preserves_semantics_not_identity() {
-            LOGGER.info("copy() should preserve value and side");
-            final var l = left(SOME_STRING_VALUE);
-            final var r = right(SOME_STRING_VALUE);
-
-            final var lCopy = l.copy();
-            final var rCopy = r.copy();
-
-            assertThat(lCopy).isEqualTo(l);
-            assertThat(rCopy).isEqualTo(r);
-        }
-
-        @Test
         void swap_left_right_behaviour() {
             LOGGER.info("swap on Left/Right");
             checkIsRightWithValue(left(SOME_STRING_VALUE).swap(), SOME_STRING_VALUE);
@@ -550,18 +531,18 @@ class EitherTest
         }
 
         @Test
-        void copy_on_left_and_right() {
-            LOGGER.info("copy on Left/Right");
+        void swap_is_stable() {
+            LOGGER.info("swap on Left/Right");
             assertThatNoException().isThrownBy(() -> {
                 final var eL = left(SOME_STRING_VALUE);
-                final var mappedCopyL = eL.copy().mapLeft(funStringLength);
+                final var mappedL = eL.mapLeft(funStringLength);
                 checkIsLeftWithValue(eL, SOME_STRING_VALUE);
-                checkIsLeftWithValue(mappedCopyL, SOME_STRING_VALUE.length());
+                checkIsLeftWithValue(mappedL, SOME_STRING_VALUE.length());
 
                 final var eR = right(SOME_STRING_VALUE);
-                final var mappedCopyR = eR.copy().map(funStringLength);
+                final var mappedR = eR.map(funStringLength);
                 checkIsRightWithValue(eR, SOME_STRING_VALUE);
-                checkIsRightWithValue(mappedCopyR, SOME_STRING_VALUE.length());
+                checkIsRightWithValue(mappedR, SOME_STRING_VALUE.length());
             });
         }
 

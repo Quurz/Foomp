@@ -2,9 +2,9 @@ package org.quurz.foomp.base.util;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.quurz.foomp.base.TestHelper;
 import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.functions.Fun2;
@@ -13,10 +13,7 @@ import org.slf4j.Logger;
 
 import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.assertj.core.api.Assertions.*;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -110,21 +107,17 @@ class Tuple2Test
         }
 
         @Test
-        void swap_swaps_components_and_copy_preserves_values() {
-            LOGGER.info("Tuple2.swap and Tuple2.copy should behave");
+        void swap_swaps_components() {
+            LOGGER.info("Tuple2.swap should behave");
 
             final var t = tuple2(SOME_STRING_VALUE, SOME_OTHER_STRING_VALUE);
             final var swapped = t.swap();
-            final var copy = t.copy();
 
             assertThat(t.get1()).isEqualTo(SOME_STRING_VALUE);
             assertThat(t.get2()).isEqualTo(SOME_OTHER_STRING_VALUE);
 
             assertThat(swapped.get1()).isEqualTo(SOME_OTHER_STRING_VALUE);
             assertThat(swapped.get2()).isEqualTo(SOME_STRING_VALUE);
-
-            assertThat(copy.get1()).isEqualTo(SOME_STRING_VALUE);
-            assertThat(copy.get2()).isEqualTo(SOME_OTHER_STRING_VALUE);
         }
     }
 

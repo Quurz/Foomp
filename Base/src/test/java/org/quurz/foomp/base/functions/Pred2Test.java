@@ -1,6 +1,5 @@
 package org.quurz.foomp.base.functions;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -8,9 +7,7 @@ import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.quurz.foomp.base.functions.Pred2.not;
 import static org.quurz.foomp.base.functions.Pred2.pred2;
 import static org.slf4j.LoggerFactory.getLogger;

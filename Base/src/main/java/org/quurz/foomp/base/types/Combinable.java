@@ -1,10 +1,7 @@
 package org.quurz.foomp.base.types;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.util.Tuple2;
 import org.quurz.foomp.higher.WitnessType;
-
-import java.util.function.BiFunction;
 
 /**
  * <div>

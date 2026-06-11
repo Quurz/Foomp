@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
@@ -139,6 +140,29 @@ class PairTest {
             assertFalse(p.isPresent());
             p.set1("y");
             assertTrue(p.isPresent());
+        }
+
+        @Test
+        void copy_creates_new_pair_and_copies_elements_if_copyable() {
+            LOGGER.info("Pair.copy should create a new Pair and copy elements if they are Copyable");
+
+            // Test with non-copyable elements (shallow copy)
+            var p1 = pair("test", 42);
+            var copy1 = p1.copy();
+
+            assertNotSame(p1, copy1);
+            assertEquals(p1, copy1);
+
+            // Test with copyable elements (deep copy)
+            // Since Pair itself is Copyable, we can nest it
+            var inner = pair("inner", 1);
+            var p2 = pair(inner, "outer");
+            var copy2 = p2.copy();
+
+            assertNotSame(p2, copy2);
+            assertEquals(p2, copy2);
+            assertNotSame(p2.get1(), copy2.get1());
+            assertEquals(p2.get1(), copy2.get1());
         }
     }
 }

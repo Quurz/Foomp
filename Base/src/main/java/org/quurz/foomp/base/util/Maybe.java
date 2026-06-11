@@ -48,7 +48,6 @@ import static org.quurz.foomp.base.localisation.BaseMessages.*;
 @SuppressWarnings("NonAsciiCharacters")
 public sealed interface Maybe<A>
         extends Monadic<Maybe.µ, A>,
-                Copyable<Maybe<A>>,
                 Unwindable<Maybe<A>>,
                 Transmogrifyable<Maybe<A>>,
                 Value<A>,
@@ -605,26 +604,6 @@ public sealed interface Maybe<A>
      */
     default Optional<A> toOptional() {
         return this.map(Optional::of).getOrElse(Optional::empty);
-    }
-
-    /**
-     * <div>
-     *   <p>
-     *     Returns a shallow copy of this {@code Maybe} (preserves laziness).
-     *   </p>
-     * </div>
-     *
-     * @return a copy of this {@code Maybe}
-     *
-     * @since 1.0.0
-     */
-    @Override
-    @NonNull
-    default Maybe<A> copy() {
-        return switch (this) {
-            case Some<A> some -> new Some<>(some.spool);
-            case None<A> none -> none;
-        };
     }
 
     /**
