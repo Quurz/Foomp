@@ -14,7 +14,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * <div>
  *     <p>
  *         A sequence of values of type {@code A}. A sequence may be empty, contain one or more
- *         elements, and can be extended by adding elements or concatenating other sequences.
+ *         elements, and can be extended by adding elements.
  *     </p>
  *     <p>
  *         Unless stated otherwise by a concrete implementation, elements are treated in encounter
@@ -33,8 +33,31 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 @SuppressWarnings("NonAsciiCharacters")
 public interface Seq<A> {
 
+    /**
+     * <div>
+     *     <p>
+     *         Witness type for {@code Seq} used in the higher‑kinded encoding.
+     *     </p>
+     * </div>
+     *
+     * @since 1.0.0
+     */
     class µ implements WitnessType { protected µ() {} }
 
+    /**
+     * <div>
+     *     <p>
+     *         Narrows a {@link Higher1} back to a {@code Seq}.
+     *     </p>
+     * </div>
+     *
+     * @param other the higher‑kinded value to narrow; must not be {@code null}
+     * @param <A>   the element type
+     * @return the narrowed {@code Seq} instance (never {@code null})
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
     @SuppressWarnings("unchecked")
     static <A> Seq<A> narrow(final @NonNull Higher1<? extends µ, A> other) {
         Objects.requireNonNull(other, nullValue("other"));
@@ -84,6 +107,17 @@ public interface Seq<A> {
     @NonNull A head()
         throws NoSuchElementException;
 
+    /**
+     * <div>
+     *     <p>
+     *         Returns the first element of this sequence in a safe manner.
+     *     </p>
+     * </div>
+     *
+     * @return a {@link Value} containing the head element, or an empty {@link Value} if this sequence is empty
+ *
+ * @since 1.0.0
+ */
     @NonNull Value<A> headSafe();
 
     /**
@@ -123,11 +157,11 @@ public interface Seq<A> {
      *     </p>
      * </div>
      *
-     * @return a pair consisting of the first element and the remainder of the sequence
-     * @throws NoSuchElementException if this sequence is empty
-     *
-     * @since 1.0.0
-     */
+     * @return a {@link Value2} consisting of the first element and the remainder of the sequence (never {@code null})
+ * @throws NoSuchElementException if this sequence is empty
+ *
+ * @since 1.0.0
+ */
     @NonNull Value2<A, ? extends Seq<A>> decons()
         throws NoSuchElementException;
 

@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
-import static org.quurz.foomp.base.util.MutablePair.mutablePair;
+import static org.quurz.foomp.base.util.Pair.pair;
 
 /**
  * <div>
@@ -301,7 +301,6 @@ public final class Tuple2<A1, A2>
      *
      * @since 1.0.0
      */
-    // TODO; Test
     @UnwindingOperation
     public <B> B meld(final @NonNull BiFunction<? super A1, ? super A2, ? extends B> meld) {
         Objects.requireNonNull(meld, nullValue("meld"));
@@ -567,26 +566,26 @@ public final class Tuple2<A1, A2>
     /**
      * <div>
      *   <p>
-     *     Converts this tuple to a {@link MutablePair} by evaluating both component suppliers.
+     *     Converts this tuple to a {@link Pair} by evaluating both component suppliers.
      *   </p>
      *   <p>
      *     Semantics:
      *     <ul>
      *       <li>Evaluation: calls {@link #get1()} and {@link #get2()} to obtain the current values.</li>
-     *       <li>Mutability: the returned {@code MutablePair} is a separate, mutable container.</li>
-     *       <li>Nullability: this tuple holds non-null values by contract; {@code MutablePair} can represent nulls,
+     *       <li>Mutability: the returned {@code Pair} is a separate, mutable container.</li>
+     *       <li>Nullability: this tuple holds non-null values by contract; {@code Pair} can represent nulls,
      *           but this method will populate it with non-null values.</li>
      *     </ul>
      *   </p>
      * </div>
      *
-     * @return a {@link MutablePair} containing the evaluated values of this tuple
+     * @return a {@link Pair} containing the evaluated values of this tuple
      *
      * @since 1.0.0
      */
     @UnwindingOperation
-    public MutablePair<A1, A2> toPair() {
-        return mutablePair(this.get1(), this.get2());
+    public Pair<A1, A2> toPair() {
+        return pair(this.get1(), this.get2());
     }
 
     /**

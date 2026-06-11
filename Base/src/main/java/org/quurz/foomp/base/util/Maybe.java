@@ -85,7 +85,19 @@ public sealed interface Maybe<A>
         return (Maybe<A>) Objects.requireNonNull(wide, nullValue("wide"));
     }
 
-    // TODO: JavaDoc
+    /**
+     * <div>
+     *   <p>
+     *     Wraps a {@code Maybe} instance as a {@link Higher1}.
+     *   </p>
+     * </div>
+     *
+     * @param narrow the concrete {@code Maybe} instance; must not be {@code null}
+     * @param <A>    the contained value type
+     * @return a higher‑kinded value
+     *
+     * @since 1.0.0
+     */
     static <A> Higher1<µ, A> wide(final @NonNull Maybe<A> narrow) {
         Objects.requireNonNull(narrow, nullValue("narrow"));
         return narrow;
@@ -763,7 +775,20 @@ public sealed interface Maybe<A>
     final class Some<A>
             implements Maybe<A> {
 
-        static <A> Some<A> fromSpool(final @NonNull Supplier<A> spool) {
+    /**
+     * <div>
+     *   <p>
+     *     Wraps a {@link Supplier} into a {@link Some} variant.
+     *   </p>
+     * </div>
+     *
+     * @param spool the supplier providing the value; must not be {@code null}
+     * @param <A>   the contained value type
+     * @return a new {@code Some} instance
+     *
+     * @since 1.0.0
+     */
+    static <A> Some<A> fromSpool(final @NonNull Supplier<A> spool) {
             return new Some<>(spool);
         }
 

@@ -30,15 +30,14 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
  *
  * @author Alexander Schell
  */
-// TODO: Sollte mir einen anderen Namen überlegen
 @Mutable
-public final class MutablePair<A1, A2>
+public final class Pair<A1, A2>
         implements Value2<A1, A2> {
 
     /**
      * <div>
      *     <p>
-     *         Creates a new MutablePair instance with the given values.
+     *         Creates a new Pair instance with the given values.
      *     </p>
      * </div>
      *
@@ -46,20 +45,30 @@ public final class MutablePair<A1, A2>
      * @param value2 The second value
      * @param <A1>   Type of the first value
      * @param <A2>   Type of the second value
-     * @return A new MutablePair instance
+     * @return A new Pair instance
      *
      * @since 1.0.0
      */
-    public static <A1, A2> MutablePair<A1, A2> mutablePair(final @Nullable A1 value1,
-                                                           final @Nullable A2 value2) {
-        return new MutablePair<>(value1, value2);
+    public static <A1, A2> Pair<A1, A2> pair(final @Nullable A1 value1,
+                                             final @Nullable A2 value2) {
+        return new Pair<>(value1, value2);
     }
 
     private A1 value1;
     private A2 value2;
 
-    private MutablePair(final A1 value1,
-                        final A2 value2) {
+    /**
+     * <div>
+     *     <p>
+     *         Internal constructor to initialize a Pair.
+     *     </p>
+     * </div>
+     *
+     * @param value1 the first value
+     * @param value2 the second value
+     */
+    private Pair(final A1 value1,
+                 final A2 value2) {
         this.value1
             = value1;
         this.value2
@@ -166,17 +175,17 @@ public final class MutablePair<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Creates a new MutablePair with the given first value and the current second value.
+     *         Creates a new Pair with the given first value and the current second value.
      *     </p>
      * </div>
      *
      * @param value the new first value
-     * @return a new MutablePair instance
+     * @return a new Pair instance
      *
      * @since 1.0.0
      */
-    public MutablePair<A1, A2> with1(final @Nullable A1 value) {
-        return mutablePair(value, this.value2);
+    public Pair<A1, A2> with1(final @Nullable A1 value) {
+        return pair(value, this.value2);
     }
 
     /**
@@ -214,23 +223,23 @@ public final class MutablePair<A1, A2>
     /**
      * <div>
      *     <p>
-     *         Creates a new MutablePair with the current first value and the given second value.
+     *         Creates a new Pair with the current first value and the given second value.
      *     </p>
      * </div>
      *
      * @param value the new second value
-     * @return a new MutablePair instance
+     * @return a new Pair instance
      *
      * @since 1.0.0
      */
-    public MutablePair<A1, A2> with2(final @Nullable A2 value) {
-        return mutablePair(this.value1, value);
+    public Pair<A1, A2> with2(final @Nullable A2 value) {
+        return pair(this.value1, value);
     }
 
     /**
      * <div>
      *     <p>
-     *         Converts this MutablePair to a Tuple2 of Maybe values.
+     *         Converts this Pair to a Tuple2 of Maybe values.
      *     </p>
      * </div>
      *
@@ -242,13 +251,23 @@ public final class MutablePair<A1, A2>
         return tuple2(maybeOfNullable(this.value1), maybeOfNullable(this.value2));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @since 1.0.0
+     */
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof MutablePair<?, ?> mutablePair)) return false;
+        if (!(o instanceof Pair<?, ?> pair)) return false;
 
-        return Objects.equals(value1, mutablePair.value1) && Objects.equals(value2, mutablePair.value2);
+        return Objects.equals(value1, pair.value1) && Objects.equals(value2, pair.value2);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @since 1.0.0
+     */
     @Override
     public int hashCode() {
         int result
@@ -257,9 +276,14 @@ public final class MutablePair<A1, A2>
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @since 1.0.0
+     */
     @Override
     public String toString() {
-        return new StringJoiner(", ", MutablePair.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", Pair.class.getSimpleName() + "[", "]")
                 .add("value1=" + value1)
                 .add("value2=" + value2)
                 .toString();

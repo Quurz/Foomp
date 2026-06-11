@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.quurz.foomp.base.TestHelper;
 import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.functions.Fun2;
+import org.quurz.foomp.higher.Higher2;
 import org.slf4j.Logger;
 
 import java.util.Objects;
@@ -15,6 +16,7 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -50,6 +52,16 @@ class Tuple2Test
             assertThat(t.get1()).isEqualTo(5);
             assertThat(t.get2()).isEqualTo(6);
         }
+
+        @Test
+        void narrow_converts_higher_kinded_type() {
+            LOGGER.info("Tuple2.narrow should convert Higher2 to Tuple2");
+            final Higher2<Tuple2.µ, Integer, String> higher = tuple2(5, "test");
+            final var narrowed = Tuple2.narrow(higher);
+            assertThat(narrowed).isInstanceOf(Tuple2.class);
+            assertThat(narrowed.get1()).isEqualTo(5);
+            assertThat(narrowed.get2()).isEqualTo("test");
+        }
     }
 
     @Nested
@@ -80,6 +92,21 @@ class Tuple2Test
                 assertThat(t.get2()).isEqualTo(7);
                 assertThat(t.get1()).isEqualTo(5);
             });
+        }
+
+        @Test
+        void meld_combines_values_and_enforces_contracts() {
+            LOGGER.info("Tuple2.meld should combine values and enforce contracts");
+
+            final var t = tuple2(5, 6);
+
+            assertThat(t.meld(Integer::sum)).isEqualTo(11);
+            assertThat(t.meld((Integer a, Integer b) -> a.toString() + b.toString())).isEqualTo("56");
+
+            assertThatThrownBy(() -> t.meld(null))
+                .isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> t.meld((_a, _b) -> null))
+                .isInstanceOf(NullPointerException.class);
         }
 
         @Test
@@ -241,7 +268,7 @@ class Tuple2Test
             assertThat(pair.is2()).isTrue();
 
             // Equality is component-wise
-            assertThat(pair).isEqualTo(MutablePair.mutablePair(SOME_STRING_VALUE, SOME_OTHER_STRING_VALUE));
+            assertThat(pair).isEqualTo(Pair.pair(SOME_STRING_VALUE, SOME_OTHER_STRING_VALUE));
 
             // Mutating the pair does not affect the original tuple
             pair.set1("mutated");

@@ -13,16 +13,16 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.quurz.foomp.base.util.Maybe.maybeOfNullable;
-import static org.quurz.foomp.base.util.MutablePair.mutablePair;
+import static org.quurz.foomp.base.util.Pair.pair;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@DisplayName("MutablePair")
+@DisplayName("Pair")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class MutablePairTest {
+class PairTest {
 
     private static final Logger LOGGER
-        = getLogger(MutablePairTest.class);
+        = getLogger(PairTest.class);
 
     @Nested
     @DisplayName("Factory")
@@ -30,9 +30,9 @@ class MutablePairTest {
 
         @Test
         void empty_pair_has_no_values() {
-            LOGGER.info("MutablePair.mutablePair(null, null) should create an empty pair");
+            LOGGER.info("Pair.pair(null, null) should create an empty pair");
 
-            var p = mutablePair(null, null);
+            var p = pair(null, null);
 
             assertFalse(p.is1());
             assertFalse(p.is2());
@@ -40,8 +40,8 @@ class MutablePairTest {
 
         @Test
         void pair_with_values_reports_presence() {
-            LOGGER.info("MutablePair.mutablePair(value1, value2) should reflect presence");
-            var p = mutablePair("test", 42);
+            LOGGER.info("Pair.pair(value1, value2) should reflect presence");
+            var p = pair("test", 42);
 
             assertTrue(p.is1());
             assertTrue(p.is2());
@@ -54,9 +54,9 @@ class MutablePairTest {
 
         @Test
         void get_and_set_update_values_and_presence_flags() {
-            LOGGER.info("MutablePair.get*/set* should read/write values and update presence flags");
+            LOGGER.info("Pair.get*/set* should read/write values and update presence flags");
 
-            var p = mutablePair("initial", 0);
+            var p = pair("initial", 0);
 
             p.set1("updated");
             p.set2(1);
@@ -73,9 +73,9 @@ class MutablePairTest {
 
         @Test
         void with_methods_return_new_instances_with_replaced_values() {
-            LOGGER.info("MutablePair.with* should return new pair with replaced value and keep other");
+            LOGGER.info("Pair.with* should return new pair with replaced value and keep other");
 
-            var p = mutablePair("test", 42);
+            var p = pair("test", 42);
 
             var p1 = p.with1("new");
             var p2 = p.with2(99);
@@ -98,11 +98,11 @@ class MutablePairTest {
 
         @Test
         void equals_and_hashCode_compare_componentwise() {
-            LOGGER.info("MutablePair.equals/hashCode should compare by value1/value2");
+            LOGGER.info("Pair.equals/hashCode should compare by value1/value2");
 
-            var a = mutablePair("test", 42);
-            var b = mutablePair("test", 42);
-            var c = mutablePair("different", 42);
+            var a = pair("test", 42);
+            var b = pair("test", 42);
+            var c = pair("different", 42);
 
             assertEquals(a, b);
             assertEquals(a.hashCode(), b.hashCode());
@@ -111,20 +111,20 @@ class MutablePairTest {
 
         @Test
         void toString_formats_values() {
-            LOGGER.info("MutablePair.toString should include both values");
+            LOGGER.info("Pair.toString should include both values");
 
-            var p = mutablePair("test", 42);
-            assertEquals("MutablePair[value1=test, value2=42]", p.toString());
+            var p = pair("test", 42);
+            assertEquals("Pair[value1=test, value2=42]", p.toString());
         }
 
         @Test
         void toTuple_wraps_values_in_Maybe() {
-            LOGGER.info("MutablePair.toTuple should return Tuple2<Maybe<A1>, Maybe<A2>> reflecting nullability");
+            LOGGER.info("Pair.toTuple should return Tuple2<Maybe<A1>, Maybe<A2>> reflecting nullability");
 
-            var p1 = mutablePair("x", 7);
-            var p2 = mutablePair(null, 7);
-            var p3 = mutablePair("x", null);
-            var p4 = mutablePair(null, null);
+            var p1 = pair("x", 7);
+            var p2 = pair(null, 7);
+            var p3 = pair("x", null);
+            var p4 = pair(null, null);
 
             assertEquals(tuple2(maybeOfNullable("x"), maybeOfNullable(7)), p1.toTuple());
             assertEquals(tuple2(maybeOfNullable(null), maybeOfNullable(7)), p2.toTuple());
@@ -134,8 +134,8 @@ class MutablePairTest {
 
         @Test
         void isPresent_delegates_to_is1() {
-            LOGGER.info("MutablePair.isPresent should delegate to is1()");
-            var p = mutablePair(null, "x");
+            LOGGER.info("Pair.isPresent should delegate to is1()");
+            var p = pair(null, "x");
             assertFalse(p.isPresent());
             p.set1("y");
             assertTrue(p.isPresent());

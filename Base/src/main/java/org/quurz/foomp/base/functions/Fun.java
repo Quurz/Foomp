@@ -205,15 +205,7 @@ public interface Fun<X, Y>
         return this;
     }
 
-    default @NonNull Promise<Y> async(final @NonNull X x) {
-        Objects.requireNonNull(x, nullValue("x"));
-        return null;    // TODO
-    }
-
-    default @NonNull Promise<Y> async(final @NonNull X x,
-                                      final @NonNull ExecutorService executor) {
-        Objects.requireNonNull(x, nullValue("x"));
-        Objects.requireNonNull(executor, nullValue("executor"));
+    default @NonNull Fun<X, Promise<Y>> async() {
         return null;    // TODO
     }
 

@@ -135,6 +135,14 @@ tasks.withType<JacocoReport>().configureEach {
         csv.required.set(false)
         html.required.set(true) // HTML-Report zum Anschauen im Browser
     }
+
+    // Pfad zum HTML-Report in der Konsole ausgeben
+    doLast {
+        val reportFile = reports.html.outputLocation.asFile.get().resolve("index.html")
+        if (reportFile.exists()) {
+            logger.quiet("JaCoCo Coverage Report generated: file://${reportFile.absolutePath}")
+        }
+    }
 }
 
 // Grundeinstellung für das Veröffentlichen von Maven-Artefakten

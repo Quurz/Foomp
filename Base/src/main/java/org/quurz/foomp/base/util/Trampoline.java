@@ -1,11 +1,12 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.UnwindingOperation;
 import org.quurz.foomp.base.types.Value;
 
 import java.util.Objects;
 import java.util.function.Supplier;
+
+import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 
 /**
  * <div>
@@ -63,7 +64,6 @@ import java.util.function.Supplier;
  *
  * @author Alexander Schell
  */
-// TODO: Messages
 public sealed interface Trampoline<T>
         extends Value<T>
         permits Trampoline.More,
@@ -162,9 +162,9 @@ public sealed interface Trampoline<T>
         @Override
         public @NonNull T get() {
             var current
-                = Objects.requireNonNull(this.trampoline.get(), "trampoline.get() returned null");
+                = Objects.requireNonNull(this.trampoline.get(), nullResult());
             while (current instanceof Trampoline.More<T> more) {
-                current = Objects.requireNonNull(more.trampoline.get(), "trampoline.get() returned null");
+                current = Objects.requireNonNull(more.trampoline.get(), nullResult());
             }
             return current.get();
         }

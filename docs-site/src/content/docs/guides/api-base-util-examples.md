@@ -290,14 +290,14 @@ logBucket.add("Log 4");
 logBucket.flush();      // Manual flush: batches contains [..., ["Log 4"]]
 ```
 
-## MutablePair (Changeable Containers)
+## Pair (Changeable Containers)
 
-Unlike Tuples, `MutablePair` allows updating its values.
+Unlike Tuples, `Pair` allows updating its values.
 
 ```java
-import org.quurz.foomp.base.util.MutablePair;
+import org.quurz.foomp.base.util.Pair;
 
-MutablePair<String, Integer> state = MutablePair.mutablePair("Initial", 0);
+Pair<String, Integer> state = Pair.pair("Initial", 0);
 
 state.set1("Updated");
 state.set2(42);

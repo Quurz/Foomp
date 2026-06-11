@@ -22,6 +22,15 @@ public interface Promise<A>
                 Value<A>,
                 Higher1<Promise.µ, A> {
 
+    /**
+     * <div>
+     *     <p>
+     *         Witness type for {@code Promise} used in the higher‑kinded encoding.
+     *     </p>
+     * </div>
+     *
+     * @since 1.0.0
+     */
     final class µ implements WitnessType { private µ() {} }
 
     A claim();
