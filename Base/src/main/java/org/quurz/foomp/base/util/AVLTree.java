@@ -3,7 +3,6 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Comparer;
 import org.quurz.foomp.base.types.BinaryTree;
-import org.quurz.foomp.base.types.Copyable;
 import org.quurz.foomp.base.types.Echo;
 import org.quurz.foomp.base.types.Transmogrifyable;
 
@@ -34,8 +33,7 @@ import static org.quurz.foomp.base.util.Tuple2.tuple2;
 public abstract sealed class AVLTree<A>
         implements BinaryTree<A>,
                    Transmogrifyable<AVLTree<A>>,
-                   Echo,
-                   Copyable<AVLTree<A>>
+                   Echo
         permits AVLTree.Node,
                 AVLTree.Leaf {
 
@@ -939,27 +937,6 @@ public abstract sealed class AVLTree<A>
                 = right;
         }
 
-        /**
-         * <div>
-         *     <p>
-         *         Returns a deep copy of this node and its subtrees.
-         *     </p>
-         * </div>
-         *
-         * @return a copy of this tree
-         *
-         * @since 1.0.0
-         */
-        @Override
-        public @NonNull AVLTree<A> copy() {
-            return new Node<>(
-                this.insertionStrategy,
-                this.comparer,
-                this.element,
-                this.left.copy(),
-                this.right.copy()
-            );
-        }
     }
 
     /**
@@ -993,21 +970,6 @@ public abstract sealed class AVLTree<A>
             super(insertionStrategy, comparer, 0);
         }
 
-        /**
-         * <div>
-         *     <p>
-         *         Returns a copy of this leaf.
-         *     </p>
-         * </div>
-         *
-         * @return a new leaf instance
-         *
-         * @since 1.0.0
-         */
-        @Override
-        public @NonNull AVLTree<A> copy() {
-            return new Leaf<>(this.insertionStrategy, this.comparer);
-        }
 
     }
 
@@ -1066,8 +1028,8 @@ public abstract sealed class AVLTree<A>
                                         insertionStrategy,
                                         comparer,
                                         element,
-                                        node.left.copy(),
-                                        node.right.copy()
+                                        node.left,
+                                        node.right
                                     ),
                                     Boolean.TRUE
                                 );

@@ -393,14 +393,6 @@ class AVLTreeTest extends TestHelper {
             assertThat(tree.echo()).contains("2").contains("1").contains("3");
         }
 
-        @Test
-        void copy_creates_equal_tree() {
-            LOGGER.info("copy should create an equal but different instance of the tree");
-            final var tree = avlTreeOf(1, 2, 3, 4, 5);
-            final var copy = tree.copy();
-            assertThat(tree.echo()).isEqualTo(copy.echo());
-            assertThat(tree).isNotSameAs(copy);
-        }
 
         @Test
         void height_is_correct() {

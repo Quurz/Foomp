@@ -45,8 +45,7 @@ import static org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard;
 public abstract sealed class RedBlackTree<A>
         implements BinaryTree<A>,
                    Transmogrifyable<RedBlackTree<A>>,
-                   Echo,
-                   Copyable<RedBlackTree<A>>
+                   Echo
         permits RedBlackTree.Node,
                 RedBlackTree.Leaf {
 
@@ -1116,21 +1115,6 @@ public abstract sealed class RedBlackTree<A>
                 = right;
         }
 
-        /**
-         * <div>
-         *     <p>
-         *         Creates a copy of this node.
-         *     </p>
-         * </div>
-         *
-         * @return a copy of the node
-         *
-         * @since 1.0.0
-         */
-        @Override
-        public @NonNull RedBlackTree<A> copy() {
-            return new Node<>(insertionStrategy, comparer, element, left.copy(), right.copy(), black);
-        }
 
     }
 
@@ -1165,21 +1149,6 @@ public abstract sealed class RedBlackTree<A>
             super(insertionStrategy, comparer, 1, true);
         }
 
-        /**
-         * <div>
-         *     <p>
-         *         Creates a copy of this leaf.
-         *     </p>
-         * </div>
-         *
-         * @return a copy of the leaf
-         *
-         * @since 1.0.0
-         */
-        @Override
-        public @NonNull RedBlackTree<A> copy() {
-            return new Leaf<>(this.insertionStrategy, this.comparer);
-        }
 
     }
 
