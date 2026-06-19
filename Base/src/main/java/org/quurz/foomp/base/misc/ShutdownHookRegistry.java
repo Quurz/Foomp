@@ -100,7 +100,8 @@ public class ShutdownHookRegistry {
      *
      * @since 1.0.0
      */
-    public static final class ShutdownHook implements Comparable<ShutdownHook> {
+    public static final class ShutdownHook
+            implements Comparable<ShutdownHook> {
 
         private final String name;
         private final int priority;
@@ -111,10 +112,14 @@ public class ShutdownHookRegistry {
                              final int priority,
                              final @NonNull Runnable action,
                              final @NonNull Duration timeout) {
-            this.name = name;
-            this.priority = priority;
-            this.action = action;
-            this.timeout = timeout;
+            this.name
+                = name;
+            this.priority
+                = priority;
+            this.action
+                = action;
+            this.timeout
+                = timeout;
         }
 
         /**
@@ -230,8 +235,10 @@ public class ShutdownHookRegistry {
         private LogAdapter logAdapter;
 
         private ShutdownHookRegistryBuilder() {
-            this.hooks = new ArrayList<>();
-            this.logAdapter = LogAdapter.noOpLogAdapter();
+            this.hooks
+                = new ArrayList<>();
+            this.logAdapter
+                = LogAdapter.noOpLogAdapter();
         }
 
         /**
@@ -297,7 +304,8 @@ public class ShutdownHookRegistry {
          * @since 1.0.0
          */
         public ShutdownHookRegistryBuilder withLogAdapter(final @NonNull LogAdapter logAdapter) {
-            this.logAdapter = Objects.requireNonNull(logAdapter, nullValue("logAdapter"));
+            this.logAdapter
+                = Objects.requireNonNull(logAdapter, nullValue("logAdapter"));
             return this;
         }
 

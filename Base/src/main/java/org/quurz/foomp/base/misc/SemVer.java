@@ -71,6 +71,7 @@ import static org.quurz.foomp.base.util.Maybe.none;
  *
  * @see <a href="https://semver.org/">Semantic Versioning 2.0.0</a>
  */
+// TODO: Immutable machen & Messages
 public class SemVer
         implements Serializable,
                    Comparable<SemVer>,
@@ -153,7 +154,8 @@ public class SemVer
             if (major < 0) {
                 throw new IllegalArgumentException("major version must be non-negative");
             }
-            this.major = major;
+            this.major
+                = major;
             return this;
         }
 
@@ -174,7 +176,8 @@ public class SemVer
             if (minor < 0) {
                 throw new IllegalArgumentException("minor version must be non-negative");
             }
-            this.minor = minor;
+            this.minor
+                = minor;
             return this;
         }
 
@@ -195,7 +198,8 @@ public class SemVer
             if (patch < 0) {
                 throw new IllegalArgumentException("patch version must be non-negative");
             }
-            this.patch = patch;
+            this.patch
+                = patch;
             return this;
         }
 
@@ -213,7 +217,8 @@ public class SemVer
          * @since 1.0.0
          */
         public SemVerBuilder preRelease(final @NonNull String preRelease) {
-            this.preRelease = Objects.requireNonNull(preRelease, nullValue("preRelease"));
+            this.preRelease
+                = Objects.requireNonNull(preRelease, nullValue("preRelease"));
             return this;
         }
 
@@ -231,7 +236,8 @@ public class SemVer
          * @since 1.0.0
          */
         public SemVerBuilder buildMetadata(final @NonNull String buildMetadata) {
-            this.buildMetadata = Objects.requireNonNull(buildMetadata, nullValue("buildMetadata"));
+            this.buildMetadata
+                = Objects.requireNonNull(buildMetadata, nullValue("buildMetadata"));
             return this;
         }
 

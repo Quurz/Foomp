@@ -13,16 +13,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.slf4j.LoggerFactory.getLogger;
 
-class CheckedProviderTest extends TestHelper {
+class UnsafeProviderTest extends TestHelper {
 
     private static final Logger LOGGER
-        = getLogger(CheckedProviderTest.class);
+        = getLogger(UnsafeProviderTest.class);
 
     @Test
     void testGetReturnsValue() {
         LOGGER.info("Test CheckedProvider.get() returns value");
 
-        final CheckedProvider<String> supplier = () -> "Hello";
+        final UnsafeProvider<String> supplier = () -> "Hello";
 
         assertThatNoException().isThrownBy(() -> {
             final var result = supplier.get();
@@ -35,7 +35,7 @@ class CheckedProviderTest extends TestHelper {
         LOGGER.info("Test CheckedProvider.get() throws checked exception");
 
         final var testException = new IOException("Test IO exception");
-        final CheckedProvider<String> supplier = () -> {
+        final UnsafeProvider<String> supplier = () -> {
             throw testException;
         };
 
@@ -48,7 +48,7 @@ class CheckedProviderTest extends TestHelper {
         LOGGER.info("Test CheckedProvider.get() throws runtime exception");
 
         final var testException = new IllegalStateException("Test state exception");
-        final CheckedProvider<String> supplier = () -> {
+        final UnsafeProvider<String> supplier = () -> {
             throw testException;
         };
 
@@ -61,7 +61,7 @@ class CheckedProviderTest extends TestHelper {
         LOGGER.info("Test CheckedProvider.get() is called on each invocation");
 
         final var invocationCounter = new AtomicInteger(0);
-        final CheckedProvider<Integer> supplier = invocationCounter::incrementAndGet;
+        final UnsafeProvider<Integer> supplier = invocationCounter::incrementAndGet;
 
         assertThatNoException().isThrownBy(() -> {
             assertThat(supplier.get()).isEqualTo(1);
@@ -75,7 +75,7 @@ class CheckedProviderTest extends TestHelper {
     void testApplyWithNullNothing() {
         LOGGER.info("Test CheckedProvider.apply() with null Nothing");
 
-        final CheckedProvider<String> supplier = () -> "Hello";
+        final UnsafeProvider<String> supplier = () -> "Hello";
 
         assertThatThrownBy(() -> supplier.apply(null))
             .isInstanceOf(NullPointerException.class);
@@ -85,7 +85,7 @@ class CheckedProviderTest extends TestHelper {
     void testApplyWithNothingReturnsValue() {
         LOGGER.info("Test CheckedProvider.apply() with Nothing returns value");
 
-        final CheckedProvider<String> supplier = () -> "World";
+        final UnsafeProvider<String> supplier = () -> "World";
 
         assertThatNoException().isThrownBy(() -> {
             final var result = supplier.apply(nothing);
@@ -98,7 +98,7 @@ class CheckedProviderTest extends TestHelper {
         LOGGER.info("Test CheckedProvider.apply() with Nothing throws exception");
 
         final var testException = new Exception("Test exception");
-        final CheckedProvider<String> supplier = () -> {
+        final UnsafeProvider<String> supplier = () -> {
             throw testException;
         };
 
@@ -111,7 +111,7 @@ class CheckedProviderTest extends TestHelper {
         LOGGER.info("Test CheckedProvider.apply() calls get()");
 
         final var invocationCounter = new AtomicInteger(0);
-        final CheckedProvider<Integer> supplier = invocationCounter::incrementAndGet;
+        final UnsafeProvider<Integer> supplier = invocationCounter::incrementAndGet;
 
         assertThatNoException().isThrownBy(() -> {
             // Call via apply()
@@ -131,7 +131,7 @@ class CheckedProviderTest extends TestHelper {
     void testApplyIgnoresNothingValue() {
         LOGGER.info("Test CheckedProvider.apply() ignores Nothing value (but validates it)");
 
-        final CheckedProvider<String> supplier = () -> "Constant";
+        final UnsafeProvider<String> supplier = () -> "Constant";
 
         assertThatNoException().isThrownBy(() -> {
             // The Nothing value is validated but otherwise ignored
@@ -144,9 +144,9 @@ class CheckedProviderTest extends TestHelper {
     void testCheckedProviderWithDifferentReturnTypes() {
         LOGGER.info("Test CheckedProvider with different return types");
 
-        final CheckedProvider<Integer> intSupplier = () -> 42;
-        final CheckedProvider<String> stringSupplier = () -> "test";
-        final CheckedProvider<Boolean> boolSupplier = () -> true;
+        final UnsafeProvider<Integer> intSupplier = () -> 42;
+        final UnsafeProvider<String> stringSupplier = () -> "test";
+        final UnsafeProvider<Boolean> boolSupplier = () -> true;
 
         assertThatNoException().isThrownBy(() -> {
             assertThat(intSupplier.get()).isEqualTo(42);
@@ -160,7 +160,7 @@ class CheckedProviderTest extends TestHelper {
     void testCheckedProviderAsApplicable() {
         LOGGER.info("Test CheckedProvider can be used as Applicable");
 
-        final CheckedProvider<String> supplier = () -> "Hello";
+        final UnsafeProvider<String> supplier = () -> "Hello";
         final Applicable<?, String> applicable = supplier;
 
         assertThatNoException().isThrownBy(() -> {
@@ -174,8 +174,8 @@ class CheckedProviderTest extends TestHelper {
     void testCheckedProviderWithSafeMethod() {
         LOGGER.info("Test CheckedProvider.safe() inherited from Applicable");
 
-        final CheckedProvider<String> successSupplier = () -> "Success";
-        final CheckedProvider<String> failureSupplier = () -> {
+        final UnsafeProvider<String> successSupplier = () -> "Success";
+        final UnsafeProvider<String> failureSupplier = () -> {
             throw new IllegalStateException("Failure");
         };
 
@@ -199,7 +199,7 @@ class CheckedProviderTest extends TestHelper {
         LOGGER.info("Test CheckedProvider can be composed");
 
         final var counter = new AtomicInteger(0);
-        final CheckedProvider<Integer> supplier = counter::incrementAndGet;
+        final UnsafeProvider<Integer> supplier = counter::incrementAndGet;
 
         assertThatNoException().isThrownBy(() -> {
             // First invocation
@@ -219,7 +219,7 @@ class CheckedProviderTest extends TestHelper {
         LOGGER.info("Test CheckedProvider preserves exception messages");
 
         final var exceptionMessage = "Detailed error message";
-        final CheckedProvider<String> supplier = () -> {
+        final UnsafeProvider<String> supplier = () -> {
             throw new RuntimeException(exceptionMessage);
         };
 
@@ -232,7 +232,7 @@ class CheckedProviderTest extends TestHelper {
     void testCheckedProviderWithComplexComputations() {
         LOGGER.info("Test CheckedProvider with complex computations");
 
-        final CheckedProvider<String> supplier = () -> {
+        final UnsafeProvider<String> supplier = () -> {
             // Simulate complex computation
             final var sb = new StringBuilder();
             for (int i = 0; i < 5; i++) {
@@ -251,15 +251,15 @@ class CheckedProviderTest extends TestHelper {
     void testCheckedProviderMultipleExceptionTypes() {
         LOGGER.info("Test CheckedProvider can throw multiple exception types");
 
-        final CheckedProvider<String> ioExceptionSupplier = () -> {
+        final UnsafeProvider<String> ioExceptionSupplier = () -> {
             throw new IOException("IO problem");
         };
 
-        final CheckedProvider<String> illegalStateSupplier = () -> {
+        final UnsafeProvider<String> illegalStateSupplier = () -> {
             throw new IllegalStateException("State problem");
         };
 
-        final CheckedProvider<String> checkedExceptionSupplier = () -> {
+        final UnsafeProvider<String> checkedExceptionSupplier = () -> {
             throw new Exception("Generic problem");
         };
 

@@ -2,11 +2,12 @@ package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.quurz.foomp.base.types.Promise;
+import org.quurz.foomp.base.concurrent.Promise;
 
 import java.util.Objects;
 import java.util.function.Function;
 
+import static org.quurz.foomp.base.concurrent.SimplePromise.promise;
 import static org.quurz.foomp.base.functions.MemoisingFun.memoisingFun;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -204,8 +205,8 @@ public interface Fun<X, Y>
         return this;
     }
 
-    default @NonNull Fun<X, Promise<Y>> async() {
-        return null;    // TODO
+    default @NonNull Fun<X, Promise<Y>> parallel() {
+        return promise(this);
     }
 
     /**

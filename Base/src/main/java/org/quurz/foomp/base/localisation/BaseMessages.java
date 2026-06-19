@@ -30,6 +30,13 @@ public final class BaseMessages {
     private static final ResourceBundle RESOURCE_BUNDLE
         = ResourceBundle.getBundle("BaseMessages", Locale.getDefault());
 
+    /**
+     * <div>
+     *     <p>
+     *         Private constructor to prevent instantiation of this utility class.
+     *     </p>
+     * </div>
+     */
     private BaseMessages() {}
 
     /*
@@ -527,11 +534,6 @@ public final class BaseMessages {
         return String.format(RESOURCE_BUNDLE.getString("NOT_AN_INTERFACE"), clazz.getCanonicalName());
     }
 
-    // TODO: JavaDoc
-    public static String finalLeafReached() {
-        return RESOURCE_BUNDLE.getString("FINAL_LEAF_REACHED");
-    }
-
     /**
      * <div>
      *     <p>
@@ -551,6 +553,17 @@ public final class BaseMessages {
         return String.format(RESOURCE_BUNDLE.getString("NOT_A_CONCRETE_CLASS"), clazz.getCanonicalName());
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the requested operation is not supported.
+     *     </p>
+     * </div>
+     *
+     * @return the message (never {@code null})
+     *
+     * @since 1.0.0
+     */
     public static String unsupportedOperation() {
         return RESOURCE_BUNDLE.getString("UNSUPPORTED_OPERATION");
     }

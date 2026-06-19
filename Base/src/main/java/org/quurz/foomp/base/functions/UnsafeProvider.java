@@ -37,7 +37,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @since 1.0.0
  */
 @FunctionalInterface
-public interface CheckedProvider<A>
+public interface UnsafeProvider<A>
         extends Applicable<Nothing, A> {
 
     /**
