@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.quurz.foomp.base.types.Value;
 import org.quurz.foomp.base.types.XorValue;
 
 import java.util.NoSuchElementException;

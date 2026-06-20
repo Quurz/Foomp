@@ -7,7 +7,7 @@ import org.quurz.foomp.base.concurrent.Promise;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static org.quurz.foomp.base.concurrent.SimplePromise.promise;
+import static org.quurz.foomp.base.concurrent.SimplePromise.functionWrappingPromise;
 import static org.quurz.foomp.base.functions.MemoisingFun.memoisingFun;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -206,7 +206,7 @@ public interface Fun<X, Y>
     }
 
     default @NonNull Fun<X, Promise<Y>> parallel() {
-        return promise(this);
+        return functionWrappingPromise(this);
     }
 
     /**

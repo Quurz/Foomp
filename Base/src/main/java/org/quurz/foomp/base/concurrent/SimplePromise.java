@@ -6,6 +6,7 @@ import org.quurz.foomp.higher.Higher1;
 
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
@@ -17,20 +18,20 @@ public class SimplePromise<A>
 
     public static class µ extends Promise.µ { protected µ() { super(); } }
 
-    public static <X, Y> Fun<X, Promise<Y>> promise(final @NonNull Fun<X, Y> function) {
+    public static <X, Y> Fun<X, Promise<Y>> functionWrappingPromise(final @NonNull Fun<X, Y> function) {
         Objects.requireNonNull(nullValue("function"));
 
         return x -> {
             Objects.requireNonNull(nullValue("x"));
-            final boolean shutDown;
+            final boolean shutBeShutDown;
             final ExecutorService executorService;
             if (Thread.currentThread() instanceof ForkJoinWorkerThread forkJoinWorkerThread) {
-                shutDown
+                shutBeShutDown
                     = false;
                 executorService
                     = forkJoinWorkerThread.getPool();
             } else {
-                shutDown
+                shutBeShutDown
                     = true;
                 executorService
                     = Executors.newVirtualThreadPerTaskExecutor();
@@ -40,28 +41,28 @@ public class SimplePromise<A>
                 executorService.submit(
                     () -> Objects.requireNonNull(function.apply(x), nullResultFrom("function"))
                 ),
-                shutDown,
+                shutBeShutDown,
                 executorService
             );
         };
     }
 
     protected final Future<A> future;
-    protected final boolean shutDown;
+    protected final boolean shouldBeShutDown;
     protected final ExecutorService executorService;
-    protected boolean alreadyShuttingDown;
+    protected AtomicBoolean alreadyShuttingDown;
 
     protected SimplePromise(final Future<A> future,
-                            final boolean shutDown,
+                            final boolean shouldBeShutDown,
                             final ExecutorService executorService) {
         this.future
             = future;
-        this.shutDown
-            = shutDown;
+        this.shouldBeShutDown
+            = shouldBeShutDown;
         this.executorService
             = executorService;
         this.alreadyShuttingDown
-            = false;
+            = new AtomicBoolean(false);
     }
 
     @Override
@@ -73,8 +74,10 @@ public class SimplePromise<A>
                  | ExecutionException exception) {
             throw new ConcurrentExecutionException(exception);
         } finally {
-            if (this.shutDown) {
-                this.executorService.shutdown();
+            if (this.shouldBeShutDown) {
+                if (!this.alreadyShuttingDown.getAndSet(true)) {
+                    this.executorService.shutdown();
+                }
             }
         }
     }
@@ -91,8 +94,10 @@ public class SimplePromise<A>
                  | TimeoutException exception) {
             throw new ConcurrentExecutionException(exception);
         } finally {
-            if (this.shutDown) {
-                this.executorService.shutdown();
+            if (this.shouldBeShutDown) {
+                if (!this.alreadyShuttingDown.getAndSet(true)) {
+                    this.executorService.shutdown();
+                }
             }
         }
     }
@@ -121,8 +126,10 @@ public class SimplePromise<A>
             result
                 = this.future.get();
         } finally {
-            if (this.shutDown) {
-                this.executorService.shutdown();
+            if (this.shouldBeShutDown) {
+                if (!this.alreadyShuttingDown.getAndSet(true)) {
+                    this.executorService.shutdown();
+                }
             }
         }
         return result;
@@ -139,8 +146,10 @@ public class SimplePromise<A>
             result
                 = this.future.get(timeout, timeUnit);
         } finally {
-            if (this.shutDown) {
-                this.executorService.shutdown();
+            if (this.shouldBeShutDown) {
+                if (!this.alreadyShuttingDown.getAndSet(true)) {
+                    this.executorService.shutdown();
+                }
             }
         }
         return result;

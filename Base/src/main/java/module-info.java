@@ -10,4 +10,5 @@ module foomp.base {
     requires transitive foomp.higher;
 
     requires static org.checkerframework.checker.qual;
+    requires jdk.jdi;
 }
