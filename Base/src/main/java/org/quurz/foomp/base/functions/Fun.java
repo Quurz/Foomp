@@ -2,7 +2,6 @@ package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
-import org.quurz.foomp.base.concurrent.Promise;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -206,7 +205,7 @@ public interface Fun<X, Y>
     }
 
     default @NonNull Fun<X, Promise<Y>> parallel() {
-        return functionWrappingPromise(this);
+        return null;    // TODO
     }
 
     /**
