@@ -6,7 +6,6 @@ import org.checkerframework.dataflow.qual.Pure;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static org.quurz.foomp.base.concurrent.SimplePromise.functionWrappingPromise;
 import static org.quurz.foomp.base.functions.MemoisingFun.memoisingFun;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -202,10 +201,6 @@ public interface Fun<X, Y>
      */
     default @NonNull Applicable<X, Y> applicable() {
         return this;
-    }
-
-    default @NonNull Fun<X, Promise<Y>> parallel() {
-        return null;    // TODO
     }
 
     /**
