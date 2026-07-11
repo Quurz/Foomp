@@ -701,12 +701,8 @@ public sealed interface Maybe<A>
      *         when {@code zip} is invoked, based on the presence of values in both operands.
      *       </li>
      *       <li>
-     *         When both operands are {@code Some}, their payloads are evaluated eagerly in order
-     *         to compute the combined value via {@code zipper}.
-     *       </li>
-     *       <li>
-     *         The combined value is then stored according to the usual {@code Some} payload
-     *         semantics, which may still be lazy depending on how {@code some} is used.
+     *         The {@code zipper} is <strong>not</strong> invoked until the resulting {@code Some}
+     *         is materialised (e.g., via {@link #get()} or {@link #unwind()}).
      *       </li>
      *     </ul>
      *   </p>
@@ -735,7 +731,7 @@ public sealed interface Maybe<A>
                     case None<B> _$
                         -> none();
                     case Some<B> otherSome
-                        -> Maybe.some(zipper.apply(some.get(), otherSome.get()));
+                        -> new Some<>(() -> Objects.requireNonNull(zipper.apply(some.get(), otherSome.get()), nullResultFrom("zipper")));
                 };
         };
     }

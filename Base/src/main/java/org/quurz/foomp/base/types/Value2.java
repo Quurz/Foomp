@@ -28,6 +28,21 @@ public interface Value2<A1, A2>
     /**
      * <div>
      *     <p>
+     *         Checks whether the first component is present.
+     *     </p>
+     * </div>
+     *
+     * @return {@code true} if the first component is present; {@code false} otherwise
+     *
+     * @since 1.0.0
+     */
+    default boolean isPresent() {
+        return this.isPresent1();
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Returns whether the first component is present (can be retrieved without error).
      *     </p>
      * </div>
@@ -36,7 +51,7 @@ public interface Value2<A1, A2>
      *
      * @since 1.0.0
      */
-    boolean is1();
+    boolean isPresent1();
 
     /**
      * <div>
@@ -49,7 +64,23 @@ public interface Value2<A1, A2>
      *
      * @since 1.0.0
      */
-    boolean is2();
+    boolean isPresent2();
+
+    /**
+     * <div>
+     *     <p>
+     *         Returns the first component of this {@code Value2}.
+     *     </p>
+     * </div>
+     *
+     * @return the first component
+     * @throws NoSuchElementException if the first component is not present according to this type’s contract
+     *
+     * @since 1.0.0
+     */
+    default A1 get() {
+        return this.get1();
+    }
 
     /**
      * <div>

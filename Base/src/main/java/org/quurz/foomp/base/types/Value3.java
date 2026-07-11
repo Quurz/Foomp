@@ -31,51 +31,51 @@ public interface Value3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das erste Element vorhanden ist.
+     *         Checks whether the first component is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls das erste Element vorhanden ist, sonst <code>false</code>
+     * @return {@code true} if the first component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
-    boolean is1();
+    boolean isPresent1();
 
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das zweite Element vorhanden ist.
+     *         Checks whether the second component is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls das zweite Element vorhanden ist, sonst <code>false</code>
+     * @return {@code true} if the second component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
-    boolean is2();
+    boolean isPresent2();
 
     /**
      * <div>
      *     <p>
-     *         Pr&uuml;ft, ob das dritte Element vorhanden ist.
+     *         Checks whether the third component is present.
      *     </p>
      * </div>
      *
-     * @return <code>true</code>, falls das dritte Element vorhanden ist, sonst <code>false</code>
+     * @return {@code true} if the third component is present; {@code false} otherwise
      *
      * @since 1.0.0
      */
-    boolean is3();
+    boolean isPresent3();
 
     /**
      * <div>
      *     <p>
-     *         Gibt das erste Element zur&uuml;ck, falls es vorhanden ist.
+     *         Returns the first component.
      *     </p>
      * </div>
      *
-     * @return Das erste Element
-     * @throws NoSuchElementException Falls das erste Element nicht vorhanden ist
+     * @return the first component
+     * @throws NoSuchElementException if the first component is not present
      *
      * @since 1.0.0
      */
@@ -85,12 +85,12 @@ public interface Value3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt das zweite Element zur&uuml;ck, falls es vorhanden ist.
+     *         Returns the second component.
      *     </p>
      * </div>
      *
-     * @return Das zweite Element
-     * @throws NoSuchElementException Falls das zweite Element nicht vorhanden ist
+     * @return the second component
+     * @throws NoSuchElementException if the second component is not present
      *
      * @since 1.0.0
      */
@@ -100,12 +100,12 @@ public interface Value3<A1, A2, A3>
     /**
      * <div>
      *     <p>
-     *         Gibt das dritte Element zur&uuml;ck, falls es vorhanden ist.
+     *         Returns the third component.
      *     </p>
      * </div>
      *
-     * @return Das dritte Element
-     * @throws NoSuchElementException Falls das dritte Element nicht vorhanden ist
+     * @return the third component
+     * @throws NoSuchElementException if the third component is not present
      *
      * @since 1.0.0
      */

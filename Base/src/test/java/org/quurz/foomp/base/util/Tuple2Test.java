@@ -41,9 +41,9 @@ class Tuple2Test
 
             final var t = tuple2(5, 6);
 
-            assertThat(t.is1()).isTrue();
+            assertThat(t.isPresent1()).isTrue();
             assertThat(t.isPresent()).isTrue();
-            assertThat(t.is2()).isTrue();
+            assertThat(t.isPresent2()).isTrue();
 
             assertThat(t.get()).isEqualTo(5);
             assertThat(t.get1()).isEqualTo(5);
@@ -257,8 +257,8 @@ class Tuple2Test
             assertThat(pair.get2()).isEqualTo(SOME_OTHER_STRING_VALUE);
 
             // Presence reflects non-null values
-            assertThat(pair.is1()).isTrue();
-            assertThat(pair.is2()).isTrue();
+            assertThat(pair.isPresent1()).isTrue();
+            assertThat(pair.isPresent2()).isTrue();
 
             // Equality is component-wise
             assertThat(pair).isEqualTo(Pair.pair(SOME_STRING_VALUE, SOME_OTHER_STRING_VALUE));

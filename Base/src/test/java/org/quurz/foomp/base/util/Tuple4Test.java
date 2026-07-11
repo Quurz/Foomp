@@ -48,11 +48,11 @@ class Tuple4Test
 
             final var t = tuple4("Hello", 1, 2.0, true);
 
-            assertThat(t.is1())
+            assertThat(t.isPresent1())
                 .isEqualTo(t.isPresent())
-                .isEqualTo(t.is2())
-                .isEqualTo(t.is3())
-                .isEqualTo(t.is4())
+                .isEqualTo(t.isPresent2())
+                .isEqualTo(t.isPresent3())
+                .isEqualTo(t.isPresent4())
                 .isTrue();
 
             assertThat(t.get1()).isEqualTo(t.get()).isEqualTo("Hello");

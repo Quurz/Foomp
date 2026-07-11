@@ -140,77 +140,47 @@ public final class Tuple3<A1, A2, A3>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the first value is present.
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}, since the first value is always present
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is1() {
+    public boolean isPresent1() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Alias for {@link #is1()}.
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}, since the first value is always present
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
     public boolean isPresent() {
-        return this.is1();
+        return this.isPresent1();
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the second value is present.
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}, since the second value is always present
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is2() {
+    public boolean isPresent2() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the third value is present.
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}, since the third value is always present
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is3() {
+    public boolean isPresent3() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the first value of the tuple.
-     *     </p>
-     * </div>
-     *
-     * @return the first value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -222,13 +192,7 @@ public final class Tuple3<A1, A2, A3>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Alias for {@link #get1()}.
-     *     </p>
-     * </div>
-     *
-     * @return the first value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -240,13 +204,7 @@ public final class Tuple3<A1, A2, A3>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the second value of the tuple.
-     *     </p>
-     * </div>
-     *
-     * @return the second value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -258,13 +216,7 @@ public final class Tuple3<A1, A2, A3>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the third value of the tuple.
-     *     </p>
-     * </div>
-     *
-     * @return the third value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */

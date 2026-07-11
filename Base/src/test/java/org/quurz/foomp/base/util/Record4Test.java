@@ -71,15 +71,15 @@ class Record4Test {
 
         @Test
         void presence_and_getters() {
-            LOGGER.info("Record4.isPresent/is1/is2/is3/is4 should report presence");
+            LOGGER.info("Record4.isPresent/is1/is2/isPresent3/isPresent4 should report presence");
 
             final var r = record4("TEST", 23, "TEST", 23);
 
             assertThat(r.isPresent()).isTrue();
-            assertThat(r.is1()).isTrue();
-            assertThat(r.is2()).isTrue();
-            assertThat(r.is3()).isTrue();
-            assertThat(r.is4()).isTrue();
+            assertThat(r.isPresent1()).isTrue();
+            assertThat(r.isPresent2()).isTrue();
+            assertThat(r.isPresent3()).isTrue();
+            assertThat(r.isPresent4()).isTrue();
         }
 
         @Test

@@ -62,7 +62,7 @@ import static org.quurz.foomp.base.util.Maybe.some;
 @SuppressWarnings("NonAsciiCharacters")
 public sealed interface Either<L, R>
         extends Mappable<Either.µ, R>,
-        Appliable2<Either.µ, L, R>,
+                Appliable2<Either.µ, L, R>,
                 Bindable<Either.µ, R>,
                 Swappable<Either<R, L>, L, R>,
                 Unwindable<Either<L, R>>,
@@ -133,25 +133,15 @@ public sealed interface Either<L, R>
      *
      * @since 1.0.0
      */
-    @SuppressWarnings("unchecked")
     static <L, R> Either<L, R> flatten(final @NonNull Higher2<µ, ? extends Higher2<? extends µ, L, R>, ? extends Higher2<? extends µ, L, R>> wrapped) {
         Objects.requireNonNull(wrapped, nullValue("wrapped"));
 
-        final var outer
-            = narrow(wrapped);
-
-        if (outer instanceof Left<?, ?> left) {
-            final var innerLeft =
-                    Objects.requireNonNull(left.getLeft(), nullSupplied());
-            // innerLeft ist Higher2<? extends µ,L,R>; wir nehmen an, dass es Higher2<µ,L,R> ist.
-            return narrow((Higher2<µ, L, R>) innerLeft);
-        } else if (outer instanceof Right<?, ?> right) {
-            final var innerRight =
-                    Objects.requireNonNull(right.getRight(), nullSupplied());
-            return narrow((Higher2<µ, L, R>) innerRight);
-        } else {
-            throw new IllegalStateException("Unexpected Either variant: " + outer);
-        }
+        return switch (narrow(wrapped)) {
+            case Either.Left<? extends Higher2<? extends µ, L, R>, ? extends Higher2<? extends µ, L, R>> left
+                -> narrow(left.getLeft());
+            case Either.Right<? extends Higher2<? extends µ, L, R>, ? extends Higher2<? extends µ, L, R>> right
+                -> narrow(right.getRight());
+        };
     }
 
     /**

@@ -78,61 +78,37 @@ public final class Pair<A1, A2>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Checks if the first value is present (non-null).
-     *     </p>
-     * </div>
-     *
-     * @return true if the first value is not null, false otherwise
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
     public boolean isPresent() {
-        return this.is1();
+        return this.isPresent1();
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Checks if the first value is present (non-null).
-     *     </p>
-     * </div>
-     *
-     * @return true if the first value is not null, false otherwise
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is1() {
+    public boolean isPresent1() {
         return this.value1 != null;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Checks if the second value is present (non-null).
-     *     </p>
-     * </div>
-     *
-     * @return true if the second value is not null, false otherwise
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is2() {
+    public boolean isPresent2() {
         return this.value2 != null;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Gets the first value.
-     *     </p>
-     * </div>
-     *
-     * @return the first value, may be null
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -142,13 +118,7 @@ public final class Pair<A1, A2>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Gets the first value.
-     *     </p>
-     * </div>
-     *
-     * @return the first value, may be null
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -191,16 +161,11 @@ public final class Pair<A1, A2>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Gets the second value.
-     *     </p>
-     * </div>
-     *
-     * @return the second value, may be null
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
+    @Override
     public @Nullable A2 get2() {
         return this.value2;
     }

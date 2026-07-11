@@ -182,91 +182,57 @@ public final class Tuple4<A1, A2, A3, A4>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the first value is present (always {@code true}).
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is1() {
+    public boolean isPresent1() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Alias for {@link #is1()}.
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
     public boolean isPresent() {
-        return this.is1();
+        return this.isPresent1();
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the second value is present (always {@code true}).
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is2() {
+    public boolean isPresent2() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the third value is present (always {@code true}).
-     *     </p>
-     * </div>
-     *
-     * @return {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is3() {
+    public boolean isPresent3() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the fourth value is present (always {@code true}).
-     *     </p>
-     * </div>
+     * {@inheritDoc}
      *
-     * @return {@code true}
+     * @since 1.0.0
      */
     @Override
-    public boolean is4() {
+    public boolean isPresent4() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the first value.
-     *     </p>
-     * </div>
-     *
-     * @return the first value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -278,13 +244,9 @@ public final class Tuple4<A1, A2, A3, A4>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Alias for {@link #get1()}.
-     *     </p>
-     * </div>
+     * {@inheritDoc}
      *
-     * @return the first value
+     * @since 1.0.0
      */
     @UnwindingOperation
     @NonNull
@@ -293,13 +255,9 @@ public final class Tuple4<A1, A2, A3, A4>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the second value.
-     *     </p>
-     * </div>
+     * {@inheritDoc}
      *
-     * @return the second value
+     * @since 1.0.0
      */
     @UnwindingOperation
     @Override
@@ -309,13 +267,7 @@ public final class Tuple4<A1, A2, A3, A4>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the third value.
-     *     </p>
-     * </div>
-     *
-     * @return the third value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -327,13 +279,7 @@ public final class Tuple4<A1, A2, A3, A4>
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the fourth value.
-     *     </p>
-     * </div>
-     *
-     * @return the fourth value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */

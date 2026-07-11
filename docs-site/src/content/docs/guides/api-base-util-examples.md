@@ -81,8 +81,12 @@ import org.quurz.foomp.base.util.Tuple3;
 Tuple2<String, Integer> person = Tuple2.tuple2("Alice", 30);
 
 // Access values
-String name = person.get1();
+String name = person.get1();   // or person.get()
 Integer age = person.get2();
+
+// Check presence
+boolean hasName = person.isPresent1(); // or person.isPresent()
+boolean hasAge = person.isPresent2();
 
 // Transform values
 Tuple2<String, String> updated = person.map2(String::valueOf); // ("Alice", "30")

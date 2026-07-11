@@ -135,62 +135,37 @@ public record Record2<A1, A2>(A1 value1,
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates presence of values (always {@code true} for records).
-     *         Alias for {@link #is1()}.
-     *     </p>
-     * </div>
-     *
-     * @return always {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
     public boolean isPresent() {
-        return this.is1();
+        return this.isPresent1();
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the first value is present (always {@code true}).
-     *     </p>
-     * </div>
-     *
-     * @return always {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is1() {
+    public boolean isPresent1() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Indicates whether the second value is present (always {@code true}).
-     *     </p>
-     * </div>
-     *
-     * @return always {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is2() {
+    public boolean isPresent2() {
         return true;
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the first value (alias for {@link #get1()}).
-     *     </p>
-     * </div>
-     *
-     * @return the first value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -200,13 +175,7 @@ public record Record2<A1, A2>(A1 value1,
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the first value.
-     *     </p>
-     * </div>
-     *
-     * @return the first value
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
@@ -216,13 +185,7 @@ public record Record2<A1, A2>(A1 value1,
     }
 
     /**
-     * <div>
-     *     <p>
-     *         Returns the second value.
-     *     </p>
-     * </div>
-     *
-     * @return the second value; never {@code null}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */

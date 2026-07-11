@@ -147,96 +147,59 @@ public final class Tuple2<A1, A2>
     }
 
     /**
-     * <div>
-     *   <p>
-     *     Indicates whether the first component is present.
-     *     Always {@code true} because {@code Tuple2} is total for both components.
-     *   </p>
-     * </div>
-     *
-     * @return always {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is1() {
+    public boolean isPresent1() {
         return true;
     }
 
     /**
-     * <div>
-     *   <p>
-     *     Alias for {@link #is1()}.
-     *   </p>
-     * </div>
-     *
-     * @return always {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
     public boolean isPresent() {
-        return this.is1();
+        return this.isPresent1();
     }
 
     /**
-     * <div>
-     *   <p>
-     *     Indicates whether the second component is present.
-     *     Always {@code true} because {@code Tuple2} is total for both components.
-     *   </p>
-     * </div>
-     *
-     * @return always {@code true}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @Override
-    public boolean is2() {
+    public boolean isPresent2() {
         return true;
     }
 
     /**
-     * <div>
-     *   <p>
-     *     Returns the first value (evaluates its supplier).
-     *   </p>
-     * </div>
-     *
-     * @return the first value; never {@code null}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @UnwindingOperation
+    @Override
     public @NonNull A1 get1() {
         return this.value1Supplier.get();
     }
 
     /**
-     * <div>
-     *   <p>
-     *     Returns the first value.
-     *     Alias for {@link #get1()}.
-     *   </p>
-     * </div>
-     *
-     * @return the first value; never {@code null}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */
     @UnwindingOperation
+    @Override
     public @NonNull A1 get() {
         return this.get1();
     }
 
     /**
-     * <div>
-     *   <p>
-     *     Returns the second value (evaluates its supplier).
-     *   </p>
-     * </div>
-     *
-     * @return the second value; never {@code null}
+     * {@inheritDoc}
      *
      * @since 1.0.0
      */

@@ -56,8 +56,8 @@ A self-balancing binary search tree. It ensures $O(\log n)$ time complexity for 
 ### RedBlackTree
 An immutable, self-balancing search tree based on the Okasaki implementation. It uses colors (Red/Black) to maintain balance and provides guaranteed $O(\log n)$ performance for core operations. Like AVLTree, it is copy-on-write and persistent.
 
-### MutablePair
-A mutable alternative to `Tuple2`. It allows updating its two values and is useful for local state management within performance-critical loops before being converted back into immutable structures.
+### MutablePair (Pair)
+A mutable alternative to `Tuple2`. It implements `Value2`, allowing access via `get1()`/`get2()` and presence checks via `isPresent1()`/`isPresent2()`. It allows updating its values via `set1()`/`set2()`.
 
 ### Nothing
 `Nothing` is a terminal type often used in generic contexts to represent a value that can never exist (bottom type) or to signify an empty result in certain monadic chains.
@@ -102,7 +102,7 @@ A utility for merging and splitting lists.
 | :--- | :--- |
 | **Sum Types / Monads** | `Maybe`, `Either`, `Result`, `Eval`, `Attempt`, `Stateful`, `Continuation` |
 | **Recursion** | `Trampoline` |
-| **Fixed Containers** | `Tuple2`, `Tuple3`, `Tuple4`, `Record2`, `Record3`, `Record4`, `MutablePair` |
+| **Fixed Containers** | `Tuple2`, `Tuple3`, `Tuple4`, `Record2`, `Record3`, `Record4`, `Pair` (Mutable) |
 | **Data Structures** | `AVLTree`, `RedBlackTree` |
 | **Logic & Validation** | `DecisionTree`, `Constraint` |
 | **Stream Processing** | `Bucket` |

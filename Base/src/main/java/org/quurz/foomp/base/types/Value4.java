@@ -40,7 +40,7 @@ public interface Value4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
-    boolean is1();
+    boolean isPresent1();
 
     /**
      * <div>
@@ -53,7 +53,7 @@ public interface Value4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
-    boolean is2();
+    boolean isPresent2();
 
     /**
      * <div>
@@ -66,7 +66,7 @@ public interface Value4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
-    boolean is3();
+    boolean isPresent3();
 
     /**
      * <div>
@@ -79,7 +79,7 @@ public interface Value4<A1, A2, A3, A4>
      *
      * @since 1.0.0
      */
-    boolean is4();
+    boolean isPresent4();
 
     /**
      * <div>

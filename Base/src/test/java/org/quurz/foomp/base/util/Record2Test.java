@@ -54,8 +54,8 @@ class Record2Test {
             final var r = record2("TEST", 23);
 
             assertThat(r.isPresent()).isTrue();
-            assertThat(r.is1()).isTrue();
-            assertThat(r.is2()).isTrue();
+            assertThat(r.isPresent1()).isTrue();
+            assertThat(r.isPresent2()).isTrue();
 
             assertThat(r.get()).isEqualTo("TEST");
             assertThat(r.get1()).isEqualTo("TEST");

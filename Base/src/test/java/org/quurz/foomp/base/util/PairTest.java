@@ -35,8 +35,8 @@ class PairTest {
 
             var p = pair(null, null);
 
-            assertFalse(p.is1());
-            assertFalse(p.is2());
+            assertFalse(p.isPresent1());
+            assertFalse(p.isPresent2());
         }
 
         @Test
@@ -44,8 +44,8 @@ class PairTest {
             LOGGER.info("Pair.pair(value1, value2) should reflect presence");
             var p = pair("test", 42);
 
-            assertTrue(p.is1());
-            assertTrue(p.is2());
+            assertTrue(p.isPresent1());
+            assertTrue(p.isPresent2());
         }
     }
 
@@ -64,11 +64,11 @@ class PairTest {
 
             assertEquals("updated", p.get1());
             assertEquals(1, p.get2());
-            assertTrue(p.is1());
-            assertTrue(p.is2());
+            assertTrue(p.isPresent1());
+            assertTrue(p.isPresent2());
 
             p.set1(null);
-            assertFalse(p.is1());
+            assertFalse(p.isPresent1());
             assertNull(p.get1());
         }
 

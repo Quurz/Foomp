@@ -13,7 +13,7 @@ The types in this package can be grouped into several functional categories:
 These interfaces define how values are stored, accessed, and identified.
 
 *   **`Value<A>`**: The most basic contract for a single value carrier. It extends `Supplier<A>` and adds `isPresent()` to handle potential absence.
-*   **`Value2<A, B>`**, **`Value3`**, **`Value4`**: Extensions for tuples or multiple value carriers (e.g., used by `Tuple2`, `Tuple3`).
+*   **`Value2<A, B>`**, **`Value3<A, B, C>`**, **`Value4<A, B, C, D>`**: Extensions for tuples or multiple value carriers (e.g., used by `Tuple2`, `Tuple3`). These provide `isPresent1()`, `isPresent2()`, etc. to check for component presence and `get1()`, `get2()`, etc. for access. `Value2` also provides a default `get()` and `isPresent()` delegating to the first component.
 *   **`XorValue<A, B>`**: Represents a value that can be one of two types, but not both (a "Sum Type" or "Either").
 *   **`Container<A>`**: A specialization for types that "contain" elements, providing size and emptiness checks.
 *   **`Tree<A>`**: The base interface for hierarchical structures, supporting search, insertion, and removal.

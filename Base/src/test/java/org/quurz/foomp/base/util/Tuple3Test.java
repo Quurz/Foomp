@@ -44,9 +44,9 @@ class Tuple3Test
             assertThatThrownBy(() -> tuple3(1, 2, null)).isInstanceOf(NullPointerException.class);
 
             assertThat(t.isPresent()).isTrue();
-            assertThat(t.is1()).isTrue();
-            assertThat(t.is2()).isTrue();
-            assertThat(t.is3()).isTrue();
+            assertThat(t.isPresent1()).isTrue();
+            assertThat(t.isPresent2()).isTrue();
+            assertThat(t.isPresent3()).isTrue();
 
             assertThat(t.get()).isEqualTo(t.get1()).isEqualTo(1);
             assertThat(t.get2()).isEqualTo(2);

@@ -556,6 +556,25 @@ class MaybeTest
                     a.zip(b, (s, i) -> null).unwind();
                 }).isInstanceOf(NullPointerException.class);
             }
+
+            @Test
+            void zip_is_lazy_when_both_are_some() {
+                LOGGER.info("Maybe.zip should be lazy and not invoke zipper until materialised");
+                final var a = some(SOME_STRING_VALUE);
+                final var b = some(3);
+                final var counter = new Object() {
+                    int count = 0;
+                };
+
+                final var zipped = a.zip(b, (s, i) -> {
+                    counter.count++;
+                    return s + i;
+                });
+
+                assertThat(counter.count).isZero();
+                assertThat(zipped.get()).isEqualTo(SOME_STRING_VALUE + 3);
+                assertThat(counter.count).isEqualTo(1);
+            }
         }
 
         @Test

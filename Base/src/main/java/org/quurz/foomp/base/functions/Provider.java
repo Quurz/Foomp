@@ -209,7 +209,7 @@ public interface Provider<A>
     @Override
     @NonNull
     default <B> Provider<B> map(final @NonNull Function<? super A, ? extends B> transformation) {
-        Objects.requireNonNull(transformation, nullValue("fMap"));
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         return () -> Objects.requireNonNull(transformation.apply(this.get()), nullResult());
     }
 
@@ -233,7 +233,7 @@ public interface Provider<A>
     @Override
     @NonNull
     default <B> Provider<B> applyTo(final @NonNull Higher1<? extends Provider.µ, ? extends Function<? super A, ? extends B>> transformation) {
-        Objects.requireNonNull(transformation);
+        Objects.requireNonNull(transformation, nullValue("transformation"));
         final var narrowed
             = narrow(transformation);
         return this.map(narrowed.get());
