@@ -4,6 +4,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 import java.util.Objects;
+import java.util.concurrent.*;
 import java.util.function.Function;
 
 import static org.quurz.foomp.base.functions.MemoisingFun.memoisingFun;
@@ -201,6 +202,51 @@ public interface Fun<X, Y>
      */
     default @NonNull Applicable<X, Y> applicable() {
         return this;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Transforms this function into an asynchronous function executed on the common
+     *         {@link ForkJoinPool}.
+     *     </p>
+     * </div>
+     *
+     * @return an asynchronous version of this function returning a {@link CompletableFuture}
+     *
+     * @since 1.0.0
+     */
+    default @NonNull Fun<X, CompletableFuture<Y>> async() {
+        return this.async(ForkJoinPool.commonPool());
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Transforms this function into an asynchronous function executed using the given {@link Executor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code executor} must not be {@code null}. The returned function will throw a
+     *         {@link NullPointerException} if given a {@code null} input, or complete exceptionally if
+     *         the function execution throws an exception or returns {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param executor the executor to run the asynchronous computation on; must not be {@code null}
+     * @return an asynchronous version of this function returning a {@link CompletableFuture}
+     * @throws NullPointerException if {@code executor} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    default @NonNull Fun<X, CompletableFuture<Y>> async(final @NonNull Executor executor) {
+        Objects.requireNonNull(executor, nullValue("executor"));
+        return x -> {
+            Objects.requireNonNull(x, nullValue("x"));
+            return CompletableFuture.supplyAsync(
+                () -> Objects.requireNonNull(this.apply(x), nullResult()),
+                executor
+            );
+        };
     }
 
     /**

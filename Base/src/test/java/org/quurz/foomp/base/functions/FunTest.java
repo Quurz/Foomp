@@ -241,4 +241,72 @@ class FunTest
                 });
     }
 
+    @SuppressWarnings({"unused", "DataFlowIssue"})
+    @Test
+    void testAsyncDefault() {
+        LOGGER.info("Test fun.async with default executor");
+
+        final Fun<String, String> fun
+                = s -> s + "!";
+        final var asyncFun
+                = fun.async();
+
+        assertThatThrownBy(() -> asyncFun.apply(null))
+                .isInstanceOf(NullPointerException.class);
+
+        final var future = asyncFun.apply("hello");
+        assertThat(future.join())
+                .isEqualTo("hello!");
+
+        final Fun<String, String> nullReturningFun
+                = s -> null;
+        final var nullReturningFuture = nullReturningFun.async().apply("hello");
+        assertThatThrownBy(nullReturningFuture::join)
+                .hasCauseInstanceOf(NullPointerException.class);
+
+        final Fun<String, String> throwingFun
+                = s -> { throw new IllegalStateException("boom"); };
+        final var throwingFuture = throwingFun.async().apply("hello");
+        assertThatThrownBy(throwingFuture::join)
+                .hasCauseInstanceOf(IllegalStateException.class);
+    }
+
+    @SuppressWarnings({"unused", "DataFlowIssue"})
+    @Test
+    void testAsyncWithExecutor() {
+        LOGGER.info("Test fun.async with custom executor");
+
+        final Fun<Integer, Integer> fun
+                = i -> i * 2;
+
+        assertThatThrownBy(() -> fun.async(null))
+                .isInstanceOf(NullPointerException.class);
+
+        final var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+        try {
+            final var asyncFun = fun.async(executor);
+
+            assertThatThrownBy(() -> asyncFun.apply(null))
+                .isInstanceOf(NullPointerException.class);
+
+            final var future = asyncFun.apply(21);
+            assertThat(future.join())
+                    .isEqualTo(42);
+
+            final Fun<Integer, Integer> nullReturningFun
+                    = i -> null;
+            final var nullReturningFuture = nullReturningFun.async(executor).apply(5);
+            assertThatThrownBy(nullReturningFuture::join)
+                    .hasCauseInstanceOf(NullPointerException.class);
+
+            final Fun<Integer, Integer> throwingFun
+                    = i -> { throw new IllegalArgumentException("invalid"); };
+            final var throwingFuture = throwingFun.async(executor).apply(5);
+            assertThatThrownBy(throwingFuture::join)
+                    .hasCauseInstanceOf(IllegalArgumentException.class);
+        } finally {
+            executor.shutdown();
+        }
+    }
+
 }

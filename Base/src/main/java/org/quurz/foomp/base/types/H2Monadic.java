@@ -30,5 +30,5 @@ import org.quurz.foomp.higher.WitnessType;
 
 public interface H2Monadic<WT extends WitnessType, A, R>
         extends H2Mappable<WT, A, R>,
-        H2Appliable<WT, A, R>,
-        H2Bindable<WT, A, R> {}
+                H2Appliable<WT, A, R>,
+                H2Bindable<WT, A, R> {}

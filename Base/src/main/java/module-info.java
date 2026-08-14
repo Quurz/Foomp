@@ -9,4 +9,5 @@ module foomp.base {
 
     requires static org.checkerframework.checker.qual;
     requires jdk.jdi;
+    requires jdk.unsupported;
 }
