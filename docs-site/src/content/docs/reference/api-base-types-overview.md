@@ -44,7 +44,6 @@ Interfaces that handle how types change state, representation, or how their eval
 ### 4. Behavior & State Control
 Marker interfaces and operational contracts that define how a type behaves or how its state is managed.
 
-*   **`Executable<A>`**: Represents a computation that can be executed and might throw a checked exception. `SafeExecutable` is a variant for exceptions that are handled internally.
 *   **`Triable<A>`**: A marker for computations that are "wrapped" in a try-catch-like context (e.g., `Attempt`).
 *   **`Mutable`**: A marker interface for types that allow internal state changes.
 *   **`ThreadSafe`**: Signals that an implementation is safe to use across multiple threads.
