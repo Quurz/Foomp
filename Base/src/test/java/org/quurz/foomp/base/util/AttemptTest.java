@@ -103,7 +103,7 @@ class AttemptTest extends TestHelper {
             void null_from_supplier_becomes_npe_failure() {
                 LOGGER.info("Attempt.onFailureRecover(Supplier) should turn null from supplier into NullPointerException failure");
                 final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
-                assertThat(attempt(5).map(throwing).onFailureRecover(() -> null).tryIt().getThrowable())
+                assertThat(attempt(5).map(throwing).onFailureRecover(() -> null).tryIt().getLeft())
                     .isInstanceOf(NullPointerException.class);
             }
 
@@ -113,7 +113,7 @@ class AttemptTest extends TestHelper {
                 final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException("ORIGINAL"); };
                 final var safeExecutableLikeSupplier = (Supplier<Integer>) () -> { throw new IllegalArgumentException("RECOVER"); };
 
-                final var failure = attempt(5).map(throwing).onFailureRecover(safeExecutableLikeSupplier).tryIt().getThrowable();
+                final var failure = attempt(5).map(throwing).onFailureRecover(safeExecutableLikeSupplier).tryIt().getLeft();
                 assertThat(failure)
                     .isInstanceOf(IllegalArgumentException.class);
                 assertThat(failure.getSuppressed().length)
@@ -132,14 +132,14 @@ class AttemptTest extends TestHelper {
             @Test
             void null_function_throws_NullPointerException() {
                 LOGGER.info("Attempt.onFailureRecover(Function) should throw NullPointerException when recover is null");
-                assertThatThrownBy(() -> attempt(5).onFailureRecover((Function<? super Throwable, Integer>) null))
+                assertThatThrownBy(() -> attempt(5).onFailureRecover((Function<? super Exception, Integer>) null))
                     .isInstanceOf(NullPointerException.class);
             }
 
             @Test
             void function_not_invoked_on_success() {
                 LOGGER.info("Attempt.onFailureRecover(Function) should not invoke recover on success");
-                final var fun = invocationCountingFun((Throwable e) -> 23);
+                final var fun = invocationCountingFun((Exception e) -> 23);
                 assertThat(attempt(5).map(Function.identity()).onFailureRecover(fun).tryIt())
                     .isEqualTo(success(5));
                 assertThat(fun.getInvocationCount())
@@ -150,7 +150,7 @@ class AttemptTest extends TestHelper {
             void function_used_on_failure_and_produces_success() {
                 LOGGER.info("Attempt.onFailureRecover(Function) should invoke recover on failure and produce success");
                 final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
-                final var fun = invocationCountingFun((Throwable e) -> 23);
+                final var fun = invocationCountingFun((Exception e) -> 23);
                 assertThat(attempt(5).map(throwing).onFailureRecover(fun).tryIt())
                     .isEqualTo(success(23));
                 assertThat(fun.getInvocationCount())
@@ -161,7 +161,7 @@ class AttemptTest extends TestHelper {
             void null_from_function_becomes_npe_failure() {
                 LOGGER.info("Attempt.onFailureRecover(Function) should turn null from recover into NullPointerException failure");
                 final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
-                assertThat(attempt(5).map(throwing).onFailureRecover(_$ -> null).tryIt().getThrowable())
+                assertThat(attempt(5).map(throwing).onFailureRecover(_$ -> null).tryIt().getLeft())
                     .isInstanceOf(NullPointerException.class);
             }
 
@@ -169,9 +169,9 @@ class AttemptTest extends TestHelper {
             void function_throws_exception_and_preserves_original_as_suppressed() {
                 LOGGER.info("Attempt.onFailureRecover(Function) should propagate recover exception and keep original as suppressed");
                 final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException("ORIGINAL"); };
-                final var recover = (Function<Throwable, Integer>) e -> { throw new IllegalArgumentException("RECOVER"); };
+                final var recover = (Function<Exception, Integer>) e -> { throw new IllegalArgumentException("RECOVER"); };
 
-                final var failure = attempt(5).map(throwing).onFailureRecover(recover).tryIt().getThrowable();
+                final var failure = attempt(5).map(throwing).onFailureRecover(recover).tryIt().getLeft();
                 assertThat(failure)
                     .isInstanceOf(IllegalArgumentException.class);
                 assertThat(failure.getSuppressed().length)
@@ -230,7 +230,7 @@ class AttemptTest extends TestHelper {
                     LOGGER.info("Attempt.map(...) should turn null result into NullPointerException failure");
                     assertThatThrownBy(() -> attempt(5).map(_$ -> null).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).map(_$ -> null).tryIt().getThrowable())
+                    assertThat(attempt(5).map(_$ -> null).tryIt().getLeft())
                         .isInstanceOf(NullPointerException.class);
                 }
 
@@ -258,7 +258,7 @@ class AttemptTest extends TestHelper {
                     final var result = Attempt.attempt(5).applyTo(failingContainer).tryIt();
 
                     assertThat(result.isFailure()).isTrue();
-                    assertThat(result.getThrowable())
+                    assertThat(result.getLeft())
                         .isInstanceOf(IllegalStateException.class)
                         .hasMessage("CONTAINER");
                 }
@@ -275,31 +275,31 @@ class AttemptTest extends TestHelper {
                     // function container returns null -> NPE
                     assertThatThrownBy(() -> attempt(5).applyTo(attempt(_$ -> null)).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).applyTo(attempt(_$ -> null)).tryIt().getThrowable())
+                    assertThat(attempt(5).applyTo(attempt(_$ -> null)).tryIt().getLeft())
                         .isInstanceOf(NullPointerException.class);
 
                     // identity -> exception access
-                    assertThatThrownBy(() -> attempt(5).applyTo(attempt(Fun.identity())).tryIt().getThrowable())
+                    assertThatThrownBy(() -> attempt(5).applyTo(attempt(Fun.identity())).tryIt().getLeft())
                         .isInstanceOf(NoSuchElementException.class);
 
                     // function container throws
                     assertThatThrownBy(
                         () -> attempt(5).applyTo(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getValue()
                     ).isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).applyTo(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getThrowable())
+                    assertThat(attempt(5).applyTo(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getLeft())
                         .isInstanceOf(IllegalArgumentException.class);
 
                     // precedence cases
                     final var ex1 = attempt(5)
                         .map(_$ -> { throw new IllegalStateException(); })
                         .applyTo(attempt(_$ -> { throw new IllegalArgumentException(); }))
-                        .tryIt().getThrowable();
+                        .tryIt().getLeft();
                     assertThat(ex1).isInstanceOf(IllegalStateException.class);
 
                     final var ex2 = attempt(5)
                         .applyTo(attempt(_$ -> { throw new IllegalArgumentException(); }))
                         .map(_$ -> { throw new IllegalStateException(); })
-                        .tryIt().getThrowable();
+                        .tryIt().getLeft();
                     assertThat(ex2).isInstanceOf(IllegalArgumentException.class);
 
                     // happy path
@@ -311,7 +311,7 @@ class AttemptTest extends TestHelper {
                 void applyTo_function_returns_null_results_in_npe_failure() {
                     LOGGER.info("Attempt.applyTo(...) should fail with NPE when lifted function returns null");
                     final var liftedNull = attempt((Function<Integer, Integer>) (_$ -> null));
-                    assertThat(attempt(5).applyTo(liftedNull).tryIt().getThrowable())
+                    assertThat(attempt(5).applyTo(liftedNull).tryIt().getLeft())
                         .isInstanceOf(NullPointerException.class);
                 }
 
@@ -332,7 +332,7 @@ class AttemptTest extends TestHelper {
                 @Test
                 void transformation_throws_exception_results_in_failure() {
                     LOGGER.info("Attempt.flatMap(...) should capture exceptions from transformation as failure");
-                    final var failure = attempt(5).flatMap(_$ -> { throw new IllegalArgumentException("FLAT_MAP"); }).tryIt().getThrowable();
+                    final var failure = attempt(5).flatMap(_$ -> { throw new IllegalArgumentException("FLAT_MAP"); }).tryIt().getLeft();
                     assertThat(failure).isInstanceOf(IllegalArgumentException.class);
                 }
 
@@ -369,7 +369,7 @@ class AttemptTest extends TestHelper {
                     LOGGER.info("Attempt.mapUnsafe(...) should turn null result into NullPointerException failure");
                     assertThatThrownBy(() -> attempt(5).mapUnsafe(_$ -> null).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).mapUnsafe(_$ -> null).tryIt().getThrowable())
+                    assertThat(attempt(5).mapUnsafe(_$ -> null).tryIt().getLeft())
                         .isInstanceOf(NullPointerException.class);
                 }
 
@@ -383,10 +383,10 @@ class AttemptTest extends TestHelper {
 
                     assertThatThrownBy(() -> attempt(5).applyToUnsafe(attempt(_$ -> null)).tryIt().getValue())
                         .isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).applyToUnsafe(attempt(_$ -> null)).tryIt().getThrowable())
+                    assertThat(attempt(5).applyToUnsafe(attempt(_$ -> null)).tryIt().getLeft())
                         .isInstanceOf(NullPointerException.class);
 
-                    assertThatThrownBy(() -> attempt(5).applyToUnsafe(attempt(Fun.identity())).tryIt().getThrowable())
+                    assertThatThrownBy(() -> attempt(5).applyToUnsafe(attempt(Fun.identity())).tryIt().getLeft())
                         .isInstanceOf(NoSuchElementException.class);
 
                     assertThatThrownBy(
@@ -394,19 +394,19 @@ class AttemptTest extends TestHelper {
                                 .applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
                                 .tryIt().getValue()
                     ).isInstanceOf(NoSuchElementException.class);
-                    assertThat(attempt(5).applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getThrowable())
+                    assertThat(attempt(5).applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); })).tryIt().getLeft())
                         .isInstanceOf(IllegalArgumentException.class);
 
                     final var ex1 = attempt(5)
                         .map(_$ -> { throw new IllegalStateException(); })
                         .applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
-                        .tryIt().getThrowable();
+                        .tryIt().getLeft();
                     assertThat(ex1).isInstanceOf(IllegalStateException.class);
 
                     final var ex2 = attempt(5)
                         .applyToUnsafe(attempt(_$ -> { throw new IllegalArgumentException(); }))
                         .map(_$ -> { throw new IllegalStateException(); })
-                        .tryIt().getThrowable();
+                        .tryIt().getLeft();
                     assertThat(ex2).isInstanceOf(IllegalArgumentException.class);
 
                     assertThat(attempt(5).applyToUnsafe(attempt(i -> i * 2)).tryIt())
@@ -424,7 +424,7 @@ class AttemptTest extends TestHelper {
                     final var result = Attempt.attempt(5).applyToUnsafe(failingContainer).tryIt();
 
                     assertThat(result.isFailure()).isTrue();
-                    assertThat(result.getThrowable())
+                    assertThat(result.getLeft())
                         .isInstanceOf(IllegalStateException.class)
                         .hasMessage("CONTAINER");
                 }
@@ -463,7 +463,7 @@ class AttemptTest extends TestHelper {
             void lazy_consumer_invoked_only_on_failure_during_evaluation() {
                 LOGGER.info("Attempt.peekFailureLazy(...) should invoke consumer only when evaluation fails");
                 final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
-                final var consumer = invocationCountingConsumer((Throwable e) -> {});
+                final var consumer = invocationCountingConsumer((Exception e) -> {});
 
                 attempt(5).map(throwing).peekFailureLazy(consumer);
                 assertThat(consumer.getInvocationCount()).isZero();
@@ -483,7 +483,7 @@ class AttemptTest extends TestHelper {
             void eager_consumer_invoked_immediately_on_failure() {
                 LOGGER.info("Attempt.peekFailureEager(...) should invoke consumer immediately when already in failure");
                 final var throwing = (Function<Integer, Integer>) i -> { throw new IllegalStateException(); };
-                final var consumer = invocationCountingConsumer((Throwable e) -> {});
+                final var consumer = invocationCountingConsumer((Exception e) -> {});
 
                 attempt(5).map(throwing).peekFailureEager(consumer);
                 assertThat(consumer.getInvocationCount()).isEqualTo(1);

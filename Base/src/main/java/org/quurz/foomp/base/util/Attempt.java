@@ -164,12 +164,12 @@ public final class Attempt<A>
                             result
                                 = success(value);
                         } catch (final NullPointerException nullPointerException) {
-                            nullPointerException.addSuppressed(failure.getThrowable());
+                            nullPointerException.addSuppressed(failure.getException());
                             result
                                 = failure(nullPointerException);
                         } catch (final Exception exception) {
                             // Preserve original failure context
-                            exception.addSuppressed(failure.getThrowable());
+                            exception.addSuppressed(failure.getException());
                             result
                                 = failure(exception);
                         }
@@ -185,18 +185,18 @@ public final class Attempt<A>
      *         Specifies a lazy recovery function if evaluation fails.
      *     </p>
      *     <p>
-     *         The function receives the stored throwable and returns a recovery value.
+     *         The function receives the stored exception and returns a recovery value.
      *         If it throws or returns {@code null}, the resulting failure contains the thrown exception.
      *     </p>
      * </div>
      *
-     * @param recover maps the throwable to a recovery value; must not be {@code null}
+     * @param recover maps the exception to a recovery value; must not be {@code null}
      * @return an {@code Attempt} yielding either the original success or the recovered value
      * @throws NullPointerException if {@code recover} is {@code null} or returns {@code null}
      *
      * @since 1.0.0
      */
-    public Attempt<A> onFailureRecover(final @NonNull Function<? super Throwable, ? extends A> recover) {
+    public Attempt<A> onFailureRecover(final @NonNull Function<? super Exception, ? extends A> recover) {
         Objects.requireNonNull(recover, nullValue("recover"));
         return new Attempt<>(
             () -> switch (this.spool.get()) {
@@ -205,12 +205,12 @@ public final class Attempt<A>
                     Result<A> result;
                     try {
                         final A value
-                            = Objects.requireNonNull(recover.apply(failure.getThrowable()), nullResultFrom("recover"));
+                            = Objects.requireNonNull(recover.apply(failure.getException()), nullResultFrom("recover"));
                         result
                             = success(value);
                     } catch (final Exception exception) {
                         // Preserve original failure context
-                        exception.addSuppressed(failure.getThrowable());
+                        exception.addSuppressed(failure.getException());
                         result
                             = failure(exception);
                     }
@@ -223,25 +223,25 @@ public final class Attempt<A>
     /**
      * <div>
      *     <p>
-     *         Unwinds this computation, throwing the stored throwable on failure.
+     *         Unwinds this computation, throwing the stored exception on failure.
      *     </p>
      *     <p>
-     *         If successful, returns {@code this} unchanged. Otherwise, throws the stored throwable.
+     *         If successful, returns {@code this} unchanged. Otherwise, throws the stored exception.
      *     </p>
      * </div>
      *
      * @return this {@code Attempt} if successful
-     * @throws Throwable the stored throwable if evaluation fails
+     * @throws Exception the stored exception if evaluation fails
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unused")
     @UnwindingOperation
     public Attempt<A> onFailureThrow()
-            throws Throwable {
+            throws Exception {
         return switch (this.spool.get()) {
             case Result.Success<A> _$ -> this;
-            case Result.Failure<A> failure -> throw failure.getThrowable();
+            case Result.Failure<A> failure -> throw failure.getException();
         };
     }
 
@@ -256,19 +256,19 @@ public final class Attempt<A>
      *     </p>
      * </div>
      *
-     * @param failureConsumer consumes the failure throwable; must not be {@code null}
+     * @param failureConsumer consumes the failure exception; must not be {@code null}
      * @return an {@code Attempt} that will run the side effect on failure during evaluation
      * @throws NullPointerException if {@code failureConsumer} is {@code null}
      *
      * @since 1.0.0
      */
-    public Attempt<A> peekFailureLazy(final @NonNull Consumer<? super Throwable> failureConsumer) {
+    public Attempt<A> peekFailureLazy(final @NonNull Consumer<? super Exception> failureConsumer) {
         Objects.requireNonNull(failureConsumer, nullValue("peek"));
         return new Attempt<>(
             () -> switch (this.spool.get()) {
                 case Result.Success<A> success -> success;
                 case Result.Failure<A> failure -> {
-                    failureConsumer.accept(failure.getThrowable());
+                    failureConsumer.accept(failure.getException());
                     yield failure;
                 }
             }
@@ -285,19 +285,19 @@ public final class Attempt<A>
      *     </p>
      * </div>
      *
-     * @param failureConsumer consumes the failure throwable; must not be {@code null}
+     * @param failureConsumer consumes the failure exception; must not be {@code null}
      * @return this {@code Attempt}
      * @throws NullPointerException if {@code failureConsumer} is {@code null}
      *
      * @since 1.0.0
      */
     @UnwindingOperation
-    public Attempt<A> peekFailureEager(final @NonNull Consumer<? super Throwable> failureConsumer) {
+    public Attempt<A> peekFailureEager(final @NonNull Consumer<? super Exception> failureConsumer) {
         Objects.requireNonNull(failureConsumer, nullValue("failureConsumer"));
         final var result
             = this.spool.get();
         if (result.isFailure()) {
-            failureConsumer.accept(result.getThrowable());
+            failureConsumer.accept(result.getException());
         }
         return this;
     }

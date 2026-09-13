@@ -1,15 +1,19 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.quurz.foomp.base.functions.Pred;
 import org.quurz.foomp.base.types.UnwindingOperation;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Nothing.nothing;
+import static org.quurz.foomp.base.util.Result.failure;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Task<A> {
@@ -35,7 +39,23 @@ public class Task<A> {
         Objects.requireNonNull(executor, nullValue("executor"));
         return CompletableFuture.supplyAsync(spool, executor)
             .thenApply(Result::success)
-            .exceptionally(Result::failure);
+            .exceptionally(throwable -> {
+                final var cause = (throwable.getCause() != null && throwable instanceof java.util.concurrent.CompletionException)
+                        ? throwable.getCause()
+                        : throwable;
+                if (cause instanceof Error error) {
+                    throw error;
+                } else if (cause instanceof Exception exception) {
+                    return failure(exception);
+                } else {
+                    return failure(new RuntimeException(cause));
+                }
+            });
+    }
+
+    @UnwindingOperation
+    public CompletableFuture<Result<A>> runAsync() {
+        return runAsync(ForkJoinPool.commonPool());
     }
 
 }
