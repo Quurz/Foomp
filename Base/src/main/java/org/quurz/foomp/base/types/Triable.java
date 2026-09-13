@@ -6,7 +6,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * <div>
  *     <p>
  *         Represents a computation that either successfully produces a value of type {@code A}
- *         or fails with an {@link Exception}.
+ *         or fails with a {@link Throwable}.
  *     </p>
  *     <p>
  *         The {@code Triable} interface acts as a functional abstraction for lazy or repeatable
@@ -18,7 +18,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  *         Contract:
  *     </p>
  *     <ul>
- *         <li>This method must never throw; failures are returned as {@code Left(Exception)}.</li>
+ *         <li>This method must never throw; failures are returned as {@code Left(Throwable)}.</li>
  *         <li>The returned {@link XorValue} must not be {@code null}.</li>
  *         <li>Implementations should document whether evaluation is lazy/eager and whether calls are idempotent.</li>
  *     </ul>
@@ -36,17 +36,17 @@ public interface Triable<A> {
     /**
      * <div>
      *     <p>
-     *         Executes the computation and returns either the exception (failure) or the computed
+     *         Executes the computation and returns either the throwable (failure) or the computed
      *         result (success). This method must not throw.
      *     </p>
      * </div>
      *
-     * @return a non-null {@link XorValue} containing either {@code Left(Exception)} on failure
+     * @return a non-null {@link XorValue} containing either {@code Left(Throwable)} on failure
      *         or {@code Right(A)} on success
      *
      * @since 1.0.0
      */
     @NonNull
-    XorValue<Exception, A> tryIt();
+    XorValue<Throwable, A> tryIt();
 
 }

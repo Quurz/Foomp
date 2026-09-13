@@ -19,11 +19,11 @@ import static org.quurz.foomp.base.util.Maybe.some;
  * <div>
  *     <p>
  *         A {@code Result<A>} represents the outcome of a computation that either succeeded
- *         and returns a value of type {@code A}, or failed and provides an {@link Exception}.
+ *         and returns a value of type {@code A}, or failed and provides a {@link Throwable}.
  *     </p>
  *     <p>
  *         This interface is a typical replacement for exceptions in functional style and corresponds to
- *         a {@code XorValue<Exception, A>}, where {@code Left} represents an error and {@code Right}
+ *         a {@code XorValue<Throwable, A>}, where {@code Left} represents an error and {@code Right}
  *         represents a successful value.
  *     </p>
  * </div>
@@ -36,7 +36,7 @@ import static org.quurz.foomp.base.util.Maybe.some;
  */
 public sealed interface Result<A>
         extends Transmogrifyable<Result<A>>,
-                XorValue<Exception, A>
+                XorValue<Throwable, A>
         permits Result.Success,
                 Result.Failure {
 
@@ -66,16 +66,16 @@ public sealed interface Result<A>
      *     </p>
      * </div>
      *
-     * @param exception the occurred exception
+     * @param throwable the occurred error
      * @param <A>       the expected type of the success value (required by the interface)
      * @return a {@code Result} containing the error
-     * @throws NullPointerException if {@code exception} is {@code null}
+     * @throws NullPointerException if {@code throwable} is {@code null}
      *
      * @since 1.0.0
      */
-    static <A> Result<A> failure(final @NonNull Exception exception) {
-        Objects.requireNonNull(exception, nullValue("exception"));
-        return new Result.Failure<>(exception);
+    static <A> Result<A> failure(final @NonNull Throwable throwable) {
+        Objects.requireNonNull(throwable, nullValue("throwable"));
+        return new Result.Failure<>(throwable);
     }
 
     /**
@@ -143,7 +143,7 @@ public sealed interface Result<A>
             throws NoSuchElementException {
         return switch (this) {
             case Result.Success<A> success -> success.value;
-            case Result.Failure<A> failure -> throw new NoSuchElementException(noValuePresent(), failure.exception);
+            case Result.Failure<A> failure -> throw new NoSuchElementException(noValuePresent(), failure.throwable);
         };
     }
 
@@ -171,11 +171,11 @@ public sealed interface Result<A>
     /**
      * <div>
      *     <p>
-     *         Returns the exception if an error is present.
+     *         Returns the throwable if an error is present.
      *     </p>
      * </div>
      *
-     * @return the contained {@link Exception}
+     * @return the contained {@link Throwable}
      * @throws NoSuchElementException if this {@code Result} was successful
      *
      * @since 1.0.0
@@ -183,11 +183,11 @@ public sealed interface Result<A>
     @SuppressWarnings("unused")
     @Override
     @NonNull
-    default Exception getLeft()
+    default Throwable getLeft()
             throws NoSuchElementException {
         return switch (this) {
             case Result.Success<A> _$ -> throw new NoSuchElementException(noValuePresent());
-            case Result.Failure<A> failure -> failure.exception;
+            case Result.Failure<A> failure -> failure.throwable;
         };
     }
 
@@ -197,17 +197,17 @@ public sealed interface Result<A>
      *         Alias for {@link #getLeft()}.
      *     </p>
      *     <p>
-     *         Returns the contained exception if this {@code Result} is an error,
+     *         Returns the contained throwable if this {@code Result} is an error,
      *         otherwise throws a {@link NoSuchElementException}.
      *     </p>
      * </div>
      *
-     * @return the contained {@link Exception}
+     * @return the contained {@link Throwable}
      * @throws NoSuchElementException if this {@code Result} is a success value
      *
      * @since 1.0.0
      */
-    default Exception getException()
+    default Throwable getThrowable()
             throws NoSuchElementException {
         return this.getLeft();
     }
@@ -219,21 +219,21 @@ public sealed interface Result<A>
      *     </p>
      *     <p>
      *         In case of success, returns an {@link Either.Right} with the contained value,
-     *         in case of failure, returns an {@link Either.Left} with the contained exception.
+     *         in case of failure, returns an {@link Either.Left} with the contained throwable.
      *     </p>
      *     <p>
      *         The values are delivered lazily, i.e., evaluated only when needed.
      *     </p>
      * </div>
      *
-     * @return an {@link Either} containing either the success value or the exception
+     * @return an {@link Either} containing either the success value or the throwable
      *
      * @since 1.0.0
      */
-    default Either<Exception, A> toEither() {
+    default Either<Throwable, A> toEither() {
         return switch (this) {
             case Result.Success<A> success -> new Either.Right<>(() -> success.value);
-            case Result.Failure<A> failure -> new Either.Left<>(() -> failure.exception);
+            case Result.Failure<A> failure -> new Either.Left<>(() -> failure.throwable);
         };
     }
 
@@ -369,11 +369,11 @@ public sealed interface Result<A>
     final class Failure<R>
             implements Result<R> {
 
-        private final Exception exception;
+        private final Throwable throwable;
 
-        private Failure(final Exception exception) {
-            this.exception
-                = exception;
+        private Failure(final Throwable throwable) {
+            this.throwable
+                = throwable;
         }
 
         /**
@@ -384,7 +384,7 @@ public sealed interface Result<A>
          * </div>
          *
          * @param o the object to compare with
-         * @return {@code true} if the other object is also a {@code Failure} with the same exception
+         * @return {@code true} if the other object is also a {@code Failure} with the same throwable
          *
          * @since 1.0.0
          */
@@ -392,13 +392,13 @@ public sealed interface Result<A>
         public boolean equals(final Object o) {
             if (!(o instanceof Failure<?> failure)) return false;
 
-            return exception.equals(failure.exception);
+            return throwable.equals(failure.throwable);
         }
 
         /**
          * <div>
          *     <p>
-         *         Returns the hash code of the contained {@link Exception}.
+         *         Returns the hash code of the contained {@link Throwable}.
          *     </p>
          * </div>
          *
@@ -408,7 +408,7 @@ public sealed interface Result<A>
          */
         @Override
         public int hashCode() {
-            return exception.hashCode();
+            return this.throwable.hashCode();
         }
 
         /**
@@ -418,14 +418,14 @@ public sealed interface Result<A>
          *     </p>
          * </div>
          *
-         * @return a string representation containing the exception
+         * @return a string representation containing the throwable
          *
          * @since 1.0.0
          */
         @Override
         public String toString() {
             return new StringJoiner(", ", Failure.class.getSimpleName() + "[", "]")
-                    .add("exception=" + exception)
+                    .add("throwable=" + this.throwable)
                     .toString();
         }
 

@@ -39,6 +39,8 @@ class ResultTest {
 
             assertThatNoException().isThrownBy(() -> success("OK"));
             assertThatNoException().isThrownBy(() -> failure(new Exception("E")));
+            assertThatNoException().isThrownBy(() -> failure(new AssertionError("Assertion failed")));
+            assertThatNoException().isThrownBy(() -> failure(new Throwable("Generic throwable")));
         }
     }
 
@@ -75,27 +77,27 @@ class ResultTest {
 
         @Test
         void getLeft_should_return_on_failure_and_throw_on_success() {
-            LOGGER.info("Result.getLeft should return exception on failure and throw on success");
+            LOGGER.info("Result.getLeft should return throwable on failure and throw on success");
 
             final var ok = success("OK");
-            final var err = failure(new Exception("E"));
+            final var err = failure(new Throwable("E"));
 
             assertThatThrownBy(ok::getLeft).isInstanceOf(NoSuchElementException.class);
-            assertThat(err.getLeft()).isInstanceOf(Exception.class).hasMessage("E");
+            assertThat(err.getLeft()).isInstanceOf(Throwable.class).hasMessage("E");
         }
 
         @Test
-        void getValue_getException_should_alias_getRight_getLeft() {
-            LOGGER.info("Result.getValue/getException should alias getRight/getLeft");
+        void getValue_getThrowable_should_alias_getRight_getLeft() {
+            LOGGER.info("Result.getValue/getThrowable should alias getRight/getLeft");
 
             final var ok = success("OK");
-            final var err = failure(new Exception("E"));
+            final var err = failure(new Throwable("E"));
 
             assertThat(ok.getValue()).isEqualTo("OK");
             assertThatThrownBy(err::getValue).isInstanceOf(NoSuchElementException.class);
 
-            assertThat(err.getException()).isInstanceOf(Exception.class).hasMessage("E");
-            assertThatThrownBy(ok::getException).isInstanceOf(NoSuchElementException.class);
+            assertThat(err.getThrowable()).isInstanceOf(Throwable.class).hasMessage("E");
+            assertThatThrownBy(ok::getThrowable).isInstanceOf(NoSuchElementException.class);
         }
     }
 
@@ -108,7 +110,7 @@ class ResultTest {
             LOGGER.info("Result.toEither should convert Success->Right and Failure->Left");
 
             final var ok = success("OK");
-            final var err = failure(new Exception("E"));
+            final var err = failure(new Throwable("E"));
 
             final var eOk = ok.toEither();
             final var eErr = err.toEither();
@@ -117,7 +119,7 @@ class ResultTest {
             assertThat(eOk.getRight()).isEqualTo("OK");
 
             assertThat(eErr.isRight()).isFalse();
-            assertThat(eErr.getLeft()).isInstanceOf(Exception.class).hasMessage("E");
+            assertThat(eErr.getLeft()).isInstanceOf(Throwable.class).hasMessage("E");
         }
 
         @Test
@@ -172,12 +174,12 @@ class ResultTest {
             final var s3 = success("OTHER");
 
             // Failure: gleiche Instanz vs. unterschiedliche Instanzen mit gleicher Message
-            final var sameEx = new Exception("E");
+            final var sameEx = new Throwable("E");
             final var eSame1 = failure(sameEx);
             final var eSame2 = failure(sameEx);
-            final var e1 = failure(new Exception("E"));
-            final var e2 = failure(new Exception("E"));
-            final var e3 = failure(new Exception("F"));
+            final var e1 = failure(new Throwable("E"));
+            final var e2 = failure(new Throwable("E"));
+            final var e3 = failure(new Throwable("F"));
 
             // Success
             assertThat(s1).isEqualTo(s2);
