@@ -255,7 +255,7 @@ public sealed interface Result<A>
     default Maybe<A> toMaybe() {
         return switch (this) {
             case Result.Success<A> success -> some(success.value);
-            case Result.Failure<A> failure -> none();
+            case Result.Failure<A> _ -> none();
         };
     }
 
