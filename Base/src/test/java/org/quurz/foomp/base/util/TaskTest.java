@@ -9,11 +9,15 @@ import org.quurz.foomp.higher.Higher1;
 import org.slf4j.Logger;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.quurz.foomp.base.util.Task.narrow;
 import static org.quurz.foomp.base.util.Task.task;
+import static org.quurz.foomp.base.util.Task.taskFrom;
+import static org.quurz.foomp.base.util.Task.taskOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -53,6 +57,93 @@ class TaskTest {
             final var result = t.runAsync().get();
             assertThat(result.isSuccess()).isTrue();
             assertThat(result.getValue()).isEqualTo(Nothing.nothing);
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void taskFrom_supplier_with_null_throws_NullPointerException() {
+            LOGGER.info("Task.taskFrom((Supplier) null) should throw NullPointerException");
+            assertThatThrownBy(() -> taskFrom((Supplier<String>) null))
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void taskFrom_supplier_evaluates_value_asynchronously() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.taskFrom(Supplier) should evaluate value");
+            final var t = taskFrom(() -> 42);
+            assertThat(t).isNotNull();
+            final var result = t.runAsync().get();
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.getValue()).isEqualTo(42);
+        }
+
+        @Test
+        void taskFrom_supplier_captures_exception() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.taskFrom(Supplier) should capture exception");
+            final var t = taskFrom(() -> {
+                throw new IllegalStateException("Supplier failed");
+            });
+            final var result = t.runAsync().get();
+            assertThat(result.isSuccess()).isFalse();
+            assertThat(result.getException()).isInstanceOf(IllegalStateException.class);
+        }
+
+        @Test
+        void taskFrom_supplier_returning_null_captures_exception() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.taskFrom(Supplier) returning null should capture NullPointerException");
+            final var t = taskFrom(() -> null);
+            final var result = t.runAsync().get();
+            assertThat(result.isSuccess()).isFalse();
+            assertThat(result.getException()).isInstanceOf(NullPointerException.class);
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void taskFrom_runnable_with_null_throws_NullPointerException() {
+            LOGGER.info("Task.taskFrom((Runnable) null) should throw NullPointerException");
+            assertThatThrownBy(() -> taskFrom((Runnable) null))
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void taskFrom_runnable_executes_action() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.taskFrom(Runnable) should execute action");
+            final var executed = new AtomicBoolean(false);
+            final var t = taskFrom(() -> executed.set(true));
+            assertThat(t).isNotNull();
+            final var result = t.runAsync().get();
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.getValue()).isEqualTo(Nothing.nothing);
+            assertThat(executed.get()).isTrue();
+        }
+
+        @Test
+        void taskFrom_runnable_captures_exception() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.taskFrom(Runnable) should capture exception");
+            final var t = taskFrom(() -> {
+                throw new IllegalStateException("Runnable failed");
+            });
+            final var result = t.runAsync().get();
+            assertThat(result.isSuccess()).isFalse();
+            assertThat(result.getException()).isInstanceOf(IllegalStateException.class);
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void taskOf_with_null_throws_NullPointerException() {
+            LOGGER.info("Task.taskOf(null) should throw NullPointerException");
+            assertThatThrownBy(() -> taskOf(null))
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void taskOf_wraps_executable() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.taskOf(executable) should execute wrapped executable");
+            final var t = taskOf(_ -> java.util.concurrent.CompletableFuture.completedFuture(Result.success("from-executable")));
+            assertThat(t).isNotNull();
+            final var result = t.runAsync().get();
+            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.getValue()).isEqualTo("from-executable");
         }
 
         @SuppressWarnings("DataFlowIssue")
@@ -237,6 +328,77 @@ class TaskTest {
             final var result = zipped.runAsync().get();
             assertThat(result.isSuccess()).isFalse();
             assertThat(result.getException()).isInstanceOf(IllegalStateException.class);
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void zip_with_executor_null_checks() {
+            LOGGER.info("Task.zip(other, combiner, executor) null checks");
+            final var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+            try {
+                assertThatThrownBy(() -> task(21).zip(null, Integer::sum, executor))
+                    .isInstanceOf(NullPointerException.class);
+                assertThatThrownBy(() -> task(21).zip(task(21), null, executor))
+                    .isInstanceOf(NullPointerException.class);
+                assertThatThrownBy(() -> task(21).zip(task(21), Integer::sum, null))
+                    .isInstanceOf(NullPointerException.class);
+            } finally {
+                executor.shutdown();
+            }
+        }
+
+        @Test
+        void zip_with_executor_executes_on_dedicated_executor() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.zip with custom executor should combine values successfully");
+            final var customThreadName = new java.util.concurrent.atomic.AtomicReference<String>();
+            final var executor = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+                final var thread = new Thread(r, "custom-zip-thread");
+                return thread;
+            });
+            try {
+                final var t1 = task(10);
+                final var t2 = task(32).map(v -> {
+                    customThreadName.set(Thread.currentThread().getName());
+                    return v;
+                });
+                final var zipped = t1.zip(t2, Integer::sum, executor);
+                final var result = zipped.runAsync().get();
+                assertThat(result.isSuccess()).isTrue();
+                assertThat(result.getValue()).isEqualTo(42);
+                assertThat(customThreadName.get()).isEqualTo("custom-zip-thread");
+            } finally {
+                executor.shutdown();
+            }
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void executeOn_with_null_executor_throws_NullPointerException() {
+            LOGGER.info("Task.executeOn(null) should throw NullPointerException");
+            assertThatThrownBy(() -> task(42).executeOn(null))
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void executeOn_forces_execution_on_bound_executor() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.executeOn should use bound executor regardless of runAsync executor");
+            final var boundThreadName = new java.util.concurrent.atomic.AtomicReference<String>();
+            final var boundExecutor = java.util.concurrent.Executors.newSingleThreadExecutor(r -> new Thread(r, "bound-thread"));
+            final var otherExecutor = java.util.concurrent.Executors.newSingleThreadExecutor(r -> new Thread(r, "ignored-thread"));
+            try {
+                final var t = task(100).map(v -> {
+                    boundThreadName.set(Thread.currentThread().getName());
+                    return v * 2;
+                }).executeOn(boundExecutor);
+
+                final var result = t.runAsync(otherExecutor).get();
+                assertThat(result.isSuccess()).isTrue();
+                assertThat(result.getValue()).isEqualTo(200);
+                assertThat(boundThreadName.get()).isEqualTo("bound-thread");
+            } finally {
+                boundExecutor.shutdown();
+                otherExecutor.shutdown();
+            }
         }
 
         @SuppressWarnings("DataFlowIssue")

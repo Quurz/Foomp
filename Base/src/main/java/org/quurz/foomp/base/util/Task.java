@@ -1,33 +1,25 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.AsyncCombiner;
-import org.quurz.foomp.base.types.Combiner;
 import org.quurz.foomp.base.types.Monadic;
 import org.quurz.foomp.base.types.UnwindingOperation;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Gatherers;
+import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
-import static org.quurz.foomp.base.util.Maybe.none;
-import static org.quurz.foomp.base.util.Maybe.some;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.quurz.foomp.base.util.Result.failure;
 import static org.quurz.foomp.base.util.Result.success;
-import static org.quurz.foomp.base.util.Tuple2.tuple2;
 
 /**
  * <div>
@@ -126,68 +118,105 @@ public final class Task<A>
         return new Task<>(_ -> CompletableFuture.completedFuture(success(nothing)));
     }
 
-    private static final class MyCombiner<A>
-            implements AsyncCombiner<Task.µ, A> {
+    /**
+     * <div>
+     *   <p>
+     *     Creates a new {@code Task} that evaluates the specified {@link Supplier} asynchronously when run,
+     *     yielding the computed value wrapped in a {@link Result}.
+     *   </p>
+     *   <p>
+     *     Any exception thrown during evaluation is captured and returned as a failed {@link Result}.
+     *   </p>
+     * </div>
+     *
+     * @param supplier the supplier producing the value; must not be {@code null} and must not return {@code null}
+     * @param <A>      the type of the computed value
+     * @return a {@code Task} producing the computed value
+     * @throws NullPointerException if {@code supplier} is {@code null}
+     *
+     * @since 1.0.0
+     *
+     * @author Alexander Schell & Junie
+     */
+    public static <A> Task<A> taskFrom(final @NonNull Supplier<A> supplier) {
+        Objects.requireNonNull(supplier, nullValue("supplier"));
 
-        private final List<Tuple2<Task<Object>, Maybe<Executor>>> taskWithMaybeExecutorList;
-        private final List<BiFunction<Object, Object, Object>> combiners;
-
-        @SuppressWarnings("unchecked")
-        private MyCombiner(final Task<A> task) {
-            this.taskWithMaybeExecutorList
-                = new ArrayList<>();
-            this.taskWithMaybeExecutorList.add(tuple2((Task<Object>) narrow(task), none()));
-
-            this.combiners
-                = new ArrayList<>();
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public @NonNull <B, R> MyCombiner<R> with(final @NonNull Higher1<? extends µ, B> other,
-                                                  final @NonNull BiFunction<? super A, ? super B, ? extends R> combiner) {
-            Objects.requireNonNull(other, nullValue("other"));
-            Objects.requireNonNull(combiner, nullValue("combiner"));
-
-            this.taskWithMaybeExecutorList.add(tuple2((Task<Object>) narrow(other), none()));
-            this.combiners.add((BiFunction<Object, Object, Object>) combiner);
-
-            return (MyCombiner<R>) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public @NonNull <B, R> MyCombiner<R> with(final @NonNull Higher1<? extends µ, B> other,
-                                                  final @NonNull BiFunction<? super A, ? super B, ? extends R> combiner,
-                                                  final @NonNull Executor executor) {
-            Objects.requireNonNull(other, nullValue("other"));
-            Objects.requireNonNull(combiner, nullValue("combiner"));
+        return new Task<>((final @NonNull Executor executor) -> {
             Objects.requireNonNull(executor, nullValue("executor"));
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    final var value = Objects.requireNonNull(supplier.get(), nullResultFrom("supplier"));
+                    return success(value);
+                } catch (final Exception exception) {
+                    return failure(exception);
+                }
+            }, executor);
+        });
+    }
 
-            this.taskWithMaybeExecutorList.add(tuple2((Task<Object>) narrow(other), some(executor)));
-            this.combiners.add((BiFunction<Object, Object, Object>) combiner);
+    /**
+     * <div>
+     *   <p>
+     *     Creates a new {@code Task} that executes the specified {@link Runnable} asynchronously when run,
+     *     yielding {@link Nothing#nothing} wrapped in a {@link Result}.
+     *   </p>
+     *   <p>
+     *     Any exception thrown during execution is captured and returned as a failed {@link Result}.
+     *   </p>
+     * </div>
+     *
+     * @param runnable the action to execute; must not be {@code null}
+     * @return a {@code Task} producing {@link Nothing#nothing}
+     * @throws NullPointerException if {@code runnable} is {@code null}
+     *
+     * @since 1.0.0
+     *
+     * @author Alexander Schell & Junie
+     */
+    public static @NonNull Task<Nothing> taskFrom(final @NonNull Runnable runnable) {
+        Objects.requireNonNull(runnable, nullValue("runnable"));
 
-            return (MyCombiner<R>) this;
-        }
+        return new Task<>((final @NonNull Executor executor) -> {
+            Objects.requireNonNull(executor, nullValue("executor"));
+            return CompletableFuture.runAsync(runnable, executor)
+                .handle((_, throwable) -> {
+                    if (throwable != null) {
+                        final var cause = (throwable.getCause() != null && throwable instanceof java.util.concurrent.CompletionException)
+                                ? throwable.getCause()
+                                : throwable;
+                        if (cause instanceof Exception exception) {
+                            return Result.failure(exception);
+                        } else if (cause instanceof Error error) {
+                            throw error;
+                        } else {
+                            return Result.failure(new RuntimeException(cause));
+                        }
+                    }
+                    return success(nothing);
+                });
+        });
+    }
 
-        @Override
-        public @NonNull Task<A> finish() {
-            return new Task<>(executor -> {
-                final var combinees
-                    = this.taskWithMaybeExecutorList.stream()
-                        .map(taskWithMaybeExecutor
-                            -> taskWithMaybeExecutor.meld(
-                                (task, maybeExecutor)
-                                    -> task.runAsync(maybeExecutor.getOrElse(() -> executor))
-                            )
-                        )
-                        .gather(Gatherers.windowSliding(2))
-                        .toList();
+    /**
+     * <div>
+     *   <p>
+     *     Creates a new {@code Task} from the given {@link Executable}.
+     *   </p>
+     * </div>
+     *
+     * @param executable the executable computation; must not be {@code null}
+     * @param <A>        the computed value type
+     * @return a {@code Task} wrapping the given executable
+     * @throws NullPointerException if {@code executable} is {@code null}
+     *
+     * @since 1.0.0
+     *
+     * @author Alexander Schell & Junie
+     */
+    public static <A> Task<A> taskOf(final @NonNull Executable<A> executable) {
+        Objects.requireNonNull(executable, nullValue("executable"));
 
-                return null;    // TODO
-            });
-        }
-
+        return new Task<>(executable);
     }
 
     private final Executable<A> executable;
@@ -216,7 +245,7 @@ public final class Task<A>
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return new Task<>((final @NonNull Executor executor) -> {
             Objects.requireNonNull(executor, nullValue("executor"));
-            return this.executable.execute(executor).thenApply(result -> switch (result) {
+            return this.executable.execute(executor).thenApplyAsync(result -> switch (result) {
                 case Result.Success<A> success -> {
                     try {
                         final var mapped = Objects.requireNonNull(transformation.apply(success.getValue()), nullResultFrom("transformation"));
@@ -226,7 +255,7 @@ public final class Task<A>
                     }
                 }
                 case Result.Failure<A> failure -> Result.failure(failure.getException());
-            });
+            }, executor);
         });
     }
 
@@ -253,7 +282,7 @@ public final class Task<A>
             final var valueFuture = this.executable.execute(executor);
             final var functionFuture = narrowed.executable.execute(executor);
 
-            return valueFuture.thenCombine(functionFuture, (resVal, resFn) -> switch (resVal) {
+            return valueFuture.thenCombineAsync(functionFuture, (resVal, resFn) -> switch (resVal) {
                 case Result.Failure<A> failVal -> Result.failure(failVal.getException());
                 case Result.Success<A> succVal -> switch (resFn) {
                     case Result.Failure<? extends Function<? super A, ? extends B>> failFn -> Result.failure(failFn.getException());
@@ -267,7 +296,7 @@ public final class Task<A>
                         }
                     }
                 };
-            });
+            }, executor);
         });
     }
 
@@ -289,7 +318,7 @@ public final class Task<A>
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return new Task<B>((final @NonNull Executor executor) -> {
             Objects.requireNonNull(executor, nullValue("executor"));
-            return this.executable.execute(executor).thenCompose(result -> switch (result) {
+            return this.executable.execute(executor).thenComposeAsync(result -> switch (result) {
                 case Result.Success<A> success -> {
                     try {
                         final var nextHigher = Objects.requireNonNull(transformation.apply(success.getValue()), nullResultFrom("transformation"));
@@ -300,7 +329,7 @@ public final class Task<A>
                     }
                 }
                 case Result.Failure<A> failure -> CompletableFuture.completedFuture(Result.<B>failure(failure.getException()));
-            });
+            }, executor);
         });
     }
 
@@ -324,16 +353,17 @@ public final class Task<A>
      *
      * @since 1.0.0
      */
-    public @NonNull <B, C> Task<C> zip(final @NonNull Task<B> other,
-                                       final @NonNull BiFunction<? super A, ? super B, ? extends C> combiner) {
+    public <B, C> Task<C> zip(final @NonNull Task<B> other,
+                              final @NonNull BiFunction<? super A, ? super B, ? extends C> combiner) {
         Objects.requireNonNull(other, nullValue("other"));
         Objects.requireNonNull(combiner, nullValue("combiner"));
+
         return new Task<>((final @NonNull Executor executor) -> {
             Objects.requireNonNull(executor, nullValue("executor"));
             final var futureA = this.executable.execute(executor);
             final var futureB = other.executable.execute(executor);
 
-            return futureA.thenCombine(futureB, (resVal, resOther) -> switch (resVal) {
+            return futureA.thenCombineAsync(futureB, (resVal, resOther) -> switch (resVal) {
                 case Result.Failure<A> failVal -> Result.failure(failVal.getException());
                 case Result.Success<A> succVal -> switch (resOther) {
                     case Result.Failure<B> failOther -> Result.failure(failOther.getException());
@@ -346,8 +376,60 @@ public final class Task<A>
                         }
                     }
                 };
-            });
+            }, executor);
         });
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Combines this {@code Task} with another {@code Task} using the given {@code combiner} function,
+     *     executing {@code other} on the specified {@link Executor}.
+     *   </p>
+     * </div>
+     *
+     * @param other    the other {@code Task}; must not be {@code null}
+     * @param combiner the combining function; must not be {@code null} and must not return {@code null}
+     * @param executor the executor to run {@code other} on; must not be {@code null}
+     * @param <B>      the other value type
+     * @param <C>      the result type
+     * @return a new {@code Task} producing the combined result
+     * @throws NullPointerException if {@code other}, {@code combiner}, or {@code executor} is {@code null}
+     *
+     * @since 1.0.0
+     *
+     * @author Alexander Schell & Junie
+     */
+    public <B, C> Task<C> zip(final @NonNull Task<B> other,
+                              final @NonNull BiFunction<? super A, ? super B, ? extends C> combiner,
+                              final @NonNull Executor executor) {
+        Objects.requireNonNull(other, nullValue("other"));
+        Objects.requireNonNull(combiner, nullValue("combiner"));
+        Objects.requireNonNull(executor, nullValue("executor"));
+
+        return this.zip(other.executeOn(executor), combiner);
+    }
+
+    /**
+     * <div>
+     *   <p>
+     *     Configures this {@code Task} to be executed on the specified {@link Executor},
+     *     ignoring any executor supplied to {@link #runAsync(Executor)}.
+     *   </p>
+     * </div>
+     *
+     * @param executor the executor to run this task on; must not be {@code null}
+     * @return a new {@code Task} bound to the given executor
+     * @throws NullPointerException if {@code executor} is {@code null}
+     *
+     * @since 1.0.0
+     *
+     * @author Alexander Schell & Junie
+     */
+    public Task<A> executeOn(final @NonNull Executor executor) {
+        Objects.requireNonNull(executor, nullValue("executor"));
+
+        return new Task<>(_ -> this.runAsync(executor));
     }
 
     /**
