@@ -556,6 +556,47 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
+     *         Indicates an illegal argument.
+     *     </p>
+     * </div>
+     *
+     * @param argumentName the argument name; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code argumentName} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String illegalArgument(final @NonNull String argumentName) {
+        Objects.requireNonNull(argumentName);
+        return String.format(RESOURCE_BUNDLE.getString("ILLEGAL_ARGUMENT"), argumentName);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that an argument cannot be cast to the specified class.
+     *     </p>
+     * </div>
+     *
+     * @param argumentName the argument name; must not be {@code null}
+     * @param clazz        the target class; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if any argument is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static String cantCast(final @NonNull String argumentName,
+                                  final @NonNull Class<?> clazz) {
+        Objects.requireNonNull(argumentName);
+        Objects.requireNonNull(clazz);
+        return String.format(RESOURCE_BUNDLE.getString("CANT_CAST"), argumentName, clazz.getCanonicalName());
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Indicates that the requested operation is not supported.
      *     </p>
      * </div>
@@ -567,6 +608,8 @@ public final class BaseMessages {
     public static String unsupportedOperation() {
         return RESOURCE_BUNDLE.getString("UNSUPPORTED_OPERATION");
     }
+
+
 
     /**
      * <div>
