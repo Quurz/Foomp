@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.functions.Applicable.applicable;
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -76,12 +77,18 @@ public final class Attempt<A>
      * @param wide the higher‑kinded value to narrow; must not be {@code null}
      * @param <A>  the carried value type
      * @return an {@code Attempt} instance
-     * @throws NullPointerException if {@code wide} is {@code null}
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Attempt}
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     public static <A> Attempt<A> narrow(final @NonNull Higher1<? extends Attempt.µ, A> wide) {
-        return (Attempt<A>) Objects.requireNonNull(wide, nullValue("wide"));
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Attempt<?> attempt) {
+            return (Attempt<A>) attempt;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Attempt.class));
+        }
     }
 
     /**

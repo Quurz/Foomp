@@ -78,13 +78,19 @@ public interface Provider<A>
      * @param wide the higher‑kinded value to narrow; must not be {@code null}
      * @param <A>  the provided value type
      * @return a {@code Provider} instance
-     * @throws NullPointerException if {@code wide} is {@code null}
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Provider}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     static <A> Provider<A> narrow(final @NonNull Higher1<? extends Provider.µ, A> wide) {
-        return (Provider<A>) Objects.requireNonNull(wide, nullValue("wide"));
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Provider<?> provider) {
+            return (Provider<A>) provider;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Provider.class));
+        }
     }
 
     /**

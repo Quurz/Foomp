@@ -15,6 +15,7 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
@@ -67,12 +68,19 @@ public final class Tuple4<A1, A2, A3, A4>
      * @param <A3> type of the third element
      * @param <A4> type of the fourth element
      * @return the narrowed {@code Tuple4} instance
-     * @throws NullPointerException if {@code unfixed} is {@code null}
+     * @throws NullPointerException     if {@code unfixed} is {@code null}
+     * @throws IllegalArgumentException if {@code unfixed} is not an instance of {@code Tuple4}
      *
      * @since 1.0.0
      */
-    public static <A1, A2, A3, A4> Tuple4<A1, A2, A3, A4> narrow(@NonNull final Higher4<Tuple4.µ, A1, A2, A3, A4> unfixed) {
-        return (Tuple4<A1, A2, A3, A4>) Objects.requireNonNull(unfixed, nullValue("unfixed"));
+    @SuppressWarnings("unchecked")
+    public static <A1, A2, A3, A4> Tuple4<A1, A2, A3, A4> narrow(@NonNull final Higher4<? extends Tuple4.µ, A1, A2, A3, A4> unfixed) {
+        Objects.requireNonNull(unfixed, nullValue("unfixed"));
+        if (unfixed instanceof Tuple4<?, ?, ?, ?> tuple4) {
+            return (Tuple4<A1, A2, A3, A4>) tuple4;
+        } else {
+            throw new IllegalArgumentException(cantCast("unfixed", Tuple4.class));
+        }
     }
 
     /**

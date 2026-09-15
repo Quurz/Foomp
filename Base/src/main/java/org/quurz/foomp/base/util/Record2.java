@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
@@ -77,13 +78,19 @@ public record Record2<A1, A2>(A1 value1,
      * @param <A1> the first component type
      * @param <A2> the second component type
      * @return the narrowed {@code Record2}
-     * @throws NullPointerException if {@code wide} is {@code null}
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Record2}
      *
      * @since 1.0.0
      */
-    public static <A1, A2> Record2<A1, A2> narrow(final @NonNull Higher2<Record2.µ, A1, A2> wide) {
+    @SuppressWarnings("unchecked")
+    public static <A1, A2> Record2<A1, A2> narrow(final @NonNull Higher2<? extends Record2.µ, A1, A2> wide) {
         Objects.requireNonNull(wide, nullValue("wide"));
-        return (Record2<A1, A2>) wide;
+        if (wide instanceof Record2<?, ?> record2) {
+            return (Record2<A1, A2>) record2;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Record2.class));
+        }
     }
 
     /**

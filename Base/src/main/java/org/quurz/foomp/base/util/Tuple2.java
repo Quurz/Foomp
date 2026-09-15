@@ -16,6 +16,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Pair.pair;
@@ -96,12 +97,19 @@ public final class Tuple2<A1, A2>
      *
      * @param unfixed the higher‑kinded value; must not be {@code null}
      * @return the same instance, viewed as {@code Tuple2}
-     * @throws NullPointerException if {@code unfixed} is {@code null}
+     * @throws NullPointerException     if {@code unfixed} is {@code null}
+     * @throws IllegalArgumentException if {@code unfixed} is not an instance of {@code Tuple2}
      *
      * @since 1.0.0
      */
-    public static <A1, A2> Tuple2<A1, A2> narrow(@NonNull final Higher2<µ, A1, A2> unfixed) {
-        return (Tuple2<A1, A2>) Objects.requireNonNull(unfixed, nullValue("unfixed"));
+    @SuppressWarnings("unchecked")
+    public static <A1, A2> Tuple2<A1, A2> narrow(@NonNull final Higher2<? extends µ, A1, A2> unfixed) {
+        Objects.requireNonNull(unfixed, nullValue("unfixed"));
+        if (unfixed instanceof Tuple2<?, ?> tuple2) {
+            return (Tuple2<A1, A2>) tuple2;
+        } else {
+            throw new IllegalArgumentException(cantCast("unfixed", Tuple2.class));
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSupplied;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -66,13 +67,19 @@ public sealed interface Eval<A>
      * @param wide the higher‑kinded value; must not be {@code null}
      * @param <A>  the value type
      * @return an {@code Eval} instance
-     * @throws NullPointerException if {@code wide} is {@code null}
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Eval}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     static <A> Eval<A> narrow(@NonNull final Higher1<? extends µ, A> wide) {
-        return (Eval<A>) Objects.requireNonNull(wide, nullValue("wide"));
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Eval<?> eval) {
+            return (Eval<A>) eval;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Eval.class));
+        }
     }
 
     /**

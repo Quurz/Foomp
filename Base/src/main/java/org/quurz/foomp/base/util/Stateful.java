@@ -9,6 +9,7 @@ import org.quurz.foomp.higher.WitnessType;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
@@ -96,13 +97,19 @@ public class Stateful<A, S>
      * @param <A>    the produced value type
      * @param <S>    the state type
      * @return the same instance, viewed as {@code Stateful}
-     * @throws NullPointerException if {@code higher} is {@code null}
+     * @throws NullPointerException     if {@code higher} is {@code null}
+     * @throws IllegalArgumentException if {@code higher} is not an instance of {@code Stateful}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
-    public static <A, S> Stateful<A, S> narrow(final Higher2<? extends Stateful.µ, A, S> higher) {
-        return (Stateful<A, S>) higher;
+    public static <A, S> Stateful<A, S> narrow(final @NonNull Higher2<? extends Stateful.µ, A, S> higher) {
+        Objects.requireNonNull(higher, nullValue("higher"));
+        if (higher instanceof Stateful<?, ?> stateful) {
+            return (Stateful<A, S>) stateful;
+        } else {
+            throw new IllegalArgumentException(cantCast("higher", Stateful.class));
+        }
     }
 
     /**

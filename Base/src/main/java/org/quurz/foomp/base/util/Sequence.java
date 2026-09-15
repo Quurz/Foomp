@@ -74,14 +74,19 @@ public sealed interface Sequence<A>
      * @param wide the higher‑kinded value; must not be {@code null}
      * @param <A>  the element type
      * @return a {@code Sequence} instance
-     * @throws NullPointerException if {@code wide} is {@code null}
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Sequence}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     static <A> Sequence<A> narrow(final @NonNull Higher1<? extends µ, A> wide) {
         Objects.requireNonNull(wide, nullValue("wide"));
-        return (Sequence<A>) wide;
+        if (wide instanceof Sequence<?> sequence) {
+            return (Sequence<A>) sequence;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Sequence.class));
+        }
     }
 
     /**

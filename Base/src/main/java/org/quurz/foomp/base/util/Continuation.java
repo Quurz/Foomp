@@ -8,6 +8,7 @@ import org.quurz.foomp.higher.WitnessType;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
@@ -101,13 +102,19 @@ public class Continuation<A, R>
      * @param <A>    the produced value type
      * @param <R>    the result type
      * @return the same instance, viewed as {@code Continuation}
-     * @throws NullPointerException if {@code higher} is {@code null}
+     * @throws NullPointerException     if {@code higher} is {@code null}
+     * @throws IllegalArgumentException if {@code higher} is not an instance of {@code Continuation}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     public static <A, R> Continuation<A, R> narrow(final @NonNull Higher2<? extends µ, A, R> higher) {
-        return (Continuation<A, R>) higher;
+        Objects.requireNonNull(higher, nullValue("higher"));
+        if (higher instanceof Continuation<?, ?> continuation) {
+            return (Continuation<A, R>) continuation;
+        } else {
+            throw new IllegalArgumentException(cantCast("higher", Continuation.class));
+        }
     }
 
     /**

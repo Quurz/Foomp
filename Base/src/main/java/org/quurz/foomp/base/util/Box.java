@@ -63,13 +63,19 @@ public class Box<A>
      * @param wide the higher‑kinded value; must not be {@code null}
      * @param <A>  the contained value type
      * @return a {@code Box} instance
-     * @throws NullPointerException if {@code wide} is {@code null}
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Box}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     public static <A> Box<A> narrow(final @NonNull Higher1<? extends µ, A> wide) {
-        return (Box<A>) Objects.requireNonNull(wide, nullValue("wide"));
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Box<?> box) {
+            return (Box<A>) box;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Box.class));
+        }
     }
 
     /**

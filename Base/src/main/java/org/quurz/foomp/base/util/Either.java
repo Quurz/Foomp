@@ -96,13 +96,19 @@ public sealed interface Either<L, R>
      * @param <L>  the left value type
      * @param <R>  the right value type
      * @return the narrowed {@code Either}
-     * @throws NullPointerException if {@code wide} is {@code null}
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Either}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     static <L, R> Either<L, R> narrow(final @NonNull Higher2<? extends µ, L, R> wide) {
-        return (Either<L, R>) Objects.requireNonNull(wide, nullValue("wide"));
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Either<?, ?> either) {
+            return (Either<L, R>) either;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Either.class));
+        }
     }
 
     /**
