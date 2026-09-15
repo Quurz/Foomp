@@ -1,24 +1,33 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.quurz.foomp.base.types.AsyncCombiner;
+import org.quurz.foomp.base.types.Combiner;
 import org.quurz.foomp.base.types.Monadic;
 import org.quurz.foomp.base.types.UnwindingOperation;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Gatherers;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.util.Maybe.none;
+import static org.quurz.foomp.base.util.Maybe.some;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.quurz.foomp.base.util.Result.failure;
 import static org.quurz.foomp.base.util.Result.success;
+import static org.quurz.foomp.base.util.Tuple2.tuple2;
 
 /**
  * <div>
@@ -115,6 +124,70 @@ public final class Task<A>
      */
     public static Task<Nothing> task() {
         return new Task<>(_ -> CompletableFuture.completedFuture(success(nothing)));
+    }
+
+    private static final class MyCombiner<A>
+            implements AsyncCombiner<Task.µ, A> {
+
+        private final List<Tuple2<Task<Object>, Maybe<Executor>>> taskWithMaybeExecutorList;
+        private final List<BiFunction<Object, Object, Object>> combiners;
+
+        @SuppressWarnings("unchecked")
+        private MyCombiner(final Task<A> task) {
+            this.taskWithMaybeExecutorList
+                = new ArrayList<>();
+            this.taskWithMaybeExecutorList.add(tuple2((Task<Object>) narrow(task), none()));
+
+            this.combiners
+                = new ArrayList<>();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public @NonNull <B, R> MyCombiner<R> with(final @NonNull Higher1<? extends µ, B> other,
+                                                  final @NonNull BiFunction<? super A, ? super B, ? extends R> combiner) {
+            Objects.requireNonNull(other, nullValue("other"));
+            Objects.requireNonNull(combiner, nullValue("combiner"));
+
+            this.taskWithMaybeExecutorList.add(tuple2((Task<Object>) narrow(other), none()));
+            this.combiners.add((BiFunction<Object, Object, Object>) combiner);
+
+            return (MyCombiner<R>) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public @NonNull <B, R> MyCombiner<R> with(final @NonNull Higher1<? extends µ, B> other,
+                                                  final @NonNull BiFunction<? super A, ? super B, ? extends R> combiner,
+                                                  final @NonNull Executor executor) {
+            Objects.requireNonNull(other, nullValue("other"));
+            Objects.requireNonNull(combiner, nullValue("combiner"));
+            Objects.requireNonNull(executor, nullValue("executor"));
+
+            this.taskWithMaybeExecutorList.add(tuple2((Task<Object>) narrow(other), some(executor)));
+            this.combiners.add((BiFunction<Object, Object, Object>) combiner);
+
+            return (MyCombiner<R>) this;
+        }
+
+        @Override
+        public @NonNull Task<A> finish() {
+            return new Task<>(executor -> {
+                final var combinees
+                    = this.taskWithMaybeExecutorList.stream()
+                        .map(taskWithMaybeExecutor
+                            -> taskWithMaybeExecutor.meld(
+                                (task, maybeExecutor)
+                                    -> task.runAsync(maybeExecutor.getOrElse(() -> executor))
+                            )
+                        )
+                        .gather(Gatherers.windowSliding(2))
+                        .toList();
+
+                return null;    // TODO
+            });
+        }
+
     }
 
     private final Executable<A> executable;
