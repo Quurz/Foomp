@@ -1,12 +1,14 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.types.*;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -207,6 +209,34 @@ public class Box<A>
     public @NonNull <B> Box<B> flatMap(@NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return narrow(this.map(transformation).get());
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Combines this {@code Box} with another {@code Box} using the given {@code combiner} function.
+     *     </p>
+     *     <p>
+     *         <strong>Laziness:</strong> The {@code combiner} function is not invoked until the value
+     *         of the resulting {@code Box} is evaluated.
+     *     </p>
+     * </div>
+     *
+     * @param other    the other {@code Box}; must not be {@code null}
+     * @param combiner the combining function; must not be {@code null} and must not return {@code null}
+     * @param <B>      the other value type
+     * @param <C>      the result type
+     * @return a new {@code Box} containing the combined value
+     * @throws NullPointerException if {@code other} or {@code combiner} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public @NonNull <B, C> Box<C> zip(final @NonNull Box<B> other,
+                                      final @NonNull BiFunction<? super A, ? super B, ? extends C> combiner) {
+        Objects.requireNonNull(other, nullValue("other"));
+        Objects.requireNonNull(combiner, nullValue("combiner"));
+
+        return new Box<>(() -> Objects.requireNonNull(combiner.apply(this.spool.get(), other.spool.get()), nullResultFrom("combiner")));
     }
 
     /**

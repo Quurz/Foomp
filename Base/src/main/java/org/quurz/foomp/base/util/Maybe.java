@@ -697,7 +697,7 @@ public sealed interface Maybe<A>
     /**
      * <div>
      *   <p>
-     *     Zips this {@code Maybe} with another using the given {@code zipper}.
+     *     Zips this {@code Maybe} with another using the given {@code combiner}.
      *     If either side is {@code None}, the result is {@code None}.
      *   </p>
      *   <p>
@@ -708,7 +708,7 @@ public sealed interface Maybe<A>
      *         when {@code zip} is invoked, based on the presence of values in both operands.
      *       </li>
      *       <li>
-     *         The {@code zipper} is <strong>not</strong> invoked until the resulting {@code Some}
+     *         The {@code combiner} is <strong>not</strong> invoked until the resulting {@code Some}
      *         is materialised (e.g., via {@link #get()} or {@link #unwind()}).
      *       </li>
      *     </ul>
@@ -716,7 +716,7 @@ public sealed interface Maybe<A>
      * </div>
      *
      * @param other   the other {@code Maybe}; must not be {@code null}
-     * @param zipper  the combining function; must not be {@code null} and must not return {@code null}
+     * @param combiner  the combining function; must not be {@code null} and must not return {@code null}
      * @param <B>     the other value type
      * @param <C>     the result type
      * @return a {@code Maybe} of the combined value
@@ -726,9 +726,9 @@ public sealed interface Maybe<A>
     @SuppressWarnings("unused")
     @NonNull
     default <B, C> Maybe<C> zip(final @NonNull Maybe<B> other,
-                                final @NonNull BiFunction<A, B, C> zipper) {
+                                final @NonNull BiFunction<? super A, ? super B, ? extends C> combiner) {
         Objects.requireNonNull(other, nullValue("other"));
-        Objects.requireNonNull(zipper, nullValue("zipper"));
+        Objects.requireNonNull(combiner, nullValue("combiner"));
 
         return switch (this) {
             case None<A> _$
@@ -738,7 +738,7 @@ public sealed interface Maybe<A>
                     case None<B> _$
                         -> none();
                     case Some<B> otherSome
-                        -> new Some<>(() -> Objects.requireNonNull(zipper.apply(some.get(), otherSome.get()), nullResultFrom("zipper")));
+                        -> new Some<>(() -> Objects.requireNonNull(combiner.apply(some.get(), otherSome.get()), nullResultFrom("combiner")));
                 };
         };
     }

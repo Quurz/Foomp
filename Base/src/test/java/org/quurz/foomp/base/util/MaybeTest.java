@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -574,6 +575,18 @@ class MaybeTest
                 assertThat(counter.count).isZero();
                 assertThat(zipped.get()).isEqualTo(SOME_STRING_VALUE + 3);
                 assertThat(counter.count).isEqualTo(1);
+            }
+
+            @Test
+            void zip_supports_wildcard_types() {
+                LOGGER.info("Maybe.zip should accept super-type consumers and sub-type producers");
+                final Maybe<Integer> intMaybe = some(42);
+                final Maybe<Double> doubleMaybe = some(3.14);
+
+                final BiFunction<Number, Number, CharSequence> combiner = (n1, n2) -> n1.intValue() + "+" + n2.doubleValue();
+                final Maybe<CharSequence> result = intMaybe.zip(doubleMaybe, combiner);
+
+                checkIsSomeWithValue(result, "42+3.14");
             }
         }
 

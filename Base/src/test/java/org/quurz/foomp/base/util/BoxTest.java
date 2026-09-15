@@ -12,6 +12,7 @@ import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.higher.Higher1;
 import org.slf4j.Logger;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -190,6 +191,65 @@ class BoxTest
             final var b = box(SOME_STRING_VALUE);
             assertThatThrownBy(() -> b.flatMap(s -> null))
                 .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("zip")
+    class Zip_ {
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void zip_with_null_arguments_throws() {
+            LOGGER.info("Box.zip with null arguments should throw NullPointerException");
+            final var b = box(SOME_STRING_VALUE);
+
+            assertThatThrownBy(() -> b.zip(null, (s1, s2) -> s1 + s2))
+                .isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> b.zip(box(42), null))
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void zip_is_lazy_and_combines_values() {
+            LOGGER.info("Box.zip should be lazy and evaluate combiner only when unpacked");
+            final var b1 = box(SOME_STRING_VALUE);
+            final var b2 = box(42);
+            final var counter = new Object() {
+                int count = 0;
+            };
+
+            final var zipped = b1.zip(b2, (s, i) -> {
+                counter.count++;
+                return s + ":" + i;
+            });
+
+            assertThat(counter.count).isZero();
+            assertThat(zipped.get()).isEqualTo(SOME_STRING_VALUE + ":42");
+            assertThat(counter.count).isEqualTo(1);
+        }
+
+        @Test
+        void zip_combiner_returning_null_throws_on_evaluation() {
+            LOGGER.info("Box.zip combiner returning null should throw NullPointerException upon evaluation");
+            final var b1 = box(SOME_STRING_VALUE);
+            final var b2 = box(42);
+            final var zipped = b1.zip(b2, (s, i) -> null);
+
+            assertThatThrownBy(zipped::get)
+                .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void zip_supports_wildcard_types() {
+            LOGGER.info("Box.zip should accept super-type consumers and sub-type producers");
+            final Box<Integer> intBox = box(42);
+            final Box<Double> doubleBox = box(3.14);
+
+            final BiFunction<Number, Number, CharSequence> combiner = (n1, n2) -> n1.intValue() + "+" + n2.doubleValue();
+            final Box<CharSequence> result = intBox.zip(doubleBox, combiner);
+
+            assertThat(result.get().toString()).isEqualTo("42+3.14");
         }
     }
 

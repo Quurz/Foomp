@@ -53,22 +53,85 @@ public final class Task<A>
             = spool;
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Functor map: transforms the value produced by this task while preserving laziness.
+     *     The resulting task will evaluate the original value and apply {@code transformation} when executed.
+     *   </p>
+     * </div>
+     *
+     * @param transformation mapping function; must not be {@code null} and must not return {@code null}
+     * @param <B>            the new value type
+     * @return a mapped {@code Task}
+     *
+     * @since 1.0.0
+     */
     @Override
     public @NonNull <B> Task<B> map(final @NonNull Function<? super A, ? extends B> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
         return new Task<>(() -> Objects.requireNonNull(transformation.apply(spool.get()), nullResultFrom("transformation")));
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Applicative applyTo: applies a function contained in another {@code Task} to this value.
+     *   </p>
+     * </div>
+     *
+     * @param transformation {@code Task} holding a function; must not be {@code null}
+     * @param <B>            the new value type
+     * @return a {@code Task} with the applied function
+     *
+     * @since 1.0.0
+     */
     @Override
-    public @NonNull <B> Task<B> applyTo(@NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
+    public @NonNull <B> Task<B> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return null;
+        final var narrowed
+            = narrow(transformation);
+        return new Task<>(() -> Objects.requireNonNull(narrowed.spool.get().apply(spool.get()), nullResultFrom("transformation")));
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Monadic flatMap: maps the value produced by this task to another {@code Task} and flattens the result.
+     *   </p>
+     * </div>
+     *
+     * @param transformation mapping to another {@code Task}; must not be {@code null}
+     * @param <B>            the new value type
+     * @return the bound {@code Task}
+     *
+     * @since 1.0.0
+     */
     @Override
-    public @NonNull <B> Task<B> flatMap(@NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+    public @NonNull <B> Task<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return null;
+        return new Task<>(() -> narrow(transformation.apply(this.spool.get())).spool.get());
+    }
+
+    <B> @NonNull Task<B> map(final @NonNull Function<? super A, ? extends B> transformation,
+                             final @NonNull Executor executor) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        Objects.requireNonNull(executor, nullValue("executor"));
+        return null;    // TODO
+    }
+
+    <B> @NonNull Task<B> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation,
+                                 final @NonNull Executor executor) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        Objects.requireNonNull(executor, nullValue("executor"));
+        return null;    // TODO
+    }
+
+    <B> @NonNull Task<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation,
+                                 final @NonNull Executor executor) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        Objects.requireNonNull(executor, nullValue("executor"));
+        return null;    // TODO
     }
 
     @UnwindingOperation
