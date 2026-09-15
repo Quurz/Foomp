@@ -10,22 +10,68 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Nothing.nothing;
 import static org.quurz.foomp.base.util.Result.failure;
+import static org.quurz.foomp.base.util.Result.success;
 
+/**
+ * <div>
+ *   <p>
+ *     A computation description that encapsulates an asynchronous evaluation yielding a {@link Result}.
+ *   </p>
+ *   <p>
+ *     {@code Task} implements {@link Monadic} and {@link Higher1}, allowing functional and monadic transformations
+ *     such as {@link #map(Function)}, {@link #applyTo(Higher1)}, and {@link #flatMap(Function)}.
+ *     Computations are evaluated lazily and only executed when {@link #runAsync(Executor)} or {@link #runAsync()} is invoked.
+ *   </p>
+ *   <p>
+ *     Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
+ *   </p>
+ * </div>
+ *
+ * @param <A> the type of the computed value
+ *
+ * @since 1.0.0
+ *
+ * @author Alexander Schell & Junie
+ */
 @SuppressWarnings("NonAsciiCharacters")
 public final class Task<A>
         implements Monadic<Task.µ, A>,
                    Higher1<Task.µ, A>{
 
+    /**
+     * <div>
+     *   <p>
+     *     Witness type for {@code Task} used in the higher‑kinded encoding.
+     *   </p>
+     * </div>
+     *
+     * @since 1.0.0
+     */
     public static final class µ implements WitnessType { private µ() {} }
 
+    /**
+     * <div>
+     *   <p>
+     *     Narrows a {@link Higher1} value to a concrete {@code Task}.
+     *   </p>
+     * </div>
+     *
+     * @param wide the higher‑kinded value; must not be {@code null}
+     * @param <A>  the computed value type
+     * @return a {@code Task} instance
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Task}
+     *
+     * @since 1.0.0
+     */
     @SuppressWarnings("unchecked")
     public static <A> Task<A> narrow(final @NonNull Higher1<? extends Task.µ, A> wide) {
         Objects.requireNonNull(wide, nullValue("wide"));
@@ -37,20 +83,45 @@ public final class Task<A>
 
     }
 
-    public static <A> Task<A> task(final A value) {
+    /**
+     * <div>
+     *   <p>
+     *     Creates a new {@code Task} that yields the specified value wrapped in a successful {@link Result}.
+     *   </p>
+     * </div>
+     *
+     * @param value the value to be wrapped; must not be {@code null}
+     * @param <A>   the type of the value
+     * @return a {@code Task} producing the given value
+     * @throws NullPointerException if {@code value} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static <A> Task<A> task(final @NonNull A value) {
         Objects.requireNonNull(value, nullValue("value"));
-        return new Task<>(() -> value);
+        return new Task<>(_ -> CompletableFuture.completedFuture(success(value)));
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Creates a new {@code Task} that yields a {@link Nothing} value wrapped in a successful {@link Result}.
+     *   </p>
+     * </div>
+     *
+     * @return a {@code Task} producing {@link Nothing#nothing}
+     *
+     * @since 1.0.0
+     */
     public static Task<Nothing> task() {
-        return new Task<>(() -> nothing);
+        return new Task<>(_ -> CompletableFuture.completedFuture(success(nothing)));
     }
 
-    private final Supplier<A> spool;
+    private final Executable<A> executable;
 
-    private Task(final Supplier<A> spool) {
-        this.spool
-            = spool;
+    private Task(final Executable<A> executable) {
+        this.executable
+            = executable;
     }
 
     /**
@@ -70,7 +141,20 @@ public final class Task<A>
     @Override
     public @NonNull <B> Task<B> map(final @NonNull Function<? super A, ? extends B> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return new Task<>(() -> Objects.requireNonNull(transformation.apply(spool.get()), nullResultFrom("transformation")));
+        return new Task<>((final @NonNull Executor executor) -> {
+            Objects.requireNonNull(executor, nullValue("executor"));
+            return this.executable.execute(executor).thenApply(result -> switch (result) {
+                case Result.Success<A> success -> {
+                    try {
+                        final var mapped = Objects.requireNonNull(transformation.apply(success.getValue()), nullResultFrom("transformation"));
+                        yield success(mapped);
+                    } catch (final Exception exception) {
+                        yield Result.failure(exception);
+                    }
+                }
+                case Result.Failure<A> failure -> Result.failure(failure.getException());
+            });
+        });
     }
 
     /**
@@ -91,7 +175,27 @@ public final class Task<A>
         Objects.requireNonNull(transformation, nullValue("transformation"));
         final var narrowed
             = narrow(transformation);
-        return new Task<>(() -> Objects.requireNonNull(narrowed.spool.get().apply(spool.get()), nullResultFrom("transformation")));
+        return new Task<>((final @NonNull Executor executor) -> {
+            Objects.requireNonNull(executor, nullValue("executor"));
+            final var valueFuture = this.executable.execute(executor);
+            final var functionFuture = narrowed.executable.execute(executor);
+
+            return valueFuture.thenCombine(functionFuture, (resVal, resFn) -> switch (resVal) {
+                case Result.Failure<A> failVal -> Result.failure(failVal.getException());
+                case Result.Success<A> succVal -> switch (resFn) {
+                    case Result.Failure<? extends Function<? super A, ? extends B>> failFn -> Result.failure(failFn.getException());
+                    case Result.Success<? extends Function<? super A, ? extends B>> succFn -> {
+                        try {
+                            final var fn = succFn.getValue();
+                            final var mapped = Objects.requireNonNull(fn.apply(succVal.getValue()), nullResultFrom("transformation"));
+                            yield success(mapped);
+                        } catch (final Exception exception) {
+                            yield Result.failure(exception);
+                        }
+                    }
+                };
+            });
+        });
     }
 
     /**
@@ -110,49 +214,123 @@ public final class Task<A>
     @Override
     public @NonNull <B> Task<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        return new Task<>(() -> narrow(transformation.apply(this.spool.get())).spool.get());
+        return new Task<B>((final @NonNull Executor executor) -> {
+            Objects.requireNonNull(executor, nullValue("executor"));
+            return this.executable.execute(executor).thenCompose(result -> switch (result) {
+                case Result.Success<A> success -> {
+                    try {
+                        final var nextHigher = Objects.requireNonNull(transformation.apply(success.getValue()), nullResultFrom("transformation"));
+                        final var nextTask = narrow(nextHigher);
+                        yield nextTask.executable.execute(executor);
+                    } catch (final Exception exception) {
+                        yield CompletableFuture.completedFuture(Result.<B>failure(exception));
+                    }
+                }
+                case Result.Failure<A> failure -> CompletableFuture.completedFuture(Result.<B>failure(failure.getException()));
+            });
+        });
     }
 
-    <B> @NonNull Task<B> map(final @NonNull Function<? super A, ? extends B> transformation,
-                             final @NonNull Executor executor) {
-        Objects.requireNonNull(transformation, nullValue("transformation"));
-        Objects.requireNonNull(executor, nullValue("executor"));
-        return null;    // TODO
+    /**
+     * <div>
+     *     <p>
+     *         Combines this {@code Task} with another {@code Task} using the given {@code combiner} function.
+     *     </p>
+     *     <p>
+     *         Both tasks are executed asynchronously on the supplied {@link Executor} when run, and their
+     *         results are combined once both computations have completed.
+     *     </p>
+     * </div>
+     *
+     * @param other    the other {@code Task}; must not be {@code null}
+     * @param combiner the combining function; must not be {@code null} and must not return {@code null}
+     * @param <B>      the other value type
+     * @param <C>      the result type
+     * @return a new {@code Task} producing the combined result
+     * @throws NullPointerException if {@code other} or {@code combiner} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public @NonNull <B, C> Task<C> zip(final @NonNull Task<B> other,
+                                       final @NonNull BiFunction<? super A, ? super B, ? extends C> combiner) {
+        Objects.requireNonNull(other, nullValue("other"));
+        Objects.requireNonNull(combiner, nullValue("combiner"));
+        return new Task<>((final @NonNull Executor executor) -> {
+            Objects.requireNonNull(executor, nullValue("executor"));
+            final var futureA = this.executable.execute(executor);
+            final var futureB = other.executable.execute(executor);
+
+            return futureA.thenCombine(futureB, (resVal, resOther) -> switch (resVal) {
+                case Result.Failure<A> failVal -> Result.failure(failVal.getException());
+                case Result.Success<A> succVal -> switch (resOther) {
+                    case Result.Failure<B> failOther -> Result.failure(failOther.getException());
+                    case Result.Success<B> succOther -> {
+                        try {
+                            final var combined = Objects.requireNonNull(combiner.apply(succVal.getValue(), succOther.getValue()), nullResultFrom("combiner"));
+                            yield success(combined);
+                        } catch (final Exception exception) {
+                            yield Result.failure(exception);
+                        }
+                    }
+                };
+            });
+        });
     }
 
-    <B> @NonNull Task<B> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation,
-                                 final @NonNull Executor executor) {
-        Objects.requireNonNull(transformation, nullValue("transformation"));
-        Objects.requireNonNull(executor, nullValue("executor"));
-        return null;    // TODO
-    }
-
-    <B> @NonNull Task<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation,
-                                 final @NonNull Executor executor) {
-        Objects.requireNonNull(transformation, nullValue("transformation"));
-        Objects.requireNonNull(executor, nullValue("executor"));
-        return null;    // TODO
-    }
-
+    /**
+     * <div>
+     *   <p>
+     *     Asynchronously executes this task using the specified executor.
+     *   </p>
+     *   <p>
+     *     Any exception thrown during the execution is captured and wrapped into a failed {@link Result}.
+     *     Errors (instances of {@link Error}) are rethrown.
+     *   </p>
+     * </div>
+     *
+     * @param executor the executor to run this task on; must not be {@code null}
+     * @return a {@link CompletableFuture} completing with a {@link Result} holding the computed value or the occurred exception
+     * @throws NullPointerException if {@code executor} is {@code null}
+     *
+     * @since 1.0.0
+     */
     @UnwindingOperation
     public CompletableFuture<Result<A>> runAsync(final @NonNull Executor executor) {
         Objects.requireNonNull(executor, nullValue("executor"));
-        return CompletableFuture.supplyAsync(spool, executor)
-            .thenApply(Result::success)
-            .exceptionally(throwable -> {
-                final var cause = (throwable.getCause() != null && throwable instanceof java.util.concurrent.CompletionException)
-                        ? throwable.getCause()
-                        : throwable;
-                if (cause instanceof Error error) {
-                    throw error;
-                } else if (cause instanceof Exception exception) {
-                    return failure(exception);
-                } else {
-                    return failure(new RuntimeException(cause));
-                }
-            });
+        try {
+            return this.executable.execute(executor)
+                .exceptionally(throwable -> {
+                    final var cause = (throwable.getCause() != null && throwable instanceof java.util.concurrent.CompletionException)
+                            ? throwable.getCause()
+                            : throwable;
+                    if (cause instanceof Error error) {
+                        throw error;
+                    } else if (cause instanceof Exception exception) {
+                        return failure(exception);
+                    } else {
+                        return failure(new RuntimeException(cause));
+                    }
+                });
+        } catch (final Exception exception) {
+            return CompletableFuture.completedFuture(failure(exception));
+        }
     }
 
+    /**
+     * <div>
+     *   <p>
+     *     Asynchronously executes this task using the default common pool ({@link ForkJoinPool#commonPool()}).
+     *   </p>
+     *   <p>
+     *     Any exception thrown during the execution is captured and wrapped into a failed {@link Result}.
+     *     Errors (instances of {@link Error}) are rethrown.
+     *   </p>
+     * </div>
+     *
+     * @return a {@link CompletableFuture} completing with a {@link Result} holding the computed value or the occurred exception
+     *
+     * @since 1.0.0
+     */
     @UnwindingOperation
     public CompletableFuture<Result<A>> runAsync() {
         return runAsync(ForkJoinPool.commonPool());
