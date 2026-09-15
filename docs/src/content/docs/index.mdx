@@ -1,0 +1,40 @@
+---
+title: Welcome to Foomp
+description: Functional Object-Oriented Monadic Programming library for modern Java.
+template: splash
+hero:
+  tagline: Powerful functional abstractions, monadic containers, and higher-kinded types for modern Java.
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Getting Started & Examples
+      link: /guides/api-base-util-examples/
+      icon: right-arrow
+    - text: Architecture & Concepts
+      link: /reference/api-base-types-overview/
+      icon: open-book
+      variant: minimal
+    - text: API Reference (JavaDoc)
+      link: /api/base/
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Explore Foomp
+
+<CardGrid stagger>
+	<Card title="Functional Containers & Utilities" icon="puzzle">
+		Rich monadic containers including `Maybe`, `Either`, `Result`, `Attempt`, `Task`, `Eval`, and persistent data structures.
+	</Card>
+	<Card title="Higher-Kinded Types (HKT)" icon="seti:graphql">
+		A lightweight, type-safe encoding for higher-kinded types in standard Java using witness types (`Higher1`–`Higher4`).
+	</Card>
+	<Card title="Advanced Functions & Composition" icon="forward-slash">
+		Enhanced functional interfaces (`Fun`, `Pred`, `Provider`, `Receiver`) supporting async execution, memoization, and fluent logic gates.
+	</Card>
+	<Card title="Asynchronous Task Management" icon="rocket">
+		Lazy, composable asynchronous computations via `Task` with automatic exception capture in `Result` and monadic chaining.
+	</Card>
+</CardGrid>

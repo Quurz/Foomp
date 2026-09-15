@@ -49,9 +49,9 @@ tasks.register<Copy>("assembleDocsForStarlight") {
     group = "documentation"
     description = "Sammelt Javadocs aller Module für die Astro Starlight Seite."
 
-    // Wir gehen davon aus, dass die Astro-Seite im Ordner 'docs-site' liegt.
+    // Wir gehen davon aus, dass die Astro-Seite im Ordner 'docs' liegt.
     // Falls der Ordner anders heißt, passen wir das an.
-    val targetDir = project.rootProject.file("docs-site/public/api")
+    val targetDir = project.rootProject.file("docs/public/api")
     
     // In buildlogic.java-conventions.gradle.kts bezieht sich 'project' auf das Modul,
     // das dieses Plugin nutzt. Wir müssen also über rootProject auf alle Submodule zugreifen.
@@ -199,6 +199,18 @@ tasks.withType<Javadoc>().configureEach {
     // Den UMLDoclet-Pfad und die Klasse setzen
     docletOptions.docletpath = umlDoclet.files.toList()
     docletOptions.doclet = "nl.talsmasoftware.umldoclet.UMLDoclet"
+
+    // Pan & Zoom Script und Stylesheet für UML-Diagramme einbinden
+    val panZoomJs = project.rootProject.file("gradle/javadoc/uml-pan-zoom.js")
+    val panZoomCss = project.rootProject.file("gradle/javadoc/uml-pan-zoom.css")
+    if (panZoomJs.exists()) {
+        inputs.file(panZoomJs)
+        docletOptions.addFileOption("-add-script", panZoomJs)
+    }
+    if (panZoomCss.exists()) {
+        inputs.file(panZoomCss)
+        docletOptions.addFileOption("-add-stylesheet", panZoomCss)
+    }
 
     // Optional: Statische Ressourcen (Bilder, CSS) aus src/main/javadoc kopieren
     val javadocResources = project.file("src/main/javadoc")

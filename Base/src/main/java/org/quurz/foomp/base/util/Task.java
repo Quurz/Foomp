@@ -213,7 +213,7 @@ public final class Task<A>
      *
      * @author Alexander Schell & Junie
      */
-    public static <A> Task<A> taskOf(final @NonNull Executable<A> executable) {
+    public static <A> Task<A> taskFrom(final @NonNull Executable<A> executable) {
         Objects.requireNonNull(executable, nullValue("executable"));
 
         return new Task<>(executable);

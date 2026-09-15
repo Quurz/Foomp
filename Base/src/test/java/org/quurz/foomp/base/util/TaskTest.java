@@ -17,7 +17,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.quurz.foomp.base.util.Task.narrow;
 import static org.quurz.foomp.base.util.Task.task;
 import static org.quurz.foomp.base.util.Task.taskFrom;
-import static org.quurz.foomp.base.util.Task.taskOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @SuppressWarnings("NonAsciiCharacters")
@@ -130,16 +129,16 @@ class TaskTest {
 
         @SuppressWarnings("DataFlowIssue")
         @Test
-        void taskOf_with_null_throws_NullPointerException() {
-            LOGGER.info("Task.taskOf(null) should throw NullPointerException");
-            assertThatThrownBy(() -> taskOf(null))
+        void taskFrom_executable_with_null_throws_NullPointerException() {
+            LOGGER.info("Task.taskFrom((Executable) null) should throw NullPointerException");
+            assertThatThrownBy(() -> Task.taskFrom((Executable<String>) null))
                 .isInstanceOf(NullPointerException.class);
         }
 
         @Test
-        void taskOf_wraps_executable() throws ExecutionException, InterruptedException {
-            LOGGER.info("Task.taskOf(executable) should execute wrapped executable");
-            final var t = taskOf(_ -> java.util.concurrent.CompletableFuture.completedFuture(Result.success("from-executable")));
+        void taskFrom_executable_wraps_executable() throws ExecutionException, InterruptedException {
+            LOGGER.info("Task.taskFrom(executable) should execute wrapped executable");
+            final var t = Task.taskFrom(_ -> java.util.concurrent.CompletableFuture.completedFuture(Result.success("from-executable")));
             assertThat(t).isNotNull();
             final var result = t.runAsync().get();
             assertThat(result.isSuccess()).isTrue();

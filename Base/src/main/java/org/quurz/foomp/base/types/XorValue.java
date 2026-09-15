@@ -3,6 +3,11 @@ package org.quurz.foomp.base.types;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.StringJoiner;
+
+import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
  * <div>
@@ -26,6 +31,114 @@ import java.util.NoSuchElementException;
  */
 public interface XorValue<L, R>
         extends Value<R> {
+
+    /**
+     * <div>
+     *     <p>
+     *         Creates a new {@code XorValue} containing a left value.
+     *     </p>
+     * </div>
+     *
+     * @param <L>  the type of the left value
+     * @param <R>  the type of the right value
+     * @param left the left value; must not be {@code null}
+     * @return a {@code XorValue} holding the left value
+     * @throws NullPointerException if {@code left} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    static <L, R> XorValue<L, R> left(final @NonNull L left) {
+        Objects.requireNonNull(left, nullValue("left"));
+        return new XorValue<>() {
+            @Override
+            public boolean isRight() {
+                return false;
+            }
+
+            @Override
+            public @NonNull L getLeft() {
+                return left;
+            }
+
+            @Override
+            public @NonNull R getRight() throws NoSuchElementException {
+                throw new NoSuchElementException(noValuePresent());
+            }
+
+            @Override
+            public boolean equals(final Object o) {
+                if (this == o) return true;
+                if (!(o instanceof XorValue<?, ?> that)) return false;
+                return that.isLeft() && Objects.equals(left, that.getLeft());
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(false, left);
+            }
+
+            @Override
+            public String toString() {
+                return new StringJoiner(", ", "Left[", "]")
+                        .add("value=" + left)
+                        .toString();
+            }
+        };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Creates a new {@code XorValue} containing a right value.
+     *     </p>
+     * </div>
+     *
+     * @param <L>   the type of the left value
+     * @param <R>   the type of the right value
+     * @param right the right value; must not be {@code null}
+     * @return a {@code XorValue} holding the right value
+     * @throws NullPointerException if {@code right} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    static <L, R> XorValue<L, R> right(final @NonNull R right) {
+        Objects.requireNonNull(right, nullValue("right"));
+        return new XorValue<>() {
+            @Override
+            public boolean isRight() {
+                return true;
+            }
+
+            @Override
+            public @NonNull L getLeft() throws NoSuchElementException {
+                throw new NoSuchElementException(noValuePresent());
+            }
+
+            @Override
+            public @NonNull R getRight() {
+                return right;
+            }
+
+            @Override
+            public boolean equals(final Object o) {
+                if (this == o) return true;
+                if (!(o instanceof XorValue<?, ?> that)) return false;
+                return that.isRight() && Objects.equals(right, that.getRight());
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(true, right);
+            }
+
+            @Override
+            public String toString() {
+                return new StringJoiner(", ", "Right[", "]")
+                        .add("value=" + right)
+                        .toString();
+            }
+        };
+    }
 
     /**
      * <div>

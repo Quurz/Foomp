@@ -120,38 +120,11 @@ public interface Applicable<X, Y> {
      */
     default Fun<X, ? extends XorValue<Exception, Y>> safe() {
         return x -> {
+            Objects.requireNonNull(x, nullValue("x"));
             try {
-                final var result
-                    = this.apply(x);
-                return new XorValue<>() {
-                    @Override
-                    public boolean isRight() {
-                        return true;
-                    }
-                    @Override
-                    public @NonNull Exception getLeft() throws NoSuchElementException {
-                        throw new NoSuchElementException(noValuePresent());
-                    }
-                    @Override
-                    public @NonNull Y getRight() {
-                        return result;
-                    }
-                };
+                return XorValue.right(Objects.requireNonNull(this.apply(x), nullResult()));
             } catch (final Exception exception) {
-                return new XorValue<>() {
-                    @Override
-                    public boolean isRight() {
-                        return false;
-                    }
-                    @Override
-                    public @NonNull Exception getLeft() {
-                        return exception;
-                    }
-                    @Override
-                    public @NonNull Y getRight() throws NoSuchElementException {
-                        throw new NoSuchElementException(noValuePresent());
-                    }
-                };
+                return XorValue.left(exception);
             }
         };
     }
