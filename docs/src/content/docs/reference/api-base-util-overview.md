@@ -95,6 +95,7 @@ Static helper classes for common operations.
 ### Util
 The primary entry point for contract enforcement and validation.
 - **require...**: Methods (like `requireSubSet`, `requireNonEmpty`, `requireConcreteType`, `requireInterfaceType`) that throw exceptions with consistent messaging if conditions are not met.
+- **requireNonNullElementsInCollection / requireNonNullElementsInArray**: Ensures collections or arrays contain no null elements, with optional downstream consumption.
 - **File System Utilities**: Methods (like `requireRegularFile`, `requireDirectory`, `requireReadable`, `requireWriteable`) to validate paths, file types, and permissions.
 - **requireNonNullResult**: Wrappers to ensure functions always return non-null values.
 

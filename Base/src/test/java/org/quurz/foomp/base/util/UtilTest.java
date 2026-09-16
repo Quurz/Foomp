@@ -63,7 +63,7 @@ class UtilTest {
     }
 
     @Nested
-    @DisplayName("requireNonNullElements(Collection, Fun)")
+    @DisplayName("requireNonNullElementsInCollection(Collection, Fun)")
     class RequireNonNullElementsCollection {
 
         @Test
@@ -71,7 +71,7 @@ class UtilTest {
         void returnsSameInstance() throws Exception {
             final var list = new ArrayList<String>();
             list.add("a");
-            assertThat(Util.requireNonNullElements(list, i -> new Exception("Fail")))
+            assertThat(Util.requireNonNullElementsInCollection(list, i -> new Exception("Fail")))
                     .isSameAs(list);
         }
 
@@ -81,21 +81,33 @@ class UtilTest {
             final var list = new ArrayList<String>();
             list.add("a");
             list.add(null);
-            assertThatThrownBy(() -> Util.requireNonNullElements(list, i -> new Exception("Null at " + i)))
+            assertThatThrownBy(() -> Util.requireNonNullElementsInCollection(list, i -> new Exception("Null at " + i)))
                     .isInstanceOf(Exception.class)
                     .hasMessage("Null at 1");
+        }
+
+        @Test
+        @DisplayName("executes andThen receiver for all elements")
+        void executesAndThenReceiver() throws Exception {
+            final var list = new ArrayList<String>();
+            list.add("a");
+            list.add("b");
+            final var collected = new ArrayList<String>();
+            assertThat(Util.requireNonNullElementsInCollection(list, collected::add, i -> new Exception("Fail")))
+                    .isSameAs(list);
+            assertThat(collected).containsExactly("a", "b");
         }
     }
 
     @Nested
-    @DisplayName("requireNonNullElements(Array, Fun)")
+    @DisplayName("requireNonNullElementsInArray(Array, Fun)")
     class RequireNonNullElementsArray {
 
         @Test
         @DisplayName("returns same instance if all elements are non-null")
         void returnsSameInstance() throws Exception {
             final String[] array = {"a", "b"};
-            assertThat(Util.requireNonNullElements(array, i -> new Exception("Fail")))
+            assertThat(Util.requireNonNullElementsInArray(array, i -> new Exception("Fail")))
                     .isSameAs(array);
         }
 
@@ -103,9 +115,18 @@ class UtilTest {
         @DisplayName("throws custom exception with index for null element")
         void throwsOnNullElement() {
             final String[] array = {"a", null};
-            assertThatThrownBy(() -> Util.requireNonNullElements(array, i -> new Exception("Null at " + i)))
+            assertThatThrownBy(() -> Util.requireNonNullElementsInArray(array, i -> new Exception("Null at " + i)))
                     .isInstanceOf(Exception.class)
                     .hasMessage("Null at 1");
+        }
+
+        @Test
+        @DisplayName("executes andThen receiver for all array elements")
+        void executesAndThenReceiver() throws Exception {
+            final String[] array = {"a", "b"};
+            final var collected = new ArrayList<String>();
+            Util.requireNonNullElementsInArray(array, collected::add, i -> new Exception("Fail"));
+            assertThat(collected).containsExactly("a", "b");
         }
     }
 

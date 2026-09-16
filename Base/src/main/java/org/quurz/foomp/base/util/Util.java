@@ -22,6 +22,8 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
+// TODO: Namen der Methoden überarbeiten. Gibt Probleme bei statischem Import.
+
 /**
  * <div>
  *     <p>
@@ -143,8 +145,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElements(final @NonNull C collection,
-                                                                                             final @NonNull Fun<Integer, E> exceptionConstructor)
+    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElementsInCollection(final @NonNull C collection,
+                                                                                                         final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
@@ -154,6 +156,52 @@ public final class Util {
             if (element == null) {
                 throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
             }
+            index++;
+        }
+        return collection;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that all elements in the given collection are non-{@code null} and passes each valid element
+     *         to the provided {@code andThen} receiver during iteration.
+     *     </p>
+     *     <p>
+     *         Returns the same collection instance if all elements are non-{@code null};
+     *         otherwise throws an exception created by {@code exceptionConstructor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param collection           the collection to check; must not be {@code null}
+     * @param andThen              receiver to process each non-{@code null} element; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <A>                  element type
+     * @param <C>                  concrete collection type
+     * @param <E>                  the exception type to be thrown
+     * @return the same collection instance (for fluent usage)
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if a {@code null} element is found
+     *
+     * @since 1.0.0
+     */
+    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElementsInCollection(final @NonNull C collection,
+                                                                                                         final @NonNull Receiver<A> andThen,
+                                                                                                         final @NonNull Fun<Integer, E> exceptionConstructor)
+            throws E {
+        Objects.requireNonNull(collection, nullValue("collection"));
+        Objects.requireNonNull(andThen, nullValue("andThen"));
+        Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
+
+        int index = 0;
+        for (final var element : collection) {
+            if (element == null) {
+                throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
+            }
+            andThen.accept(element);
             index++;
         }
         return collection;
@@ -183,8 +231,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends Exception> A[] requireNonNullElements(final @NonNull A[] array,
-                                                                      final @NonNull Fun<Integer, E> exceptionConstructor)
+    public static <A, E extends Exception> A[] requireNonNullElementsInArray(final @NonNull A[] array,
+                                                                             final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(array, nullValue("array"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
@@ -197,9 +245,30 @@ public final class Util {
         return array;
     }
 
-    public static <A, E extends Exception> void requireNonNullElements(final @NonNull A[] array,
-                                                                       final @NonNull Receiver<A> andThen,
-                                                                       final @NonNull Fun<Integer, E> exceptionConstructor)
+    /**
+     * <div>
+     *     <p>
+     *         Requires that all elements in the given array are non-{@code null} and passes each valid element
+     *         to the provided {@code andThen} receiver during iteration.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param array                the array to check; must not be {@code null}
+     * @param andThen              receiver to process each non-{@code null} element; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <A>                  element type
+     * @param <E>                  the exception type to be thrown
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if a {@code null} element is found
+     *
+     * @since 1.0.0
+     */
+    public static <A, E extends Exception> void requireNonNullElementsInArray(final @NonNull A[] array,
+                                                                              final @NonNull Receiver<A> andThen,
+                                                                              final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(array, nullValue("array"));
         Objects.requireNonNull(andThen, nullValue("andThen"));

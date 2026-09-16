@@ -126,6 +126,11 @@ import java.util.List;
 java.util.List<String> names = java.util.Arrays.asList("Junie");
 Util.requireNonEmpty(names, () -> new RuntimeException("List is empty"));
 
+// Enforce non-null elements in collections and arrays
+Util.requireNonNullElementsInCollection(names, idx -> new NullPointerException("Null at index " + idx));
+String[] items = new String[]{"a", "b"};
+Util.requireNonNullElementsInArray(items, idx -> new NullPointerException("Null at index " + idx));
+
 // Validate collections
 java.util.Set<String> tags = new java.util.HashSet<>(java.util.Arrays.asList("java", "functional"));
 java.util.Set<String> allowed = new java.util.HashSet<>(java.util.Arrays.asList("java", "functional", "foomp"));
