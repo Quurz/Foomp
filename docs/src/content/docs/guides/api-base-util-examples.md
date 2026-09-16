@@ -386,6 +386,12 @@ RedBlackTree<String> rbTree = redBlackTreeOf("apple", "banana", "cherry");
 // Insertion
 RedBlackTree<String> largerRB = rbTree.insert("date");
 
+// Deletion
+RedBlackTree<String> smallerRB = largerRB.remove("banana");
+
+// Access child trees
+java.util.List<RedBlackTree<String>> children = smallerRB.children(); // [left, right]
+
 // Search with color-aware structure
 System.out.println(largerRB.echo()); // Prints a tree structure with B/R markers
 

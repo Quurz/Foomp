@@ -126,11 +126,40 @@ public class RedBlackTreeTest {
     void remove_works() {
         LOGGER.info("remove should remove elements");
         RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(10, 20, 30);
-        Tree<Integer> removed = tree.remove(20);
+        RedBlackTree<Integer> removed = tree.remove(20);
         
         assertTrue(removed.contains(10));
         assertFalse(removed.contains(20));
         assertTrue(removed.contains(30));
+        assertTrue(tree.contains(20)); // Immutability
+    }
+
+    @Test
+    void remove_from_empty_tree_returns_empty_tree() {
+        LOGGER.info("remove from empty tree should return empty tree");
+        RedBlackTree<Integer> empty = RedBlackTree.redBlackTree();
+        RedBlackTree<Integer> removed = empty.remove(10);
+        assertFalse(removed.isNode());
+        assertFalse(removed.elementSafe().isPresent());
+    }
+
+    @Test
+    void remove_non_existing_element_returns_equivalent_tree() {
+        LOGGER.info("remove non existing element should return tree with same elements");
+        RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(10, 20, 30);
+        RedBlackTree<Integer> removed = tree.remove(99);
+        assertTrue(removed.contains(10));
+        assertTrue(removed.contains(20));
+        assertTrue(removed.contains(30));
+    }
+
+    @Test
+    void remove_all_elements_results_in_empty_tree() {
+        LOGGER.info("removing all elements one by one results in an empty tree");
+        RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(10);
+        RedBlackTree<Integer> empty = tree.remove(10);
+        assertFalse(empty.isNode());
+        assertFalse(empty.elementSafe().isPresent());
     }
 
     @Test
@@ -181,11 +210,26 @@ public class RedBlackTreeTest {
         assertEquals(1, empty.height()); // Leaf height is 1
         assertFalse(empty.contains(10));
         assertFalse(empty.elementSafe().isPresent());
+        assertTrue(empty.children().isEmpty());
         
         RedBlackTree<Integer> one = empty.insert(10);
         assertTrue(one.isNode());
         assertEquals(10, one.element());
         assertTrue(one.isBlack()); // Root must be black
+        List<RedBlackTree<Integer>> children = one.children();
+        assertEquals(2, children.size());
+        assertFalse(children.get(0).isNode());
+        assertFalse(children.get(1).isNode());
+    }
+
+    @Test
+    void children_returns_left_and_right_subtrees() {
+        LOGGER.info("children should return left and right subtrees for a node");
+        RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(10, 20, 30);
+        List<RedBlackTree<Integer>> children = tree.children();
+        assertEquals(2, children.size());
+        assertEquals(tree.left(), children.get(0));
+        assertEquals(tree.right(), children.get(1));
     }
 
     @Test
@@ -213,6 +257,7 @@ public class RedBlackTreeTest {
         LOGGER.info("null inputs should throw NPE");
         RedBlackTree<Integer> tree = RedBlackTree.redBlackTree();
         assertThrows(NullPointerException.class, () -> tree.insert(null));
+        assertThrows(NullPointerException.class, () -> tree.remove(null));
         assertThrows(NullPointerException.class, () -> tree.contains(null));
         assertThrows(NullPointerException.class, () -> tree.search(null));
         assertThrows(NullPointerException.class, () -> tree.searchSafe(null));

@@ -740,12 +740,12 @@ public abstract sealed class RedBlackTree<A>
      * </div>
      *
      * @param element the element to search for
-     * @return a {@link Value} containing the element if found, or empty
+     * @return a {@link Maybe} containing the element if found, or empty
      *
      * @since 1.0.0
      */
     @Override
-    public @NonNull Value<A> searchSafe(final @NonNull A element) {
+    public @NonNull Maybe<A> searchSafe(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
         RedBlackTree<A> current = this;
         while (current instanceof Node<A> node) {
@@ -761,33 +761,36 @@ public abstract sealed class RedBlackTree<A>
     /**
      * <div>
      *     <p>
-     *         Returns the children of this node (always empty for BinaryTree implementation).
+     *         Returns the children of this tree node.
      *     </p>
      * </div>
      *
-     * @return an empty list
+     * @return a list of child trees
      *
      * @since 1.0.0
      */
     @Override
-    public @NonNull List<? extends Tree<A>> children() {
-        return List.of();
+    public @NonNull List<RedBlackTree<A>> children() {
+        return switch (this) {
+            case RedBlackTree.Node<A> node -> List.of(node.left, node.right);
+            case RedBlackTree.Leaf<A> _ -> List.of();
+        };
     }
 
     /**
      * <div>
      *     <p>
-     *         Removes an element from the tree (currently implemented via rebuild).
+     *         Removes an element from the tree and returns the resulting balanced tree.
      *     </p>
      * </div>
      *
-     * @param element the element to remove
-     * @return the new root of the tree
+     * @param element the element to remove; must not be {@code null}
+     * @return the new tree with the element removed
      *
      * @since 1.0.0
      */
     @Override
-    public @NonNull Tree<A> remove(final @NonNull A element) {
+    public @NonNull RedBlackTree<A> remove(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
         // Red-Black Tree removal is complex and often implemented via a simpler approach in functional trees:
         // Convert to stream/collection, filter out the element, and rebuild the tree.
