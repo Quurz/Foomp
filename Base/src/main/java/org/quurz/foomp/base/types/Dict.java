@@ -2,7 +2,9 @@ package org.quurz.foomp.base.types;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
 /**
  * <div>
@@ -108,5 +110,21 @@ public interface Dict<K, V> {
      */
     @NonNull Dict<K, V> remove(final @NonNull K key)
             throws NoSuchElementException;
+
+    /**
+     * <div>
+     *     <p>
+     *         Collects all key–value pairs of this dictionary into a newly supplied mutable {@link Map}.
+     *     </p>
+     * </div>
+     *
+     * @param init a supplier providing the target map instance; must not be {@code null} and must not supply {@code null}
+     * @param <M>  the map type
+     * @return the populated map
+     * @throws NullPointerException if {@code init} is {@code null} or supplies {@code null}
+     *
+     * @since 1.0.0
+     */
+    @NonNull <M extends Map<K, V>> M toMap(final @NonNull Supplier<M> init);
 
 }

@@ -278,6 +278,45 @@ public class RedBlackTreeTest {
     }
 
     @Test
+    void toCollection_works_in_order() {
+        LOGGER.info("toCollection should collect all elements in in-order sequence");
+        RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(50, 20, 80, 10, 30, 70, 90);
+        List<Integer> list = tree.toCollection(java.util.ArrayList::new);
+        assertEquals(List.of(10, 20, 30, 50, 70, 80, 90), list);
+    }
+
+    @Test
+    void toCollection_empty_tree_returns_empty_collection() {
+        LOGGER.info("toCollection on empty tree should return empty collection");
+        RedBlackTree<String> tree = RedBlackTree.redBlackTree();
+        List<String> list = tree.toCollection(java.util.ArrayList::new);
+        assertTrue(list.isEmpty());
+    }
+
+    @Test
+    void toCollection_null_checks() {
+        LOGGER.info("toCollection should throw NullPointerException on null init or null supplied instance");
+        RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(1, 2, 3);
+        assertThrows(NullPointerException.class, () -> tree.toCollection(null));
+        assertThrows(NullPointerException.class, () -> tree.toCollection(() -> null));
+    }
+
+    @Test
+    void toCollection_handles_large_tree_iteratively() {
+        LOGGER.info("toCollection should handle large tree without stack overflow");
+        RedBlackTree<Integer> tree = RedBlackTree.redBlackTree();
+        int count = 5000;
+        for (int i = 0; i < count; i++) {
+            tree = tree.insert(i);
+        }
+        List<Integer> list = tree.toCollection(java.util.ArrayList::new);
+        assertEquals(count, list.size());
+        for (int i = 0; i < count; i++) {
+            assertEquals(i, list.get(i));
+        }
+    }
+
+    @Test
     void toString_works() {
         LOGGER.info("toString should return a structural representation");
         RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(10, 20);

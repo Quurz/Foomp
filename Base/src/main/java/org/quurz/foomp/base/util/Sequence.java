@@ -59,7 +59,8 @@ import static org.quurz.foomp.base.util.Util.requireNonNullElementsInCollection;
  *
  * @since 1.0.0
  *
- * @author Alexander Schell & Junie
+ * @author Alexander Schell
+ * @author Junie
  */
 @SuppressWarnings("NonAsciiCharacters")
 public class Sequence<A>

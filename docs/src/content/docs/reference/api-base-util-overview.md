@@ -59,6 +59,9 @@ A specialized variant of tuples designed for structured data. While similar to t
 ### Sequence
 `Sequence<A>` is an immutable, persistent sequence data structure built with segmented doubly linked nodes. It provides lazy transformation composition (`map`, `applyTo`), structural sharing for $O(1)$ operations (`cons`), monadic flat-mapping (`flatMap`), left/right folding (`foldLeft`, `foldRight`), and safe deconstruction (`decons`, `headSafe`).
 
+### Dictionary
+`Dictionary<K, V>` is an immutable, persistent, and lazy dictionary (associative key–value map) backed by a balanced `RedBlackTree` and immutable collision chains. Keys are hashed and stored in $O(\log n)$ balanced tree nodes, with lazy value evaluation (`map`).
+
 ### AVLTree
 A self-balancing binary search tree. It ensures $O(\log n)$ time complexity for search, insertion, and deletion by maintaining a height balance between subtrees. It is immutable and supports merging with other binary trees.
 
@@ -116,7 +119,7 @@ A functional interface extending `Fun<Executor, CompletableFuture<Result<A>>>` t
 | **Sum Types / Monads** | `Maybe`, `Either`, `Result`, `Eval`, `Attempt`, `Box`, `Task`, `Stateful`, `Continuation` |
 | **Recursion** | `Trampoline` |
 | **Fixed Containers** | `Tuple2`, `Tuple3`, `Tuple4`, `Record2`, `Record3`, `Record4`, `Pair` (Mutable) |
-| **Data Structures** | `Sequence`, `AVLTree`, `RedBlackTree` |
+| **Data Structures** | `Sequence`, `Dictionary`, `AVLTree`, `RedBlackTree` |
 | **Logic & Validation** | `DecisionTree`, `Constraint` |
 | **Stream Processing** | `Bucket` |
 | **System Types** | `Nothing` |

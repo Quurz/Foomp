@@ -476,6 +476,45 @@ numbers.iterateOverAllElementsFromLeft(System.out::print);   // 123
 numbers.iterateOverAllElementsFromRight(System.out::print);  // 321
 ```
 
+## Dictionary (Immutable Persistent Map)
+
+`Dictionary<K, V>` is an immutable, persistent, and lazy dictionary backed by a balanced `RedBlackTree` and collision chains. Keys are organized by hash codes ($O(\log n)$), and value transformations via `map` are deferred until access.
+
+```java
+import org.quurz.foomp.base.types.Dict;
+import org.quurz.foomp.base.util.Dictionary;
+import org.quurz.foomp.base.util.Maybe;
+import static org.quurz.foomp.base.util.Tuple2.tuple2;
+import java.util.Map;
+
+// 1. Create dictionaries
+Dictionary<String, Integer> emptyDict = Dictionary.dictionary();
+Dictionary<String, Integer> dict = Dictionary.dictionaryOf(
+    tuple2("apple", 1),
+    tuple2("banana", 2)
+);
+Dictionary<String, Integer> fromMap = Dictionary.dictionaryFrom(Map.of("x", 10, "y", 20));
+
+// 2. Put and Update (immutable)
+Dict<String, Integer> updated = dict.put("cherry", 3);
+Dict<String, Integer> overwritten = updated.put("apple", 100);
+
+// 3. Lookup and Safe Access
+int appleCount = dict.get("apple");                // 1
+Maybe<Integer> safeCherry = dict.getSafe("cherry"); // none()
+boolean hasBanana = dict.contains("banana");       // true
+
+// 4. Remove (immutable)
+Dict<String, Integer> withoutBanana = dict.remove("banana");
+
+// 5. Lazy Value Mapping (Functor)
+Dictionary<String, String> formatted = dict.map(v -> "$" + v); // deferred until access
+String price = formatted.get("apple");             // "$1"
+
+// 6. Export to standard Java Map
+Map<String, Integer> standardMap = dict.toMap(java.util.HashMap::new);
+```
+
 ## Task (Lazy Asynchronous Computations)
 
 `Task<A>` models an asynchronous computation that produces a `Result<A>`. Tasks are executed lazily and can be configured with custom executors (`executeOn`) or combined asynchronously (`zip`).

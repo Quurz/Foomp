@@ -6,11 +6,13 @@ import org.quurz.foomp.base.types.*;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static org.quurz.foomp.base.functions.Comparer.comparer;
 import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard;
 
@@ -681,6 +683,41 @@ public abstract sealed class RedBlackTree<A>
     /**
      * <div>
      *     <p>
+     *         Recursive helper for generating the tree string representation.
+     *     </p>
+     * </div>
+     *
+     * @param prefix the prefix for the current line
+     * @param childrenPrefix the prefix for the children lines
+     * @param current the current node
+     * @param <A> the type of elements
+     * @return the tree structure as a string
+     *
+     * @since 1.0.0
+     */
+    private static <A> String echoRecursive(final String prefix,
+                                            final String childrenPrefix,
+                                            final RedBlackTree<A> current) {
+        if (!current.isNode()) {
+            return prefix + "L\n";
+        }
+        final Node<A> node = (Node<A>) current;
+        final StringBuilder builder = new StringBuilder();
+        builder.append(prefix);
+        builder.append(node.black ? "B" : "R");
+        builder.append(": ");
+        builder.append(node.element);
+        builder.append("\n");
+
+        builder.append(echoRecursive(childrenPrefix + "├── ", childrenPrefix + "│   ", node.left));
+        builder.append(echoRecursive(childrenPrefix + "└── ", childrenPrefix + "    ", node.right));
+
+        return builder.toString();
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Checks if the tree contains the specified element.
      *     </p>
      * </div>
@@ -871,6 +908,44 @@ public abstract sealed class RedBlackTree<A>
     /**
      * <div>
      *     <p>
+     *         Collects all elements of this tree in in-order sequence into a newly supplied mutable {@link Collection}.
+     *     </p>
+     * </div>
+     *
+     * @param init a supplier providing the target collection instance; must not be {@code null} and must not supply {@code null}
+     * @param <C>  the collection type
+     * @return the populated collection
+     * @throws NullPointerException if {@code init} is {@code null} or supplies {@code null}
+     *
+     * @since 1.0.0
+     */
+    public @NonNull <C extends Collection<? super A>> C toCollection(final @NonNull Supplier<C> init) {
+        Objects.requireNonNull(init, nullValue("init"));
+        final C target
+            = Objects.requireNonNull(init.get(), nullSuppliedFrom("init"));
+
+        final Deque<RedBlackTree<A>> stack = new ArrayDeque<>();
+        RedBlackTree<A> current
+            = this;
+
+        while (current.isNode() || !stack.isEmpty()) {
+            while (current.isNode()) {
+                stack.push(current);
+                current = current.left();
+            }
+            current
+                = stack.pop();
+            target.add(current.element());
+            current
+                = current.right();
+        }
+
+        return target;
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Generates a string representation of the tree structure.
      *     </p>
      * </div>
@@ -882,41 +957,6 @@ public abstract sealed class RedBlackTree<A>
     @Override
     public @NonNull String echo() {
         return echoRecursive("", "", this);
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Recursive helper for generating the tree string representation.
-     *     </p>
-     * </div>
-     *
-     * @param prefix the prefix for the current line
-     * @param childrenPrefix the prefix for the children lines
-     * @param current the current node
-     * @param <A> the type of elements
-     * @return the tree structure as a string
-     *
-     * @since 1.0.0
-     */
-    private static <A> String echoRecursive(final String prefix,
-                                            final String childrenPrefix,
-                                            final RedBlackTree<A> current) {
-        if (!current.isNode()) {
-            return prefix + "L\n";
-        }
-        final Node<A> node = (Node<A>) current;
-        final StringBuilder builder = new StringBuilder();
-        builder.append(prefix);
-        builder.append(node.black ? "B" : "R");
-        builder.append(": ");
-        builder.append(node.element);
-        builder.append("\n");
-
-        builder.append(echoRecursive(childrenPrefix + "├── ", childrenPrefix + "│   ", node.left));
-        builder.append(echoRecursive(childrenPrefix + "└── ", childrenPrefix + "    ", node.right));
-
-        return builder.toString();
     }
 
     /**
