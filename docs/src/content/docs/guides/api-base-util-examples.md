@@ -414,27 +414,60 @@ Box<Integer> lengthBox = boxed.map(String::length);
 int len = lengthBox.get(); // 11
 ```
 
-## Sequence (Immutable Stack-Safe Linked List)
+## Sequence (Immutable Persistent Sequence)
 
-`Sequence<A>` is an immutable singly linked list with lazy element values and stack-safe operations via `Trampoline`.
+`Sequence<A>` is an immutable, persistent data structure modeled as segmented doubly linked nodes. It supports lazy transformation pipelines, structural sharing, and full algebraic operations (Functor, Applicative, Monad, Foldable).
 
 ```java
 import org.quurz.foomp.base.util.Sequence;
+import org.quurz.foomp.base.util.Maybe;
+import org.quurz.foomp.base.util.Tuple2;
+import java.util.ArrayList;
+import java.util.List;
 
-// Create sequences
+// 1. Create sequences
 Sequence<Integer> emptySeq = Sequence.sequence();
-Sequence<Integer> seq = Sequence.sequenceOf(1, 2, 3, 4, 5);
+Sequence<Integer> numbers = Sequence.sequenceOf(1, 2, 3);
+Sequence<String> fromList = Sequence.sequenceFrom(List.of("A", "B", "C"));
 
-// Add elements (prepend)
-Sequence<Integer> withZero = seq.add(0);
+// 2. Prepend and Append (O(1) with structural sharing)
+Sequence<Integer> withZero = numbers.cons(0);     // [0, 1, 2, 3]
+Sequence<Integer> withEnd = numbers.append(4);     // [1, 2, 3, 4]
 
-// Functional operations
-Sequence<Integer> evens = seq.filter(n -> n % 2 == 0);
-Sequence<String> asStrings = seq.map(String::valueOf);
+// 3. Head, Tail, and Deconstruction
+int first = numbers.head();                        // 1
+Maybe<Integer> safeHead = numbers.headSafe();      // Some(1)
+Sequence<Integer> rest = numbers.tail();           // [2, 3]
 
-// Access head and tail
-int head = seq.head(); // 1
-Sequence<Integer> tail = seq.tail();
+Tuple2<Integer, Sequence<Integer>> pair = numbers.decons();
+int head = pair.get1();                            // 1
+Sequence<Integer> tail = pair.get2();              // [2, 3]
+
+// 4. Lazy Transformations (map & filter)
+Sequence<Integer> doubled = numbers.map(x -> x * 2);      // [2, 4, 6] (evaluated on demand)
+Sequence<Integer> evens = numbers.filter(x -> x % 2 != 0); // [1, 3]
+
+// 5. Monadic Chaining (flatMap)
+Sequence<Integer> expanded = numbers.flatMap(x -> Sequence.sequenceOf(x, x * 10));
+// [1, 10, 2, 20, 3, 30]
+
+// 6. Folds (left and right associative)
+int sum = numbers.foldLeft(0, Integer::sum);              // 6
+int folded = numbers.foldRight(0, (x, acc) -> x - acc);   // 1 - (2 - (3 - 0)) = 2
+
+// 7. Collect into standard Java Collections
+List<Integer> list = numbers.toCollection(ArrayList::new);
+
+// 8. Stream, Iterable, and Stream Collectors
+for (int n : numbers) {
+    System.out.println(n);
+}
+
+Sequence<String> collectedFromStream = java.util.stream.Stream.of("A", "B", "C")
+    .collect(Sequence.collectToSequence());
+
+numbers.iterateOverAllElementsFromLeft(System.out::print);   // 123
+numbers.iterateOverAllElementsFromRight(System.out::print);  // 321
 ```
 
 ## Task (Lazy Asynchronous Computations)

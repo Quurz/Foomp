@@ -57,7 +57,7 @@ Immutable, type-safe containers for fixed-size collections of heterogenous value
 A specialized variant of tuples designed for structured data. While similar to tuples, they are often used where a more "named" or structured approach to multiple values is required within the functional pipeline.
 
 ### Sequence
-`Sequence<A>` is an immutable, functional sequence (singly-linked list) with lazy element evaluation via `Provider`. Operations like `filter` and `reverse` are stack-safe via `Trampoline`.
+`Sequence<A>` is an immutable, persistent sequence data structure built with segmented doubly linked nodes. It provides lazy transformation composition (`map`, `applyTo`), structural sharing for $O(1)$ operations (`cons`), monadic flat-mapping (`flatMap`), left/right folding (`foldLeft`, `foldRight`), and safe deconstruction (`decons`, `headSafe`).
 
 ### AVLTree
 A self-balancing binary search tree. It ensures $O(\log n)$ time complexity for search, insertion, and deletion by maintaining a height balance between subtrees. It is immutable and supports merging with other binary trees.
