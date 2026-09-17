@@ -98,6 +98,26 @@ class ResultTest {
             assertThat(err.getException()).isInstanceOf(Exception.class).hasMessage("E");
             assertThatThrownBy(ok::getException).isInstanceOf(NoSuchElementException.class);
         }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        void getOrDefault_should_return_value_on_success_and_fallback_on_failure() {
+            LOGGER.info("Result.getOrDefault should return value on success and fallback on failure");
+
+            final var ok = success("OK");
+            final var err = failure(new Exception("E"));
+
+            assertThat(ok.getOrDefault(() -> "fallback")).isEqualTo("OK");
+            assertThat(err.getOrDefault(() -> "fallback")).isEqualTo("fallback");
+
+            assertThatThrownBy(() -> ok.getOrDefault(null))
+                .isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> err.getOrDefault(null))
+                .isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> err.getOrDefault(() -> null))
+                .isInstanceOf(NullPointerException.class);
+        }
     }
 
     @Nested

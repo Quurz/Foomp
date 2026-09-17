@@ -77,8 +77,8 @@ class MemoisingApplicableTest extends TestHelper {
     }
 
     @Test
-    void testMemoisingApplicableCachesExceptions() {
-        LOGGER.info("Test memoisingApplicable caches exceptions");
+    void testMemoisingApplicableDoesNotCacheExceptions() {
+        LOGGER.info("Test memoisingApplicable does not cache exceptions");
 
         final var invocationCounter = new AtomicInteger(0);
         final var testException = new IllegalArgumentException("Test exception");
@@ -92,21 +92,26 @@ class MemoisingApplicableTest extends TestHelper {
 
         final var memoising = memoisingApplicable(applicable);
 
-        // First call with x=0 - should throw and cache the exception
+        // First call with x=0 - should throw exception
         assertThatThrownBy(() -> memoising.apply(0))
             .isSameAs(testException);
         assertThat(invocationCounter.get()).isEqualTo(1);
 
-        // Second call with x=0 - should throw cached exception without invoking function
+        // Second call with x=0 - should re-execute and throw exception again (not cached)
         assertThatThrownBy(() -> memoising.apply(0))
             .isSameAs(testException);
-        assertThat(invocationCounter.get()).isEqualTo(1); // Still 1
+        assertThat(invocationCounter.get()).isEqualTo(2); // Invoked again!
 
-        // Call with different value should work normally
+        // Call with different value should work normally and be cached
         assertThatNoException().isThrownBy(() -> {
             final var result = memoising.apply(5);
             assertThat(result).isEqualTo(10);
-            assertThat(invocationCounter.get()).isEqualTo(2);
+            assertThat(invocationCounter.get()).isEqualTo(3);
+
+            // Repeated call with x=5 uses cache
+            final var cachedResult = memoising.apply(5);
+            assertThat(cachedResult).isEqualTo(10);
+            assertThat(invocationCounter.get()).isEqualTo(3);
         });
     }
 
@@ -173,14 +178,14 @@ class MemoisingApplicableTest extends TestHelper {
     }
 
     @Test
-    void testClearRemovesCachedExceptions() {
-        LOGGER.info("Test clear removes cached exceptions");
+    void testRetryAfterFailureSucceedsAndCachesResult() {
+        LOGGER.info("Test retry after failure succeeds and caches result");
 
         final var invocationCounter = new AtomicInteger(0);
         final Applicable<Integer, Integer> applicable = x -> {
             final var count = invocationCounter.incrementAndGet();
             if (count == 1) {
-                throw new IllegalStateException("First call");
+                throw new IllegalStateException("First call fails");
             }
             return x * 2;
         };
@@ -190,17 +195,19 @@ class MemoisingApplicableTest extends TestHelper {
         // First call throws exception
         assertThatThrownBy(() -> memoising.apply(5))
             .isInstanceOf(IllegalStateException.class)
-            .hasMessage("First call");
+            .hasMessage("First call fails");
         assertThat(invocationCounter.get()).isEqualTo(1);
 
-        // Clear cache
-        memoising.clear();
-
-        // Second call should succeed (because we cleared the cached exception)
+        // Second call without calling clear() should retry and succeed (because failure was not cached)
         assertThatNoException().isThrownBy(() -> {
             final var result = memoising.apply(5);
             assertThat(result).isEqualTo(10);
             assertThat(invocationCounter.get()).isEqualTo(2);
+
+            // Third call should now use the cached successful result
+            final var cachedResult = memoising.apply(5);
+            assertThat(cachedResult).isEqualTo(10);
+            assertThat(invocationCounter.get()).isEqualTo(2); // Still 2, cached!
         });
     }
 

@@ -19,6 +19,9 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *     <p>
  *         Contract: unless stated otherwise, inputs must not be {@code null} and results must not be {@code null}.
  *     </p>
+ *     <p>
+ *         To be honest: I don't know if this thing is of any use.   :D
+ *     </p>
  * </div>
  *
  * @param <A> the type of values to compare

@@ -1,7 +1,6 @@
 package org.quurz.foomp.base.functions;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.quurz.foomp.base.types.XorValue;
 
 import java.util.Map;
 import java.util.Objects;
@@ -25,8 +24,8 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  *         must always produce equal results and must not rely on or cause observable side effects.
  *         Using memoization on non‑pure operations can yield stale or misleading cached values and
  *         missing side effects and is therefore discouraged.</li>
- *     <li>Both successful results and exceptions are cached. On repeated calls with the same input,
- *         a cached exception is thrown again (same instance/stacktrace as cached).</li>
+ *     <li>Only successful results are cached. If an invocation throws an exception, the exception is propagated
+ *         immediately and is NOT cached, allowing subsequent invocations with the same argument to retry.</li>
  *     <li>Cache keys rely on {@code equals}/{@code hashCode} of {@code X}.</li>
  *     <li>Thread‑Safety: the implementation returned by
  *         {@link #memoisingApplicable(Applicable)} is thread‑safe and uses a
@@ -49,19 +48,25 @@ public interface MemoisingApplicable<X, Y>
         Objects.requireNonNull(applicable, nullValue("applicable"));
 
         return new MemoisingApplicable<X, Y>() {
-            private final Map<X, XorValue<Exception, Y>> memo
+            private final Map<X, Y> memo
                 = new ConcurrentHashMap<>();
 
             @Override
             public Y apply(final @NonNull X x)
                     throws Exception {
                 Objects.requireNonNull(x, nullValue("x"));
-                final var result
-                    = this.memo.computeIfAbsent(x, _x -> Objects.requireNonNull(applicable.safe().apply(_x), nullResult()));
-                if (result.isRight()) {
-                    return result.getRight();
-                } else {
-                    throw result.getLeft();
+                try {
+                    return this.memo.computeIfAbsent(x, _x -> {
+                        try {
+                            return Objects.requireNonNull(applicable.apply(_x), nullResult());
+                        } catch (final RuntimeException e) {
+                            throw e;
+                        } catch (final Exception e) {
+                            throw new WrappedException(e);
+                        }
+                    });
+                } catch (final WrappedException e) {
+                    throw e.getCause();
                 }
             }
 
@@ -77,8 +82,7 @@ public interface MemoisingApplicable<X, Y>
     /**
      * <div>
      *   <p>
-     *     Clears all cached results so that subsequent calls recompute values or rethrow fresh exceptions
-     *     instead of returning cached ones.
+     *     Clears all cached results so that subsequent calls recompute values instead of returning cached ones.
      *   </p>
      * </div>
      *
@@ -87,5 +91,19 @@ public interface MemoisingApplicable<X, Y>
      * @since 1.0.0
      */
     @NonNull MemoisingApplicable<X, Y> clear();
+
+    final class WrappedException extends RuntimeException {
+        private final Exception cause;
+
+        WrappedException(final Exception cause) {
+            super(cause);
+            this.cause = cause;
+        }
+
+        @Override
+        public Exception getCause() {
+            return this.cause;
+        }
+    }
 
 }

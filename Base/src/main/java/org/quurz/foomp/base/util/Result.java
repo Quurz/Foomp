@@ -8,9 +8,11 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
+import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Maybe.none;
 import static org.quurz.foomp.base.util.Maybe.some;
@@ -166,6 +168,30 @@ public sealed interface Result<A>
     default A getValue()
             throws NoSuchElementException {
         return this.getRight();
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Returns the contained value if this is a {@code Success}, or returns the value
+     *         supplied by {@code defaultValue} if this is a {@code Failure}.
+     *     </p>
+     * </div>
+     *
+     * @param defaultValue supplies a fallback value in case of failure; must not be {@code null}
+     *                     and must not return {@code null}
+     * @return the contained success value or the value supplied by {@code defaultValue}
+     * @throws NullPointerException if {@code defaultValue} is {@code null} or if it returns {@code null}
+     *
+     * @since 1.0.0
+     */
+    @NonNull
+    default A getOrDefault(final @NonNull Supplier<A> defaultValue) {
+        Objects.requireNonNull(defaultValue, nullValue("defaultValue"));
+        return switch (this) {
+            case Result.Success<A> success -> success.value;
+            case Result.Failure<A> _ -> Objects.requireNonNull(defaultValue.get(), nullSuppliedFrom("defaultValue"));
+        };
     }
 
     /**

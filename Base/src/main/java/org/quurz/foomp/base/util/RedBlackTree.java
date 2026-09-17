@@ -40,9 +40,11 @@ import static org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard;
  *     </p>
  * </div>
  *
- * @param <A> the type of elements maintained by this tree
- *
  * @since 1.0.0
+ *
+ * @author Alexander Schell
+ *
+ * @param <A> the type of elements maintained by this tree
  */
 public abstract sealed class RedBlackTree<A>
         implements BinaryTree<A>,
