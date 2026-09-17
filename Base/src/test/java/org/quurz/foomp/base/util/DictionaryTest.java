@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.quurz.foomp.base.types.Dict;
+import org.quurz.foomp.higher.Higher1;
+import org.quurz.foomp.higher.Higher2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -344,6 +346,65 @@ class DictionaryTest {
             final Dict<String, Integer> dict = dictionaryOf(tuple2("a", 1));
             assertThrows(NullPointerException.class, () -> dict.toMap(null));
             assertThrows(NullPointerException.class, () -> dict.toMap(() -> null));
+        }
+    }
+
+    @Nested
+    @DisplayName("Narrow")
+    class Narrow {
+
+        @Test
+        @SuppressWarnings("unchecked")
+        void narrow_higher1_with_null_throws() {
+            LOGGER.info("Dictionary.narrow((Higher1) null) should throw NullPointerException");
+            assertThatThrownBy(() -> Dictionary.narrow((Higher1<Dictionary.µ, Integer>) null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("wide");
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        void narrow_higher2_with_null_throws() {
+            LOGGER.info("Dictionary.narrow((Higher2) null) should throw NullPointerException");
+            assertThatThrownBy(() -> Dictionary.narrow((Higher2<Dictionary.µ, String, Integer>) null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("wide");
+        }
+
+        @Test
+        void narrow_higher1_with_valid_dictionary_returns_same_instance() {
+            LOGGER.info("Dictionary.narrow(Higher1) should return the same dictionary instance");
+            final Dictionary<String, Integer> dict = dictionaryOf(tuple2("a", 1));
+            final Higher1<Dictionary.µ, Integer> higher = dict;
+            final Dictionary<String, Integer> narrowed = Dictionary.narrow(higher);
+            assertThat(narrowed).isSameAs(dict);
+        }
+
+        @Test
+        void narrow_higher2_with_valid_dictionary_returns_same_instance() {
+            LOGGER.info("Dictionary.narrow(Higher2) should return the same dictionary instance");
+            final Dictionary<String, Integer> dict = dictionaryOf(tuple2("a", 1));
+            final Higher2<Dictionary.µ, String, Integer> higher = dict;
+            final Dictionary<String, Integer> narrowed = Dictionary.narrow(higher);
+            assertThat(narrowed).isSameAs(dict);
+        }
+
+        @Test
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        void narrow_higher1_with_foreign_witness_throws_illegal_argument() {
+            LOGGER.info("Dictionary.narrow(Higher1) with foreign instance should throw IllegalArgumentException");
+            final var box = Box.box("hello");
+            assertThatThrownBy(() -> Dictionary.narrow((Higher1) box))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        void narrow_higher2_with_foreign_witness_throws_illegal_argument() {
+            LOGGER.info("Dictionary.narrow(Higher2) with foreign instance should throw IllegalArgumentException");
+            final var pair = Tuple2.tuple2("a", 1);
+            assertThatThrownBy(() -> Dictionary.narrow((Higher2) pair))
+                .isInstanceOf(IllegalArgumentException.class);
         }
     }
 }

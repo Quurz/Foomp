@@ -220,20 +220,60 @@ public class Sequence<A>
         );
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Represents a contiguous segment of elements within a {@link Sequence}, paired with
+     *         a lazy transformation function (spool).
+     *     </p>
+     * </div>
+     *
+     * @param <A> the element type contained in this segment
+     */
     private static final class Segment<A> {
 
+        /**
+         * Reference to the next segment in the sequence, or {@code null} if this is the last segment.
+         */
         private Segment<A> nextSegment;
+
+        /**
+         * Reference to the previous segment in the sequence, or {@code null} if this is the first segment.
+         */
         private Segment<A> previousSegment;
 
+        /**
+         * The first element of this segment, or {@code null} if empty.
+         */
         private Element<A> firstElement;
+
+        /**
+         * The last element of this segment, or {@code null} if empty.
+         */
         private Element<A> lastElement;
+
+        /**
+         * The lazy transformation function applied to elements within this segment.
+         */
         private final Fun<Object, Object> spool;
 
+        /**
+         * Constructs an empty segment with an identity transformation function.
+         */
         private Segment() {
             this.spool
                 = Fun.identity();
         }
 
+        /**
+         * Constructs a segment with the given boundary elements, transformation function, and segment links.
+         *
+         * @param firstElement    the first element of the segment
+         * @param lastElement     the last element of the segment
+         * @param spool           the transformation function
+         * @param nextSegment     the next segment link
+         * @param previousSegment the previous segment link
+         */
         @SuppressWarnings("unchecked")
         private Segment(final Element<?> firstElement,
                         final Element<?> lastElement,
@@ -252,6 +292,11 @@ public class Sequence<A>
                 = previousSegment;
         }
 
+        /**
+         * Appends an element to this segment without copying existing elements.
+         *
+         * @param element the element to append; must not be {@code null}
+         */
         private void appendNoCopy(final @NonNull A element) {
             if (this.firstElement == null) {
                 this.firstElement
@@ -266,13 +311,39 @@ public class Sequence<A>
 
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         A doubly-linked element node holding a value in a {@link Segment}.
+     *     </p>
+     * </div>
+     *
+     * @param <A> the element value type
+     */
     private static final class Element<A> {
 
+        /**
+         * The stored element value.
+         */
         private final A value;
 
+        /**
+         * Reference to the previous element in the chain, or {@code null} if this is the head.
+         */
         private Element<A> previousElement;
+
+        /**
+         * Reference to the next element in the chain, or {@code null} if this is the tail.
+         */
         private Element<A> nextElement;
 
+        /**
+         * Constructs an element node with the specified value and neighboring element links.
+         *
+         * @param value           the element value
+         * @param previousElement the previous element in the chain
+         * @param nextElement     the next element in the chain
+         */
         private Element(final A value,
                         final Element<A> previousElement,
                         final Element<A> nextElement) {
@@ -284,13 +355,23 @@ public class Sequence<A>
                 = nextElement;
         }
 
-
+        /**
+         * Constructs a standalone element node with the given non-null value.
+         *
+         * @param value the element value; must not be {@code null}
+         */
         private Element(final @NonNull A value) {
             Objects.requireNonNull(value, nullValue("value"));
             this.value
                 = value;
         }
 
+        /**
+         * Appends a new element after this node without copying and establishes bidirectional links.
+         *
+         * @param element the element value to append
+         * @return the newly created and appended element node
+         */
         private Element<A> appendNoCopy(final A element) {
             final var newNext
                 = new Element<>(element);
@@ -303,12 +384,28 @@ public class Sequence<A>
 
     }
 
+    /**
+     * The singleton instance representing an empty {@link Sequence}.
+     */
     private static final Sequence<?> EMPTY_SEQUENCE
         = new Sequence<>(null, null);
 
+    /**
+     * Reference to the first segment in the sequence, or {@code null} if empty.
+     */
     private final Segment<A> firstSegment;
+
+    /**
+     * Reference to the last segment in the sequence, or {@code null} if empty.
+     */
     private final Segment<A> lastSegment;
 
+    /**
+     * Constructs a {@code Sequence} with the specified boundary segments.
+     *
+     * @param firstSegment the first segment
+     * @param lastSegment  the last segment
+     */
     private Sequence(final Segment<A> firstSegment,
                      final Segment<A> lastSegment) {
         this.firstSegment

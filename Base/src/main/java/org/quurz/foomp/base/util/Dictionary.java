@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.noValuePresent;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResult;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
@@ -68,6 +69,61 @@ public class Dictionary<K, V>
      */
     public static final class µ implements WitnessType { private µ() {} }
 
+    /**
+     * <div>
+     *     <p>
+     *         Narrows a {@link Higher1} witness representation to a concrete {@code Dictionary}.
+     *     </p>
+     * </div>
+     *
+     * @param wide the higher‑kinded dictionary value; must not be {@code null}
+     * @param <K>  the key type
+     * @param <V>  the value type
+     * @return the narrowed {@code Dictionary} instance
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Dictionary}
+     *
+     * @since 1.0.0
+     */
+    @SuppressWarnings("unchecked")
+    public static <K, V> Dictionary<K, V> narrow(final @NonNull Higher1<? extends Dictionary.µ, V> wide) {
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Dictionary<?, ?> dictionary) {
+            return (Dictionary<K, V>) dictionary;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Dictionary.class));
+        }
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Narrows a {@link Higher2} witness representation to a concrete {@code Dictionary}.
+     *     </p>
+     * </div>
+     *
+     * @param wide the higher‑kinded dictionary value; must not be {@code null}
+     * @param <K>  the key type
+     * @param <V>  the value type
+     * @return the narrowed {@code Dictionary} instance
+     * @throws NullPointerException     if {@code wide} is {@code null}
+     * @throws IllegalArgumentException if {@code wide} is not an instance of {@code Dictionary}
+     *
+     * @since 1.0.0
+     */
+    @SuppressWarnings("unchecked")
+    public static <K, V> Dictionary<K, V> narrow(final @NonNull Higher2<? extends Dictionary.µ, K, V> wide) {
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Dictionary<?, ?> dictionary) {
+            return (Dictionary<K, V>) dictionary;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Dictionary.class));
+        }
+    }
+
+    /**
+     * The singleton instance representing an empty {@link Dictionary}.
+     */
     private static final Dictionary<?, ?> EMPTY_DICTIONARY
         = new Dictionary<>();
 
@@ -144,6 +200,21 @@ public class Dictionary<K, V>
         return result;
     }
 
+    /**
+     * <div>
+     *     <p>
+     *         Recursively traverses the given {@link RedBlackTree} and transforms the values of all
+     *         contained entries using the specified function.
+     *     </p>
+     * </div>
+     *
+     * @param tree           the tree node to transform
+     * @param transformation the value transformation function
+     * @param <K>            the key type
+     * @param <V>            the original value type
+     * @param <W>            the transformed value type
+     * @return a new tree containing the mapped entries
+     */
     private static <K, V, W> RedBlackTree<Entry<K, W>> mapTree(final RedBlackTree<Entry<K, V>> tree,
                                                                final Function<? super V, ? extends W> transformation) {
         if (!tree.isNode()) {
@@ -163,44 +234,53 @@ public class Dictionary<K, V>
     }
 
 
-    private static final class Entry<K, V> {
+    /**
+     * <div>
+     *     <p>
+     *         Internal node entry holding a key, a lazy value supplier, and a reference to the next
+     *         entry in case of a hash collision.
+     *     </p>
+     * </div>
+     *
+     * @param key   the entry key
+     * @param spool the lazy value supplier
+     * @param next  the next entry in the collision chain, or {@code null} if none
+     * @param <K>   the key type
+     * @param <V>   the value type
+     */
+    private record Entry<K, V>(K key,
+                               Supplier<V> spool,
+                               Entry<K, V> next) {
 
-        private final K key;
-        private final Supplier<V> spool;
-        private final Entry<K, V> next;
-
+        /**
+         * Creates a search pattern entry with the specified key and no value or next entry.
+         *
+         * @param key the key to search for
+         */
         private Entry(final K key) {
-            this.key
-                = key;
-            this.spool
-                = null;
-            this.next
-                = null;
+            this(key, null, null);
         }
 
+        /**
+         * Creates an entry with the specified key and lazy value supplier without collisions.
+         *
+         * @param key   the entry key
+         * @param spool the lazy value supplier
+         */
         private Entry(final K key,
                       final Supplier<V> spool) {
-            this.key
-                = key;
-            this.spool
-                = spool;
-            this.next
-                = null;
+            this(key, spool, null);
         }
 
-        private Entry(final K key,
-                      final Supplier<V> spool,
-                      final Entry<K, V> next) {
-            this.key
-                = key;
-            this.spool
-                = spool;
-            this.next
-                = next;
-        }
-
+        /**
+         * Inserts or updates a key-value mapping within this collision chain.
+         *
+         * @param key   the key to insert or update
+         * @param spool the lazy value supplier
+         * @return the updated entry representing the head of the collision chain
+         */
         private Entry<K, V> put(final K key, final Supplier<V> spool) {
-            Entry<K, V> newEntry;
+            final Entry<K, V> newEntry;
             if (Objects.equals(this.key, key)) {
                 newEntry
                     = new Entry<>(key, spool, this.next);
@@ -214,6 +294,12 @@ public class Dictionary<K, V>
             return newEntry;
         }
 
+        /**
+         * Checks whether this collision chain contains the specified key.
+         *
+         * @param key the key to search for
+         * @return {@code true} if the key exists in this chain; {@code false} otherwise
+         */
         private boolean contains(final K key) {
             Entry<K, V> current
                 = this;
@@ -231,6 +317,12 @@ public class Dictionary<K, V>
             return found;
         }
 
+        /**
+         * Finds the lazy value supplier associated with the specified key in this collision chain.
+         *
+         * @param key the key to look up
+         * @return the lazy value supplier, or {@code null} if not found
+         */
         private Supplier<V> find(final K key) {
             Entry<K, V> current
                 = this;
@@ -248,6 +340,12 @@ public class Dictionary<K, V>
             return foundSpool;
         }
 
+        /**
+         * Removes the entry matching the specified key from this collision chain.
+         *
+         * @param key the key to remove
+         * @return the new head of the collision chain, or {@code null} if the chain is empty
+         */
         private Entry<K, V> remove(final K key) {
             final Entry<K, V> result;
             if (Objects.equals(this.key, key)) {
@@ -263,6 +361,13 @@ public class Dictionary<K, V>
             return result;
         }
 
+        /**
+         * Lazily transforms the value of this entry and any subsequent entries in the collision chain.
+         *
+         * @param transformation the function to apply to each value
+         * @param <W>            the transformed value type
+         * @return a new entry with mapped value suppliers
+         */
         private <W> Entry<K, W> map(final Function<? super V, ? extends W> transformation) {
             final Entry<K, W> mappedEntry;
             if (this.spool != null) {
@@ -285,8 +390,14 @@ public class Dictionary<K, V>
 
     }
 
+    /**
+     * The underlying balanced Red-Black tree storing entry collision chains indexed by key hash code.
+     */
     private final RedBlackTree<Entry<K, V>> tree;
 
+    /**
+     * Constructs an empty {@code Dictionary} backed by an empty Red-Black tree comparing entries by hash code.
+     */
     private Dictionary() {
         this.tree
             = redBlackTree(
@@ -295,6 +406,11 @@ public class Dictionary<K, V>
             );
     }
 
+    /**
+     * Constructs a {@code Dictionary} wrapping the specified {@link RedBlackTree}.
+     *
+     * @param tree the underlying Red-Black tree
+     */
     private Dictionary(final RedBlackTree<Entry<K, V>> tree) {
         this.tree
             = tree;

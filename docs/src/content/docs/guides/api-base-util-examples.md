@@ -484,6 +484,8 @@ numbers.iterateOverAllElementsFromRight(System.out::print);  // 321
 import org.quurz.foomp.base.types.Dict;
 import org.quurz.foomp.base.util.Dictionary;
 import org.quurz.foomp.base.util.Maybe;
+import org.quurz.foomp.higher.Higher1;
+import org.quurz.foomp.higher.Higher2;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
 import java.util.Map;
 
@@ -511,7 +513,14 @@ Dict<String, Integer> withoutBanana = dict.remove("banana");
 Dictionary<String, String> formatted = dict.map(v -> "$" + v); // deferred until access
 String price = formatted.get("apple");             // "$1"
 
-// 6. Export to standard Java Map
+// 6. Higher-Kinded Narrowing
+Higher2<Dictionary.µ, String, Integer> wide2 = dict;
+Dictionary<String, Integer> narrowed2 = Dictionary.narrow(wide2);
+
+Higher1<Dictionary.µ, Integer> wide1 = dict;
+Dictionary<String, Integer> narrowed1 = Dictionary.narrow(wide1);
+
+// 7. Export to standard Java Map
 Map<String, Integer> standardMap = dict.toMap(java.util.HashMap::new);
 ```
 

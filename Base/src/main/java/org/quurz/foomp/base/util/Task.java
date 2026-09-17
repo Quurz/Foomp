@@ -220,8 +220,16 @@ public final class Task<A>
         return new Task<>(executable);
     }
 
+    /**
+     * The underlying asynchronous execution logic of this task.
+     */
     private final Executable<A> executable;
 
+    /**
+     * Constructs a {@code Task} wrapping the specified {@link Executable}.
+     *
+     * @param executable the executable computation
+     */
     private Task(final Executable<A> executable) {
         this.executable
             = executable;
