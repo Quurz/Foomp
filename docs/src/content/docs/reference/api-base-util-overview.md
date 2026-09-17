@@ -59,6 +59,9 @@ A specialized variant of tuples designed for structured data. While similar to t
 ### Sequence
 `Sequence<A>` is an immutable, persistent sequence data structure built with segmented doubly linked nodes. It implements `Seq<A>`, `Monadic<Seq.µ, A>`, `Higher1<Seq.µ, A>`, and folding abstractions. It provides $O(1)$ prepend (`cons`), append (`append`), segment-level merging and batch additions (`merge`, `appendAll`, `prependAll`), predicate-based partitioning (`partition`, `span`), lazy transformation composition (`map`, `applyTo`), monadic flat-mapping (`flatMap`), left/right folding (`foldLeft`, `foldRight`), and safe deconstruction (`decons`, `headSafe`). It interoperates smoothly with any `Seq` implementation via Higher-Kinded Type witnesses.
 
+### SeqList
+`SeqList<A>` is an immutable, eager sequence implementation that bridges standard Java collections and functional sequence abstractions. By extending `java.util.AbstractList<A>` and implementing `Seq<A>`, `Monadic<Seq.µ, A>`, `Foldable<A>`, and `Higher1<SeqList.µ, A>`, it combines full `java.util.List` compatibility with algebraic operations. It provides $O(1)$ random index access (`get`), immutability enforcement, eager transformations (`map`, `applyTo`, `flatMap`), partition/span capabilities (`partition`, `span`), and stream collector integration (`collectToSeqList`).
+
 ### Dictionary
 `Dictionary<K, V>` is an immutable, persistent, and lazy dictionary (associative key–value map) backed by a balanced `RedBlackTree` and immutable collision chains. Keys are hashed and stored in $O(\log n)$ balanced tree nodes, with lazy value evaluation (`map`).
 
@@ -119,7 +122,7 @@ A functional interface extending `Fun<Executor, CompletableFuture<Result<A>>>` t
 | **Sum Types / Monads** | `Maybe`, `Either`, `Result`, `Eval`, `Attempt`, `Box`, `Task`, `Stateful`, `Continuation` |
 | **Recursion** | `Trampoline` |
 | **Fixed Containers** | `Tuple2`, `Tuple3`, `Tuple4`, `Record2`, `Record3`, `Record4`, `Pair` (Mutable) |
-| **Data Structures** | `Sequence`, `Dictionary`, `AVLTree`, `RedBlackTree` |
+| **Data Structures** | `Sequence`, `SeqList`, `Dictionary`, `AVLTree`, `RedBlackTree` |
 | **Logic & Validation** | `DecisionTree`, `Constraint` |
 | **Stream Processing** | `Bucket` |
 | **System Types** | `Nothing` |

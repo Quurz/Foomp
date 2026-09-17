@@ -24,25 +24,27 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
 
-/**
- * TODO: Nach JUnit Jupiter Best Practices refaktorisieren.
- * - Parametrisierte Tests einsetzen (@ParameterizedTest + @ValueSource/@NullSource/@CsvSource/@MethodSource)
- * - Lesbarkeit: @DisplayName / @DisplayNameGeneration(ReplaceUnderscores)
- * - Wiederverwendbare AssertJ-Assertions für Value/XorValue (z. B. ValueAssert, XorValueAssert)
- * - Zeitprüfungen via Assertions.assertTimeout statt waitingFun(...)
- * - @TempDir für temporäre Dateien/Verzeichnisse
- * - invocationCounting-* ggf. in kleine Test-Utils auslagern
- */
 public class TestHelper {
 
     /*
             Constants
      */
 
+    /*
+        A generic placeholder string value used for testing.
+     */
     protected final String SOME_STRING_VALUE
         = "<Some_String_Value>";
+
+    /*
+        A secondary placeholder string value used for distinct equality testing.
+     */
     protected final String SOME_OTHER_STRING_VALUE
         = "<Some_Other_String_Value>";
+
+    /*
+        A sample error message placeholder for negative test cases.
+     */
     protected final String OUCH
         = "<Ouch>";
 
@@ -51,6 +53,9 @@ public class TestHelper {
             Checks
      */
 
+    /*
+        Checks that the given value is non-null, present, and accessible without throwing an exception.
+     */
     protected final void checkIsSome(final Value<?> value) {
         assertThat(value)
             .isNotNull();
@@ -62,6 +67,9 @@ public class TestHelper {
             .isNotNull();
     }
 
+    /*
+        Checks that the given value is present and contains the expected content.
+     */
     protected final <T> void checkIsSomeWithValue(final Value<T> value,
                                                   final T expected) {
         this.checkIsSome(value);
@@ -69,6 +77,9 @@ public class TestHelper {
             .isEqualTo(expected);
     }
 
+    /*
+        Checks that the given value is present and matches the given predicate.
+     */
     protected final <T> void checkIsSomeWithPredicate(final Value<T> value,
                                                       final Predicate<T> predicate) {
         this.checkIsSome(value);
@@ -76,6 +87,9 @@ public class TestHelper {
             .isTrue();
     }
 
+    /*
+        Checks that the given value is non-null, empty (not present), and throws NoSuchElementException when accessing its content.
+     */
     protected final void checkIsNone(final Value<?> value) {
         assertThat(value)
             .isNotNull();
@@ -85,6 +99,9 @@ public class TestHelper {
             .isInstanceOf(NoSuchElementException.class);
     }
 
+    /*
+        Checks that the given xor-value is a valid Right instance, present, accessible via get/getRight, and throws NoSuchElementException when attempting to access Left.
+     */
     protected final void checkIsRight(final XorValue<?, ?> xorValue) {
         assertThat(xorValue)
             .isNotNull();
@@ -102,6 +119,9 @@ public class TestHelper {
             .isInstanceOf(NoSuchElementException.class);
     }
 
+    /*
+        Checks that the given xor-value is Right and holds the expected value.
+     */
     protected final <R> void checkIsRightWithValue(final XorValue<?, R> xorValue,
                                                    final R expected) {
         this.checkIsRight(xorValue);
@@ -109,6 +129,9 @@ public class TestHelper {
                 .isEqualTo(expected);
     }
 
+    /*
+        Checks that the given xor-value is Right and matches the given predicate.
+     */
     protected final <R> void checkIsRightWithPredicate(final XorValue<?, R> xorValue,
                                                        final Predicate<? super R> predicate) {
         this.checkIsRight(xorValue);
@@ -116,6 +139,9 @@ public class TestHelper {
             .isTrue();
     }
 
+    /*
+        Checks that the given xor-value is a valid Left instance, not present, accessible via getLeft, and throws NoSuchElementException when attempting to access Right.
+     */
     protected final void checkIsLeft(final XorValue<?, ?> xorValue) {
         assertThat(xorValue)
             .isNotNull();
@@ -131,6 +157,9 @@ public class TestHelper {
             .isInstanceOf(NoSuchElementException.class);
     }
 
+    /*
+        Checks that the given xor-value is Left and holds the expected value.
+     */
     protected final <L> void checkIsLeftWithValue(final XorValue<L, ?> xorValue,
                                                   final L expected) {
         this.checkIsLeft(xorValue);
@@ -138,6 +167,9 @@ public class TestHelper {
             .isEqualTo(expected);
     }
 
+    /*
+        Checks that the given xor-value is Left and matches the given predicate.
+     */
     protected final <L> void checkIsLeftWithPredicate(final XorValue<L, ?> xorValue,
                                                       final Predicate<? super L> predicate) {
         this.checkIsLeft(xorValue);
@@ -150,6 +182,9 @@ public class TestHelper {
             Functions
      */
 
+    /*
+        Wraps a unary function with an artificial delay to simulate long-running or asynchronous operations.
+     */
     protected <X, Y> Fun<X, Y> waitingFun(final Fun<X, Y> fun,
                                           final Duration wait) {
         return x -> {
@@ -162,6 +197,9 @@ public class TestHelper {
         };
     }
 
+    /*
+        Wraps a binary function with an artificial delay to simulate long-running or asynchronous operations.
+     */
     protected <X1, X2, Y> Fun2<X1, X2, Y> waitingFun(final Fun2<X1, X2, Y> fun,
                                                      final Duration wait) {
         return (x1, x2) -> {
@@ -174,9 +212,15 @@ public class TestHelper {
         };
     }
 
+    /*
+        A helper function returning the length of a given string.
+     */
     protected final Fun<String, Integer> funStringLength
         = String::length;
 
+    /*
+        A function wrapper interface that tracks the number of times it has been executed.
+     */
     protected interface InvocationCountingFun<X, Y> extends Fun<X, Y> {
 
         int getInvocationCount();
@@ -185,6 +229,9 @@ public class TestHelper {
 
     }
 
+    /*
+        Creates a thread-safe invocation-counting function wrapper around the given function.
+     */
     protected final <X, Y> InvocationCountingFun<X ,Y> invocationCountingFun(final Function<X, Y> function) {
         return new InvocationCountingFun<>() {
             private final AtomicInteger invocationCount
@@ -208,6 +255,9 @@ public class TestHelper {
         };
     }
 
+    /*
+        A supplier wrapper interface that tracks the number of times it has been called.
+     */
     protected interface InvocationCountingSupplier<A>
             extends Supplier<A> {
 
@@ -217,6 +267,9 @@ public class TestHelper {
 
     }
 
+    /*
+        Creates a thread-safe invocation-counting supplier wrapper around the given supplier.
+     */
     protected final <A> InvocationCountingSupplier<A> invocationCountingSupplier(final Supplier<A> supplier) {
         return new InvocationCountingSupplier<>() {
             private final AtomicInteger invocationCount
@@ -240,6 +293,9 @@ public class TestHelper {
         };
     }
 
+    /*
+        A consumer wrapper interface that tracks the number of times it has been called.
+     */
     protected interface InvocationCountingConsumer<A>
             extends Consumer<A> {
 
@@ -249,6 +305,9 @@ public class TestHelper {
 
     }
 
+    /*
+        Creates a thread-safe invocation-counting consumer wrapper around the given consumer.
+     */
     protected <A> InvocationCountingConsumer<A> invocationCountingConsumer(final Consumer<A> consumer) {
         return new InvocationCountingConsumer<A>() {
             private final AtomicInteger invocationCount
@@ -277,25 +336,8 @@ public class TestHelper {
             Misc
      */
 
-    /**
-     * <div>
-     *     <p>
-     *         Mischt die Elemente der angegebenen Liste zuf&auml;llig neu und gibt eine neue Liste mit der gemischten Reihenfolge zur&uuml;ck.
-     *         Die Eingabeliste bleibt dabei unver&auml;ndert, da intern eine Kopie erstellt wird.
-     *     </p>
-     *     <p>
-     *         Diese Methode kann beispielsweise verwendet werden, um zuf&auml;llige Permutationen von Elementen zu testen,
-     *         wie im Fall des Testens von Einf&uuml;geoperationen in einem RedBlackTree.
-     *     </p>
-     * </div>
-     *
-     * @param list Die Liste, deren Elemente gemischt werden sollen. Diese Liste bleibt unver&auml;ndert.
-     * @param <A> Der Typ der Elemente in der Liste.
-     * @return Eine neue Liste, die die Elemente der Eingabeliste in zuf&auml;lliger Reihenfolge enth&auml;lt.
-     *
-     * @throws NullPointerException Wenn die angegebene Liste <code>null</code> ist.
-     *
-     * @since 1.0.0
+    /*
+        Returns a new list containing the elements of the specified list in randomized order without mutating the input list.
      */
     protected final <A> List<A> shuffle(final List<A> list) {
         Objects.requireNonNull(list);

@@ -487,6 +487,85 @@ numbers.iterateOverAllElementsFromLeft(System.out::print);   // 123
 numbers.iterateOverAllElementsFromRight(System.out::print);  // 321
 ```
 
+## SeqList (Immutable Eager Java List & Functional Sequence)
+
+`SeqList<A>` is an immutable, eagerly evaluated data structure that combines the full contract of standard `java.util.List` (via `AbstractList`) with functional sequence operations (`Seq<A>`), algebraic capabilities (Functor, Applicative, Monad, Foldable), and $O(1)$ random index access.
+
+```java
+import org.quurz.foomp.base.util.SeqList;
+import org.quurz.foomp.base.util.Maybe;
+import org.quurz.foomp.base.util.Tuple2;
+import java.util.ArrayList;
+import java.util.List;
+
+// 1. Create SeqList instances
+SeqList<Integer> emptyList = SeqList.seqList();
+SeqList<Integer> numbers = SeqList.seqList(1, 2, 3);
+SeqList<String> fromCollection = SeqList.seqListFrom(List.of("A", "B", "C"));
+
+// 2. Full java.util.List Compatibility & Random Access (O(1))
+int size = numbers.size();                        // 3
+int second = numbers.get(1);                      // 2
+boolean containsTwo = numbers.contains(2);        // true
+List<Integer> sub = numbers.subList(0, 2);        // [1, 2] (unmodifiable view)
+
+// Note: Mutating operations throw UnsupportedOperationException
+// numbers.add(4); // throws UnsupportedOperationException
+
+// 3. Functional Sequence Operations (cons, tail, headSafe, decons)
+SeqList<Integer> withZero = numbers.cons(0);      // [0, 1, 2, 3]
+int first = numbers.head();                       // 1
+Maybe<Integer> safeHead = numbers.headSafe();     // Some(1)
+SeqList<Integer> rest = numbers.tail();           // [2, 3]
+
+Tuple2<Integer, SeqList<Integer>> pair = numbers.decons();
+int head = pair.get1();                           // 1
+SeqList<Integer> tail = pair.get2();              // [2, 3]
+
+// 4. Eager Transformations (map & filter)
+SeqList<Integer> doubled = numbers.map(x -> x * 2);      // [2, 4, 6] (eagerly evaluated)
+SeqList<Integer> odds = numbers.filter(x -> x % 2 != 0); // [1, 3]
+
+// 5. Partitioning and Splitting (partition & span)
+Tuple2<SeqList<Integer>, ? extends org.quurz.foomp.base.types.Seq<Integer>> partitioned = 
+    numbers.partition(x -> x % 2 != 0);
+// partitioned.get1() -> [1, 3] (matching), partitioned.get2() -> [2] (non-matching)
+
+SeqList<Integer> sample = SeqList.seqList(1, 3, 5, 4, 7, 9);
+Tuple2<SeqList<Integer>, ? extends org.quurz.foomp.base.types.Seq<Integer>> spanned = 
+    sample.span(x -> x % 2 != 0);
+// spanned.get1() -> [1, 3, 5] (longest prefix), spanned.get2() -> [4, 7, 9] (remainder)
+
+// 6. Merging and Appending (merge, appendAll, prependAll)
+SeqList<Integer> merged = numbers.merge(SeqList.seqList(4, 5)); // [1, 2, 3, 4, 5]
+SeqList<Integer> appended = numbers.appendAll(List.of(4, 5));   // [1, 2, 3, 4, 5]
+SeqList<Integer> prepended = numbers.prependAll(List.of(-1, 0));// [-1, 0, 1, 2, 3]
+
+// 7. Monadic Chaining (flatMap) & Applicative (applyTo)
+SeqList<Integer> expanded = numbers.flatMap(x -> SeqList.seqList(x, x * 10));
+// [1, 10, 2, 20, 3, 30]
+
+SeqList<java.util.function.Function<Integer, String>> fns = SeqList.seqList(
+    x -> "num:" + x,
+    x -> "val:" + (x * 2)
+);
+SeqList<String> applied = numbers.applyTo(fns);
+// ["num:1", "num:2", "num:3", "val:2", "val:4", "val:6"]
+
+// 8. Folds (left and right associative)
+int sum = numbers.foldLeft(0, Integer::sum);              // 6
+int folded = numbers.foldRight(0, (x, acc) -> x - acc);   // 2
+
+// 9. Stream Processing and Collector Integration
+SeqList<String> collectedFromStream = java.util.stream.Stream.of("X", "Y", "Z")
+    .collect(SeqList.collectToSeqList());
+// [X, Y, Z]
+
+for (int n : numbers) {
+    System.out.println(n);
+}
+```
+
 ## Dictionary (Immutable Persistent Map)
 
 `Dictionary<K, V>` is an immutable, persistent, and lazy dictionary backed by a balanced `RedBlackTree` and collision chains. Keys are organized by hash codes ($O(\log n)$), and value transformations via `map` are deferred until access.
