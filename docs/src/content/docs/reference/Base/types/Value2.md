@@ -55,10 +55,10 @@ Calling `get1()` or `get2()` when the corresponding component is not present thr
 
 ## Implementations in Foomp
 
-* [`Tuple2<A1, A2>`](/reference/api-base-util-overview/) – Immutable product type containing two values.
-* [`Pair<A, B>`](/reference/api-base-util-overview/) – Classical 2-tuple pair structure.
-* [`Either<L, R>`](/reference/api-base-util-overview/) – Disjoint union type holding either `Left` or `Right`.
-* [`XorValue<L, R>`](/reference/api-base-util-overview/) – Throwing computation carrier.
+* [`Tuple2<A1, A2>`](/reference/base/util/tuple2/) – Immutable product type containing two values.
+* [`Pair<A, B>`](/reference/base/util/pair/) – Classical 2-tuple pair structure.
+* [`Either<L, R>`](/reference/base/util/either/) – Disjoint union type holding either `Left` or `Right`.
+* [`XorValue<L, R>`](/reference/base/types/xorvalue/) – Throwing computation carrier.
 * [`Value3<A1, A2, A3>`](/reference/base/types/value3/) – Ternary value carrier extending `Value2`.
 
 ---

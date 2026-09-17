@@ -55,8 +55,8 @@ For total product structures (such as `Tuple3` or `Record3`), `isPresent1()`, `i
 
 ## Implementations in Foomp
 
-* [`Tuple3<A1, A2, A3>`](/reference/api-base-util-overview/) – Immutable 3-element product type.
-* [`Record3<A1, A2, A3>`](/reference/api-base-util-overview/) – Lightweight nominal/positional 3-tuple container.
+* [`Tuple3<A1, A2, A3>`](/reference/base/util/tuple3/) – Immutable 3-element product type.
+* [`Record3<A1, A2, A3>`](/reference/base/util/record3/) – Lightweight nominal/positional 3-tuple container.
 * [`Value4<A1, A2, A3, A4>`](/reference/base/types/value4/) – 4-component value carrier extending `Value3`.
 
 ---

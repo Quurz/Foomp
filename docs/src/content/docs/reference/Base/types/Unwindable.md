@@ -51,11 +51,11 @@ Using the self-referential generic parameter `SELF extends Unwindable<?>`, calli
 
 ## Implementations in Foomp
 
-* [`Box<A>`](/reference/api-base-util-overview/) – Lazily computed single-value container; `unwind()` forces the underlying supplier.
-* [`Eval<A>`](/reference/api-base-util-overview/) – Lazy evaluation monad; `unwind()` resolves `Eval.Later` or `Eval.Always` into `Eval.Now`.
+* [`Box<A>`](/reference/base/util/box/) – Lazily computed single-value container; `unwind()` forces the underlying supplier.
+* [`Eval<A>`](/reference/base/util/eval/) – Lazy evaluation monad; `unwind()` resolves `Eval.Later` or `Eval.Always` into `Eval.Now`.
 * [`Provider<A>`](/reference/base/functions/provider/) – Functional value supplier; `unwind()` evaluates and captures the current value into a constant provider.
-* [`Tuple2<A1, A2>`](/reference/api-base-util-overview/), `Tuple3`, `Tuple4` – Multi-value product types that recursively unwind lazy components.
-* [`Maybe<A>`](/reference/api-base-util-overview/), [`Either<L, R>`](/reference/api-base-util-overview/), [`Attempt<A>`](/reference/base/util/attempt/) – Core containers supporting eager materialization.
+* [`Tuple2<A1, A2>`](/reference/base/util/tuple2/), [`Tuple3`](/reference/base/util/tuple3/), [`Tuple4`](/reference/base/util/tuple4/) – Multi-value product types that recursively unwind lazy components.
+* [`Maybe<A>`](/reference/base/util/maybe/), [`Either<L, R>`](/reference/base/util/either/), [`Attempt<A>`](/reference/base/util/attempt/) – Core containers supporting eager materialization.
 
 ---
 

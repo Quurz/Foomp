@@ -17,7 +17,7 @@ public interface Higher4<WT extends WitnessType, A, B, C, D> extends Hkt<WT>
 
 ### Type Parameters
 
-* **`WT`**: The witness type of the quaternary type constructor (must implement [`WitnessType`](/reference/api-higher-overview/)).
+* **`WT`**: The witness type of the quaternary type constructor (must implement [`WitnessType`](/reference/higher/higher/witnesstype/)).
 * **`A`**: The first generic type parameter carried by this higher-kinded type.
 * **`B`**: The second generic type parameter carried by this higher-kinded type.
 * **`C`**: The third generic type parameter carried by this higher-kinded type.
@@ -27,7 +27,7 @@ public interface Higher4<WT extends WitnessType, A, B, C, D> extends Hkt<WT>
 
 ## Superinterfaces
 
-* [`Hkt<WT>`](/reference/api-higher-overview/) – Base marker interface for all higher-kinded type encodings in Foomp.
+* [`Hkt<WT>`](/reference/higher/higher/hkt/) – Base marker interface for all higher-kinded type encodings in Foomp.
 
 ---
 

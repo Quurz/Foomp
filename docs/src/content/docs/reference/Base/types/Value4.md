@@ -58,8 +58,8 @@ For total product types like `Tuple4` or `Record4`, all four `isPresentX()` meth
 
 ## Implementations in Foomp
 
-* [`Tuple4<A1, A2, A3, A4>`](/reference/api-base-util-overview/) – Immutable 4-element product type.
-* [`Record4<A1, A2, A3, A4>`](/reference/api-base-util-overview/) – Lightweight nominal/positional 4-tuple container.
+* [`Tuple4<A1, A2, A3, A4>`](/reference/base/util/tuple4/) – Immutable 4-element product type.
+* [`Record4<A1, A2, A3, A4>`](/reference/base/util/record4/) – Lightweight nominal/positional 4-tuple container.
 
 ---
 

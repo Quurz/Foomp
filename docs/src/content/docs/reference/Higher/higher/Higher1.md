@@ -17,14 +17,14 @@ public interface Higher1<WT extends WitnessType, A> extends Hkt<WT>
 
 ### Type Parameters
 
-* **`WT`**: The witness type of the higher-kinded type constructor (must implement [`WitnessType`](/reference/api-higher-overview/)).
+* **`WT`**: The witness type of the higher-kinded type constructor (must implement [`WitnessType`](/reference/higher/higher/witnesstype/)).
 * **`A`**: The generic element/value type carried by this higher-kinded type.
 
 ---
 
 ## Superinterfaces
 
-* [`Hkt<WT>`](/reference/api-higher-overview/) – Base marker interface for all higher-kinded type encodings in Foomp.
+* [`Hkt<WT>`](/reference/higher/higher/hkt/) – Base marker interface for all higher-kinded type encodings in Foomp.
 
 ---
 

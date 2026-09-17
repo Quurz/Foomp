@@ -48,10 +48,10 @@ Through `isPresent()`, callers can test if the container actually holds a retrie
 
 ## Implementations in Foomp
 
-* [`Maybe<A>`](/reference/api-base-util-overview/) – Optional container (`Just<A>` implements present `Value<A>`, `Nothing<A>` implements empty `Value<A>`).
-* [`Box<A>`](/reference/api-base-util-overview/) – Eager or lazy single-value container.
+* [`Maybe<A>`](/reference/base/util/maybe/) – Optional container (`Just<A>` implements present `Value<A>`, `Nothing<A>` implements empty `Value<A>`).
+* [`Box<A>`](/reference/base/util/box/) – Eager or lazy single-value container.
 * [`Provider<A>`](/reference/base/functions/provider/) – Functional value supplier.
-* [`Eval<A>`](/reference/api-base-util-overview/) – Lazy evaluation container.
+* [`Eval<A>`](/reference/base/util/eval/) – Lazy evaluation container.
 * [`Value2<A1, A2>`](/reference/base/types/value2/) – Binary value carrier extending `Value<A1>`.
 
 ---
