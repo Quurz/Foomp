@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -404,6 +405,128 @@ class DictionaryTest {
             LOGGER.info("Dictionary.narrow(Higher2) with foreign instance should throw IllegalArgumentException");
             final var pair = Tuple2.tuple2("a", 1);
             assertThatThrownBy(() -> Dictionary.narrow((Higher2) pair))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("ApplyTo")
+    class ApplyTo {
+
+        @Test
+        void applyTo_applies_functions_to_matching_keys_only() {
+            LOGGER.info("applyTo computes key intersection and applies transformation functions");
+            final Dictionary<String, String> dict = dictionaryOf(
+                tuple2("Heinz", "Hund"),
+                tuple2("Klaus", "Katze"),
+                tuple2("Mimi", "Maus")
+            );
+
+            final Dictionary<String, Function<String, Integer>> fnDict = dictionaryOf(
+                tuple2("Heinz", String::length),
+                tuple2("Klaus", s -> s.length() * 10),
+                tuple2("Waldi", s -> 99)
+            );
+
+            final Dictionary<String, Integer> applied = dict.applyTo(fnDict);
+
+            assertTrue(applied.contains("Heinz"));
+            assertTrue(applied.contains("Klaus"));
+            assertFalse(applied.contains("Mimi"));
+            assertFalse(applied.contains("Waldi"));
+
+            assertEquals(4, applied.get("Heinz"));
+            assertEquals(50, applied.get("Klaus"));
+        }
+
+        @Test
+        void applyTo_on_empty_dictionary_returns_empty_dictionary() {
+            LOGGER.info("applyTo on empty dictionary yields empty dictionary");
+            final Dictionary<String, String> emptyDict = dictionary();
+            final Dictionary<String, Function<String, Integer>> fnDict = dictionaryOf(
+                tuple2("Heinz", String::length)
+            );
+
+            final Dictionary<String, Integer> applied = emptyDict.applyTo(fnDict);
+            assertFalse(applied.contains("Heinz"));
+        }
+
+        @Test
+        void applyTo_with_empty_function_dictionary_returns_empty_dictionary() {
+            LOGGER.info("applyTo with empty function dictionary yields empty dictionary");
+            final Dictionary<String, String> dict = dictionaryOf(
+                tuple2("Heinz", "Hund")
+            );
+            final Dictionary<String, Function<String, Integer>> emptyFnDict = dictionary();
+
+            final Dictionary<String, Integer> applied = dict.applyTo(emptyFnDict);
+            assertFalse(applied.contains("Heinz"));
+        }
+
+        @Test
+        void applyTo_is_evaluated_lazily() {
+            LOGGER.info("applyTo defers function application until get or toMap is called");
+            final AtomicInteger counter = new AtomicInteger(0);
+            final Dictionary<String, String> dict = dictionaryOf(
+                tuple2("Heinz", "Hund")
+            );
+
+            final Dictionary<String, Function<String, Integer>> fnDict = dictionaryOf(
+                tuple2("Heinz", s -> {
+                    counter.incrementAndGet();
+                    return s.length();
+                })
+            );
+
+            final Dictionary<String, Integer> applied = dict.applyTo(fnDict);
+            assertEquals(0, counter.get());
+
+            assertEquals(4, applied.get("Heinz"));
+            assertEquals(1, counter.get());
+        }
+
+        @Test
+        void applyTo_with_hash_collisions_works_correctly() {
+            LOGGER.info("applyTo preserves and transforms colliding keys correctly");
+            final CollidingKey k1 = new CollidingKey("c1", 42);
+            final CollidingKey k2 = new CollidingKey("c2", 42);
+            final CollidingKey k3 = new CollidingKey("c3", 42);
+
+            final Dictionary<CollidingKey, Integer> dict = dictionaryOf(
+                tuple2(k1, 10),
+                tuple2(k2, 20),
+                tuple2(k3, 30)
+            );
+
+            final Dictionary<CollidingKey, Function<Integer, String>> fnDict = dictionaryOf(
+                tuple2(k1, x -> "val-" + x),
+                tuple2(k3, x -> "triple-" + x)
+            );
+
+            final Dictionary<CollidingKey, String> applied = dict.applyTo(fnDict);
+
+            assertTrue(applied.contains(k1));
+            assertFalse(applied.contains(k2));
+            assertTrue(applied.contains(k3));
+
+            assertEquals("val-10", applied.get(k1));
+            assertEquals("triple-30", applied.get(k3));
+        }
+
+        @Test
+        void applyTo_null_checks() {
+            LOGGER.info("applyTo throws NullPointerException on null transformation");
+            final Dictionary<String, String> dict = dictionaryOf(tuple2("a", "b"));
+            assertThrows(NullPointerException.class, () -> dict.applyTo(null));
+        }
+
+        @Test
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        void applyTo_foreign_witness_throws_illegal_argument() {
+            LOGGER.info("applyTo throws IllegalArgumentException on non-Dictionary Higher1 instance");
+            final Dictionary<String, String> dict = dictionaryOf(tuple2("a", "b"));
+            final var box = Box.box((Function<String, Integer>) String::length);
+            assertThatThrownBy(() -> dict.applyTo((Higher1) box))
                 .isInstanceOf(IllegalArgumentException.class);
         }
     }

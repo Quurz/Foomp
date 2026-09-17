@@ -509,9 +509,16 @@ boolean hasBanana = dict.contains("banana");       // true
 // 4. Remove (immutable)
 Dict<String, Integer> withoutBanana = dict.remove("banana");
 
-// 5. Lazy Value Mapping (Functor)
+// 5. Lazy Value Mapping (Functor) & Applicative Application (applyTo)
 Dictionary<String, String> formatted = dict.map(v -> "$" + v); // deferred until access
 String price = formatted.get("apple");             // "$1"
+
+Dictionary<String, java.util.function.Function<Integer, String>> fnDict = Dictionary.dictionaryOf(
+    tuple2("apple", count -> count + " pieces"),
+    tuple2("cherry", count -> count + " berries")
+);
+// Computes key intersection lazily: ("apple", 1) -> ("apple", "1 pieces")
+Dictionary<String, String> applied = dict.applyTo(fnDict);
 
 // 6. Higher-Kinded Narrowing
 Higher2<Dictionary.µ, String, Integer> wide2 = dict;

@@ -1,6 +1,7 @@
 package org.quurz.foomp.base.util;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.quurz.foomp.base.types.Appliable;
 import org.quurz.foomp.base.types.Dict;
 import org.quurz.foomp.base.types.Mappable;
 import org.quurz.foomp.base.types.Tree;
@@ -54,6 +55,7 @@ import static org.quurz.foomp.base.util.RedBlackTree.redBlackTree;
 @SuppressWarnings("NonAsciiCharacters")
 public class Dictionary<K, V>
         implements Mappable<Dictionary.µ, V>,
+                   Appliable<Dictionary.µ, V>,
                    Dict<K, V>,
                    Higher2<Dictionary.µ, K, V>,
                    Higher1<Dictionary.µ, V> {
@@ -458,6 +460,48 @@ public class Dictionary<K, V>
     }
 
     /**
+     * Finds the lazy value supplier associated with the given key.
+     *
+     * @param key the key to search for
+     * @return the lazy value supplier, or {@code null} if not found
+     */
+    private Supplier<V> findSpool(final K key) {
+        final Entry<K, V> searchPattern
+            = new Entry<>(key);
+        final Maybe<Entry<K, V>> existingEntry
+            = this.tree.searchSafe(searchPattern);
+        return existingEntry.isSome()
+            ? existingEntry.get().find(key)
+            : null;
+    }
+
+    /**
+     * Inserts a key-value mapping into this dictionary with a lazy value supplier.
+     *
+     * @param key   the key to insert
+     * @param spool the lazy value supplier
+     * @return a new dictionary containing the updated mapping
+     */
+    private Dictionary<K, V> putLazy(final K key,
+                                     final Supplier<V> spool) {
+        final Entry<K, V> searchPattern
+            = new Entry<>(key);
+        final Maybe<Entry<K, V>> existingEntry
+            = this.tree.searchSafe(searchPattern);
+
+        final Entry<K, V> updatedEntry;
+        if (existingEntry.isSome()) {
+            updatedEntry
+                = existingEntry.get().put(key, spool);
+        } else {
+            updatedEntry
+                = new Entry<>(key, spool);
+        }
+
+        return new Dictionary<>(this.tree.insert(updatedEntry));
+    }
+
+    /**
      * <div>
      *     <p>
      *         Checks whether this dictionary contains a mapping for the specified key.
@@ -634,6 +678,62 @@ public class Dictionary<K, V>
         }
 
         return target;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Applies the functions contained in the specified higher-kinded {@code Dictionary}
+     *         to the corresponding values in this dictionary for matching keys (key intersection).
+     *     </p>
+     *     <p>
+     *         Like {@link #map(Function)}, the application of functions to values is evaluated lazily.
+     *     </p>
+     * </div>
+     *
+     * @param transformation a higher-kinded dictionary containing the transformation functions; must not be {@code null}
+     * @param <W>            the type of values produced by the transformation
+     * @return a new dictionary containing the results of applying functions to matching keys
+     * @throws NullPointerException     if {@code transformation} is {@code null}
+     * @throws IllegalArgumentException if {@code transformation} is not an instance of {@code Dictionary}
+     *
+     * @since 1.0.0
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public @NonNull <W> Dictionary<K, W> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super V, ? extends W>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        final Dictionary<K, ? extends Function<? super V, ? extends W>> fnDict
+            = narrow((Higher1<? extends µ, ? extends Function<? super V, ? extends W>>) transformation);
+
+        Dictionary<K, W> result
+            = dictionary();
+
+        for (final Entry<K, V> entry : this.tree.toCollection(ArrayList::new)) {
+            Entry<K, V> current
+                = entry;
+            while (current != null) {
+                final Supplier<? extends Function<? super V, ? extends W>> fnSpool
+                    = fnDict.findSpool(current.key());
+
+                if (fnSpool != null && current.spool() != null) {
+                    final Supplier<V> valSpool
+                        = current.spool();
+                    result
+                        = result.putLazy(
+                            current.key(),
+                            () -> Objects.requireNonNull(
+                                fnSpool.get().apply(valSpool.get()),
+                                nullResultFrom("transformation")
+                            )
+                        );
+                }
+                current
+                    = current.next();
+            }
+        }
+
+        return result;
     }
 
     /**
