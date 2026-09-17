@@ -517,7 +517,23 @@ class DictionaryTest {
         void applyTo_null_checks() {
             LOGGER.info("applyTo throws NullPointerException on null transformation");
             final Dictionary<String, String> dict = dictionaryOf(tuple2("a", "b"));
-            assertThrows(NullPointerException.class, () -> dict.applyTo(null));
+            assertThrows(NullPointerException.class, () -> dict.applyTo((Dictionary<String, Function<String, Integer>>) null));
+            assertThrows(NullPointerException.class, () -> dict.applyTo((Higher1<Dictionary.µ, Function<String, Integer>>) null));
+        }
+
+        @Test
+        void applyTo_via_higher1_delegates_to_typed_applyTo() {
+            LOGGER.info("applyTo via Higher1 interface applies functions to matching keys");
+            final Dictionary<String, String> dict = dictionaryOf(
+                tuple2("Heinz", "Hund")
+            );
+            final Higher1<Dictionary.µ, Function<String, Integer>> fnDict = dictionaryOf(
+                tuple2("Heinz", String::length)
+            );
+
+            final Dictionary<String, Integer> applied = dict.applyTo(fnDict);
+            assertTrue(applied.contains("Heinz"));
+            assertEquals(4, applied.get("Heinz"));
         }
 
         @Test

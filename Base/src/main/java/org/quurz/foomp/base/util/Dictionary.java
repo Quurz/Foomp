@@ -683,7 +683,7 @@ public class Dictionary<K, V>
     /**
      * <div>
      *     <p>
-     *         Applies the functions contained in the specified higher-kinded {@code Dictionary}
+     *         Applies the functions contained in the specified {@code Dictionary}
      *         to the corresponding values in this dictionary for matching keys (key intersection).
      *     </p>
      *     <p>
@@ -691,20 +691,15 @@ public class Dictionary<K, V>
      *     </p>
      * </div>
      *
-     * @param transformation a higher-kinded dictionary containing the transformation functions; must not be {@code null}
+     * @param transformation a dictionary containing the transformation functions; must not be {@code null}
      * @param <W>            the type of values produced by the transformation
      * @return a new dictionary containing the results of applying functions to matching keys
-     * @throws NullPointerException     if {@code transformation} is {@code null}
-     * @throws IllegalArgumentException if {@code transformation} is not an instance of {@code Dictionary}
+     * @throws NullPointerException if {@code transformation} is {@code null}
      *
      * @since 1.0.0
      */
-    @SuppressWarnings("unchecked")
-    @Override
-    public @NonNull <W> Dictionary<K, W> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super V, ? extends W>> transformation) {
+    public @NonNull <W> Dictionary<K, W> applyTo(final @NonNull Dictionary<K, ? extends Function<? super V, ? extends W>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        final Dictionary<K, ? extends Function<? super V, ? extends W>> fnDict
-            = narrow((Higher1<? extends µ, ? extends Function<? super V, ? extends W>>) transformation);
 
         Dictionary<K, W> result
             = dictionary();
@@ -714,7 +709,7 @@ public class Dictionary<K, V>
                 = entry;
             while (current != null) {
                 final Supplier<? extends Function<? super V, ? extends W>> fnSpool
-                    = fnDict.findSpool(current.key());
+                    = transformation.findSpool(current.key());
 
                 if (fnSpool != null && current.spool() != null) {
                     final Supplier<V> valSpool
@@ -734,6 +729,33 @@ public class Dictionary<K, V>
         }
 
         return result;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Applies the functions contained in the specified higher-kinded {@code Dictionary}
+     *         to the corresponding values in this dictionary for matching keys (key intersection).
+     *     </p>
+     *     <p>
+     *         Like {@link #map(Function)}, the application of functions to values is evaluated lazily.
+     *     </p>
+     * </div>
+     *
+     * @param transformation a higher-kinded dictionary containing the transformation functions; must not be {@code null}
+     * @param <W>            the type of values produced by the transformation
+     * @return a new dictionary containing the results of applying functions to matching keys
+     * @throws NullPointerException     if {@code transformation} is {@code null}
+     * @throws IllegalArgumentException if {@code transformation} is not an instance of {@code Dictionary}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull <W> Dictionary<K, W> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super V, ? extends W>> transformation) {
+        Objects.requireNonNull(transformation, nullValue("transformation"));
+        final Dictionary<K, ? extends Function<? super V, ? extends W>> fnDict
+            = narrow((Higher1<? extends µ, ? extends Function<? super V, ? extends W>>) transformation);
+        return applyTo(fnDict);
     }
 
     /**
