@@ -57,7 +57,7 @@ Immutable, type-safe containers for fixed-size collections of heterogenous value
 A specialized variant of tuples designed for structured data. While similar to tuples, they are often used where a more "named" or structured approach to multiple values is required within the functional pipeline.
 
 ### Sequence
-`Sequence<A>` is an immutable, persistent sequence data structure built with segmented doubly linked nodes. It provides lazy transformation composition (`map`, `applyTo`), structural sharing for $O(1)$ operations (`cons`), monadic flat-mapping (`flatMap`), left/right folding (`foldLeft`, `foldRight`), and safe deconstruction (`decons`, `headSafe`).
+`Sequence<A>` is an immutable, persistent sequence data structure built with segmented doubly linked nodes. It implements `Seq<A>`, `Monadic<Seq.µ, A>`, `Higher1<Seq.µ, A>`, and folding abstractions. It provides $O(1)$ prepend (`cons`), append (`append`), segment-level merging and batch additions (`merge`, `appendAll`, `prependAll`), predicate-based partitioning (`partition`, `span`), lazy transformation composition (`map`, `applyTo`), monadic flat-mapping (`flatMap`), left/right folding (`foldLeft`, `foldRight`), and safe deconstruction (`decons`, `headSafe`). It interoperates smoothly with any `Seq` implementation via Higher-Kinded Type witnesses.
 
 ### Dictionary
 `Dictionary<K, V>` is an immutable, persistent, and lazy dictionary (associative key–value map) backed by a balanced `RedBlackTree` and immutable collision chains. Keys are hashed and stored in $O(\log n)$ balanced tree nodes, with lazy value evaluation (`map`).

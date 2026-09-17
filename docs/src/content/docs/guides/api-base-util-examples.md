@@ -440,6 +440,8 @@ Sequence<String> fromList = Sequence.sequenceFrom(List.of("A", "B", "C"));
 Sequence<Integer> withZero = numbers.cons(0);     // [0, 1, 2, 3]
 Sequence<Integer> withEnd = numbers.append(4);     // [1, 2, 3, 4]
 Sequence<Integer> merged = numbers.merge(Sequence.sequenceOf(4, 5)); // [1, 2, 3, 4, 5]
+Sequence<Integer> appended = numbers.appendAll(List.of(4, 5));       // [1, 2, 3, 4, 5]
+Sequence<Integer> prepended = numbers.prependAll(List.of(-1, 0));    // [-1, 0, 1, 2, 3]
 
 // 3. Head, Tail, and Deconstruction
 int first = numbers.head();                        // 1
@@ -454,18 +456,26 @@ Sequence<Integer> tail = pair.get2();              // [2, 3]
 Sequence<Integer> doubled = numbers.map(x -> x * 2);      // [2, 4, 6] (evaluated on demand)
 Sequence<Integer> evens = numbers.filter(x -> x % 2 != 0); // [1, 3]
 
-// 5. Monadic Chaining (flatMap)
+// 5. Partitioning and Splitting (partition & span)
+Tuple2<Sequence<Integer>, Sequence<Integer>> partitioned = numbers.partition(x -> x % 2 != 0);
+// partitioned.get1() -> [1, 3] (matching), partitioned.get2() -> [2] (non-matching)
+
+Sequence<Integer> sample = Sequence.sequenceOf(1, 3, 5, 4, 7, 9);
+Tuple2<Sequence<Integer>, Sequence<Integer>> spanned = sample.span(x -> x % 2 != 0);
+// spanned.get1() -> [1, 3, 5] (longest matching prefix), spanned.get2() -> [4, 7, 9] (remainder)
+
+// 6. Monadic Chaining (flatMap)
 Sequence<Integer> expanded = numbers.flatMap(x -> Sequence.sequenceOf(x, x * 10));
 // [1, 10, 2, 20, 3, 30]
 
-// 6. Folds (left and right associative)
+// 7. Folds (left and right associative)
 int sum = numbers.foldLeft(0, Integer::sum);              // 6
 int folded = numbers.foldRight(0, (x, acc) -> x - acc);   // 1 - (2 - (3 - 0)) = 2
 
-// 7. Collect into standard Java Collections
+// 8. Collect into standard Java Collections
 List<Integer> list = numbers.toCollection(ArrayList::new);
 
-// 8. Stream, Iterable, and Stream Collectors
+// 9. Stream, Iterable, and Stream Collectors
 for (int n : numbers) {
     System.out.println(n);
 }

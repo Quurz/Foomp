@@ -4,10 +4,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.WitnessType;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.cantCast;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
 /**
@@ -31,7 +34,8 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @author Alexander Schell
  */
 @SuppressWarnings("NonAsciiCharacters")
-public interface Seq<A> {
+public interface Seq<A>
+        extends Mergeable<Seq<A>> {
 
     /**
      * <div>
@@ -51,17 +55,21 @@ public interface Seq<A> {
      *     </p>
      * </div>
      *
-     * @param other the higher‑kinded value to narrow; must not be {@code null}
+     * @param wide the higher‑kinded value to narrow; must not be {@code null}
      * @param <A>   the element type
      * @return the narrowed {@code Seq} instance (never {@code null})
-     * @throws NullPointerException if {@code other} is {@code null}
+     * @throws NullPointerException if {@code wide} is {@code null}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
-    static <A> Seq<A> narrow(final @NonNull Higher1<? extends µ, A> other) {
-        Objects.requireNonNull(other, nullValue("other"));
-        return (Seq<A>) other;
+    static <A> Seq<A> narrow(final @NonNull Higher1<? extends µ, A> wide) {
+        Objects.requireNonNull(wide, nullValue("wide"));
+        if (wide instanceof Seq<?>) {
+            return (Seq<A>) wide;
+        } else {
+            throw new IllegalArgumentException(cantCast("wide", Seq.class));
+        }
     }
 
     /**
@@ -153,6 +161,43 @@ public interface Seq<A> {
     /**
      * <div>
      *     <p>
+     *         Appends all elements of the specified other sequence to the end of this sequence.
+     *     </p>
+     * </div>
+     *
+     * @param other the sequence whose elements should be appended; must not be {@code null}
+     * @return a new sequence containing all elements of this sequence followed by all elements of the other sequence
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    default @NonNull Seq<A> appendAll(final @NonNull Seq<A> other) {
+        Objects.requireNonNull(other, nullValue("other"));
+        return this.merge(other);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Prepends all elements of the specified other sequence to the front of this sequence,
+     *         preserving their encounter order.
+     *     </p>
+     * </div>
+     *
+     * @param other the sequence whose elements should be prepended; must not be {@code null}
+     * @return a new sequence containing all elements of the other sequence followed by all elements of this sequence
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    default @NonNull Seq<A> prependAll(final @NonNull Seq<A> other) {
+        Objects.requireNonNull(other, nullValue("other"));
+        return other.merge(this);
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Deconstructs this sequence into its head and tail.
      *     </p>
      * </div>
@@ -180,6 +225,41 @@ public interface Seq<A> {
      * @since 1.0.0
      */
     @NonNull Seq<A> filter(final @NonNull Predicate<? super A> pred);
+
+    /**
+     * <div>
+     *     <p>
+     *         Partitions this sequence into a pair of sequences according to the specified predicate.
+     *         The first sequence contains all elements that satisfy the predicate, and the second
+     *         sequence contains all elements that do not.
+     *     </p>
+     * </div>
+     *
+     * @param pred the predicate used to partition the sequence; must not be {@code null}
+     * @return a {@link Value2} holding the sequence of matching elements as its first value and non-matching elements as its second value (never {@code null})
+     * @throws NullPointerException if {@code pred} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @NonNull Value2<? extends Seq<A>, ? extends Seq<A>> partition(final @NonNull Predicate<? super A> pred);
+
+    /**
+     * <div>
+     *     <p>
+     *         Splits this sequence into a pair of sequences according to the specified predicate.
+     *         The first sequence contains the longest prefix of elements satisfying the predicate,
+     *         and the second sequence contains the remainder of the sequence starting from the first element
+     *         that does not satisfy the predicate.
+     *     </p>
+     * </div>
+     *
+     * @param pred the predicate used to test elements; must not be {@code null}
+     * @return a {@link Value2} holding the prefix of matching elements as its first value and the remainder of the sequence as its second value (never {@code null})
+     * @throws NullPointerException if {@code pred} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @NonNull Value2<? extends Seq<A>, ? extends Seq<A>> span(final @NonNull Predicate<? super A> pred);
 
     /**
      * <div>

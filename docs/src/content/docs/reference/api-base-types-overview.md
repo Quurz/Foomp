@@ -17,7 +17,7 @@ These interfaces define how values are stored, accessed, and identified.
 *   **`XorValue<A, B>`**: Represents a value that can be one of two types, but not both (a "Sum Type" or "Either").
 *   **`Dict<K, V>`**: Represents an associative key-value lookup contract supporting value retrieval (`get`, `safeGet`), keys/values views, and conversion to `java.util.Map`.
 *   **`Streamable<A>`**: Provides a `stream()` method to effortlessly convert functional structures into standard `java.util.stream.Stream<A>`.
-*   **`Seq<A>`**: A contract for sequential, ordered data structures.
+*   **`Seq<A>`**: A contract for sequential, ordered data structures extending `Mergeable<Seq<A>>`. Defines essential operations such as `head`, `headSafe`, `tail`, `decons`, `cons`, `append`, `appendAll`, `prependAll`, `filter`, `partition` (splitting into matching and non-matching sequences), and `span` (splitting at the first non-matching element into prefix and remainder).
 *   **`Tree<A>`**: The base interface for hierarchical structures, supporting search, insertion, and removal.
 *   **`BinaryTree<A>`**: A specialized tree where each node has at most two children.
 *   **`Mergeable<SELF>`**: Represents objects that can be combined with others of the same type.

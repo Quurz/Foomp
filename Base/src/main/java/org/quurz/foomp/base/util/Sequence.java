@@ -3,11 +3,11 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.types.Foldable;
-import org.quurz.foomp.base.types.Mergeable;
 import org.quurz.foomp.base.types.Monadic;
 import org.quurz.foomp.base.types.Seq;
 import org.quurz.foomp.base.types.Streamable;
 import org.quurz.foomp.base.types.UnwindingOperation;
+import org.quurz.foomp.base.types.Value2;
 import org.quurz.foomp.higher.Higher1;
 
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -65,13 +66,12 @@ import static org.quurz.foomp.base.util.Util.requireNonNullElementsInCollection;
  */
 @SuppressWarnings("NonAsciiCharacters")
 public class Sequence<A>
-        implements Mergeable<Sequence<A>>,
-                   Iterable<A>,
+        implements Iterable<A>,
                    Streamable<A>,
                    Foldable<A>,
-                   Monadic<Sequence.µ, A>,
+                   Monadic<Seq.µ, A>,
                    Seq<A>,
-                   Higher1<Sequence.µ, A> {
+                   Higher1<Seq.µ, A> {
 
     /**
      * <div>
@@ -100,7 +100,7 @@ public class Sequence<A>
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
-    public static <A> Sequence<A> narrow(final @NonNull Higher1<? extends µ, A> wide) {
+    public static <A> Sequence<A> narrow(final @NonNull Higher1<? extends Seq.µ, A> wide) {
         Objects.requireNonNull(wide, nullValue("wide"));
         if (wide instanceof Sequence<?> sequence) {
             return (Sequence<A>) sequence;
@@ -309,6 +309,43 @@ public class Sequence<A>
                 this.lastElement
                     = this.lastElement.appendNoCopy(element);
             }
+        }
+
+        /**
+         * Creates a copy of this segment with the specified previous segment link and no next segment link.
+         *
+         * @param previousSegment the previous segment link in the new chain
+         * @return the copied segment
+         */
+        private Segment<A> copyWithPrevious(final Segment<A> previousSegment) {
+            return new Segment<>(
+                this.firstElement,
+                this.lastElement,
+                this.spool,
+                null,
+                previousSegment
+            );
+        }
+
+        /**
+         * Creates a copy of this segment with a new transformation spool function, the specified previous segment link,
+         * and no next segment link.
+         *
+         * @param newSpool        the new transformation spool function
+         * @param previousSegment the previous segment link in the new chain
+         * @param <B>             the resulting element type
+         * @return the copied and transformed segment
+         */
+        @SuppressWarnings("unchecked")
+        private <B> Segment<B> copyWithSpoolAndPrevious(final Fun<Object, Object> newSpool,
+                                                        final Segment<B> previousSegment) {
+            return new Segment<>(
+                this.firstElement,
+                this.lastElement,
+                newSpool,
+                null,
+                previousSegment
+            );
         }
 
     }
@@ -520,13 +557,7 @@ public class Sequence<A>
                     = newFirstSegment;
                 while (currentOriginalSegment != null) {
                     final Segment<A> currentCopiedSegment
-                        = new Segment<>(
-                            currentOriginalSegment.firstElement,
-                            currentOriginalSegment.lastElement,
-                            currentOriginalSegment.spool,
-                            null,
-                            previousCopiedSegment
-                        );
+                        = currentOriginalSegment.copyWithPrevious(previousCopiedSegment);
                     previousCopiedSegment.nextSegment
                         = currentCopiedSegment;
                     previousCopiedSegment
@@ -544,13 +575,7 @@ public class Sequence<A>
                     = null;
                 while (currentOriginalSegment != null) {
                     final Segment<A> currentCopiedSegment
-                        = new Segment<>(
-                            currentOriginalSegment.firstElement,
-                            currentOriginalSegment.lastElement,
-                            currentOriginalSegment.spool,
-                            null,
-                            previousCopiedSegment
-                        );
+                        = currentOriginalSegment.copyWithPrevious(previousCopiedSegment);
                     if (previousCopiedSegment != null) {
                         previousCopiedSegment.nextSegment
                             = currentCopiedSegment;
@@ -608,13 +633,7 @@ public class Sequence<A>
                 = newFirstSegment;
             while (currentOriginalSegment != null) {
                 final Segment<A> currentCopiedSegment
-                    = new Segment<>(
-                        currentOriginalSegment.firstElement,
-                        currentOriginalSegment.lastElement,
-                        currentOriginalSegment.spool,
-                        null,
-                        previousCopiedSegment
-                    );
+                    = currentOriginalSegment.copyWithPrevious(previousCopiedSegment);
                 previousCopiedSegment.nextSegment
                     = currentCopiedSegment;
                 previousCopiedSegment
@@ -684,13 +703,7 @@ public class Sequence<A>
                 = null;
             while (currentOriginalSegment != null) {
                 final Segment<A> currentCopiedSegment
-                    = new Segment<>(
-                        currentOriginalSegment.firstElement,
-                        currentOriginalSegment.lastElement,
-                        currentOriginalSegment.spool,
-                        null,
-                        previousCopiedSegment
-                    );
+                    = currentOriginalSegment.copyWithPrevious(previousCopiedSegment);
                 if (previousCopiedSegment != null) {
                     previousCopiedSegment.nextSegment
                         = currentCopiedSegment;
@@ -790,6 +803,80 @@ public class Sequence<A>
     /**
      * <div>
      *     <p>
+     *         Partitions this sequence into a tuple of sequences according to the specified predicate.
+     *         The first sequence contains all elements that satisfy the predicate, and the second
+     *         sequence contains all elements that do not.
+     *     </p>
+     * </div>
+     *
+     * @param pred the predicate used to partition the sequence; must not be {@code null}
+     * @return a {@link Tuple2} containing the sequence of matching elements and the sequence of non-matching elements (never {@code null})
+     * @throws NullPointerException if {@code pred} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    @UnwindingOperation
+    public @NonNull Tuple2<Sequence<A>, Sequence<A>> partition(final @NonNull Predicate<? super A> pred) {
+        Objects.requireNonNull(pred, nullValue("pred"));
+
+        final var matches
+            = new ArrayList<A>();
+        final var nonMatches
+            = new ArrayList<A>();
+        this.iterateOverAllElementsFromLeft(value -> {
+            if (pred.test(value)) {
+                matches.add(value);
+            } else {
+                nonMatches.add(value);
+            }
+        });
+
+        return tuple2(sequenceFrom(matches), sequenceFrom(nonMatches));
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Splits this sequence into a tuple of sequences according to the specified predicate.
+     *         The first sequence contains the longest prefix of elements satisfying the predicate,
+     *         and the second sequence contains the remainder of the sequence starting from the first element
+     *         that does not satisfy the predicate.
+     *     </p>
+     * </div>
+     *
+     * @param pred the predicate used to test elements; must not be {@code null}
+     * @return a {@link Tuple2} containing the prefix sequence and remainder sequence (never {@code null})
+     * @throws NullPointerException if {@code pred} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    @UnwindingOperation
+    public @NonNull Tuple2<Sequence<A>, Sequence<A>> span(final @NonNull Predicate<? super A> pred) {
+        Objects.requireNonNull(pred, nullValue("pred"));
+
+        final var before
+            = new ArrayList<A>();
+        final var after
+            = new ArrayList<A>();
+        final var stillBefore
+            = new AtomicBoolean(true);
+        this.iterateOverAllElementsFromLeft(value -> {
+            if (stillBefore.get() && pred.test(value)) {
+                before.add(value);
+            } else {
+                stillBefore.set(false);
+                after.add(value);
+            }
+        });
+
+        return tuple2(sequenceFrom(before), sequenceFrom(after));
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Collects all elements of this sequence into a newly supplied mutable {@link Collection}.
      *     </p>
      * </div>
@@ -802,6 +889,7 @@ public class Sequence<A>
      * @since 1.0.0
      */
     @Override
+    @UnwindingOperation
     public @NonNull <C extends Collection<? super A>> C toCollection(final @NonNull Supplier<C> init) {
         Objects.requireNonNull(init, nullValue("init"));
         final var collection
@@ -838,11 +926,8 @@ public class Sequence<A>
                 = null;
             while (currentOriginalSegment != null) {
                 final Segment<B> currentMappedSegment
-                    = new Segment<>(
-                        currentOriginalSegment.firstElement,
-                        currentOriginalSegment.lastElement,
+                    = currentOriginalSegment.copyWithSpoolAndPrevious(
                         currentOriginalSegment.spool.andThen(Fun.fun((Function<Object, Object>) transformation)),
-                        null,
                         previousMappedSegment
                     );
                 if (previousMappedSegment != null) {
@@ -878,70 +963,67 @@ public class Sequence<A>
      * @param <B>            the target element type
      * @return a new {@code Sequence} containing the results of applying every function to every element
      * @throws NullPointerException     if {@code transformation} is {@code null}
-     * @throws IllegalArgumentException if {@code transformation} is not an instance of {@code Sequence}
+     * @throws IllegalArgumentException if {@code transformation} is not an instance of {@code Seq}
      *
      * @since 1.0.0
      */
     @SuppressWarnings("unchecked")
     @Override
-    public @NonNull <B> Sequence<B> applyTo(final @NonNull Higher1<? extends µ, ? extends Function<? super A, ? extends B>> transformation) {
+    public @NonNull <B> Sequence<B> applyTo(final @NonNull Higher1<? extends Seq.µ, ? extends Function<? super A, ? extends B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        final var transformingSequence
-            = narrow(transformation);
+        final Seq<? extends Function<? super A, ? extends B>> transformingSeq
+            = Seq.narrow(transformation);
         final Sequence<B> newSequence;
-        if (this.isNotEmpty()) {
-            if (transformingSequence.isNotEmpty()) {
-                Segment<B> firstResultSegment
-                    = null;
-                Segment<B> previousResultSegment
-                    = null;
-                Segment<? extends Function<? super A, ? extends B>> currentFnSegment
-                    = transformingSequence.firstSegment;
-                while (currentFnSegment != null) {
-                    Element<? extends Function<? super A, ? extends B>> currentFnElement
-                        = currentFnSegment.firstElement;
-                    while (currentFnElement != null) {
-                        final var fn
-                            = (Function<? super A, ? extends B>) Objects.requireNonNull(
-                                currentFnSegment.spool.apply(currentFnElement.value),
-                                nullResult()
+        if (this.isNotEmpty() && transformingSeq.isNotEmpty()) {
+            final Sequence<? extends Function<? super A, ? extends B>> transformingSequence
+                = transformingSeq instanceof Sequence<? extends Function<? super A, ? extends B>> s
+                    ? s
+                    : sequenceFrom(transformingSeq.toCollection(ArrayList::new));
+
+            Segment<B> firstResultSegment
+                = null;
+            Segment<B> previousResultSegment
+                = null;
+            Segment<? extends Function<? super A, ? extends B>> currentFnSegment
+                = transformingSequence.firstSegment;
+            while (currentFnSegment != null) {
+                Element<? extends Function<? super A, ? extends B>> currentFnElement
+                    = currentFnSegment.firstElement;
+                while (currentFnElement != null) {
+                    final var fn
+                        = (Function<? super A, ? extends B>) Objects.requireNonNull(
+                            currentFnSegment.spool.apply(currentFnElement.value),
+                            nullResult()
+                        );
+                    Segment<A> currentDataSegment
+                        = this.firstSegment;
+                    while (currentDataSegment != null) {
+                        final Segment<B> currentMappedSegment
+                            = currentDataSegment.copyWithSpoolAndPrevious(
+                                currentDataSegment.spool.andThen(Fun.fun((Function<Object, Object>) fn)),
+                                previousResultSegment
                             );
-                        Segment<A> currentDataSegment
-                            = this.firstSegment;
-                        while (currentDataSegment != null) {
-                            final Segment<B> currentMappedSegment
-                                = (Segment<B>) new Segment<>(
-                                    currentDataSegment.firstElement,
-                                    currentDataSegment.lastElement,
-                                    currentDataSegment.spool.andThen(Fun.fun((Function<Object, Object>) fn)),
-                                    null,
-                                    previousResultSegment
-                                );
-                            if (previousResultSegment != null) {
-                                previousResultSegment.nextSegment
-                                    = currentMappedSegment;
-                            }
-                            if (firstResultSegment == null) {
-                                firstResultSegment
-                                    = currentMappedSegment;
-                            }
-                            previousResultSegment
+                        if (previousResultSegment != null) {
+                            previousResultSegment.nextSegment
                                 = currentMappedSegment;
-                            currentDataSegment
-                                = currentDataSegment.nextSegment;
                         }
-                        currentFnElement
-                            = currentFnElement.nextElement;
+                        if (firstResultSegment == null) {
+                            firstResultSegment
+                                = currentMappedSegment;
+                        }
+                        previousResultSegment
+                            = currentMappedSegment;
+                        currentDataSegment
+                            = currentDataSegment.nextSegment;
                     }
-                    currentFnSegment
-                        = currentFnSegment.nextSegment;
+                    currentFnElement
+                        = currentFnElement.nextElement;
                 }
-                newSequence
-                    = new Sequence<>(firstResultSegment, previousResultSegment);
-            } else {
-                newSequence
-                    = (Sequence<B>) EMPTY_SEQUENCE;
+                currentFnSegment
+                    = currentFnSegment.nextSegment;
             }
+            newSequence
+                = new Sequence<>(firstResultSegment, previousResultSegment);
         } else {
             newSequence
                 = (Sequence<B>) EMPTY_SEQUENCE;
@@ -965,7 +1047,7 @@ public class Sequence<A>
      */
     @SuppressWarnings("unchecked")
     @Override
-    public @NonNull <B> Sequence<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends µ, B>> transformation) {
+    public @NonNull <B> Sequence<B> flatMap(final @NonNull Function<? super A, ? extends Higher1<? extends Seq.µ, B>> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
 
         if (this.isEmpty()) {
@@ -985,18 +1067,18 @@ public class Sequence<A>
                 );
 
                 final var higher = Objects.requireNonNull(transformation.apply(element), nullResult());
-                final var innerSequence = narrow(higher);
+                final var innerSeq = Seq.narrow(higher);
 
-                if (innerSequence.isNotEmpty()) {
+                if (innerSeq.isNotEmpty()) {
+                    final Sequence<B> innerSequence
+                        = innerSeq instanceof Sequence<B> s
+                            ? s
+                            : sequenceFrom(innerSeq.toCollection(ArrayList::new));
+
                     var currentInnerSegment = innerSequence.firstSegment;
                     while (currentInnerSegment != null) {
-                        final Segment<B> copiedSegment = new Segment<>(
-                            currentInnerSegment.firstElement,
-                            currentInnerSegment.lastElement,
-                            currentInnerSegment.spool,
-                            null,
-                            previousResultSegment
-                        );
+                        final Segment<B> copiedSegment
+                            = currentInnerSegment.copyWithPrevious(previousResultSegment);
 
                         if (previousResultSegment != null) {
                             previousResultSegment.nextSegment = copiedSegment;
@@ -1162,7 +1244,8 @@ public class Sequence<A>
      *     </p>
      *     <p>
      *         The resulting sequence contains all elements of this sequence followed by all elements
-     *         of the other sequence. Lazy transformations (spooling) are preserved.
+     *         of the other sequence. Lazy transformations (spooling) are preserved when merging
+     *         with another {@code Sequence}.
      *     </p>
      * </div>
      *
@@ -1173,28 +1256,51 @@ public class Sequence<A>
      * @since 1.0.0
      */
     @Override
-    public @NonNull Sequence<A> merge(final @NonNull Sequence<A> other) {
+    public @NonNull Sequence<A> merge(final @NonNull Seq<A> other) {
         Objects.requireNonNull(other, nullValue("other"));
 
+        final Sequence<A> merged;
+
         if (this.isEmpty()) {
-            return other;
-        }
-        if (other.isEmpty()) {
-            return this;
+            merged
+                = other instanceof Sequence<A> s
+                    ? s
+                    : sequenceFrom(other.toCollection(ArrayList::new));
+        } else if (other.isEmpty()) {
+            merged
+                = this;
+        } else if (other instanceof Sequence<A> sequence) {
+            merged
+                = this.mergeSequence(sequence);
+        } else {
+            final var temp = this.toCollection(ArrayList<A>::new);
+            other.toCollection(() -> temp);
+            merged
+                = sequenceFrom(temp);
         }
 
+        return merged;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Fast-path implementation for merging two {@link Sequence} instances by linking copies
+     *         of their segment chains.
+     *     </p>
+     * </div>
+     *
+     * @param other the other sequence to merge; must not be {@code null}
+     * @return a new {@code Sequence} with combined segment chains
+     */
+    private @NonNull Sequence<A> mergeSequence(final @NonNull Sequence<A> other) {
         Segment<A> firstCopiedSegment = null;
         Segment<A> previousCopiedSegment = null;
 
         var current = this.firstSegment;
         while (current != null) {
-            final Segment<A> copiedSegment = new Segment<>(
-                current.firstElement,
-                current.lastElement,
-                current.spool,
-                null,
-                previousCopiedSegment
-            );
+            final Segment<A> copiedSegment
+                = current.copyWithPrevious(previousCopiedSegment);
             if (previousCopiedSegment != null) {
                 previousCopiedSegment.nextSegment = copiedSegment;
             }
@@ -1207,13 +1313,8 @@ public class Sequence<A>
 
         current = other.firstSegment;
         while (current != null) {
-            final Segment<A> copiedSegment = new Segment<>(
-                current.firstElement,
-                current.lastElement,
-                current.spool,
-                null,
-                previousCopiedSegment
-            );
+            final Segment<A> copiedSegment
+                = current.copyWithPrevious(previousCopiedSegment);
             if (previousCopiedSegment != null) {
                 previousCopiedSegment.nextSegment = copiedSegment;
             }
@@ -1225,6 +1326,127 @@ public class Sequence<A>
         }
 
         return new Sequence<>(firstCopiedSegment, previousCopiedSegment);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Appends all elements of the specified other sequence to the end of this sequence.
+     *     </p>
+     *     <p>
+     *         This operation is semantically equivalent to {@link #merge(Seq)}.
+     *     </p>
+     * </div>
+     *
+     * @param other the sequence whose elements should be appended; must not be {@code null}
+     * @return a new sequence containing all elements of this sequence followed by all elements of the other sequence
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull Sequence<A> appendAll(final @NonNull Seq<A> other) {
+        Objects.requireNonNull(other, nullValue("other"));
+        return this.merge(other);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Appends all elements of the specified collection to the end of this sequence.
+     *     </p>
+     * </div>
+     *
+     * @param elements the collection whose elements should be appended; must not be {@code null} and must not contain {@code null}
+     * @return a new sequence containing all elements of this sequence followed by all elements of the collection
+     * @throws NullPointerException if {@code elements} is {@code null} or contains {@code null}
+     *
+     * @since 1.0.0
+     */
+    @SuppressWarnings("unchecked")
+    public @NonNull Sequence<A> appendAll(final @NonNull Collection<? extends A> elements) {
+        Objects.requireNonNull(elements, nullValue("elements"));
+        final Sequence<A> appended;
+        if (elements.isEmpty()) {
+            appended
+                = this;
+        } else if (this.isEmpty()) {
+            appended
+                = sequenceFrom((Collection<A>) elements);
+        } else {
+            appended
+                = this.mergeSequence(sequenceFrom((Collection<A>) elements));
+        }
+        return appended;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Prepends all elements of the specified other sequence to the front of this sequence,
+     *         preserving their encounter order.
+     *     </p>
+     * </div>
+     *
+     * @param other the sequence whose elements should be prepended; must not be {@code null}
+     * @return a new sequence containing all elements of the other sequence followed by all elements of this sequence
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull Sequence<A> prependAll(final @NonNull Seq<A> other) {
+        Objects.requireNonNull(other, nullValue("other"));
+        final Sequence<A> prepended;
+        if (other.isEmpty()) {
+            prepended
+                = this;
+        } else if (this.isEmpty()) {
+            prepended
+                = other instanceof Sequence<A> s
+                    ? s
+                    : sequenceFrom(other.toCollection(ArrayList::new));
+        } else if (other instanceof Sequence<A> sequence) {
+            prepended
+                = sequence.mergeSequence(this);
+        } else {
+            final var temp = other.toCollection(ArrayList<A>::new);
+            this.toCollection(() -> temp);
+            prepended
+                = sequenceFrom(temp);
+        }
+        return prepended;
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Prepends all elements of the specified collection to the front of this sequence,
+     *         preserving their encounter order.
+     *     </p>
+     * </div>
+     *
+     * @param elements the collection whose elements should be prepended; must not be {@code null} and must not contain {@code null}
+     * @return a new sequence containing all elements of the collection followed by all elements of this sequence
+     * @throws NullPointerException if {@code elements} is {@code null} or contains {@code null}
+     *
+     * @since 1.0.0
+     */
+    @SuppressWarnings("unchecked")
+    public @NonNull Sequence<A> prependAll(final @NonNull Collection<? extends A> elements) {
+        Objects.requireNonNull(elements, nullValue("elements"));
+        final Sequence<A> prepended;
+        if (elements.isEmpty()) {
+            prepended
+                = this;
+        } else if (this.isEmpty()) {
+            prepended
+                = sequenceFrom((Collection<A>) elements);
+        } else {
+            prepended
+                = sequenceFrom((Collection<A>) elements).mergeSequence(this);
+        }
+        return prepended;
     }
 
     /**

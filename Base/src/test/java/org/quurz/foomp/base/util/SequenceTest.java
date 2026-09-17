@@ -1,5 +1,6 @@
 package org.quurz.foomp.base.util;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -8,14 +9,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quurz.foomp.base.TestHelper;
+import org.quurz.foomp.base.types.Seq;
+import org.quurz.foomp.base.types.Value;
+import org.quurz.foomp.base.types.Value2;
+import org.quurz.foomp.higher.Higher1;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -555,7 +563,7 @@ class SequenceTest
             LOGGER.info("Seq.narrow(null) and Sequence.narrow(null) should throw NullPointerException");
             assertThatThrownBy(() -> org.quurz.foomp.base.types.Seq.narrow(null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("other");
+                .hasMessageContaining("wide");
 
             assertThatThrownBy(() -> Sequence.narrow(null))
                 .isInstanceOf(NullPointerException.class)
@@ -712,6 +720,37 @@ class SequenceTest
             assertThat(applied.head()).isEqualTo(2);
             assertThat(callCount.get()).isEqualTo(1);
         }
+
+        @Test
+        void applyTo_with_custom_seq_implementation() {
+            LOGGER.info("applyTo() works with non-Sequence Seq implementations");
+            interface CustomSeq<A> extends Seq<A>, Higher1<Seq.µ, A> {}
+            final Function<Integer, Integer> f1 = x -> x * 10;
+            final Function<Integer, Integer> f2 = x -> x + 100;
+            final CustomSeq<Function<Integer, Integer>> customFnSeq = new CustomSeq<>() {
+                @Override public boolean isNotEmpty() { return true; }
+                @Override public @NonNull Function<Integer, Integer> head() { return f1; }
+                @Override public @NonNull Value<Function<Integer, Integer>> headSafe() { return Maybe.some(head()); }
+                @Override public @NonNull Seq<Function<Integer, Integer>> tail() { return sequence(); }
+                @Override public @NonNull Seq<Function<Integer, Integer>> cons(final @NonNull Function<Integer, Integer> element) { return sequenceOf(element, head()); }
+                @Override public @NonNull Value2<Function<Integer, Integer>, ? extends Seq<Function<Integer, Integer>>> decons() { return Tuple2.tuple2(head(), sequence()); }
+                @Override public @NonNull Seq<Function<Integer, Integer>> filter(final @NonNull Predicate<? super Function<Integer, Integer>> pred) { return this; }
+                @Override public @NonNull Value2<? extends Seq<Function<Integer, Integer>>, ? extends Seq<Function<Integer, Integer>>> partition(final @NonNull Predicate<? super Function<Integer, Integer>> pred) { return Tuple2.tuple2(this, sequence()); }
+                @Override public @NonNull Value2<? extends Seq<Function<Integer, Integer>>, ? extends Seq<Function<Integer, Integer>>> span(final @NonNull Predicate<? super Function<Integer, Integer>> pred) { return Tuple2.tuple2(this, sequence()); }
+                @Override public <C extends Collection<? super Function<Integer, Integer>>> @NonNull C toCollection(final @NonNull Supplier<C> init) {
+                    final C c = init.get();
+                    c.add(f1);
+                    c.add(f2);
+                    return c;
+                }
+                @Override public @NonNull Seq<Function<Integer, Integer>> merge(final @NonNull Seq<Function<Integer, Integer>> other) { return other; }
+            };
+
+            final Sequence<Integer> seq = sequenceOf(1, 2, 3);
+            final Sequence<Integer> result = seq.applyTo(customFnSeq);
+            final var list = result.toCollection(ArrayList::new);
+            assertThat(list).containsExactly(10, 20, 30, 101, 102, 103);
+        }
     }
 
     @Nested
@@ -788,6 +827,34 @@ class SequenceTest
 
             final var list = result.toCollection(ArrayList::new);
             assertThat(list).containsExactly("ITEM1", "ITEM2");
+        }
+
+        @Test
+        void flatMap_with_custom_seq_implementation() {
+            LOGGER.info("flatMap() works when function returns non-Sequence Seq implementations");
+            interface CustomSeq<A> extends Seq<A>, Higher1<Seq.µ, A> {}
+            final Sequence<Integer> source = sequenceOf(1, 2);
+            final Sequence<String> result = source.flatMap(x -> new CustomSeq<String>() {
+                @Override public boolean isNotEmpty() { return true; }
+                @Override public @NonNull String head() { return "item" + x; }
+                @Override public @NonNull Value<String> headSafe() { return Maybe.some(head()); }
+                @Override public @NonNull Seq<String> tail() { return sequence(); }
+                @Override public @NonNull Seq<String> cons(final @NonNull String element) { return sequenceOf(element, head()); }
+                @Override public @NonNull Value2<String, ? extends Seq<String>> decons() { return Tuple2.tuple2(head(), sequence()); }
+                @Override public @NonNull Seq<String> filter(final @NonNull Predicate<? super String> pred) { return this; }
+                @Override public @NonNull Value2<? extends Seq<String>, ? extends Seq<String>> partition(final @NonNull Predicate<? super String> pred) { return Tuple2.tuple2(this, sequence()); }
+                @Override public @NonNull Value2<? extends Seq<String>, ? extends Seq<String>> span(final @NonNull Predicate<? super String> pred) { return Tuple2.tuple2(this, sequence()); }
+                @Override public <C extends Collection<? super String>> @NonNull C toCollection(final @NonNull Supplier<C> init) {
+                    final C c = init.get();
+                    c.add("A" + x);
+                    c.add("B" + x);
+                    return c;
+                }
+                @Override public @NonNull Seq<String> merge(final @NonNull Seq<String> other) { return other; }
+            });
+
+            final var list = result.toCollection(ArrayList::new);
+            assertThat(list).containsExactly("A1", "B1", "A2", "B2");
         }
     }
 
@@ -1150,12 +1217,326 @@ class SequenceTest
         }
 
         @Test
+        void merge_with_custom_seq_implementation() {
+            LOGGER.info("merge works with non-Sequence Seq implementations via toCollection");
+            final Seq<String> customSeq = new Seq<>() {
+                @Override
+                public boolean isNotEmpty() {
+                    return true;
+                }
+
+                @Override
+                public @NonNull String head() throws NoSuchElementException {
+                    return "x";
+                }
+
+                @Override
+                public @NonNull Value<String> headSafe() {
+                    return Maybe.some("x");
+                }
+
+                @Override
+                public @NonNull Seq<String> tail() throws NoSuchElementException {
+                    return sequence();
+                }
+
+                @Override
+                public @NonNull Seq<String> cons(final @NonNull String element) {
+                    return sequenceOf(element, "x", "y");
+                }
+
+                @Override
+                public @NonNull Value2<String, ? extends Seq<String>> decons() throws NoSuchElementException {
+                    return Tuple2.tuple2("x", sequenceOf("y"));
+                }
+
+                @Override
+                public @NonNull Seq<String> filter(final @NonNull Predicate<? super String> pred) {
+                    return sequenceOf("x", "y");
+                }
+
+                @Override
+                public @NonNull Value2<? extends Seq<String>, ? extends Seq<String>> partition(final @NonNull Predicate<? super String> pred) {
+                    return Tuple2.tuple2(sequenceOf("x", "y"), sequence());
+                }
+
+                @Override
+                public @NonNull Value2<? extends Seq<String>, ? extends Seq<String>> span(final @NonNull Predicate<? super String> pred) {
+                    return Tuple2.tuple2(sequenceOf("x", "y"), sequence());
+                }
+
+                @Override
+                public <C extends Collection<? super String>> @NonNull C toCollection(final @NonNull Supplier<C> init) {
+                    final C coll = init.get();
+                    coll.add("x");
+                    coll.add("y");
+                    return coll;
+                }
+
+                @Override
+                public @NonNull Seq<String> merge(final @NonNull Seq<String> other) {
+                    return sequenceOf("x", "y").merge(other);
+                }
+            };
+
+            final Sequence<String> first = sequenceOf("a", "b");
+            final Sequence<String> merged = first.merge(customSeq);
+
+            final List<String> list = merged.toCollection(ArrayList::new);
+            assertThat(list).containsExactly("a", "b", "x", "y");
+        }
+
+        @Test
         void merge_null_check() {
             LOGGER.info("merge(null) throws NullPointerException");
             final Sequence<String> seq = sequenceOf("a");
             assertThatThrownBy(() -> seq.merge(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("other");
+        }
+    }
+
+    @Nested
+    @DisplayName("AppendAll")
+    class AppendAll {
+
+        @Test
+        void appendAll_with_sequence_appends_elements_in_order() {
+            LOGGER.info("appendAll(Seq) appends all elements of another sequence");
+            final Sequence<String> first = sequenceOf("a", "b");
+            final Sequence<String> second = sequenceOf("c", "d");
+
+            final Sequence<String> result = first.appendAll(second);
+            final List<String> list = result.toCollection(ArrayList::new);
+            assertThat(list).containsExactly("a", "b", "c", "d");
+        }
+
+        @Test
+        void appendAll_with_collection_appends_elements_in_order() {
+            LOGGER.info("appendAll(Collection) appends all elements of a collection");
+            final Sequence<Integer> first = sequenceOf(1, 2);
+            final List<Integer> inputList = List.of(3, 4, 5);
+
+            final Sequence<Integer> result = first.appendAll(inputList);
+            final List<Integer> list = result.toCollection(ArrayList::new);
+            assertThat(list).containsExactly(1, 2, 3, 4, 5);
+        }
+
+        @Test
+        void appendAll_with_empty_cases() {
+            LOGGER.info("appendAll handles empty sequence and empty collections properly");
+            final Sequence<String> empty = sequence();
+            final Sequence<String> filled = sequenceOf("a", "b");
+
+            final List<String> list1 = filled.appendAll(sequence()).toCollection(ArrayList::new);
+            assertThat(list1).containsExactly("a", "b");
+
+            final List<String> list2 = empty.appendAll(filled).toCollection(ArrayList::new);
+            assertThat(list2).containsExactly("a", "b");
+
+            final List<String> list3 = filled.appendAll(List.of()).toCollection(ArrayList::new);
+            assertThat(list3).containsExactly("a", "b");
+
+            final List<String> list4 = empty.appendAll(List.of("x", "y")).toCollection(ArrayList::new);
+            assertThat(list4).containsExactly("x", "y");
+        }
+
+        @Test
+        void appendAll_null_checks() {
+            LOGGER.info("appendAll throws NullPointerException for null arguments or null elements in collections");
+            final Sequence<String> seq = sequenceOf("a");
+
+            assertThatThrownBy(() -> seq.appendAll((Seq<String>) null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("other");
+
+            assertThatThrownBy(() -> seq.appendAll((Collection<String>) null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("elements");
+
+            final List<String> listWithNull = Arrays.asList("b", null);
+            assertThatThrownBy(() -> seq.appendAll(listWithNull))
+                .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("PrependAll")
+    class PrependAll {
+
+        @Test
+        void prependAll_with_sequence_prepends_elements_in_order() {
+            LOGGER.info("prependAll(Seq) prepends all elements of another sequence in order");
+            final Sequence<String> first = sequenceOf("c", "d");
+            final Sequence<String> second = sequenceOf("a", "b");
+
+            final Sequence<String> result = first.prependAll(second);
+            final List<String> list = result.toCollection(ArrayList::new);
+            assertThat(list).containsExactly("a", "b", "c", "d");
+        }
+
+        @Test
+        void prependAll_with_collection_prepends_elements_in_order() {
+            LOGGER.info("prependAll(Collection) prepends all elements of a collection in order");
+            final Sequence<Integer> first = sequenceOf(3, 4);
+            final List<Integer> inputList = List.of(1, 2);
+
+            final Sequence<Integer> result = first.prependAll(inputList);
+            final List<Integer> list = result.toCollection(ArrayList::new);
+            assertThat(list).containsExactly(1, 2, 3, 4);
+        }
+
+        @Test
+        void prependAll_with_empty_cases() {
+            LOGGER.info("prependAll handles empty sequence and empty collections properly");
+            final Sequence<String> empty = sequence();
+            final Sequence<String> filled = sequenceOf("a", "b");
+
+            final List<String> list1 = filled.prependAll(sequence()).toCollection(ArrayList::new);
+            assertThat(list1).containsExactly("a", "b");
+
+            final List<String> list2 = empty.prependAll(filled).toCollection(ArrayList::new);
+            assertThat(list2).containsExactly("a", "b");
+
+            final List<String> list3 = filled.prependAll(List.of()).toCollection(ArrayList::new);
+            assertThat(list3).containsExactly("a", "b");
+
+            final List<String> list4 = empty.prependAll(List.of("x", "y")).toCollection(ArrayList::new);
+            assertThat(list4).containsExactly("x", "y");
+        }
+
+        @Test
+        void prependAll_null_checks() {
+            LOGGER.info("prependAll throws NullPointerException for null arguments or null elements in collections");
+            final Sequence<String> seq = sequenceOf("a");
+
+            assertThatThrownBy(() -> seq.prependAll((Seq<String>) null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("other");
+
+            assertThatThrownBy(() -> seq.prependAll((Collection<String>) null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("elements");
+
+            final List<String> listWithNull = Arrays.asList(null, "b");
+            assertThatThrownBy(() -> seq.prependAll(listWithNull))
+                .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("Behaviour (partition)")
+    class Behaviour_Partition {
+
+        @Test
+        void partition_with_null_predicate_throws() {
+            LOGGER.info("partition(null) should throw NullPointerException");
+            final Sequence<Integer> seq = sequenceOf(1, 2, 3);
+            assertThatThrownBy(() -> seq.partition(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("pred");
+        }
+
+        @Test
+        void partition_on_empty_sequence_returns_two_empty_sequences() {
+            LOGGER.info("partition() on empty sequence should return two empty sequences");
+            final Sequence<Integer> emptySeq = sequence();
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = emptySeq.partition(x -> x % 2 == 0);
+
+            assertThat(result.get1().isNotEmpty()).isFalse();
+            assertThat(result.get2().isNotEmpty()).isFalse();
+        }
+
+        @Test
+        void partition_separates_matching_and_non_matching_elements() {
+            LOGGER.info("partition() separates matching and non-matching elements");
+            final Sequence<Integer> seq = sequenceOf(1, 2, 3, 4, 5, 6);
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = seq.partition(x -> x % 2 == 0);
+
+            final List<Integer> matches = result.get1().toCollection(ArrayList::new);
+            final List<Integer> nonMatches = result.get2().toCollection(ArrayList::new);
+            assertThat(matches).containsExactly(2, 4, 6);
+            assertThat(nonMatches).containsExactly(1, 3, 5);
+        }
+
+        @Test
+        void partition_when_all_match() {
+            LOGGER.info("partition() when all elements match predicate");
+            final Sequence<Integer> seq = sequenceOf(2, 4, 6);
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = seq.partition(x -> x % 2 == 0);
+
+            final List<Integer> matches = result.get1().toCollection(ArrayList::new);
+            assertThat(matches).containsExactly(2, 4, 6);
+            assertThat(result.get2().isNotEmpty()).isFalse();
+        }
+
+        @Test
+        void partition_when_none_match() {
+            LOGGER.info("partition() when no elements match predicate");
+            final Sequence<Integer> seq = sequenceOf(1, 3, 5);
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = seq.partition(x -> x % 2 == 0);
+
+            assertThat(result.get1().isNotEmpty()).isFalse();
+            final List<Integer> nonMatches = result.get2().toCollection(ArrayList::new);
+            assertThat(nonMatches).containsExactly(1, 3, 5);
+        }
+    }
+
+    @Nested
+    @DisplayName("Behaviour (span)")
+    class Behaviour_Span {
+
+        @Test
+        void span_with_null_predicate_throws() {
+            LOGGER.info("span(null) should throw NullPointerException");
+            final Sequence<Integer> seq = sequenceOf(1, 2, 3);
+            assertThatThrownBy(() -> seq.span(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("pred");
+        }
+
+        @Test
+        void span_on_empty_sequence_returns_two_empty_sequences() {
+            LOGGER.info("span() on empty sequence should return two empty sequences");
+            final Sequence<Integer> emptySeq = sequence();
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = emptySeq.span(x -> x > 0);
+
+            assertThat(result.get1().isNotEmpty()).isFalse();
+            assertThat(result.get2().isNotEmpty()).isFalse();
+        }
+
+        @Test
+        void span_splits_at_first_false_predicate() {
+            LOGGER.info("span() splits at first element failing the predicate and does not re-enter prefix");
+            final Sequence<Integer> seq = sequenceOf(1, 3, 5, 4, 7, 9);
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = seq.span(x -> x % 2 != 0);
+
+            final List<Integer> prefix = result.get1().toCollection(ArrayList::new);
+            final List<Integer> remainder = result.get2().toCollection(ArrayList::new);
+            assertThat(prefix).containsExactly(1, 3, 5);
+            assertThat(remainder).containsExactly(4, 7, 9);
+        }
+
+        @Test
+        void span_when_all_match() {
+            LOGGER.info("span() when all elements match predicate");
+            final Sequence<Integer> seq = sequenceOf(1, 3, 5);
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = seq.span(x -> x % 2 != 0);
+
+            final List<Integer> prefix = result.get1().toCollection(ArrayList::new);
+            assertThat(prefix).containsExactly(1, 3, 5);
+            assertThat(result.get2().isNotEmpty()).isFalse();
+        }
+
+        @Test
+        void span_when_first_element_fails() {
+            LOGGER.info("span() when the very first element fails predicate");
+            final Sequence<Integer> seq = sequenceOf(4, 1, 3, 5);
+            final Tuple2<Sequence<Integer>, Sequence<Integer>> result = seq.span(x -> x % 2 != 0);
+
+            assertThat(result.get1().isNotEmpty()).isFalse();
+            final List<Integer> remainder = result.get2().toCollection(ArrayList::new);
+            assertThat(remainder).containsExactly(4, 1, 3, 5);
         }
     }
 }
