@@ -1075,4 +1075,87 @@ class SequenceTest
             assertThat(visited).containsExactly(20, 2, 10, 1);
         }
     }
+
+    @Nested
+    @DisplayName("Merge")
+    class Merge {
+
+        @Test
+        void merge_concatenates_two_sequences_in_order() {
+            LOGGER.info("merge concatenates two non-empty sequences");
+            final Sequence<String> first = sequenceOf("a", "b");
+            final Sequence<String> second = sequenceOf("c", "d");
+
+            final Sequence<String> merged = first.merge(second);
+            final List<String> list = merged.toCollection(ArrayList::new);
+            assertThat(list).containsExactly("a", "b", "c", "d");
+        }
+
+        @Test
+        void merge_with_empty_sequences() {
+            LOGGER.info("merge with empty sequences returns the non-empty sequence or empty");
+            final Sequence<Integer> seq = sequenceOf(1, 2, 3);
+            final Sequence<Integer> empty = sequence();
+
+            final Sequence<Integer> merged1 = seq.merge(empty);
+            final List<Integer> list1 = merged1.toCollection(ArrayList::new);
+            assertThat(list1).containsExactly(1, 2, 3);
+
+            final Sequence<Integer> merged2 = empty.merge(seq);
+            final List<Integer> list2 = merged2.toCollection(ArrayList::new);
+            assertThat(list2).containsExactly(1, 2, 3);
+
+            final Sequence<Integer> merged3 = empty.merge(empty);
+            assertThat(merged3.isNotEmpty()).isFalse();
+        }
+
+        @Test
+        void merge_multi_segment_sequences() {
+            LOGGER.info("merge correctly combines sequences with multiple segments");
+            final Sequence<String> first = sequenceOf("b", "c").cons("a").append("d");
+            final Sequence<String> second = sequenceOf("f", "g").cons("e").append("h");
+
+            final Sequence<String> merged = first.merge(second);
+            final List<String> list = merged.toCollection(ArrayList::new);
+            assertThat(list).containsExactly("a", "b", "c", "d", "e", "f", "g", "h");
+        }
+
+        @Test
+        void merge_preserves_lazy_spools() {
+            LOGGER.info("merge preserves lazy evaluation and only evaluates when consumed");
+            final java.util.concurrent.atomic.AtomicInteger firstCount = new java.util.concurrent.atomic.AtomicInteger(0);
+            final java.util.concurrent.atomic.AtomicInteger secondCount = new java.util.concurrent.atomic.AtomicInteger(0);
+
+            final Sequence<Integer> first = sequenceOf(1, 2).map(x -> {
+                firstCount.incrementAndGet();
+                return x * 10;
+            });
+            final Sequence<Integer> second = sequenceOf(3, 4).map(x -> {
+                secondCount.incrementAndGet();
+                return x * 100;
+            });
+
+            final Sequence<Integer> merged = first.merge(second);
+            assertThat(firstCount.get()).isEqualTo(0);
+            assertThat(secondCount.get()).isEqualTo(0);
+
+            assertThat(merged.head()).isEqualTo(10);
+            assertThat(firstCount.get()).isEqualTo(1);
+            assertThat(secondCount.get()).isEqualTo(0);
+
+            final List<Integer> list = merged.toCollection(ArrayList::new);
+            assertThat(list).containsExactly(10, 20, 300, 400);
+            assertThat(firstCount.get()).isEqualTo(3);
+            assertThat(secondCount.get()).isEqualTo(2);
+        }
+
+        @Test
+        void merge_null_check() {
+            LOGGER.info("merge(null) throws NullPointerException");
+            final Sequence<String> seq = sequenceOf("a");
+            assertThatThrownBy(() -> seq.merge(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("other");
+        }
+    }
 }

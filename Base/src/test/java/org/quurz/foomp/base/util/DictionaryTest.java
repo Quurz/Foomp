@@ -546,4 +546,126 @@ class DictionaryTest {
                 .isInstanceOf(IllegalArgumentException.class);
         }
     }
+
+    @Nested
+    @DisplayName("Merge")
+    class Merge {
+
+        @Test
+        void merge_disjoint_dictionaries_combines_all_entries() {
+            LOGGER.info("merge combines disjoint entries from both dictionaries");
+            final Dictionary<String, Integer> first = dictionaryOf(
+                tuple2("a", 1),
+                tuple2("b", 2)
+            );
+            final Dictionary<String, Integer> second = dictionaryOf(
+                tuple2("c", 3),
+                tuple2("d", 4)
+            );
+
+            final Dictionary<String, Integer> merged = first.merge(second);
+
+            assertEquals(1, merged.get("a"));
+            assertEquals(2, merged.get("b"));
+            assertEquals(3, merged.get("c"));
+            assertEquals(4, merged.get("d"));
+        }
+
+        @Test
+        void merge_overlapping_keys_favors_other_dictionary() {
+            LOGGER.info("merge overrides existing keys with values from the other dictionary");
+            final Dictionary<String, Integer> first = dictionaryOf(
+                tuple2("a", 1),
+                tuple2("b", 2)
+            );
+            final Dictionary<String, Integer> second = dictionaryOf(
+                tuple2("b", 20),
+                tuple2("c", 3)
+            );
+
+            final Dictionary<String, Integer> merged = first.merge(second);
+
+            assertEquals(1, merged.get("a"));
+            assertEquals(20, merged.get("b"));
+            assertEquals(3, merged.get("c"));
+        }
+
+        @Test
+        void merge_with_empty_dictionary() {
+            LOGGER.info("merge with empty dictionary preserves original entries");
+            final Dictionary<String, Integer> dict = dictionaryOf(
+                tuple2("a", 1)
+            );
+            final Dictionary<String, Integer> empty = dictionary();
+
+            final Dictionary<String, Integer> merged1 = dict.merge(empty);
+            assertEquals(1, merged1.get("a"));
+
+            final Dictionary<String, Integer> merged2 = empty.merge(dict);
+            assertEquals(1, merged2.get("a"));
+        }
+
+        @Test
+        void merge_preserves_lazy_spools() {
+            LOGGER.info("merge preserves lazy evaluation without premature unwinding");
+            final AtomicInteger counterFirst = new AtomicInteger(0);
+            final AtomicInteger counterSecond = new AtomicInteger(0);
+
+            final Dictionary<String, Integer> first = dictionaryOf(
+                tuple2("a", 10)
+            ).map(v -> {
+                counterFirst.incrementAndGet();
+                return v * 2;
+            });
+
+            final Dictionary<String, Integer> second = dictionaryOf(
+                tuple2("b", 20)
+            ).map(v -> {
+                counterSecond.incrementAndGet();
+                return v * 3;
+            });
+
+            final Dictionary<String, Integer> merged = first.merge(second);
+            assertEquals(0, counterFirst.get());
+            assertEquals(0, counterSecond.get());
+
+            assertEquals(20, merged.get("a"));
+            assertEquals(1, counterFirst.get());
+            assertEquals(0, counterSecond.get());
+
+            assertEquals(60, merged.get("b"));
+            assertEquals(1, counterFirst.get());
+            assertEquals(1, counterSecond.get());
+        }
+
+        @Test
+        void merge_with_hash_collisions_works_correctly() {
+            LOGGER.info("merge preserves and correctly updates colliding keys");
+            final CollidingKey k1 = new CollidingKey("c1", 42);
+            final CollidingKey k2 = new CollidingKey("c2", 42);
+            final CollidingKey k3 = new CollidingKey("c3", 42);
+
+            final Dictionary<CollidingKey, String> first = dictionaryOf(
+                tuple2(k1, "first-1"),
+                tuple2(k2, "first-2")
+            );
+            final Dictionary<CollidingKey, String> second = dictionaryOf(
+                tuple2(k2, "second-2"),
+                tuple2(k3, "second-3")
+            );
+
+            final Dictionary<CollidingKey, String> merged = first.merge(second);
+
+            assertEquals("first-1", merged.get(k1));
+            assertEquals("second-2", merged.get(k2));
+            assertEquals("second-3", merged.get(k3));
+        }
+
+        @Test
+        void merge_null_check() {
+            LOGGER.info("merge throws NullPointerException on null other");
+            final Dictionary<String, String> dict = dictionaryOf(tuple2("a", "b"));
+            assertThrows(NullPointerException.class, () -> dict.merge(null));
+        }
+    }
 }

@@ -4,6 +4,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.types.Appliable;
 import org.quurz.foomp.base.types.Dict;
 import org.quurz.foomp.base.types.Mappable;
+import org.quurz.foomp.base.types.Mergeable;
 import org.quurz.foomp.base.types.Tree;
 import org.quurz.foomp.base.types.UnwindingOperation;
 import org.quurz.foomp.higher.Higher1;
@@ -54,7 +55,8 @@ import static org.quurz.foomp.base.util.RedBlackTree.redBlackTree;
  */
 @SuppressWarnings("NonAsciiCharacters")
 public class Dictionary<K, V>
-        implements Mappable<Dictionary.µ, V>,
+        implements Mergeable<Dictionary<K, V>>,
+                   Mappable<Dictionary.µ, V>,
                    Appliable<Dictionary.µ, V>,
                    Dict<K, V>,
                    Higher2<Dictionary.µ, K, V>,
@@ -756,6 +758,45 @@ public class Dictionary<K, V>
         final Dictionary<K, ? extends Function<? super V, ? extends W>> fnDict
             = narrow((Higher1<? extends µ, ? extends Function<? super V, ? extends W>>) transformation);
         return applyTo(fnDict);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Merges this dictionary with the specified other dictionary.
+     *     </p>
+     *     <p>
+     *         All key-value pairs from the other dictionary are inserted into a copy of this dictionary.
+     *         If a key exists in both dictionaries, the value from the other dictionary overwrites
+     *         the value in this dictionary. Lazy value evaluation (spooling) is preserved.
+     *     </p>
+     * </div>
+     *
+     * @param other the other dictionary to merge with; must not be {@code null}
+     * @return a new dictionary containing the merged key-value pairs
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull Dictionary<K, V> merge(final @NonNull Dictionary<K, V> other) {
+        Objects.requireNonNull(other, nullValue("other"));
+
+        Dictionary<K, V> merged
+            = this;
+
+        for (final Entry<K, V> entry : other.tree.toCollection(ArrayList::new)) {
+            Entry<K, V> current
+                = entry;
+            while (current != null) {
+                merged
+                    = merged.putLazy(current.key(), current.spool());
+                current
+                    = current.next();
+            }
+        }
+
+        return merged;
     }
 
     /**

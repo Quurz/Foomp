@@ -436,9 +436,10 @@ Sequence<Integer> emptySeq = Sequence.sequence();
 Sequence<Integer> numbers = Sequence.sequenceOf(1, 2, 3);
 Sequence<String> fromList = Sequence.sequenceFrom(List.of("A", "B", "C"));
 
-// 2. Prepend and Append (O(1) with structural sharing)
+// 2. Prepend, Append, and Merge (O(1) / O(segments) with structural sharing)
 Sequence<Integer> withZero = numbers.cons(0);     // [0, 1, 2, 3]
 Sequence<Integer> withEnd = numbers.append(4);     // [1, 2, 3, 4]
+Sequence<Integer> merged = numbers.merge(Sequence.sequenceOf(4, 5)); // [1, 2, 3, 4, 5]
 
 // 3. Head, Tail, and Deconstruction
 int first = numbers.head();                        // 1
@@ -520,14 +521,22 @@ Dictionary<String, java.util.function.Function<Integer, String>> fnDict = Dictio
 // Computes key intersection lazily: ("apple", 1) -> ("apple", "1 pieces")
 Dictionary<String, String> applied = dict.applyTo(fnDict);
 
-// 6. Higher-Kinded Narrowing
+// 6. Merge Dictionaries (Mergeable)
+Dictionary<String, Integer> extra = Dictionary.dictionaryOf(
+    tuple2("banana", 20),
+    tuple2("date", 4)
+);
+// Merges all entries, with 'extra' taking precedence on matching keys ("banana": 20):
+Dictionary<String, Integer> merged = dict.merge(extra);
+
+// 7. Higher-Kinded Narrowing
 Higher2<Dictionary.µ, String, Integer> wide2 = dict;
 Dictionary<String, Integer> narrowed2 = Dictionary.narrow(wide2);
 
 Higher1<Dictionary.µ, Integer> wide1 = dict;
 Dictionary<String, Integer> narrowed1 = Dictionary.narrow(wide1);
 
-// 7. Export to standard Java Map
+// 8. Export to standard Java Map
 Map<String, Integer> standardMap = dict.toMap(java.util.HashMap::new);
 ```
 

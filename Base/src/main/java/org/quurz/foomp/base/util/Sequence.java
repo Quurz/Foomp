@@ -3,6 +3,7 @@ package org.quurz.foomp.base.util;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.quurz.foomp.base.functions.Fun;
 import org.quurz.foomp.base.types.Foldable;
+import org.quurz.foomp.base.types.Mergeable;
 import org.quurz.foomp.base.types.Monadic;
 import org.quurz.foomp.base.types.Seq;
 import org.quurz.foomp.base.types.Streamable;
@@ -64,7 +65,8 @@ import static org.quurz.foomp.base.util.Util.requireNonNullElementsInCollection;
  */
 @SuppressWarnings("NonAsciiCharacters")
 public class Sequence<A>
-        implements Iterable<A>,
+        implements Mergeable<Sequence<A>>,
+                   Iterable<A>,
                    Streamable<A>,
                    Foldable<A>,
                    Monadic<Sequence.µ, A>,
@@ -1151,6 +1153,78 @@ public class Sequence<A>
     @UnwindingOperation
     public @NonNull Stream<A> stream() {
         return this.toCollection(ArrayList::new).stream();
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Merges this sequence with the specified other sequence by concatenating their elements.
+     *     </p>
+     *     <p>
+     *         The resulting sequence contains all elements of this sequence followed by all elements
+     *         of the other sequence. Lazy transformations (spooling) are preserved.
+     *     </p>
+     * </div>
+     *
+     * @param other the other sequence to merge with; must not be {@code null}
+     * @return a new sequence containing the concatenated elements of both sequences
+     * @throws NullPointerException if {@code other} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    @Override
+    public @NonNull Sequence<A> merge(final @NonNull Sequence<A> other) {
+        Objects.requireNonNull(other, nullValue("other"));
+
+        if (this.isEmpty()) {
+            return other;
+        }
+        if (other.isEmpty()) {
+            return this;
+        }
+
+        Segment<A> firstCopiedSegment = null;
+        Segment<A> previousCopiedSegment = null;
+
+        var current = this.firstSegment;
+        while (current != null) {
+            final Segment<A> copiedSegment = new Segment<>(
+                current.firstElement,
+                current.lastElement,
+                current.spool,
+                null,
+                previousCopiedSegment
+            );
+            if (previousCopiedSegment != null) {
+                previousCopiedSegment.nextSegment = copiedSegment;
+            }
+            if (firstCopiedSegment == null) {
+                firstCopiedSegment = copiedSegment;
+            }
+            previousCopiedSegment = copiedSegment;
+            current = current.nextSegment;
+        }
+
+        current = other.firstSegment;
+        while (current != null) {
+            final Segment<A> copiedSegment = new Segment<>(
+                current.firstElement,
+                current.lastElement,
+                current.spool,
+                null,
+                previousCopiedSegment
+            );
+            if (previousCopiedSegment != null) {
+                previousCopiedSegment.nextSegment = copiedSegment;
+            }
+            if (firstCopiedSegment == null) {
+                firstCopiedSegment = copiedSegment;
+            }
+            previousCopiedSegment = copiedSegment;
+            current = current.nextSegment;
+        }
+
+        return new Sequence<>(firstCopiedSegment, previousCopiedSegment);
     }
 
     /**
