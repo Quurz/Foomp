@@ -21,6 +21,15 @@ public final class Util
 
 ## Method Summary
 
+### Numeric & Duration Validation
+
+| Return Type | Method | Description |
+| :--- | :--- | :--- |
+| `static <E extends Exception> int` | `requireNonNegativeInt(int value, @NonNull Supplier<E> exceptionSupplier)` | Ensures `value >= 0`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `value`. |
+| `static <E extends Exception> int` | `requirePositiveInt(int value, @NonNull Supplier<E> exceptionSupplier)` | Ensures `value > 0`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `value`. |
+| `static <E extends Exception> @NonNull Duration` | `requireNonNegativeDuration(@NonNull Duration duration, @NonNull Supplier<E> exceptionSupplier)` | Ensures `duration >= Duration.ZERO`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `duration`. |
+| `static <E extends Exception> @NonNull Duration` | `requirePositiveDuration(@NonNull Duration duration, @NonNull Supplier<E> exceptionSupplier)` | Ensures `duration > Duration.ZERO`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `duration`. |
+
 ### Collection & Map Validation
 
 | Return Type | Method | Description |

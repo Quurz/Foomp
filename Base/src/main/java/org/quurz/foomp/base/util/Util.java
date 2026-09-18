@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -40,7 +41,147 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  * @author Alexander Schell
  */
 public final class Util {
-    
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given integer {@code value} is non-negative (greater than or equal to 0).
+     *     </p>
+     *     <p>
+     *         Returns the given value if it is non-negative; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param value              the integer value to check
+     * @param exceptionSupplier  supplies the exception to throw when the value is negative; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same integer value
+     * @throws NullPointerException if {@code exceptionSupplier} is {@code null}, or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code value} is negative
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> int requireNonNegativeInt(final int value,
+                                                                  final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (value >= 0) {
+            return value;
+        } else {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given integer {@code value} is strictly positive (greater than 0).
+     *     </p>
+     *     <p>
+     *         Returns the given value if it is positive; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param value              the integer value to check
+     * @param exceptionSupplier  supplies the exception to throw when the value is non-positive; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same integer value
+     * @throws NullPointerException if {@code exceptionSupplier} is {@code null}, or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code value} is non-positive
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> int requirePositiveInt(final int value,
+                                                               final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (value > 0) {
+            return value;
+        } else {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given {@code duration} is non-negative (greater than or equal to {@link Duration#ZERO}).
+     *     </p>
+     *     <p>
+     *         Returns the same duration instance if it is non-negative; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param duration           the duration to check; must not be {@code null}
+     * @param exceptionSupplier  supplies the exception to throw when the duration is negative; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same duration instance (never {@code null})
+     * @throws NullPointerException if {@code duration} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code duration} is negative
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> @NonNull Duration requireNonNegativeDuration(final @NonNull Duration duration,
+                                                                                     final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(duration, nullValue("duration"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (duration.compareTo(Duration.ZERO) >= 0) {
+            return duration;
+        } else {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given {@code duration} is strictly positive (greater than {@link Duration#ZERO}).
+     *     </p>
+     *     <p>
+     *         Returns the same duration instance if it is positive; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param duration           the duration to check; must not be {@code null}
+     * @param exceptionSupplier  supplies the exception to throw when the duration is zero or negative; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same duration instance (never {@code null})
+     * @throws NullPointerException if {@code duration} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code duration} is non-positive
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> @NonNull Duration requirePositiveDuration(final @NonNull Duration duration,
+                                                                                  final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(duration, nullValue("duration"));
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (duration.compareTo(Duration.ZERO) > 0) {
+            return duration;
+        } else {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+    }
+
     /**
      * <div>
      *     <p>

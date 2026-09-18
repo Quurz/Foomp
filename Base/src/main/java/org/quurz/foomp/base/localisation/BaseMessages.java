@@ -598,6 +598,89 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
+     *         Indicates that the major version must be non-negative.
+     *     </p>
+     * </div>
+     *
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String majorVersionNegative() {
+        return RESOURCE_BUNDLE.getString("MAJOR_VERSION_NEGATIVE");
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the minor version must be non-negative.
+     *     </p>
+     * </div>
+     *
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String minorVersionNegative() {
+        return RESOURCE_BUNDLE.getString("MINOR_VERSION_NEGATIVE");
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the patch version must be non-negative.
+     *     </p>
+     * </div>
+     *
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String patchVersionNegative() {
+        return RESOURCE_BUNDLE.getString("PATCH_VERSION_NEGATIVE");
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the given version string does not conform to the SemVer format.
+     *     </p>
+     * </div>
+     *
+     * @param format the invalid version string; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code format} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String invalidSemVerFormat(final @NonNull String format) {
+        Objects.requireNonNull(format);
+        return String.format(RESOURCE_BUNDLE.getString("INVALID_SEMVER_FORMAT"), format);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that a numeric component within a version string is invalid.
+     *     </p>
+     * </div>
+     *
+     * @param version the invalid numeric component or version substring; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code version} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String invalidNumericComponentInVersion(final @NonNull String version) {
+        Objects.requireNonNull(version);
+        return String.format(RESOURCE_BUNDLE.getString("INVALID_NUMERIC_COMPONENT_IN_VERSION"), version);
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Indicates that the shutdown hook registry has already been installed.
      *     </p>
      * </div>

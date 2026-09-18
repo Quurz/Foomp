@@ -10,8 +10,14 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.invalidNumericComponentInVersion;
+import static org.quurz.foomp.base.localisation.BaseMessages.invalidSemVerFormat;
+import static org.quurz.foomp.base.localisation.BaseMessages.majorVersionNegative;
+import static org.quurz.foomp.base.localisation.BaseMessages.minorVersionNegative;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
+import static org.quurz.foomp.base.localisation.BaseMessages.patchVersionNegative;
 import static org.quurz.foomp.base.util.Maybe.none;
+import static org.quurz.foomp.base.util.Util.requireNonNegativeInt;
 
 /**
  * <div>
@@ -71,7 +77,6 @@ import static org.quurz.foomp.base.util.Maybe.none;
  *
  * @see <a href="https://semver.org/">Semantic Versioning 2.0.0</a>
  */
-// TODO: Immutable machen & Messages
 public class SemVer
         implements Serializable,
                    Comparable<SemVer>,
@@ -151,11 +156,11 @@ public class SemVer
          * @since 1.0.0
          */
         public SemVerBuilder major(final int major) {
-            if (major < 0) {
-                throw new IllegalArgumentException("major version must be non-negative");
-            }
             this.major
-                = major;
+                = requireNonNegativeInt(
+                    major,
+                    () -> new IllegalArgumentException(majorVersionNegative())
+                );
             return this;
         }
 
@@ -173,11 +178,11 @@ public class SemVer
          * @since 1.0.0
          */
         public SemVerBuilder minor(final int minor) {
-            if (minor < 0) {
-                throw new IllegalArgumentException("minor version must be non-negative");
-            }
             this.minor
-                = minor;
+                = requireNonNegativeInt(
+                    minor,
+                    () -> new IllegalArgumentException(minorVersionNegative())
+                );
             return this;
         }
 
@@ -195,11 +200,11 @@ public class SemVer
          * @since 1.0.0
          */
         public SemVerBuilder patch(final int patch) {
-            if (patch < 0) {
-                throw new IllegalArgumentException("patch version must be non-negative");
-            }
             this.patch
-                = patch;
+                = requireNonNegativeInt(
+                    patch,
+                    () -> new IllegalArgumentException(patchVersionNegative())
+                );
             return this;
         }
 
@@ -291,23 +296,25 @@ public class SemVer
             = SEM_VER_PATTERN_REGEX.matcher(version.trim());
         
         if (!matcher.matches()) {
-            throw new IllegalArgumentException(
-                "Invalid SemVer format: '" + version + "'. " +
-                "Expected format: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILDMETADATA]"
-            );
+            throw new IllegalArgumentException(invalidSemVerFormat(version));
         }
         
         try {
-            final int major = Integer.parseInt(matcher.group(1));
-            final int minor = Integer.parseInt(matcher.group(2));
-            final int patch = Integer.parseInt(matcher.group(3));
-            final String preRelease = matcher.group(4);        // May be null
-            final String buildMetadata = matcher.group(5);     // May be null
+            final int major
+                = Integer.parseInt(matcher.group(1));
+            final int minor
+                = Integer.parseInt(matcher.group(2));
+            final int patch
+                = Integer.parseInt(matcher.group(3));
+            final String preRelease
+                = matcher.group(4); // May be null
+            final String buildMetadata
+                = matcher.group(5); // May be null
             
             return new SemVer(major, minor, patch, preRelease, buildMetadata);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException numberFormatException) {
             throw new IllegalArgumentException(
-                "Invalid numeric component in version: '" + version + "'", e
+                invalidNumericComponentInVersion(version), numberFormatException
             );
         }
     }
@@ -397,20 +404,28 @@ public class SemVer
                   final int patch,
                   final Maybe<String> preRelease,
                   final Maybe<String> buildMetadata) {
-        if (major < 0) {
-            throw new IllegalArgumentException("major version must be non-negative");
-        }
-        if (minor < 0) {
-            throw new IllegalArgumentException("minor version must be non-negative");
-        }
-        if (patch < 0) {
-            throw new IllegalArgumentException("patch version must be non-negative");
-        }
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-        this.preRelease = Objects.requireNonNull(preRelease, nullValue("preRelease"));
-        this.buildMetadata = Objects.requireNonNull(buildMetadata, nullValue("buildMetadata"));
+        this.major
+            = requireNonNegativeInt(
+                major,
+                () -> new IllegalArgumentException(majorVersionNegative())
+        );
+
+        this.minor
+            = requireNonNegativeInt(
+                minor,
+                () -> new IllegalArgumentException(minorVersionNegative())
+            );
+
+        this.patch
+            =  requireNonNegativeInt(
+                patch,
+                () -> new IllegalArgumentException(patchVersionNegative())
+            );
+
+        this.preRelease
+            = Objects.requireNonNull(preRelease, nullValue("preRelease"));
+        this.buildMetadata
+            = Objects.requireNonNull(buildMetadata, nullValue("buildMetadata"));
     }
 
     /**

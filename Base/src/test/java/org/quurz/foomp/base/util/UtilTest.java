@@ -7,6 +7,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,168 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Util")
 class UtilTest {
+
+    @Nested
+    @DisplayName("requireNonNegativeInt(int, Supplier)")
+    class RequireNonNegativeInt {
+
+        @Test
+        @DisplayName("returns value when value is positive")
+        void returnsValueWhenPositive() throws Exception {
+            assertThat(Util.requireNonNegativeInt(42, () -> new Exception("Negative")))
+                    .isEqualTo(42);
+        }
+
+        @Test
+        @DisplayName("returns value when value is zero")
+        void returnsValueWhenZero() throws Exception {
+            assertThat(Util.requireNonNegativeInt(0, () -> new Exception("Negative")))
+                    .isZero();
+        }
+
+        @Test
+        @DisplayName("throws exception when value is negative")
+        void throwsWhenNegative() {
+            assertThatThrownBy(() -> Util.requireNonNegativeInt(-1, () -> new IllegalArgumentException("Must be non-negative")))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Must be non-negative");
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NullPointerException when exceptionSupplier is null or returns null")
+        void throwsOnNullSupplier() {
+            assertThatThrownBy(() -> Util.requireNonNegativeInt(1, null))
+                    .isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> Util.requireNonNegativeInt(-1, () -> null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("requirePositiveInt(int, Supplier)")
+    class RequirePositiveInt {
+
+        @Test
+        @DisplayName("returns value when value is positive")
+        void returnsValueWhenPositive() throws Exception {
+            assertThat(Util.requirePositiveInt(10, () -> new Exception("Non-positive")))
+                    .isEqualTo(10);
+        }
+
+        @Test
+        @DisplayName("throws exception when value is zero")
+        void throwsWhenZero() {
+            assertThatThrownBy(() -> Util.requirePositiveInt(0, () -> new IllegalArgumentException("Must be positive")))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Must be positive");
+        }
+
+        @Test
+        @DisplayName("throws exception when value is negative")
+        void throwsWhenNegative() {
+            assertThatThrownBy(() -> Util.requirePositiveInt(-5, () -> new IllegalArgumentException("Must be positive")))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Must be positive");
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NullPointerException when exceptionSupplier is null or returns null")
+        void throwsOnNullSupplier() {
+            assertThatThrownBy(() -> Util.requirePositiveInt(1, null))
+                    .isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> Util.requirePositiveInt(0, () -> null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("requireNonNegativeDuration(Duration, Supplier)")
+    class RequireNonNegativeDuration {
+
+        @Test
+        @DisplayName("returns duration when positive")
+        void returnsDurationWhenPositive() throws Exception {
+            final var duration = Duration.ofSeconds(5);
+            assertThat(Util.requireNonNegativeDuration(duration, () -> new Exception("Negative")))
+                    .isSameAs(duration);
+        }
+
+        @Test
+        @DisplayName("returns duration when zero")
+        void returnsDurationWhenZero() throws Exception {
+            assertThat(Util.requireNonNegativeDuration(Duration.ZERO, () -> new Exception("Negative")))
+                    .isEqualTo(Duration.ZERO);
+        }
+
+        @Test
+        @DisplayName("throws exception when duration is negative")
+        void throwsWhenNegative() {
+            assertThatThrownBy(() -> Util.requireNonNegativeDuration(Duration.ofSeconds(-1), () -> new IllegalArgumentException("Must be non-negative")))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Must be non-negative");
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NullPointerException when duration or supplier is null")
+        void throwsOnNull() {
+            assertThatThrownBy(() -> Util.requireNonNegativeDuration(null, () -> new Exception("Fail")))
+                    .isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> Util.requireNonNegativeDuration(Duration.ofSeconds(1), null))
+                    .isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> Util.requireNonNegativeDuration(Duration.ofSeconds(-1), () -> null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("requirePositiveDuration(Duration, Supplier)")
+    class RequirePositiveDuration {
+
+        @Test
+        @DisplayName("returns duration when positive")
+        void returnsDurationWhenPositive() throws Exception {
+            final var duration = Duration.ofMillis(500);
+            assertThat(Util.requirePositiveDuration(duration, () -> new Exception("Non-positive")))
+                    .isSameAs(duration);
+        }
+
+        @Test
+        @DisplayName("throws exception when duration is zero")
+        void throwsWhenZero() {
+            assertThatThrownBy(() -> Util.requirePositiveDuration(Duration.ZERO, () -> new IllegalArgumentException("Must be positive")))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Must be positive");
+        }
+
+        @Test
+        @DisplayName("throws exception when duration is negative")
+        void throwsWhenNegative() {
+            assertThatThrownBy(() -> Util.requirePositiveDuration(Duration.ofSeconds(-1), () -> new IllegalArgumentException("Must be positive")))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Must be positive");
+        }
+
+        @SuppressWarnings("DataFlowIssue")
+        @Test
+        @DisplayName("throws NullPointerException when duration or supplier is null")
+        void throwsOnNull() {
+            assertThatThrownBy(() -> Util.requirePositiveDuration(null, () -> new Exception("Fail")))
+                    .isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> Util.requirePositiveDuration(Duration.ofSeconds(1), null))
+                    .isInstanceOf(NullPointerException.class);
+
+            assertThatThrownBy(() -> Util.requirePositiveDuration(Duration.ZERO, () -> null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
 
     @Nested
     @DisplayName("requireNonEmpty(Collection, Supplier)")
