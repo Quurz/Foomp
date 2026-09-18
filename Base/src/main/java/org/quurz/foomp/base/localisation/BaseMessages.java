@@ -3,6 +3,7 @@ package org.quurz.foomp.base.localisation;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -597,6 +598,208 @@ public final class BaseMessages {
     /**
      * <div>
      *     <p>
+     *         Indicates that the shutdown hook registry has already been installed.
+     *     </p>
+     * </div>
+     *
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String shutdownHookRegistryAlreadyInstalled() {
+        return RESOURCE_BUNDLE.getString("SHUTDOWN_HOOK_REGISTRY_ALREADY_INSTALLED");
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the shutdown hook registry was installed with a given number of hooks.
+     *     </p>
+     * </div>
+     *
+     * @param numberOfHooks the number of installed shutdown hooks
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String shutdownHookRegistryInstalled(final int numberOfHooks) {
+        return String.format(RESOURCE_BUNDLE.getString("SHUTDOWN_HOOK_REGISTRY_INSTALLED"), numberOfHooks);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the execution of registered shutdown hooks is starting.
+     *     </p>
+     * </div>
+     *
+     * @param numberOfHooks the number of shutdown hooks to execute
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String executingShutdownHooks(final int numberOfHooks) {
+        return String.format(RESOURCE_BUNDLE.getString("EXECUTING_SHUTDOWN_HOOKS"), numberOfHooks);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that all shutdown hooks have completed execution.
+     *     </p>
+     * </div>
+     *
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String allShutdownHooksCompleted() {
+        return RESOURCE_BUNDLE.getString("ALL_SHUTDOWN_HOOKS_COMPLETED");
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that a specific shutdown hook is being executed with its priority and timeout.
+     *     </p>
+     * </div>
+     *
+     * @param name     the name of the shutdown hook; must not be {@code null}
+     * @param priority the priority of the shutdown hook
+     * @param timeout  the timeout configured for the shutdown hook; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if any argument is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String executingShutdownHook(final @NonNull String name,
+                                                        final int priority,
+                                                        final @NonNull Duration timeout) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(timeout);
+        return String.format(RESOURCE_BUNDLE.getString("EXECUTING_SHUTDOWN_HOOK"), name, priority, timeout);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that a specific shutdown hook completed successfully.
+     *     </p>
+     * </div>
+     *
+     * @param name the name of the completed shutdown hook; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code name} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String shutdownHookCompleted(final @NonNull String name) {
+        Objects.requireNonNull(name);
+        return String.format(RESOURCE_BUNDLE.getString("SHUTDOWN_HOOK_COMPLETED"), name);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that a specific shutdown hook timed out.
+     *     </p>
+     * </div>
+     *
+     * @param name the name of the timed-out shutdown hook; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code name} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String shutdownHookTimedOut(final @NonNull String name) {
+        Objects.requireNonNull(name);
+        return String.format(RESOURCE_BUNDLE.getString("SHUTDOWN_HOOK_TIMED_OUT"), name);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that a specific shutdown hook failed during execution.
+     *     </p>
+     * </div>
+     *
+     * @param name         the name of the failed shutdown hook; must not be {@code null}
+     * @param errorMessage the error message describing the failure; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if any argument is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String shutdownHookFailed(final @NonNull String name,
+                                                     final @NonNull String errorMessage) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(errorMessage);
+        return String.format(RESOURCE_BUNDLE.getString("SHUTDOWN_HOOK_FAILED"), name, errorMessage);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that a shutdown hook execution was interrupted.
+     *     </p>
+     * </div>
+     *
+     * @param name the name of the interrupted shutdown hook; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if {@code name} is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String shutdownHookInterrupted(final @NonNull String name) {
+        Objects.requireNonNull(name);
+        return String.format(RESOURCE_BUNDLE.getString("SHUTDOWN_HOOK_INTERRUPTED"), name);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that an unexpected exception occurred while executing a shutdown hook.
+     *     </p>
+     * </div>
+     *
+     * @param name         the name of the shutdown hook; must not be {@code null}
+     * @param errorMessage the error message of the unexpected exception; must not be {@code null}
+     * @return the formatted message (never {@code null})
+     *
+     * @throws NullPointerException if any argument is {@code null}
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String unexpectedExceptionInShutdownHook(final @NonNull String name,
+                                                                    final @NonNull String errorMessage) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(errorMessage);
+        return String.format(RESOURCE_BUNDLE.getString("UNEXPECTED_EXCEPTION_IN_SHUTDOWN_HOOK"), name, errorMessage);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Indicates that the shutdown hook executor did not terminate in time during shutdown.
+     *     </p>
+     * </div>
+     *
+     * @return the formatted message (never {@code null})
+     *
+     * @since 1.0.0
+     */
+    public static @NonNull String shutdownHookExecutorNotTerminatedInTime() {
+        return RESOURCE_BUNDLE.getString("SHUTDOWN_HOOK_EXECUTOR_NOT_TERMINATED_IN_TIME");
+    }
+
+    /**
+     * <div>
+     *     <p>
      *         Indicates that the requested operation is not supported.
      *     </p>
      * </div>
@@ -608,8 +811,6 @@ public final class BaseMessages {
     public static String unsupportedOperation() {
         return RESOURCE_BUNDLE.getString("UNSUPPORTED_OPERATION");
     }
-
-
 
     /**
      * <div>

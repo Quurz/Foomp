@@ -4,12 +4,31 @@ package org.quurz.foomp.base.misc;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import static org.quurz.foomp.base.localisation.BaseMessages.allShutdownHooksCompleted;
+import static org.quurz.foomp.base.localisation.BaseMessages.executingShutdownHook;
+import static org.quurz.foomp.base.localisation.BaseMessages.executingShutdownHooks;
+import static org.quurz.foomp.base.localisation.BaseMessages.negativeValue;
+import static org.quurz.foomp.base.localisation.BaseMessages.nonPositiveValue;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
-
-// TODO: Checks in Util-Klasse und Lokalisierung
+import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookCompleted;
+import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookExecutorNotTerminatedInTime;
+import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookFailed;
+import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookInterrupted;
+import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookRegistryAlreadyInstalled;
+import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookRegistryInstalled;
+import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookTimedOut;
+import static org.quurz.foomp.base.localisation.BaseMessages.unexpectedExceptionInShutdownHook;
 
 /**
  * <div>
@@ -75,10 +94,10 @@ public class ShutdownHookRegistry {
         Objects.requireNonNull(timeout, nullValue("timeout"));
 
         if (priority < 0) {
-            throw new IllegalArgumentException("Priority must be non-negative");
+            throw new IllegalArgumentException(negativeValue("priority"));
         }
         if (timeout.isNegative() || timeout.isZero()) {
-            throw new IllegalArgumentException("Timeout must be positive");
+            throw new IllegalArgumentException(nonPositiveValue("timeout"));
         }
 
         return new ShutdownHook(name, priority, action, timeout);
@@ -370,7 +389,7 @@ public class ShutdownHookRegistry {
      */
     public synchronized void install() {
         if (this.registered) {
-            throw new IllegalStateException("Shutdown hook registry already installed");
+            throw new IllegalStateException(shutdownHookRegistryAlreadyInstalled());
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(
@@ -379,11 +398,11 @@ public class ShutdownHookRegistry {
         ));
 
         this.registered = true;
-        this.logAdapter.info("Shutdown hook registry installed with %d hooks".formatted(hooks.size()));
+        this.logAdapter.info(shutdownHookRegistryInstalled(this.hooks.size()));
     }
 
     private void executeAllHooks() {
-        this.logAdapter.info("Executing %d shutdown hooks...".formatted(hooks.size()));
+        this.logAdapter.info(executingShutdownHooks(this.hooks.size()));
 
         final var executor = Executors.newSingleThreadExecutor(r -> {
             final var thread = new Thread(r, "ShutdownHook-Worker");
@@ -397,33 +416,34 @@ public class ShutdownHookRegistry {
 
         shutdownExecutor(executor);
 
-        this.logAdapter.info("All shutdown hooks executed");
+        this.logAdapter.info(allShutdownHooksCompleted());
     }
 
     private void executeHook(final ExecutorService executor, final ShutdownHook hook) {
         try {
-            this.logAdapter.debug("Executing shutdown hook: %s (priority: %d, timeout: %s)"
-                    .formatted(hook.getName(), hook.getPriority(), hook.getTimeout()));
+            this.logAdapter.debug(
+                executingShutdownHook(hook.getName(),
+                    hook.getPriority(),
+                    hook.getTimeout()
+                )
+            );
 
             final var future = executor.submit(hook.getAction());
 
             try {
                 future.get(hook.getTimeout().toMillis(), TimeUnit.MILLISECONDS);
-                this.logAdapter.debug("Shutdown hook completed: %s".formatted(hook.getName()));
-            } catch (final TimeoutException e) {
-                this.logAdapter.warn("Shutdown hook timed out: %s".formatted(hook.getName()));
+                this.logAdapter.debug(shutdownHookCompleted(hook.getName()));
+            } catch (final TimeoutException timeoutException) {
+                this.logAdapter.warn(shutdownHookTimedOut(hook.getName()));
                 future.cancel(true);
-            } catch (final ExecutionException e) {
-                this.logAdapter.error("Shutdown hook failed: %s - %s"
-                        .formatted(hook.getName(), e.getCause().getMessage()));
-            } catch (final InterruptedException e) {
+            } catch (final ExecutionException executionException) {
+                this.logAdapter.error(shutdownHookFailed(hook.getName(), executionException.getMessage()));
+            } catch (final InterruptedException interruptedException) {
                 Thread.currentThread().interrupt();
-                this.logAdapter.warn("Interrupted while executing shutdown hook: %s"
-                        .formatted(hook.getName()));
+                this.logAdapter.warn(shutdownHookInterrupted(hook.getName()));
             }
-        } catch (final Exception e) {
-            this.logAdapter.error("Unexpected error in shutdown hook: %s - %s"
-                    .formatted(hook.getName(), e.getMessage()));
+        } catch (final Exception exception) {
+            this.logAdapter.error(unexpectedExceptionInShutdownHook(hook.getName(), exception.getMessage()));
         }
     }
 
@@ -431,7 +451,7 @@ public class ShutdownHookRegistry {
         executor.shutdown();
         try {
             if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                this.logAdapter.warn("Shutdown hook executor did not terminate in time");
+                this.logAdapter.warn(shutdownHookExecutorNotTerminatedInTime());
                 executor.shutdownNow();
             }
         } catch (final InterruptedException e) {

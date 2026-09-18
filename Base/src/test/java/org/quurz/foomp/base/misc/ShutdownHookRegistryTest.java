@@ -74,7 +74,7 @@ class ShutdownHookRegistryTest {
         void shutdownHookThrowsOnNegativePriority() {
             assertThatThrownBy(() -> shutdownHook("Test", -1, () -> {}, Duration.ofSeconds(1)))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("non-negative");
+                    .hasMessageContaining("negative");
         }
 
         @Test
