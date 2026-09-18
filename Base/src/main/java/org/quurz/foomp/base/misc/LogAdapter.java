@@ -41,8 +41,6 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
  */
 public interface LogAdapter {
 
-    // TODO: Log-Methoden mit Exception-Argument hinzufügen
-
     /**
      * <div>
      *     <p>

@@ -675,10 +675,11 @@ public final class Util {
         Objects.requireNonNull(clazz, nullValue("clazz"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
 
-        if (!clazz.isInterface()) {
-            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));     // TODO: Das ist falsch
+        if (clazz.isInterface() && !clazz.isAnnotation()) {
+            return clazz;
+        } else {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
         }
-        return clazz;
     }
 
     /**
