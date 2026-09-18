@@ -43,8 +43,6 @@ public class Box<A>
                    Monadic<Box.µ, A>,
                    Higher1<Box.µ, A> {
 
-    // TODO: Sollte Provider implementieren
-
     /**
      * <div>
      *     <p>
