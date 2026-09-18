@@ -235,11 +235,15 @@ public class RedBlackTreeTest {
     @Test
     void echo_basic_check() {
         LOGGER.info("echo should return a non-empty string");
+        RedBlackTree<Integer> empty = RedBlackTree.redBlackTree();
+        assertEquals("L\n", empty.echo());
+
         RedBlackTree<Integer> tree = RedBlackTree.redBlackTreeOf(10, 20);
         String output = tree.echo();
         assertNotNull(output);
         assertFalse(output.isEmpty());
         assertTrue(output.contains("10") || output.contains("20"));
+        assertTrue(output.contains("├── ") || output.contains("└── "));
     }
 
     @Test

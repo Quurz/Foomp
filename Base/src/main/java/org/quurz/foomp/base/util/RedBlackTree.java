@@ -585,40 +585,99 @@ public abstract sealed class RedBlackTree<A>
     @Override
     public @NonNull RedBlackTree<A> insert(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        final RedBlackTree<A> root
-            = insertRecursive(this, element);
-        return new Node<>(root.insertionStrategy, root.comparer, root.element(), root.left(), root.right(), true);
-    }
 
-    /**
-     * <div>
-     *     <p>
-     *         Recursive helper for element insertion.
-     *     </p>
-     * </div>
-     *
-     * @param tree the current sub-tree
-     * @param element the element to insert
-     * @param <A> the type of elements
-     * @return the new root of the sub-tree
-     *
-     * @since 1.0.0
-     */
-    private static <A> RedBlackTree<A> insertRecursive(final RedBlackTree<A> tree, final A element) {
-        if (!tree.isNode()) {
-            return new Node<>(tree.insertionStrategy, tree.comparer, element, tree, tree, false);
+        if (!this.isNode()) {
+            return new Node<>(this.insertionStrategy, this.comparer, element, this, this, true);
         }
 
-        final Node<A> node
-            = (Node<A>) tree;
-        return switch (tree.comparer.compare(element, node.element)) {
-            case LESS -> balance(node.insertionStrategy, node.comparer, node.element, insertRecursive(node.left, element), node.right, node.black);
-            case GREATER -> balance(node.insertionStrategy, node.comparer, node.element, node.left, insertRecursive(node.right, element), node.black);
-            case EQUAL -> switch (node.insertionStrategy) {
-                case Discard -> node;
-                case Replace -> new Node<>(node.insertionStrategy, node.comparer, element, node.left, node.right, node.black);
-            };
-        };
+        record PathStep<A>(Node<A> node, boolean isLeft) {}
+        final Deque<PathStep<A>> path = new ArrayDeque<>();
+        RedBlackTree<A> curr = this;
+
+        while (curr instanceof Node<A> node) {
+            switch (this.comparer.compare(element, node.element)) {
+                case LESS -> {
+                    path.push(new PathStep<>(node, true));
+                    curr = node.left;
+                }
+                case GREATER -> {
+                    path.push(new PathStep<>(node, false));
+                    curr = node.right;
+                }
+                case EQUAL -> {
+                    switch (node.insertionStrategy) {
+                        case Discard -> {
+                            return this;
+                        }
+                        case Replace -> {
+                            RedBlackTree<A> currentTree = new Node<>(
+                                node.insertionStrategy,
+                                node.comparer,
+                                element,
+                                node.left,
+                                node.right,
+                                node.black
+                            );
+                            while (!path.isEmpty()) {
+                                final var step = path.pop();
+                                final var parent = step.node;
+                                final var newLeft = step.isLeft ? currentTree : parent.left;
+                                final var newRight = step.isLeft ? parent.right : currentTree;
+                                currentTree = new Node<>(
+                                    parent.insertionStrategy,
+                                    parent.comparer,
+                                    parent.element,
+                                    newLeft,
+                                    newRight,
+                                    parent.black
+                                );
+                            }
+                            return new Node<>(
+                                currentTree.insertionStrategy,
+                                currentTree.comparer,
+                                currentTree.element(),
+                                currentTree.left(),
+                                currentTree.right(),
+                                true
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        RedBlackTree<A> currentTree = new Node<>(
+            this.insertionStrategy,
+            this.comparer,
+            element,
+            curr,
+            curr,
+            false
+        );
+
+        while (!path.isEmpty()) {
+            final var step = path.pop();
+            final var parent = step.node;
+            final var newLeft = step.isLeft ? currentTree : parent.left;
+            final var newRight = step.isLeft ? parent.right : currentTree;
+            currentTree = balance(
+                parent.insertionStrategy,
+                parent.comparer,
+                parent.element,
+                newLeft,
+                newRight,
+                parent.black
+            );
+        }
+
+        return new Node<>(
+            currentTree.insertionStrategy,
+            currentTree.comparer,
+            currentTree.element(),
+            currentTree.left(),
+            currentTree.right(),
+            true
+        );
     }
 
     /**
@@ -682,40 +741,6 @@ public abstract sealed class RedBlackTree<A>
         return new Node<>(strategy, comparer, z, left, right, true);
     }
 
-    /**
-     * <div>
-     *     <p>
-     *         Recursive helper for generating the tree string representation.
-     *     </p>
-     * </div>
-     *
-     * @param prefix the prefix for the current line
-     * @param childrenPrefix the prefix for the children lines
-     * @param current the current node
-     * @param <A> the type of elements
-     * @return the tree structure as a string
-     *
-     * @since 1.0.0
-     */
-    private static <A> String echoRecursive(final String prefix,
-                                            final String childrenPrefix,
-                                            final RedBlackTree<A> current) {
-        if (!current.isNode()) {
-            return prefix + "L\n";
-        }
-        final Node<A> node = (Node<A>) current;
-        final StringBuilder builder = new StringBuilder();
-        builder.append(prefix);
-        builder.append(node.black ? "B" : "R");
-        builder.append(": ");
-        builder.append(node.element);
-        builder.append("\n");
-
-        builder.append(echoRecursive(childrenPrefix + "├── ", childrenPrefix + "│   ", node.left));
-        builder.append(echoRecursive(childrenPrefix + "└── ", childrenPrefix + "    ", node.right));
-
-        return builder.toString();
-    }
 
     /**
      * <div>
@@ -958,7 +983,34 @@ public abstract sealed class RedBlackTree<A>
      */
     @Override
     public @NonNull String echo() {
-        return echoRecursive("", "", this);
+        record Frame<A>(RedBlackTree<A> tree, String prefix, String childrenPrefix) {}
+
+        final StringBuilder builder = new StringBuilder();
+        final Deque<Frame<A>> stack = new ArrayDeque<>();
+        stack.push(new Frame<>(this, "", ""));
+
+        while (!stack.isEmpty()) {
+            final var frame = stack.pop();
+            final var current = frame.tree;
+            final var prefix = frame.prefix;
+            final var childrenPrefix = frame.childrenPrefix;
+
+            if (!current.isNode()) {
+                builder.append(prefix).append("L\n");
+            } else {
+                final Node<A> node = (Node<A>) current;
+                builder.append(prefix);
+                builder.append(node.black ? "B" : "R");
+                builder.append(": ");
+                builder.append(node.element);
+                builder.append("\n");
+
+                stack.push(new Frame<>(node.right, childrenPrefix + "└── ", childrenPrefix + "    "));
+                stack.push(new Frame<>(node.left, childrenPrefix + "├── ", childrenPrefix + "│   "));
+            }
+        }
+
+        return builder.toString();
     }
 
     /**
@@ -1160,7 +1212,6 @@ public abstract sealed class RedBlackTree<A>
                 = right;
         }
 
-
     }
 
     /**
@@ -1193,7 +1244,6 @@ public abstract sealed class RedBlackTree<A>
                      final Comparer<? super A> comparer) {
             super(insertionStrategy, comparer, 1, true);
         }
-
 
     }
 
