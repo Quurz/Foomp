@@ -15,7 +15,6 @@ import static org.quurz.foomp.base.functions.Comparer.comparer;
 import static org.quurz.foomp.base.localisation.BaseMessages.*;
 import static org.quurz.foomp.base.types.Tree.InsertionStrategy.Discard;
 import static org.quurz.foomp.base.util.Maybe.*;
-import static org.quurz.foomp.base.util.Tuple2.tuple2;
 
 /**
  * <div>
@@ -556,7 +555,83 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull AVLTree<A> insert(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return insertRecursive(insertionStrategy, comparer, element, this).get1();
+
+        if (this instanceof Leaf<A>) {
+            final var emptyLeaf = new Leaf<A>(this.insertionStrategy, this.comparer);
+            return new Node<>(this.insertionStrategy, this.comparer, element, emptyLeaf, emptyLeaf);
+        }
+
+        record PathStep<A>(Node<A> node, boolean isLeft) {}
+        final Deque<PathStep<A>> path = new ArrayDeque<>();
+        AVLTree<A> curr = this;
+
+        while (curr instanceof Node<A> node) {
+            switch (this.comparer.compare(element, node.element)) {
+                case LESS -> {
+                    path.push(new PathStep<>(node, true));
+                    curr = node.left;
+                }
+                case GREATER -> {
+                    path.push(new PathStep<>(node, false));
+                    curr = node.right;
+                }
+                case EQUAL -> {
+                    switch (this.insertionStrategy) {
+                        case Discard -> {
+                            return this;
+                        }
+                        case Replace -> {
+                            AVLTree<A> currentTree = new Node<>(
+                                this.insertionStrategy,
+                                this.comparer,
+                                element,
+                                node.left,
+                                node.right
+                            );
+                            while (!path.isEmpty()) {
+                                final var step = path.pop();
+                                final var parent = step.node;
+                                final var newLeft = step.isLeft ? currentTree : parent.left;
+                                final var newRight = step.isLeft ? parent.right : currentTree;
+                                currentTree = new Node<>(
+                                    this.insertionStrategy,
+                                    this.comparer,
+                                    parent.element,
+                                    newLeft,
+                                    newRight
+                                );
+                            }
+                            return currentTree;
+                        }
+                    }
+                }
+            }
+        }
+
+        final var emptyLeaf = new Leaf<A>(this.insertionStrategy, this.comparer);
+        AVLTree<A> currentTree = new Node<>(
+            this.insertionStrategy,
+            this.comparer,
+            element,
+            emptyLeaf,
+            emptyLeaf
+        );
+
+        while (!path.isEmpty()) {
+            final var step = path.pop();
+            final var parent = step.node;
+            final var newLeft = step.isLeft ? currentTree : parent.left;
+            final var newRight = step.isLeft ? parent.right : currentTree;
+            currentTree = rebalance(new Node<>(
+                this.insertionStrategy,
+                this.comparer,
+                parent.element,
+                newLeft,
+                newRight
+            ));
+        }
+
+        return currentTree;
     }
 
     /**
@@ -575,7 +650,7 @@ public abstract sealed class AVLTree<A>
     @Override
     public boolean contains(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return searchRecursive(this.comparer, element, this) != null;
+        return searchInternal(this.comparer, element, this) != null;
     }
 
     /**
@@ -593,10 +668,11 @@ public abstract sealed class AVLTree<A>
      * @since 1.0.0
      */
     @Override
-    public @NonNull A search(final @NonNull A element) throws NoSuchElementException {
+    public @NonNull A search(final @NonNull A element)
+            throws NoSuchElementException {
         Objects.requireNonNull(element, nullValue("element"));
         final var result
-            = searchRecursive(this.comparer, element, this);
+            = searchInternal(this.comparer, element, this);
         if (result != null) {
             return result;
         } else {
@@ -620,7 +696,7 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull Maybe<A> searchSafe(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return maybeOfNullable(searchRecursive(this.comparer, element, this));
+        return maybeOfNullable(searchInternal(this.comparer, element, this));
     }
 
     /**
@@ -658,7 +734,93 @@ public abstract sealed class AVLTree<A>
     @Override
     public @NonNull AVLTree<A> remove(final @NonNull A element) {
         Objects.requireNonNull(element, nullValue("element"));
-        return removeRecursive(this.comparer, element, this);
+
+        if (this instanceof Leaf<A>) {
+            return this;
+        }
+
+        record PathStep<A>(Node<A> node, boolean isLeft) {}
+        final Deque<PathStep<A>> path = new ArrayDeque<>();
+        AVLTree<A> curr = this;
+        Node<A> target = null;
+
+        while (curr instanceof Node<A> node) {
+            switch (this.comparer.compare(element, node.element)) {
+                case LESS -> {
+                    path.push(new PathStep<>(node, true));
+                    curr = node.left;
+                }
+                case GREATER -> {
+                    path.push(new PathStep<>(node, false));
+                    curr = node.right;
+                }
+                case EQUAL -> {
+                    target = node;
+                    curr = null;
+                }
+            }
+        }
+
+        if (target == null) {
+            return this;
+        }
+
+        AVLTree<A> replacement;
+        if (target.left instanceof Leaf<A>) {
+            replacement = target.right;
+        } else if (target.right instanceof Leaf<A>) {
+            replacement = target.left;
+        } else {
+            final Deque<PathStep<A>> rightPath = new ArrayDeque<>();
+            Node<A> successorNode = (Node<A>) target.right;
+
+            while (successorNode.left instanceof Node<A> leftChild) {
+                rightPath.push(new PathStep<>(successorNode, true));
+                successorNode = leftChild;
+            }
+
+            AVLTree<A> currentRight = successorNode.right;
+
+            while (!rightPath.isEmpty()) {
+                final var step = rightPath.pop();
+                final var parent = step.node;
+                final var newLeft = step.isLeft ? currentRight : parent.left;
+                final var newRight = step.isLeft ? parent.right : currentRight;
+                currentRight = rebalance(new Node<>(
+                    this.insertionStrategy,
+                    this.comparer,
+                    parent.element,
+                    newLeft,
+                    newRight
+                ));
+            }
+
+            replacement = rebalance(new Node<>(
+                this.insertionStrategy,
+                this.comparer,
+                successorNode.element,
+                target.left,
+                currentRight
+            ));
+        }
+
+        AVLTree<A> currentTree = replacement;
+
+        while (!path.isEmpty()) {
+            final var step = path.pop();
+            final var parent = step.node;
+            final var newLeft = step.isLeft ? currentTree : parent.left;
+            final var newRight = step.isLeft ? parent.right : currentTree;
+            currentTree = rebalance(new Node<>(
+                this.insertionStrategy,
+                this.comparer,
+                parent.element,
+                newLeft,
+                newRight
+            ));
+        }
+
+        return currentTree;
     }
 
     /**
@@ -731,7 +893,36 @@ public abstract sealed class AVLTree<A>
      */
     @Override
     public @NonNull String echo() {
-        return echoRecursive("", "", this).trim();
+        if (this instanceof Leaf<A>) {
+            return "";
+        }
+
+        record Frame<A>(AVLTree<A> tree, String prefix, String childrenPrefix) {}
+
+        final var sb = new StringBuilder();
+        final var stack = new ArrayDeque<Frame<A>>();
+        stack.push(new Frame<>(this, "", ""));
+
+        while (!stack.isEmpty()) {
+            final var frame = stack.pop();
+            final var current = frame.tree;
+            final var prefix = frame.prefix;
+            final var childrenPrefix = frame.childrenPrefix;
+
+            if (current instanceof Node<A> node) {
+                sb.append(prefix).append(node.element).append("\n");
+                if (node.left instanceof Node<A> || node.right instanceof Node<A>) {
+                    stack.push(new Frame<>(node.right, childrenPrefix + "└── ", childrenPrefix + "    "));
+                    stack.push(new Frame<>(node.left, childrenPrefix + "├── ", childrenPrefix + "│   "));
+                }
+            } else if (current instanceof Leaf<A>) {
+                if (prefix.contains("──")) {
+                    sb.append(prefix).append("[empty]\n");
+                }
+            }
+        }
+
+        return sb.toString().trim();
     }
 
     /**
@@ -753,40 +944,45 @@ public abstract sealed class AVLTree<A>
      */
     @Override
     public boolean equals(final Object other) {
+        boolean result = false;
         if (this == other) {
-            return true;
+            result = true;
+        } else if (other instanceof AVLTree<?> that) {
+            record Pair(AVLTree<?> t1, AVLTree<?> t2) {}
+
+            final var stack = new ArrayDeque<Pair>();
+            stack.push(new Pair(this, that));
+
+            boolean mismatchFound = false;
+
+            while (!stack.isEmpty() && !mismatchFound) {
+                final var pair = stack.pop();
+                final var t1 = pair.t1;
+                final var t2 = pair.t2;
+
+                final boolean t1IsNode = t1.isNode();
+                final boolean t2IsNode = t2.isNode();
+
+                if (!t1IsNode && !t2IsNode) {
+                    continue;
+                }
+
+                if (t1IsNode && t2IsNode) {
+                    if (!Objects.equals(t1.element(), t2.element())) {
+                        mismatchFound = true;
+                    } else {
+                        stack.push(new Pair(t1.right(), t2.right()));
+                        stack.push(new Pair(t1.left(), t2.left()));
+                    }
+                } else {
+                    mismatchFound = true;
+                }
+            }
+
+            result = !mismatchFound;
         }
 
-        if (!(other instanceof AVLTree<?> that)) {
-            return false;
-        }
-
-        return equalsRecursive(this, that);
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Recursively compares two AVL trees for equality.
-     *     </p>
-     * </div>
-     *
-     * @param tree1 the first tree
-     * @param tree2 the second tree
-     * @return {@code true} if the trees are equal, {@code false} otherwise
-     *
-     * @since 1.0.0
-     */
-    private static boolean equalsRecursive(final AVLTree<?> tree1, final AVLTree<?> tree2) {
-        if (!tree1.isNode() && !tree2.isNode()) {
-            return true;
-        }
-        if (tree1.isNode() && tree2.isNode()) {
-            return Objects.equals(tree1.element(), tree2.element())
-                && equalsRecursive(tree1.left(), tree2.left())
-                && equalsRecursive(tree1.right(), tree2.right());
-        }
-        return false;
+        return result;
     }
 
     /**
@@ -806,65 +1002,29 @@ public abstract sealed class AVLTree<A>
      */
     @Override
     public int hashCode() {
-        return hashCodeRecursive(this);
-    }
+        int result = 1;
+        if (this.isNode()) {
+            final var stack = new ArrayDeque<AVLTree<A>>();
+            AVLTree<A> curr = this;
+            int h = 1;
 
-    /**
-     * <div>
-     *     <p>
-     *         Recursively calculates the hash code for the given tree node.
-     *     </p>
-     * </div>
-     *
-     * @param current the node to calculate the hash code for
-     * @return the calculated hash code
-     *
-     * @since 1.0.0
-     */
-    private int hashCodeRecursive(final AVLTree<A> current) {
-        if (!current.isNode()) {
-            return 1;
-        }
-        int h = hashCodeRecursive(current.left());
-        h = 31 * h + Objects.hashCode(current.element());
-        h = 31 * h + hashCodeRecursive(current.right());
-        return h;
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Recursively generates a structured string representation of the tree.
-     *     </p>
-     * </div>
-     *
-     * @param <A>            the element type
-     * @param prefix         the prefix for the current line
-     * @param childrenPrefix the prefix for children lines
-     * @param current        the current node being processed
-     * @return the formatted string for the current subtree
-     *
-     * @since 1.0.0
-     */
-    private static <A> String echoRecursive(final String prefix,
-                                            final String childrenPrefix,
-                                            final AVLTree<A> current) {
-        return switch (current) {
-            case Node<A> node -> {
-                final var stringBuilder
-                    = new StringBuilder();
-                stringBuilder.append(prefix).append(node.element).append("\n");
-
-                if (node.left instanceof Node<A> || node.right instanceof Node<A>) {
-                    stringBuilder.append(echoRecursive(childrenPrefix + "├── ", childrenPrefix + "│   ", node.left));
-                    stringBuilder.append(echoRecursive(childrenPrefix + "└── ", childrenPrefix + "    ", node.right));
+            while (curr.isNode() || !stack.isEmpty()) {
+                while (curr.isNode()) {
+                    stack.push(curr);
+                    curr = curr.left();
                 }
-
-                yield stringBuilder.toString();
+                // curr is Leaf (hash is 1)
+                curr = stack.pop();
+                h = 31 * h + Objects.hashCode(curr.element());
+                curr = curr.right();
             }
-            case Leaf<A> _ -> prefix.contains("──") ? prefix + "[empty]\n" : "";
-        };
+
+            result = h;
+        }
+
+        return result;
     }
+
     
     /**
      * <div>
@@ -971,104 +1131,6 @@ public abstract sealed class AVLTree<A>
         }
 
 
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Recursively inserts an element into the tree, maintaining AVL balance.
-     *     </p>
-     * </div>
-     *
-     * @param <A>               the element type
-     * @param insertionStrategy the strategy to use for duplicate elements; must not be {@code null}
-     * @param comparer          the comparer to use; must not be {@code null}
-     * @param element           the element to insert; must not be {@code null}
-     * @param current           the current node in the recursion; must not be {@code null}
-     * @return a tuple containing the new root of the subtree and a boolean indicating if the height changed
-     *
-     * @since 1.0.0
-     */
-    private static <A> Tuple2<AVLTree<A>, Boolean> insertRecursive(final InsertionStrategy insertionStrategy,
-                                                                   final Comparer<? super A> comparer,
-                                                                   final A element,
-                                                                   final AVLTree<A> current) {
-        return switch (current) {
-            case Node<A> node
-                -> switch (comparer.compare(element, node.element)) {
-                    case LESS
-                        -> {
-                            final var childNodeAndChangeFlag
-                                = insertRecursive(insertionStrategy, comparer, element, node.left);
-                            final AVLTree<A> newNode;
-                            if (childNodeAndChangeFlag.get2()) {
-                                newNode
-                                    = rebalance(
-                                        new Node<>(
-                                            insertionStrategy,
-                                            comparer,
-                                            current.element(),
-                                            childNodeAndChangeFlag.get(),
-                                            current.right()
-                                        )
-                                    );
-                            } else {
-                                newNode
-                                    = current;
-                            }
-                            yield tuple2(newNode, childNodeAndChangeFlag.get2());
-                        }
-                    case EQUAL
-                        -> switch (insertionStrategy) {
-                            case Discard
-                                -> tuple2(node, Boolean.FALSE);
-                            case Replace
-                                -> tuple2(
-                                    new Node<>(
-                                        insertionStrategy,
-                                        comparer,
-                                        element,
-                                        node.left,
-                                        node.right
-                                    ),
-                                    Boolean.TRUE
-                                );
-                        };
-                    case GREATER
-                        -> {
-                            final var childNodeAndChangeFlag
-                                = insertRecursive(insertionStrategy, comparer, element, node.right);
-                            final AVLTree<A> newNode;
-                            if (childNodeAndChangeFlag.get2()) {
-                                newNode
-                                    = rebalance(
-                                        new Node<>(
-                                            insertionStrategy,
-                                            comparer,
-                                            current.element(),
-                                            current.left(),
-                                            childNodeAndChangeFlag.get()
-                                        )
-                                    );
-                            } else {
-                                newNode
-                                    = current;
-                            }
-                            yield tuple2(newNode, childNodeAndChangeFlag.get2());
-                        }
-                };
-            case Leaf<A> _
-                -> tuple2(
-                    new Node<>(
-                        insertionStrategy,
-                        comparer,
-                        element,
-                        new Leaf<>(insertionStrategy, comparer),
-                        new Leaf<>(insertionStrategy, comparer)
-                    ),
-                    Boolean.TRUE
-                );
-        };
     }
 
     /**
@@ -1214,103 +1276,32 @@ public abstract sealed class AVLTree<A>
     /**
      * <div>
      *     <p>
-     *         Recursively searches for an element in the tree.
-     *     </p>
-     * </div>
-     *
-     * @param <A>        the element type
-     * @param element    the element to search for
-     * @param comparer the comparer to use
-     * @param current    the current subtree being searched
-     * @return the found element, or {@code null} if not found
-     *
-     * @since 1.0.0
-     */
-    private static <A> A searchRecursive(final Comparer<? super A> comparer,
-                                         final A element,
-                                         final AVLTree<A> current) {
-        return switch (current) {
-            case Node<A> node
-                -> switch (comparer.compare(element, node.element)) {
-                    case LESS -> searchRecursive(comparer, element, node.left);
-                    case EQUAL -> node.element;
-                    case GREATER -> searchRecursive(comparer, element, node.right);
-                };
-            case Leaf<A> _
-                -> null;
-        };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Recursively removes an element from the tree and rebalances the affected subtrees.
+     *         Iteratively searches for an element in the tree.
      *     </p>
      * </div>
      *
      * @param <A>      the element type
-     * @param comparer the comparer to use for navigation
-     * @param element  the element to remove
-     * @param current  the current node in the recursion
-     * @return the new root of the subtree after removal and rebalancing
+     * @param comparer the comparer to use
+     * @param element  the element to search for
+     * @param current  the current subtree being searched
+     * @return the found element, or {@code null} if not found
      *
      * @since 1.0.0
      */
-    private static <A> AVLTree<A> removeRecursive(final Comparer<? super A> comparer,
-                                                  final A element,
-                                                  final AVLTree<A> current) {
-        return switch (current) {
-            case Leaf<A> _
-                -> current;
-            case Node<A> node
-                -> switch (comparer.compare(element, node.element)) {
-                    case LESS -> {
-                        final var newLeft = removeRecursive(comparer, element, node.left);
-                        yield newLeft == node.left ? node : rebalance(new Node<>(node.insertionStrategy, node.comparer, node.element, newLeft, node.right));
-                    }
-                    case GREATER -> {
-                        final var newRight = removeRecursive(comparer, element, node.right);
-                        yield newRight == node.right ? node : rebalance(new Node<>(node.insertionStrategy, node.comparer, node.element, node.left, newRight));
-                    }
-                    case EQUAL -> {
-                        if (node.left instanceof Leaf<A>) {
-                            yield node.right;
-                        } else if (node.right instanceof Leaf<A>) {
-                            yield node.left;
-                        } else {
-                            final var successor = findMin(node.right);
-                            yield rebalance(new Node<>(
-                                node.insertionStrategy,
-                                node.comparer,
-                                successor,
-                                node.left,
-                                removeRecursive(comparer, successor, node.right)
-                            ));
-                        }
-                    }
-                };
-        };
-    }
-
-    /**
-     * <div>
-     *     <p>
-     *         Finds the minimum element in the given tree (the leftmost node).
-     *     </p>
-     * </div>
-     *
-     * @param <A>  the element type
-     * @param tree the tree to search in
-     * @return the minimum element found
-     * @throws NoSuchElementException if the tree is empty
-     *
-     * @since 1.0.0
-     */
-    private static <A> A findMin(final AVLTree<A> tree) {
-        return switch (tree) {
-            case Node<A> node -> node.left instanceof Leaf<A> ? node.element : findMin(node.left);
-            case Leaf<A> _ -> throw new NoSuchElementException();
-        };
+    private static <A> A searchInternal(final Comparer<? super A> comparer,
+                                        final A element,
+                                        final AVLTree<A> current) {
+        AVLTree<A> curr = current;
+        while (curr instanceof Node<A> node) {
+            switch (comparer.compare(element, node.element)) {
+                case LESS -> curr = node.left;
+                case GREATER -> curr = node.right;
+                case EQUAL -> {
+                    return node.element;
+                }
+            }
+        }
+        return null;
     }
 
 }
