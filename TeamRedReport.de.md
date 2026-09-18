@@ -37,11 +37,11 @@
 
 ### 🚨 C. Unvollständige / ungeschützte Hilfsklassen (`misc`-Package & Utils)
 Ein Blick in `org.quurz.foomp.base.misc` und `util` zeigt verbleibende Optimierungspotenziale:
-1. **`SemVer.java`**:
+1. **`ShutdownHookRegistry.java`**:
+   * *Status: Erledigt.* Lokalisierungsmeldungen wurden vollständig in `BaseMessages` integriert, nullness-gesichert, mit JavaDocs dokumentiert und Unit-Tests angepasst.
+2. **`SemVer.java`**:
    * Kommentar: `// TODO: Immutable machen & Messages`.
    * Klassen wie `SemVer` sollten im FP-Kontext strikt unveränderlich (`final`, keine mutierenden Setter) sein.
-2. **`ShutdownHookRegistry.java`**:
-   * Enthält `// TODO: Checks in Util-Klasse und Lokalisierung`.
 3. **`LogAdapter.java`**:
    * Enthält `// TODO: Log-Methoden mit Exception-Argument hinzufügen`.
 4. **`Util.java`**:
@@ -80,8 +80,9 @@ Ein Blick in `org.quurz.foomp.base.misc` und `util` zeigt verbleibende Optimieru
 1. [x] **Aufräumen:** Verzeichnis `Base/src/main/RecyclingBin` entfernen.
 2. [x] **Dokumentation:** Vollständige Dokumentation & Guides für alle `Base`- und `Higher`-Klassen in Astro/Starlight erstellen.
 3. [x] **Dokumentations-Hygiene:** Veraltete `*-overview.md`-Dateien entfernen und alle internen Verlinkungen aktualisieren.
-4. [ ] **Misc-Härtung:** `SemVer` unveränderlich machen und Lokalisierungsmeldungen anbinden.
-5. [ ] **Misc-Härtung:** `ShutdownHookRegistry` und `LogAdapter` vervollständigen.
-6. [ ] **Sicherheit & Skalierbarkeit:** Rekursive Operationen in Bäumen/Folds gegen `StackOverflowError` absichern.
-7. [ ] **HKT-Check:** `narrow`-Methoden in allen `HigherN`-Implementierern vereinheitlichen.
-8. [ ] **Tooling:** `site`-URL in `docs/astro.config.mjs` für fehlerfreie Sitemap-Generierung konfigurieren.
+4. [x] **Misc-Härtung:** `ShutdownHookRegistry` lokalisieren, absichern und dokumentieren.
+5. [ ] **Misc-Härtung:** `SemVer` unveränderlich machen und Lokalisierungsmeldungen anbinden.
+6. [ ] **Misc-Härtung:** `LogAdapter` vervollständigen (Log-Methoden mit Exception-Parameter).
+7. [ ] **Sicherheit & Skalierbarkeit:** Rekursive Operationen in Bäumen/Folds gegen `StackOverflowError` absichern.
+8. [ ] **HKT-Check:** `narrow`-Methoden in allen `HigherN`-Implementierern vereinheitlichen.
+9. [ ] **Tooling:** `site`-URL in `docs/astro.config.mjs` für fehlerfreie Sitemap-Generierung konfigurieren.
