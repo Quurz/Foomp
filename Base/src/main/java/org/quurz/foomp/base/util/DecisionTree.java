@@ -262,26 +262,33 @@ public sealed interface DecisionTree<F, R>
     default R examine(final @NonNull F fact) {
         Objects.requireNonNull(fact, nullValue("fact"));
 
-        return switch (this) {
-            case DecisionTree.Node<F, R> node
-                -> node.predicate.test(fact)
-                    ? node.yesTree.examine(fact)
-                    : node.noTree.examine(fact);
-            case DecisionTree.TransformingLeaf<F, R> transformingLeaf
-                -> Objects.requireNonNull(transformingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
-            case DecisionTree.TransformingAndConsumingLeaf<F, R> transformingAndConsumingLeaf
-                -> {
-                    final var result
-                        = Objects.requireNonNull(transformingAndConsumingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
-                    transformingAndConsumingLeaf.consumer.accept(result);
-                    yield result;
-                }
-            case DecisionTree.ConsumingAndTransformingLeaf<F, R> consumingAndTransformingLeaf
-                -> {
-                    consumingAndTransformingLeaf.consumer.accept(fact);
-                    yield Objects.requireNonNull(consumingAndTransformingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
-                }
-        };
+        DecisionTree<F, ? extends R> current = this;
+        while (true) {
+            switch (current) {
+                case DecisionTree.Node<F, ? extends R> node
+                    -> current = node.predicate.test(fact)
+                        ? node.yesTree
+                        : node.noTree;
+                case DecisionTree.TransformingLeaf<F, ? extends R> transformingLeaf
+                    -> {
+                        return Objects.requireNonNull(transformingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
+                    }
+                case DecisionTree.TransformingAndConsumingLeaf<F, ?> transformingAndConsumingLeaf
+                    -> {
+                        @SuppressWarnings("unchecked")
+                        final var leaf = (DecisionTree.TransformingAndConsumingLeaf<F, R>) transformingAndConsumingLeaf;
+                        final var result
+                            = Objects.requireNonNull(leaf.transformer.apply(fact), nullResultFrom("transformer"));
+                        leaf.consumer.accept(result);
+                        return result;
+                    }
+                case DecisionTree.ConsumingAndTransformingLeaf<F, ? extends R> consumingAndTransformingLeaf
+                    -> {
+                        consumingAndTransformingLeaf.consumer.accept(fact);
+                        return Objects.requireNonNull(consumingAndTransformingLeaf.transformer.apply(fact), nullResultFrom("transformer"));
+                    }
+            }
+        }
     }
 
     /**

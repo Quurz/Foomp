@@ -11,8 +11,10 @@ import org.quurz.foomp.higher.Higher1;
 import org.quurz.foomp.higher.Higher2;
 import org.quurz.foomp.higher.WitnessType;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -207,40 +209,6 @@ public class Dictionary<K, V>
     /**
      * <div>
      *     <p>
-     *         Recursively traverses the given {@link RedBlackTree} and transforms the values of all
-     *         contained entries using the specified function.
-     *     </p>
-     * </div>
-     *
-     * @param tree           the tree node to transform
-     * @param transformation the value transformation function
-     * @param <K>            the key type
-     * @param <V>            the original value type
-     * @param <W>            the transformed value type
-     * @return a new tree containing the mapped entries
-     */
-    private static <K, V, W> RedBlackTree<Entry<K, W>> mapTree(final RedBlackTree<Entry<K, V>> tree,
-                                                               final Function<? super V, ? extends W> transformation) {
-        if (!tree.isNode()) {
-            return redBlackTree(
-                Tree.InsertionStrategy.Replace,
-                Comparator.comparingInt(entry -> Objects.hashCode(entry.key))
-            );
-        }
-        final Entry<K, W> mappedEntry
-            = tree.element().map(transformation);
-        final RedBlackTree<Entry<K, W>> mappedLeft
-            = mapTree(tree.left(), transformation);
-        final RedBlackTree<Entry<K, W>> mappedRight
-            = mapTree(tree.right(), transformation);
-
-        return mappedLeft.insert(mappedEntry).merge(mappedRight);
-    }
-
-
-    /**
-     * <div>
-     *     <p>
      *         Internal node entry holding a key, a lazy value supplier, and a reference to the next
      *         entry in case of a hash collision.
      *     </p>
@@ -284,18 +252,33 @@ public class Dictionary<K, V>
          * @return the updated entry representing the head of the collision chain
          */
         private Entry<K, V> put(final K key, final Supplier<V> spool) {
-            final Entry<K, V> newEntry;
-            if (Objects.equals(this.key, key)) {
-                newEntry
-                    = new Entry<>(key, spool, this.next);
-            } else if (this.next == null) {
-                newEntry
-                    = new Entry<>(key, spool, this);
-            } else {
-                newEntry
-                    = new Entry<>(this.key, this.spool, this.next.put(key, spool));
+            final Deque<Entry<K, V>> ancestors = new ArrayDeque<>();
+            Entry<K, V> current = this;
+            boolean found = false;
+
+            while (current != null) {
+                if (Objects.equals(current.key, key)) {
+                    found = true;
+                    break;
+                }
+                ancestors.push(current);
+                current = current.next;
             }
-            return newEntry;
+
+            Entry<K, V> result;
+            if (found) {
+                result = new Entry<>(key, spool, current.next);
+            } else {
+                result = new Entry<>(key, spool, this);
+                return result;
+            }
+
+            while (!ancestors.isEmpty()) {
+                final Entry<K, V> ancestor = ancestors.pop();
+                result = new Entry<>(ancestor.key, ancestor.spool, result);
+            }
+
+            return result;
         }
 
         /**
@@ -351,17 +334,29 @@ public class Dictionary<K, V>
          * @return the new head of the collision chain, or {@code null} if the chain is empty
          */
         private Entry<K, V> remove(final K key) {
-            final Entry<K, V> result;
-            if (Objects.equals(this.key, key)) {
-                result
-                    = this.next;
-            } else if (this.next == null) {
-                result
-                    = this;
-            } else {
-                result
-                    = new Entry<>(this.key, this.spool, this.next.remove(key));
+            final Deque<Entry<K, V>> ancestors = new ArrayDeque<>();
+            Entry<K, V> current = this;
+            boolean found = false;
+
+            while (current != null) {
+                if (Objects.equals(current.key, key)) {
+                    found = true;
+                    break;
+                }
+                ancestors.push(current);
+                current = current.next;
             }
+
+            if (!found) {
+                return this;
+            }
+
+            Entry<K, V> result = current.next;
+            while (!ancestors.isEmpty()) {
+                final Entry<K, V> ancestor = ancestors.pop();
+                result = new Entry<>(ancestor.key, ancestor.spool, result);
+            }
+
             return result;
         }
 
@@ -373,23 +368,26 @@ public class Dictionary<K, V>
          * @return a new entry with mapped value suppliers
          */
         private <W> Entry<K, W> map(final Function<? super V, ? extends W> transformation) {
-            final Entry<K, W> mappedEntry;
-            if (this.spool != null) {
-                mappedEntry
-                    = new Entry<>(
-                        this.key,
-                        () -> Objects.requireNonNull(transformation.apply(this.spool.get()), nullResultFrom("transformation")),
-                        this.next != null ? this.next.map(transformation) : null
-                    );
-            } else {
-                mappedEntry
-                    = new Entry<>(
-                        this.key,
-                        null,
-                        this.next != null ? this.next.map(transformation) : null
-                    );
+            final Deque<Entry<K, V>> chain = new ArrayDeque<>();
+            Entry<K, V> current = this;
+            while (current != null) {
+                chain.push(current);
+                current = current.next;
             }
-            return mappedEntry;
+
+            Entry<K, W> result = null;
+            while (!chain.isEmpty()) {
+                final Entry<K, V> elem = chain.pop();
+                final Supplier<W> mappedSpool;
+                if (elem.spool != null) {
+                    mappedSpool = () -> Objects.requireNonNull(transformation.apply(elem.spool.get()), nullResultFrom("transformation"));
+                } else {
+                    mappedSpool = null;
+                }
+                result = new Entry<>(elem.key, mappedSpool, result);
+            }
+
+            return result;
         }
 
     }
@@ -636,8 +634,15 @@ public class Dictionary<K, V>
     @Override
     public @NonNull <W> Dictionary<K, W> map(final @NonNull Function<? super V, ? extends W> transformation) {
         Objects.requireNonNull(transformation, nullValue("transformation"));
-        final RedBlackTree<Entry<K, W>> mappedTree
-            = mapTree(this.tree, transformation);
+        RedBlackTree<Entry<K, W>> mappedTree
+            = redBlackTree(
+                Tree.InsertionStrategy.Replace,
+                Comparator.comparingInt(entry -> Objects.hashCode(entry.key))
+            );
+        for (final Entry<K, V> entry : this.tree.toCollection(ArrayList::new)) {
+            mappedTree
+                = mappedTree.insert(entry.map(transformation));
+        }
         return new Dictionary<>(mappedTree);
     }
 

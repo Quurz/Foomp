@@ -493,6 +493,19 @@ class DecisionTreeTest {
         }
 
         @Test
+        void stack_safe_deep_nesting_should_not_overflow_stack() {
+            LOGGER.info("DecisionTree should be stack-safe and evaluate deeply nested trees without StackOverflowError");
+
+            final int depth = 50_000;
+            DecisionTree<Integer, Integer> tree = DecisionTree.decisionLeaf(i -> i);
+            for (int d = 0; d < depth; d++) {
+                tree = decisionTree(i -> true, tree, DecisionTree.decisionLeaf(_i -> -1));
+            }
+
+            assertThat(tree.examine(42)).isEqualTo(42);
+        }
+
+        @Test
         void leaf_length_property_like_should_hold_for_random_strings() {
             LOGGER.info("DecisionTree leaf(String::length) should return s.length() for random inputs");
 

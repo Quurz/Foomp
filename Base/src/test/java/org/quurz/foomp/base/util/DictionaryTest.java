@@ -204,6 +204,34 @@ class DictionaryTest {
             assertFalse(removedAll.contains(k2));
             assertFalse(removedAll.contains(k3));
         }
+
+        @Test
+        void deep_collision_chain_put_map_and_remove_is_stack_safe() {
+            LOGGER.info("deep collision chains should be stack-safe across put, get, map and remove operations");
+            final int depth = 10_000;
+            Dict<CollidingKey, Integer> dict = dictionary();
+
+            for (int i = 0; i < depth; i++) {
+                dict = dict.put(new CollidingKey("k" + i, 999), i);
+            }
+
+            assertEquals(0, dict.get(new CollidingKey("k0", 999)));
+            assertEquals(depth - 1, dict.get(new CollidingKey("k" + (depth - 1), 999)));
+
+            // Update in deep collision chain
+            dict = dict.put(new CollidingKey("k0", 999), 42);
+            assertEquals(42, dict.get(new CollidingKey("k0", 999)));
+
+            // Map across deep collision chain
+            final Dictionary<CollidingKey, Integer> mappedDict = ((Dictionary<CollidingKey, Integer>) dict).map(x -> x * 2);
+            assertEquals(84, mappedDict.get(new CollidingKey("k0", 999)));
+            assertEquals((depth - 1) * 2, mappedDict.get(new CollidingKey("k" + (depth - 1), 999)));
+
+            // Remove from deep collision chain
+            final Dict<CollidingKey, Integer> removed = dict.remove(new CollidingKey("k0", 999));
+            assertFalse(removed.contains(new CollidingKey("k0", 999)));
+            assertTrue(removed.contains(new CollidingKey("k1", 999)));
+        }
     }
 
     @Nested
@@ -271,6 +299,21 @@ class DictionaryTest {
             final Dictionary<CollidingKey, Integer> mapped = dict.map(String::length);
             assertEquals(5, mapped.get(k1));
             assertEquals(5, mapped.get(k2));
+        }
+
+        @Test
+        void map_large_dictionary_is_stack_safe() {
+            LOGGER.info("map should transform large dictionaries without stack overflow");
+            Dictionary<Integer, Integer> dict = dictionary();
+            final int size = 10_000;
+            for (int i = 0; i < size; i++) {
+                dict = (Dictionary<Integer, Integer>) dict.put(i, i);
+            }
+
+            final Dictionary<Integer, String> mapped = dict.map(x -> "val" + x);
+            assertEquals("val0", mapped.get(0));
+            assertEquals("val5000", mapped.get(5000));
+            assertEquals("val9999", mapped.get(9999));
         }
     }
 
