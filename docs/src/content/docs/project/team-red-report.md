@@ -16,7 +16,7 @@ description: Unbiased, constructive comprehensive review of the Foomp codebase f
 * **Documentation:** 9.5/10 – Complete, two-part documentation (API references & practical developer guides) for all classes in `Base` and `Higher` integrated into Astro/Starlight. Obsolete artifacts and broken links have been cleaned up.
 * **Architecture:** 9.0/10 – Extremely high functional standard, comprehensive `null`-handling, clean annotations (`@NonNull`, `@LazyOperation`, `@UnwindingOperation`).
 * **Test Coverage:** 9.5/10 – Exemplary test suites utilizing `TestHelper`, structured `@Nested` classes; all Gradle tests run completely green.
-* **Code Hygiene:** 9.0/10 – High code quality, `RecyclingBin` and dead documentation files removed; few remaining `TODO`s in the `misc` package and in `Util`/`Box`.
+* **Code Hygiene:** 9.5/10 – High code quality, `RecyclingBin` and dead documentation files removed; all codebase `TODO`s resolved across `misc` and `util` (`ShutdownHookRegistry`, `SemVer`, `LogAdapter`, `Util`, `Box`).
 
 ---
 
@@ -38,18 +38,13 @@ description: Unbiased, constructive comprehensive review of the Foomp codebase f
 
 ---
 
-### 🚨 C. Incomplete / Unprotected Utility Classes (`misc` Package & Utils)
-An inspection of `org.quurz.foomp.base.misc` and `util` reveals remaining optimization potential:
-1. **`ShutdownHookRegistry.java`**:
-   * *Status: Resolved.* Localization messages were fully integrated into `BaseMessages`, nullness-guarded, documented with JavaDocs, and covered by unit tests.
-2. **`SemVer.java`**:
-   * *Status: Resolved.* Completely immutable (`final`, no setters), localization messages integrated in `BaseMessages`, JavaDocs added, and covered by unit tests.
-3. **`LogAdapter.java`**:
-   * Contains `// TODO: Log-Methoden mit Exception-Argument hinzufügen` (add logging methods accepting exception arguments).
-4. **`Util.java`**:
-   * *Status: Resolved.* Clean overload naming (`requireDirectory`, `requireRegularFile`, `requireReadable`, `requireNonEmpty`) preserved and verified (no static import conflicts), numeric & duration validators (`requireNonNegativeInt`, `requirePositiveInt`, etc.) added, tested, and documented.
-5. **`Box.java`**:
-   * Comment: `// TODO: Sollte Provider implementieren` (should implement Provider).
+### ✅ C. Utility Classes & Misc Package Hardening (Resolved)
+All pending items in `org.quurz.foomp.base.misc` and `util` have been thoroughly addressed and resolved:
+1. **`ShutdownHookRegistry.java`**: Localization messages fully integrated into `BaseMessages`, nullness-guarded, documented with JavaDocs, and covered by unit tests.
+2. **`SemVer.java`**: Completely immutable (`final`, no setters), localization messages integrated in `BaseMessages`, JavaDocs added, and covered by unit tests.
+3. **`LogAdapter.java`**: Framework-agnostic convention confirmed (standard SLF4J/Log4j2 `Throwable` inspection via `Object... args` / `BiConsumer`), obsolete TODO removed.
+4. **`Util.java`**: Clean overload naming (`requireDirectory`, `requireRegularFile`, `requireReadable`, `requireNonEmpty`) preserved and verified, `requireInterfaceType` hardened against annotations (`clazz.isInterface() && !clazz.isAnnotation()`), numeric & duration validators (`requireNonNegativeInt`, `requirePositiveInt`, etc.) added, tested, and documented.
+5. **`Box.java` & `Task.Executable`**: Role separation between `Provider` (`@FunctionalInterface` in `base.functions`) and `Box` (value container/Identity monad in `base.util`) established; `Task.Executable<A>` nested directly into `Task` as its asynchronous execution engine.
 
 ---
 
@@ -63,8 +58,8 @@ An inspection of `org.quurz.foomp.base.misc` and `util` reveals remaining optimi
 ### ✅ E. Documentation & Example Coverage (Resolved)
 * **Status:** Fully completed.
 * **Results:**
-  * For all 21 utility classes in `Base/util` (`Attempt`, `AVLTree`, `Box`, `Bucket`, `Constraint`, `Continuation`, `DecisionTree`, `Dictionary`, `Either`, `Eval`, `Executable`, `Maybe`, `Nothing`, `Pair`, `Record2`–`4`, `RedBlackTree`, `Result`, `SeqList`, `Sequence`, `Stateful`, `Task`, `Trampoline`, `Tuple2`–`4`, `Util`, `Zipper`) as well as all `Higher` types (`Higher1`–`Higher4`, `Hkt`, `WitnessType`), complete English API references and developer guides with runnable code examples are available.
-  * Clear distinctions (e.g., `Sequence` vs. `SeqList`, `Tuple` vs. `Record` vs. `Pair`) are documented in the guides.
+  * For all 20 utility classes in `Base/util` (`Attempt`, `AVLTree`, `Box`, `Bucket`, `Constraint`, `Continuation`, `DecisionTree`, `Dictionary`, `Either`, `Eval`, `Maybe`, `Nothing`, `Pair`, `Record2`–`4`, `RedBlackTree`, `Result`, `SeqList`, `Sequence`, `Stateful`, `Task` [including `Task.Executable`], `Trampoline`, `Tuple2`–`4`, `Util`, `Zipper`) as well as all `Higher` types (`Higher1`–`Higher4`, `Hkt`, `WitnessType`), complete English API references and developer guides with runnable code examples are available.
+  * Clear distinctions (e.g., `Sequence` vs. `SeqList`, `Tuple` vs. `Record` vs. `Pair`, `Provider` vs. `Box`) are documented in the guides.
 
 ---
 
@@ -85,9 +80,9 @@ An inspection of `org.quurz.foomp.base.misc` and `util` reveals remaining optimi
 4. [x] **Misc Hardening:** Localize, safeguard, and document `ShutdownHookRegistry`.
 5. [x] **Misc Hardening:** Make `SemVer` immutable and link localization messages.
 6. [x] **Util Cleanup:** Verify method overloads and naming in `Util`, add & test numeric/duration validators.
-7. [ ] **Misc Hardening:** Complete `LogAdapter` (add logging methods with exception parameters).
-8. [ ] **Util Review:** Check/correct redundant/misplaced TODO comment on `requireInterfaceType` in `Util.java`.
-9. [ ] **FP Provider:** Check `Box` for `Provider` implementation.
+7. [x] **Misc Hardening:** Confirm framework-agnostic exception logging in `LogAdapter` and remove obsolete TODO.
+8. [x] **Util Review:** Harden `requireInterfaceType` in `Util.java` against annotations and remove obsolete TODO.
+9. [x] **FP Provider & Task Engine:** Clarify `Box` vs `Provider` roles and nest `Task.Executable` into `Task`.
 10. [ ] **Safety & Scalability:** Safeguard recursive operations in trees/folds against `StackOverflowError`.
 11. [ ] **HKT Check:** Standardize `narrow` methods across all `HigherN` implementers.
 12. [ ] **Tooling:** Configure `site` URL in `docs/astro.config.mjs` for error-free sitemap generation.

@@ -130,8 +130,8 @@ class TaskTest {
         @SuppressWarnings("DataFlowIssue")
         @Test
         void taskFrom_executable_with_null_throws_NullPointerException() {
-            LOGGER.info("Task.taskFrom((Executable) null) should throw NullPointerException");
-            assertThatThrownBy(() -> Task.taskFrom((Executable<String>) null))
+            LOGGER.info("Task.taskFrom((Task.Executable) null) should throw NullPointerException");
+            assertThatThrownBy(() -> Task.taskFrom((Task.Executable<String>) null))
                 .isInstanceOf(NullPointerException.class);
         }
 

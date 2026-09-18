@@ -36,6 +36,22 @@ public static final class µ implements WitnessType { private µ() {} }
 
 ---
 
+## Inner Types: `Task.Executable<A>`
+
+```java
+@FunctionalInterface
+public interface Executable<A> extends Fun<Executor, CompletableFuture<Result<A>>>
+```
+
+`Task.Executable<A>` represents the underlying asynchronous computation dispatched across an `Executor`. It defines the core execution contract `(Executor) -> CompletableFuture<Result<A>>` wrapped by `Task`.
+
+| Return Type | Method | Description |
+| :--- | :--- | :--- |
+| `CompletableFuture<Result<A>>` | `execute(@NonNull Executor executor)` | Executes the asynchronous computation on the given executor. |
+| `default CompletableFuture<Result<A>>` | `apply(@NonNull Executor executor)` | Implements `Fun<Executor, ...>` by delegating directly to `execute(executor)`. |
+
+---
+
 ## Static Factory Methods
 
 | Return Type | Method | Description |
@@ -44,7 +60,7 @@ public static final class µ implements WitnessType { private µ() {} }
 | `static Task<Nothing>` | `task()` | Creates an eagerly completed `Task` yielding `Nothing.nothing` wrapped in a successful `Result`. |
 | `static <A> Task<A>` | `taskFrom(@NonNull Supplier<A> supplier)` | Creates a lazy `Task` that evaluates the given `Supplier` asynchronously on execution. Caught exceptions yield a `Result.failure`. |
 | `static Task<Nothing>` | `taskFrom(@NonNull Runnable runnable)` | Creates a lazy `Task` executing the given `Runnable` asynchronously. Produces `Nothing.nothing` on success, or a `Result.failure` on error. |
-| `static <A> Task<A>` | `taskFrom(@NonNull Executable<A> executable)` | Creates a lazy `Task` wrapping a custom [`Executable<A>`](/reference/base/util/executable/) function. |
+| `static <A> Task<A>` | `taskFrom(@NonNull Executable<A> executable)` | Creates a lazy `Task` wrapping a custom `Task.Executable<A>` computation. |
 
 ---
 
@@ -73,6 +89,5 @@ public static final class µ implements WitnessType { private µ() {} }
 ## See Also
 
 * [`Result<A>`](/reference/base/util/result/) – The outcome container (Success / Failure) produced upon task execution.
-* [`Executable<A>`](/reference/base/util/executable/) – Functional interface representing the underlying execution logic `(Executor) -> CompletableFuture<Result<A>>`.
 * [`Eval<A>`](/reference/base/util/eval/) – Synchronous lazy and memoized evaluation monad.
 * [`Trampoline<T>`](/reference/base/util/trampoline/) – Stackless tail-recursion driver.

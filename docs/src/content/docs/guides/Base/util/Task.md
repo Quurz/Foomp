@@ -134,6 +134,40 @@ public class ParallelZipExample {
 
 ---
 
+### 4. Custom Async Dispatch with `Task.Executable`
+
+For deep integration with third-party async clients (e.g. `HttpClient` or NIO drivers), implement `Task.Executable<A>`:
+
+```java title="CustomExecutableTaskExample.java"
+import org.quurz.foomp.base.util.Result;
+import org.quurz.foomp.base.util.Task;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class CustomExecutableTaskExample {
+
+    public static Task<String> fetchBody(URI uri) {
+        Task.Executable<String> engine = executor -> {
+            HttpClient client = HttpClient.newBuilder()
+                    .executor(executor)
+                    .build();
+            HttpRequest request = HttpRequest.newBuilder(uri).build();
+
+            return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(response -> Result.success(response.body()))
+                    .exceptionally(throwable -> Result.failure(new RuntimeException(throwable)));
+        };
+
+        return Task.taskFrom(engine);
+    }
+}
+```
+
+---
+
 ## Best Practices
 
 :::tip[Cold Pipelines]
