@@ -225,7 +225,61 @@ Indicates that an object could not be safely cast to the target type.
 
 ---
 
-### 7. General Diagnostic Messages
+### 7. Semantic Versioning Validation
+
+These methods provide standardized error messages when parsing or validating semantic version numbers (`SemVer`).
+
+#### `majorVersionNegative`, `minorVersionNegative`, `patchVersionNegative`
+```java
+public static @NonNull String majorVersionNegative()
+public static @NonNull String minorVersionNegative()
+public static @NonNull String patchVersionNegative()
+```
+Indicates that a major, minor, or patch component was negative when a non-negative integer was required.
+* **Patterns:**
+  * `Major version must be non-negative`
+  * `Minor version must be non-negative`
+  * `Patch version must be non-negative`
+
+#### `invalidSemVerFormat`
+```java
+public static @NonNull String invalidSemVerFormat(final @NonNull String format)
+```
+Indicates that a version string does not conform to the SemVer specification.
+* **Pattern:** `Invalid SemVer format: '%s'`
+* **Throws:** `NullPointerException` if `format` is `null`.
+
+#### `invalidNumericComponentInVersion`
+```java
+public static @NonNull String invalidNumericComponentInVersion(final @NonNull String version)
+```
+Indicates that a numeric component within a version string is malformed or invalid.
+* **Pattern:** `Invalid numeric component in version: '%s'`
+* **Throws:** `NullPointerException` if `version` is `null`.
+
+---
+
+### 8. Shutdown Hook Lifecycle & Diagnostics
+
+These methods provide standardized logging and diagnostic messages for the lifecycle of JVM shutdown hooks in `ShutdownHookRegistry`.
+
+| Method Signature | Formatted Message Pattern | Description |
+| :--- | :--- | :--- |
+| `shutdownHookRegistryAlreadyInstalled()` | `ShutdownHookRegistry already installed` | Registry has already been installed on JVM shutdown. |
+| `shutdownHookRegistryInstalled(int numberOfHooks)` | `ShutdownHookRegistry installed with %d hooks` | Registry initialization message with hook count. |
+| `executingShutdownHooks(int numberOfHooks)` | `Executing %d shutdown hooks...` | Beginning orderly hook execution. |
+| `allShutdownHooksCompleted()` | `All shutdown hooks completed` | All registered shutdown hooks have completed. |
+| `executingShutdownHook(String name, int priority, Duration timeout)` | `Executing shutdown hook '%s' (priority: %d, timeout: %s)...` | Trace execution of a single hook with parameters. |
+| `shutdownHookCompleted(String name)` | `Shutdown hook '%s' completed` | Successful execution of a single hook. |
+| `shutdownHookTimedOut(String name)` | `Shutdown hook '%s' timed out` | Hook exceeded its allotted execution duration. |
+| `shutdownHookFailed(String name, String errorMessage)` | `Shutdown hook '%s' failed: %s` | Hook threw an exception or error during execution. |
+| `shutdownHookInterrupted(String name)` | `Shutdown hook '%s' was interrupted` | Thread running the hook received an interruption signal. |
+| `unexpectedExceptionInShutdownHook(String name, String errorMessage)` | `Unexpected exception in shutdown hook '%s': %s` | Unexpected exception encountered during execution. |
+| `shutdownHookExecutorNotTerminatedInTime()` | `Shutdown hook executor did not terminate in time` | Overall thread pool executor shutdown timeout expired. |
+
+---
+
+### 9. General Diagnostic Messages
 
 #### `illegalArgument`
 ```java

@@ -23,8 +23,6 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullResultFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullSuppliedFrom;
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 
-// TODO: Namen der Methoden überarbeiten. Gibt Probleme bei statischem Import.
-
 /**
  * <div>
  *     <p>

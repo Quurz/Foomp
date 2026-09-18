@@ -102,6 +102,35 @@ public class AccountService {
     }
     ```
   </TabItem>
+  <TabItem label="Semantic Versioning">
+    ```java
+    import static org.quurz.foomp.base.localisation.BaseMessages.*;
+
+    public void validateVersionComponents(int major, int minor, int patch) {
+        if (major < 0) {
+            throw new IllegalArgumentException(majorVersionNegative());
+        }
+        if (minor < 0) {
+            throw new IllegalArgumentException(minorVersionNegative());
+        }
+        if (patch < 0) {
+            throw new IllegalArgumentException(patchVersionNegative());
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Lifecycle & Shutdown Hooks">
+    ```java
+    import java.time.Duration;
+    import static org.quurz.foomp.base.localisation.BaseMessages.*;
+
+    public void logHookExecution(String hookName, int priority, Duration timeout) {
+        System.out.println(executingShutdownHook(hookName, priority, timeout));
+        // On completion:
+        System.out.println(shutdownHookCompleted(hookName));
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ---
@@ -144,3 +173,5 @@ public class CustomBox<T> {
 | **Negative Number** | `IllegalArgumentException` | `negativeValue("offset")` | `Argument 'offset' must not be negative` |
 | **Invalid Directory** | `IllegalArgumentException` | `notADirectory(path)` | `'/etc/app' is not a directory` |
 | **Duplicate Item** | `IllegalStateException` | `duplicateElement("admin")` | `Element 'admin' already exists` |
+| **Invalid SemVer** | `IllegalArgumentException` | `invalidSemVerFormat("1.0")` | `Invalid SemVer format: '1.0'` |
+| **Hook Lifecycle** | Diagnostic / Logging | `allShutdownHooksCompleted()` | `All shutdown hooks completed` |

@@ -11,6 +11,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 ## Key Features
 
+* **Numeric & Duration Validation**: Guard primitive integers and `java.time.Duration` instances against negative or non-positive values (`requireNonNegativeInt`, `requirePositiveInt`, `requireNonNegativeDuration`, `requirePositiveDuration`).
 * **Collection & Map Assertions**: Enforce non-empty collections or maps (`requireNonEmpty`) and ensure no elements/entries are null (`requireNonNullElementsInCollection`, `requireNonNullElementsInArray`).
 * **Function Wrapping**: Safeguard function execution against returning `null` values via `requireNonNullResult1` and `requireNonNullResult2`.
 * **Set Verification**: Check subset and proper subset relationships (`isSubSet`, `requireSubSet`, `isProperSubSet`, `requireProperSubSet`).
@@ -121,11 +122,47 @@ public class PathGuardExample {
 
 ---
 
+### 4. Numeric & Duration Preconditions
+
+```java title="NumericGuardExample.java"
+import org.quurz.foomp.base.util.Util;
+
+import java.time.Duration;
+
+public class NumericGuardExample {
+    public static void main(String[] args) {
+        int timeoutSeconds = 30;
+        Duration leaseTime = Duration.ofMinutes(5);
+
+        // Require strictly positive integers (> 0)
+        int validTimeout = Util.requirePositiveInt(
+                timeoutSeconds,
+                () -> new IllegalArgumentException("Timeout must be strictly positive")
+        );
+
+        // Require non-negative integers (>= 0)
+        int retryCount = Util.requireNonNegativeInt(
+                0,
+                () -> new IllegalArgumentException("Retry count cannot be negative")
+        );
+
+        // Require positive durations (> Duration.ZERO)
+        Duration validLease = Util.requirePositiveDuration(
+                leaseTime,
+                () -> new IllegalArgumentException("Lease duration must be positive")
+        );
+    }
+}
+```
+
+---
+
 ## Best Practices
 
 :::tip[Fluent Chaining]
-Validation methods like `requireNonEmpty`, `requireSubSet`, and `requireRegularFile` return the validated argument on success, enabling clean fluent assertions in constructor or factory initializers:
+Validation methods like `requireNonEmpty`, `requireSubSet`, `requireRegularFile`, `requireNonNegativeInt`, and `requirePositiveDuration` return the validated argument on success, enabling clean fluent assertions in constructor or factory initializers:
 ```java
 this.entries = Util.requireNonEmpty(entries, () -> new IllegalArgumentException("entries empty"));
+this.timeout = Util.requirePositiveDuration(timeout, () -> new IllegalArgumentException("timeout non-positive"));
 ```
 :::
