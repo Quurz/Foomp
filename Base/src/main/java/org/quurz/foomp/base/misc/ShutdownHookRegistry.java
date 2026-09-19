@@ -29,8 +29,8 @@ import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookRegistr
 import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookRegistryInstalled;
 import static org.quurz.foomp.base.localisation.BaseMessages.shutdownHookTimedOut;
 import static org.quurz.foomp.base.localisation.BaseMessages.unexpectedExceptionInShutdownHook;
-import static org.quurz.foomp.base.util.Util.requireNonNegativeInt;
-import static org.quurz.foomp.base.util.Util.requirePositiveDuration;
+import static org.quurz.foomp.base.util.Util.requireNonNegative;
+import static org.quurz.foomp.base.util.Util.requirePositive;
 
 /**
  * <div>
@@ -93,12 +93,12 @@ public class ShutdownHookRegistry {
                                             final @NonNull Duration timeout) {
         return new ShutdownHook(
             Objects.requireNonNull(name, nullValue("name")),
-            requireNonNegativeInt(
+            requireNonNegative(
                 priority,
                 () -> new IllegalArgumentException(negativeValue("priority"))
             ),
             Objects.requireNonNull(action, nullValue("action")),
-            requirePositiveDuration(
+            requirePositive(
                 Objects.requireNonNull(timeout, nullValue("timeout")),
                 () -> new IllegalArgumentException(nonPositiveValue("timeout"))
             )

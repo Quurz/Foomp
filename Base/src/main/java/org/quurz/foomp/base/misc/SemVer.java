@@ -17,7 +17,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.minorVersionNegativ
 import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.localisation.BaseMessages.patchVersionNegative;
 import static org.quurz.foomp.base.util.Maybe.none;
-import static org.quurz.foomp.base.util.Util.requireNonNegativeInt;
+import static org.quurz.foomp.base.util.Util.requireNonNegative;
 
 /**
  * <div>
@@ -157,7 +157,7 @@ public class SemVer
          */
         public SemVerBuilder major(final int major) {
             this.major
-                = requireNonNegativeInt(
+                = requireNonNegative(
                     major,
                     () -> new IllegalArgumentException(majorVersionNegative())
                 );
@@ -179,7 +179,7 @@ public class SemVer
          */
         public SemVerBuilder minor(final int minor) {
             this.minor
-                = requireNonNegativeInt(
+                = requireNonNegative(
                     minor,
                     () -> new IllegalArgumentException(minorVersionNegative())
                 );
@@ -201,7 +201,7 @@ public class SemVer
          */
         public SemVerBuilder patch(final int patch) {
             this.patch
-                = requireNonNegativeInt(
+                = requireNonNegative(
                     patch,
                     () -> new IllegalArgumentException(patchVersionNegative())
                 );
@@ -405,19 +405,19 @@ public class SemVer
                   final Maybe<String> preRelease,
                   final Maybe<String> buildMetadata) {
         this.major
-            = requireNonNegativeInt(
+            = requireNonNegative(
                 major,
                 () -> new IllegalArgumentException(majorVersionNegative())
         );
 
         this.minor
-            = requireNonNegativeInt(
+            = requireNonNegative(
                 minor,
                 () -> new IllegalArgumentException(minorVersionNegative())
             );
 
         this.patch
-            =  requireNonNegativeInt(
+            =  requireNonNegative(
                 patch,
                 () -> new IllegalArgumentException(patchVersionNegative())
             );
