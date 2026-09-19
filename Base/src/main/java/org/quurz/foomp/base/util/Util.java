@@ -62,12 +62,76 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <E extends Exception> int requireNonNegativeInt(final int value,
-                                                                  final @NonNull Supplier<E> exceptionSupplier)
+    public static <E extends Exception> int requireNonNegative(final int value,
+                                                               final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
 
         if (value >= 0) {
+            return value;
+        } else {
+            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
+        }
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given integer {@code value} is non-negative (greater than or equal to 0).
+     *     </p>
+     *     <p>
+     *         Returns the given value if it is non-negative; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param value              the integer value to check
+     * @param exceptionSupplier  supplies the exception to throw when the value is negative; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same integer value
+     * @throws NullPointerException if {@code exceptionSupplier} is {@code null}, or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code value} is negative
+     *
+     * @deprecated Use {@link #requireNonNegative(int, Supplier)} instead.
+     * @since 1.0.0
+     */
+    @Deprecated
+    public static <E extends Exception> int requireNonNegativeInt(final int value,
+                                                                  final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        return requireNonNegative(value, exceptionSupplier);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given integer {@code value} is strictly positive (greater than 0).
+     *     </p>
+     *     <p>
+     *         Returns the given value if it is positive; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param value              the integer value to check
+     * @param exceptionSupplier  supplies the exception to throw when the value is non-positive; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same integer value
+     * @throws NullPointerException if {@code exceptionSupplier} is {@code null}, or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code value} is non-positive
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> int requirePositive(final int value,
+                                                            final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
+
+        if (value > 0) {
             return value;
         } else {
             throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
@@ -94,15 +158,47 @@ public final class Util {
      * @throws NullPointerException if {@code exceptionSupplier} is {@code null}, or if {@code exceptionSupplier.get()} returns {@code null}
      * @throws E                    if {@code value} is non-positive
      *
+     * @deprecated Use {@link #requirePositive(int, Supplier)} instead.
      * @since 1.0.0
      */
+    @Deprecated
     public static <E extends Exception> int requirePositiveInt(final int value,
                                                                final @NonNull Supplier<E> exceptionSupplier)
             throws E {
+        return requirePositive(value, exceptionSupplier);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given {@code duration} is non-negative (greater than or equal to {@link Duration#ZERO}).
+     *     </p>
+     *     <p>
+     *         Returns the same duration instance if it is non-negative; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param duration           the duration to check; must not be {@code null}
+     * @param exceptionSupplier  supplies the exception to throw when the duration is negative; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same duration instance (never {@code null})
+     * @throws NullPointerException if {@code duration} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code duration} is negative
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> @NonNull Duration requireNonNegative(final @NonNull Duration duration,
+                                                                             final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        Objects.requireNonNull(duration, nullValue("duration"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
 
-        if (value > 0) {
-            return value;
+        if (duration.compareTo(Duration.ZERO) >= 0) {
+            return duration;
         } else {
             throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
         }
@@ -129,15 +225,46 @@ public final class Util {
      *                              or if {@code exceptionSupplier.get()} returns {@code null}
      * @throws E                    if {@code duration} is negative
      *
+     * @deprecated Use {@link #requireNonNegative(Duration, Supplier)} instead.
      * @since 1.0.0
      */
+    @Deprecated
     public static <E extends Exception> @NonNull Duration requireNonNegativeDuration(final @NonNull Duration duration,
                                                                                      final @NonNull Supplier<E> exceptionSupplier)
+            throws E {
+        return requireNonNegative(duration, exceptionSupplier);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that the given {@code duration} is strictly positive (greater than {@link Duration#ZERO}).
+     *     </p>
+     *     <p>
+     *         Returns the same duration instance if it is positive; otherwise throws the exception supplied by {@code exceptionSupplier}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionSupplier.get()} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param duration           the duration to check; must not be {@code null}
+     * @param exceptionSupplier  supplies the exception to throw when the duration is zero or negative; must not be {@code null}
+     * @param <E>                the exception type to be thrown
+     * @return the same duration instance (never {@code null})
+     * @throws NullPointerException if {@code duration} or {@code exceptionSupplier} is {@code null},
+     *                              or if {@code exceptionSupplier.get()} returns {@code null}
+     * @throws E                    if {@code duration} is non-positive
+     *
+     * @since 1.0.0
+     */
+    public static <E extends Exception> @NonNull Duration requirePositive(final @NonNull Duration duration,
+                                                                          final @NonNull Supplier<E> exceptionSupplier)
             throws E {
         Objects.requireNonNull(duration, nullValue("duration"));
         Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
 
-        if (duration.compareTo(Duration.ZERO) >= 0) {
+        if (duration.compareTo(Duration.ZERO) > 0) {
             return duration;
         } else {
             throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
@@ -165,19 +292,14 @@ public final class Util {
      *                              or if {@code exceptionSupplier.get()} returns {@code null}
      * @throws E                    if {@code duration} is non-positive
      *
+     * @deprecated Use {@link #requirePositive(Duration, Supplier)} instead.
      * @since 1.0.0
      */
+    @Deprecated
     public static <E extends Exception> @NonNull Duration requirePositiveDuration(final @NonNull Duration duration,
                                                                                   final @NonNull Supplier<E> exceptionSupplier)
             throws E {
-        Objects.requireNonNull(duration, nullValue("duration"));
-        Objects.requireNonNull(exceptionSupplier, nullValue("exceptionSupplier"));
-
-        if (duration.compareTo(Duration.ZERO) > 0) {
-            return duration;
-        } else {
-            throw Objects.requireNonNull(exceptionSupplier.get(), nullSuppliedFrom("exceptionSupplier"));
-        }
+        return requirePositive(duration, exceptionSupplier);
     }
 
     /**
@@ -284,8 +406,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElementsInCollection(final @NonNull C collection,
-                                                                                                         final @NonNull Fun<Integer, E> exceptionConstructor)
+    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElements(final @NonNull C collection,
+                                                                                            final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
@@ -327,9 +449,9 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElementsInCollection(final @NonNull C collection,
-                                                                                                         final @NonNull Receiver<A> andThen,
-                                                                                                         final @NonNull Fun<Integer, E> exceptionConstructor)
+    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElements(final @NonNull C collection,
+                                                                                             final @NonNull Receiver<A> andThen,
+                                                                                             final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(collection, nullValue("collection"));
         Objects.requireNonNull(andThen, nullValue("andThen"));
@@ -370,8 +492,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends Exception> A[] requireNonNullElementsInArray(final @NonNull A[] array,
-                                                                             final @NonNull Fun<Integer, E> exceptionConstructor)
+    public static <A, E extends Exception> A[] requireNonNullElements(final @NonNull A[] array,
+                                                                      final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(array, nullValue("array"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
@@ -405,9 +527,9 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <A, E extends Exception> void requireNonNullElementsInArray(final @NonNull A[] array,
-                                                                              final @NonNull Receiver<A> andThen,
-                                                                              final @NonNull Fun<Integer, E> exceptionConstructor)
+    public static <A, E extends Exception> void requireNonNullElements(final @NonNull A[] array,
+                                                                       final @NonNull Receiver<A> andThen,
+                                                                       final @NonNull Fun<Integer, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(array, nullValue("array"));
         Objects.requireNonNull(andThen, nullValue("andThen"));
@@ -422,6 +544,137 @@ public final class Util {
                 throw Objects.requireNonNull(exceptionConstructor.apply(index), nullResultFrom("exceptionConstructor"));
             }
         }
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that all elements in the given collection are non-{@code null}.
+     *     </p>
+     *     <p>
+     *         Returns the same collection instance if all elements are non-{@code null};
+     *         otherwise throws an exception created by {@code exceptionConstructor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param collection           the collection to check; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <A>                  element type
+     * @param <C>                  concrete collection type
+     * @param <E>                  the exception type to be thrown
+     * @return the same collection instance (for fluent usage)
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if a {@code null} element is found
+     *
+     * @deprecated Use {@link #requireNonNullElements(Collection, Fun)} instead.
+     * @since 1.0.0
+     */
+    @Deprecated
+    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElementsInCollection(final @NonNull C collection,
+                                                                                                         final @NonNull Fun<Integer, E> exceptionConstructor)
+            throws E {
+        return requireNonNullElements(collection, exceptionConstructor);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that all elements in the given collection are non-{@code null} and passes each valid element
+     *         to the provided {@code andThen} receiver during iteration.
+     *     </p>
+     *     <p>
+     *         Returns the same collection instance if all elements are non-{@code null};
+     *         otherwise throws an exception created by {@code exceptionConstructor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param collection           the collection to check; must not be {@code null}
+     * @param andThen              receiver to process each non-{@code null} element; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <A>                  element type
+     * @param <C>                  concrete collection type
+     * @param <E>                  the exception type to be thrown
+     * @return the same collection instance (for fluent usage)
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if a {@code null} element is found
+     *
+     * @deprecated Use {@link #requireNonNullElements(Collection, Receiver, Fun)} instead.
+     * @since 1.0.0
+     */
+    @Deprecated
+    public static <A, C extends Collection<A>, E extends Exception> C requireNonNullElementsInCollection(final @NonNull C collection,
+                                                                                                         final @NonNull Receiver<A> andThen,
+                                                                                                         final @NonNull Fun<Integer, E> exceptionConstructor)
+            throws E {
+        return requireNonNullElements(collection, andThen, exceptionConstructor);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that all elements in the given array are non-{@code null}.
+     *     </p>
+     *     <p>
+     *         Returns the same array instance if all elements are non-{@code null};
+     *         otherwise throws an exception created by {@code exceptionConstructor}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param array                the array to check; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <A>                  element type
+     * @param <E>                  the exception type to be thrown
+     * @return the same array instance (for fluent usage)
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if a {@code null} element is found
+     *
+     * @deprecated Use {@link #requireNonNullElements(Object[], Fun)} instead.
+     * @since 1.0.0
+     */
+    @Deprecated
+    public static <A, E extends Exception> A[] requireNonNullElementsInArray(final @NonNull A[] array,
+                                                                             final @NonNull Fun<Integer, E> exceptionConstructor)
+            throws E {
+        return requireNonNullElements(array, exceptionConstructor);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Requires that all elements in the given array are non-{@code null} and passes each valid element
+     *         to the provided {@code andThen} receiver during iteration.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(index)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param array                the array to check; must not be {@code null}
+     * @param andThen              receiver to process each non-{@code null} element; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <A>                  element type
+     * @param <E>                  the exception type to be thrown
+     * @throws NullPointerException if any argument is {@code null} or the constructor returns {@code null}
+     * @throws E                    if a {@code null} element is found
+     *
+     * @deprecated Use {@link #requireNonNullElements(Object[], Receiver, Fun)} instead.
+     * @since 1.0.0
+     */
+    @Deprecated
+    public static <A, E extends Exception> void requireNonNullElementsInArray(final @NonNull A[] array,
+                                                                              final @NonNull Receiver<A> andThen,
+                                                                              final @NonNull Fun<Integer, E> exceptionConstructor)
+            throws E {
+        requireNonNullElements(array, andThen, exceptionConstructor);
     }
 
     /**
@@ -449,8 +702,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <X, Y, E extends RuntimeException> Fun<X, Y> requireNonNullResult1(final @NonNull Function<X, Y> function,
-                                                                                     final @NonNull Fun<X, E> exceptionConstructor)
+    public static <X, Y, E extends RuntimeException> Fun<X, Y> requireNonNullResult(final @NonNull Function<X, Y> function,
+                                                                                    final @NonNull Fun<X, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(function, nullValue("function"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
@@ -490,8 +743,8 @@ public final class Util {
      *
      * @since 1.0.0
      */
-    public static <X1, X2, Y, E extends RuntimeException> Fun2<X1, X2, Y> requireNonNullResult2(final @NonNull BiFunction<X1, X2, Y> function,
-                                                                                                final @NonNull Fun2<X1, X2, E> exceptionConstructor)
+    public static <X1, X2, Y, E extends RuntimeException> Fun2<X1, X2, Y> requireNonNullResult(final @NonNull BiFunction<X1, X2, Y> function,
+                                                                                               final @NonNull Fun2<X1, X2, E> exceptionConstructor)
             throws E {
         Objects.requireNonNull(function, nullValue("function"));
         Objects.requireNonNull(exceptionConstructor, nullValue("exceptionConstructor"));
@@ -504,6 +757,73 @@ public final class Util {
             }
             return y;
         };
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Wraps a unary function and enforces a non-{@code null} result.
+     *     </p>
+     *     <p>
+     *         The returned {@code Fun} throws a {@link NullPointerException} if its input argument is
+     *         {@code null}, and an exception created by {@code exceptionConstructor} if the wrapped
+     *         function returns {@code null}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(x)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param function             function to wrap; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <X>                  input type
+     * @param <Y>                  result type
+     * @param <E>                  exception type
+     * @return a {@code Fun} that rejects {@code null} arguments and {@code null} results
+     * @throws NullPointerException if {@code function} or {@code exceptionConstructor} is {@code null}
+     *
+     * @deprecated Use {@link #requireNonNullResult(Function, Fun)} instead.
+     * @since 1.0.0
+     */
+    @Deprecated
+    public static <X, Y, E extends RuntimeException> Fun<X, Y> requireNonNullResult1(final @NonNull Function<X, Y> function,
+                                                                                     final @NonNull Fun<X, E> exceptionConstructor)
+            throws E {
+        return requireNonNullResult(function, exceptionConstructor);
+    }
+
+    /**
+     * <div>
+     *     <p>
+     *         Wraps a binary function and enforces a non-{@code null} result.
+     *     </p>
+     *     <p>
+     *         The returned {@code Fun2} throws a {@link NullPointerException} if any of its input
+     *         arguments is {@code null}, and an exception created by {@code exceptionConstructor}
+     *         if the wrapped function returns {@code null}.
+     *     </p>
+     *     <p>
+     *         Contract: {@code exceptionConstructor.apply(x1, x2)} must not return {@code null}.
+     *     </p>
+     * </div>
+     *
+     * @param function             function to wrap; must not be {@code null}
+     * @param exceptionConstructor builds the exception to throw; must not be {@code null}
+     * @param <X1>                 first argument type
+     * @param <X2>                 second argument type
+     * @param <Y>                  result type
+     * @param <E>                  exception type
+     * @return a {@code Fun2} that rejects {@code null} arguments and {@code null} results
+     * @throws NullPointerException if {@code function} or {@code exceptionConstructor} is {@code null}
+     *
+     * @deprecated Use {@link #requireNonNullResult(BiFunction, Fun2)} instead.
+     * @since 1.0.0
+     */
+    @Deprecated
+    public static <X1, X2, Y, E extends RuntimeException> Fun2<X1, X2, Y> requireNonNullResult2(final @NonNull BiFunction<X1, X2, Y> function,
+                                                                                                final @NonNull Fun2<X1, X2, E> exceptionConstructor)
+            throws E {
+        return requireNonNullResult(function, exceptionConstructor);
     }
 
     /**

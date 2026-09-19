@@ -34,8 +34,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Maybe.none;
 import static org.quurz.foomp.base.util.Maybe.some;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
-import static org.quurz.foomp.base.util.Util.requireNonNullElementsInArray;
-import static org.quurz.foomp.base.util.Util.requireNonNullElementsInCollection;
+import static org.quurz.foomp.base.util.Util.requireNonNullElements;
 
 /**
  * <div>
@@ -148,7 +147,7 @@ public class Sequence<A>
         if (elements.length > 0) {
             final Segment<A> segment
                 = new Segment<>();
-            requireNonNullElementsInArray(
+            requireNonNullElements(
                 elements,
                 segment::appendNoCopy,
                 index -> new NullPointerException(nullElementInAt("elements", index))
@@ -183,7 +182,7 @@ public class Sequence<A>
         if (!collection.isEmpty()) {
             final Segment<A> segment
                 = new Segment<>();
-            requireNonNullElementsInCollection(
+            requireNonNullElements(
                 collection,
                 segment::appendNoCopy,
                 index -> new NullPointerException(nullElementInAt("collection", index))

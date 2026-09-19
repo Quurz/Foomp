@@ -33,8 +33,7 @@ import static org.quurz.foomp.base.localisation.BaseMessages.nullValue;
 import static org.quurz.foomp.base.util.Maybe.none;
 import static org.quurz.foomp.base.util.Maybe.some;
 import static org.quurz.foomp.base.util.Tuple2.tuple2;
-import static org.quurz.foomp.base.util.Util.requireNonNullElementsInArray;
-import static org.quurz.foomp.base.util.Util.requireNonNullElementsInCollection;
+import static org.quurz.foomp.base.util.Util.requireNonNullElements;
 
 /**
  * <div>
@@ -155,7 +154,7 @@ public class SeqList<A>
         final SeqList<A> newSeqList;
 
         if (elements.length > 0) {
-            requireNonNullElementsInArray(
+            requireNonNullElements(
                 elements,
                 temp::add,
                 index -> new NullPointerException(nullElementInAt("elements", index))
@@ -193,7 +192,7 @@ public class SeqList<A>
         final SeqList<A> newSeqList;
 
         if (!collection.isEmpty()) {
-            requireNonNullElementsInCollection(
+            requireNonNullElements(
                 collection,
                 temp::add,
                 index -> new NullPointerException(nullElementInAt("collection", index))

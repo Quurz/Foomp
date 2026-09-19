@@ -25,10 +25,10 @@ public final class Util
 
 | Return Type | Method | Description |
 | :--- | :--- | :--- |
-| `static <E extends Exception> int` | `requireNonNegativeInt(int value, @NonNull Supplier<E> exceptionSupplier)` | Ensures `value >= 0`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `value`. |
-| `static <E extends Exception> int` | `requirePositiveInt(int value, @NonNull Supplier<E> exceptionSupplier)` | Ensures `value > 0`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `value`. |
-| `static <E extends Exception> @NonNull Duration` | `requireNonNegativeDuration(@NonNull Duration duration, @NonNull Supplier<E> exceptionSupplier)` | Ensures `duration >= Duration.ZERO`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `duration`. |
-| `static <E extends Exception> @NonNull Duration` | `requirePositiveDuration(@NonNull Duration duration, @NonNull Supplier<E> exceptionSupplier)` | Ensures `duration > Duration.ZERO`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `duration`. |
+| `static <E extends Exception> int` | `requireNonNegative(int value, @NonNull Supplier<E> exceptionSupplier)` | Ensures `value >= 0`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `value`. |
+| `static <E extends Exception> int` | `requirePositive(int value, @NonNull Supplier<E> exceptionSupplier)` | Ensures `value > 0`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `value`. |
+| `static <E extends Exception> @NonNull Duration` | `requireNonNegative(@NonNull Duration duration, @NonNull Supplier<E> exceptionSupplier)` | Ensures `duration >= Duration.ZERO`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `duration`. |
+| `static <E extends Exception> @NonNull Duration` | `requirePositive(@NonNull Duration duration, @NonNull Supplier<E> exceptionSupplier)` | Ensures `duration > Duration.ZERO`; throws the exception supplied by `exceptionSupplier` otherwise. Returns `duration`. |
 
 ### Collection & Map Validation
 
@@ -36,17 +36,17 @@ public final class Util
 | :--- | :--- | :--- |
 | `static <C extends Collection<A>, A, E extends Exception> C` | `requireNonEmpty(@NonNull C collection, @NonNull Supplier<E> exceptionSupplier)` | Ensures `collection` is not empty; throws the exception supplied by `exceptionSupplier` otherwise. Returns `collection` for fluent chaining. |
 | `static <M extends Map<K, V>, K, V, E extends Exception> M` | `requireNonEmpty(@NonNull M map, @NonNull Supplier<E> exceptionSupplier)` | Ensures `map` is not empty; throws the exception supplied by `exceptionSupplier` otherwise. Returns `map` for fluent chaining. |
-| `static <A, C extends Collection<A>, E extends Exception> C` | `requireNonNullElementsInCollection(@NonNull C collection, @NonNull Fun<Integer, E> exceptionConstructor)` | Ensures all elements in `collection` are non-null; throws the exception constructed with the failing index otherwise. |
-| `static <A, C extends Collection<A>, E extends Exception> C` | `requireNonNullElementsInCollection(@NonNull C collection, @NonNull Receiver<A> andThen, @NonNull Fun<Integer, E> exceptionConstructor)` | Validates that all elements are non-null and passes each element to `andThen` during iteration. |
-| `static <A, E extends Exception> A[]` | `requireNonNullElementsInArray(@NonNull A[] array, @NonNull Fun<Integer, E> exceptionConstructor)` | Ensures all elements in `array` are non-null; throws the exception constructed with the failing index otherwise. |
-| `static <A, E extends Exception> void` | `requireNonNullElementsInArray(@NonNull A[] array, @NonNull Receiver<A> andThen, @NonNull Fun<Integer, E> exceptionConstructor)` | Validates non-null array elements and executes `andThen` for each element. |
+| `static <A, C extends Collection<A>, E extends Exception> C` | `requireNonNullElements(@NonNull C collection, @NonNull Fun<Integer, E> exceptionConstructor)` | Ensures all elements in `collection` are non-null; throws the exception constructed with the failing index otherwise. |
+| `static <A, C extends Collection<A>, E extends Exception> C` | `requireNonNullElements(@NonNull C collection, @NonNull Receiver<A> andThen, @NonNull Fun<Integer, E> exceptionConstructor)` | Validates that all elements are non-null and passes each element to `andThen` during iteration. |
+| `static <A, E extends Exception> A[]` | `requireNonNullElements(@NonNull A[] array, @NonNull Fun<Integer, E> exceptionConstructor)` | Ensures all elements in `array` are non-null; throws the exception constructed with the failing index otherwise. |
+| `static <A, E extends Exception> void` | `requireNonNullElements(@NonNull A[] array, @NonNull Receiver<A> andThen, @NonNull Fun<Integer, E> exceptionConstructor)` | Validates non-null array elements and executes `andThen` for each element. |
 
 ### Function Result Validation
 
 | Return Type | Method | Description |
 | :--- | :--- | :--- |
-| `static <X, Y, E extends RuntimeException> Fun<X, Y>` | `requireNonNullResult1(@NonNull Function<X, Y> function, @NonNull Fun<X, E> exceptionConstructor)` | Wraps a unary function to enforce non-null arguments and non-null returned results. |
-| `static <X1, X2, Y, E extends RuntimeException> Fun2<X1, X2, Y>` | `requireNonNullResult2(@NonNull BiFunction<X1, X2, Y> function, @NonNull Fun2<X1, X2, E> exceptionConstructor)` | Wraps a binary function to enforce non-null arguments and non-null returned results. |
+| `static <X, Y, E extends RuntimeException> Fun<X, Y>` | `requireNonNullResult(@NonNull Function<X, Y> function, @NonNull Fun<X, E> exceptionConstructor)` | Wraps a unary function to enforce non-null arguments and non-null returned results. |
+| `static <X1, X2, Y, E extends RuntimeException> Fun2<X1, X2, Y>` | `requireNonNullResult(@NonNull BiFunction<X1, X2, Y> function, @NonNull Fun2<X1, X2, E> exceptionConstructor)` | Wraps a binary function to enforce non-null arguments and non-null returned results. |
 
 ### Set Relationships
 
